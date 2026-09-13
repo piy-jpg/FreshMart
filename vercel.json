@@ -1,6 +1,7 @@
 {
   "version": 2,
   "cleanUrls": true,
+  "outputDirectory": ".",
   "headers": [
     {
       "source": "/(.*)",
@@ -23,7 +24,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.js"
+      "destination": "/api"
     },
     {
       "source": "/owner",
@@ -61,5 +62,10 @@
       "source": "/vegetables",
       "destination": "/vegetables.html"
     }
-  ]
+  ],
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 15
+    }
+  }
 }
