@@ -69,3 +69,22 @@ FreshMart comes pre-configured for one-click deployment on [Vercel](https://verc
   - Build Command: `npm run build`
   - Output Directory: `dist`
 
+---
+
+## Google OAuth 2.0 Origin Configuration (Fixing Error 400: origin_mismatch)
+
+When accessing Google Sign-In on the live Vercel domain, Google requires the production URL to be registered under Authorized JavaScript Origins:
+
+1. Open [Google Cloud Console Credentials](https://console.cloud.google.com/apis/credentials).
+2. Select your project that owns Client ID `880806707459-ci9gcf8sni1h6u0gmd1qtp96mg2u9l9g.apps.googleusercontent.com`.
+3. Click on the Client ID under **OAuth 2.0 Client IDs**.
+4. Under **Authorized JavaScript origins**, click **+ ADD URI** and add:
+   - `https://freshmart-ten-vert.vercel.app`
+   - `https://freshmart-ekh27cnj8-piy-jpgs-projects.vercel.app`
+   - *(Optional local testing)* `http://localhost:8080`, `http://localhost:5173`
+   *(Important: Ensure there is **NO** trailing slash `/`)*
+5. Under **Authorized redirect URIs** (optional), add:
+   - `https://freshmart-ten-vert.vercel.app`
+6. Click **Save**. Allow 2-5 minutes for Google's global OAuth edge caches to update.
+
+
