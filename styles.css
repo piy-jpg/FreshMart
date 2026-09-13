@@ -993,3 +993,37 @@ input[type=range]::-webkit-slider-thumb {
   filter: brightness(0.9) contrast(1.05);
 }
 
+
+/* ========================================================
+   MOBILE NAVBAR & VIEWPORT PRECISION ENHANCEMENTS
+   ======================================================== */
+@media (max-width: 640px) {
+  #sticky-header {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: clip;
+  }
+  
+  .notification-popover {
+    max-width: calc(100vw - 20px) !important;
+    width: min(340px, calc(100vw - 20px)) !important;
+    right: 10px !important;
+    left: auto !important;
+  }
+  
+  .user-profile-popover {
+    max-width: calc(100vw - 20px) !important;
+    width: min(340px, calc(100vw - 20px)) !important;
+    right: 10px !important;
+    left: auto !important;
+  }
+
+  .cart-cta-button {
+    min-width: unset !important;
+  }
+
+  .header-location-subline-mobile {
+    max-width: 140px;
+    display: inline-block;
+  }
+}

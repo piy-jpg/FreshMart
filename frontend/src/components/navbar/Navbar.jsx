@@ -18,7 +18,7 @@ export function Navbar({ onOpenCart, onOpenLocation }) {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link to="/orders" className="text-xs font-bold text-stone-700 hover:text-emerald-700 px-3 py-2 rounded-xl transition">
+          <Link to="/orders" className="hidden sm:inline-flex text-xs font-bold text-stone-700 hover:text-emerald-700 px-3 py-2 rounded-xl transition">
             My Orders
           </Link>
           {user ? (
