@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout & Fast Delivery | FreshMart Farm to Kitchen</title>
+  <meta name="description" content="Secure checkout for your fresh organic farm produce with 90-minute express delivery across Bengaluru." />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            emerald: {
+              50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7',
+              400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857',
+              800: '#065f46', 900: '#064e3b', 950: '#022c22',
+            },
+            amber: {
+              50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 400: '#fbbf24',
+              500: '#f59e0b', 600: '#d97706', 700: '#b45309', 900: '#78350f',
+            }
+          },
+          fontFamily: {
+            heading: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-stone-50 text-stone-800 antialiased min-h-screen selection:bg-emerald-200 selection:text-emerald-900 font-sans flex flex-col">
+
+  <!-- ================= TOP CHECKOUT HEADER ================= -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-emerald-950/10 shadow-xs">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="index.html" class="flex items-center gap-2.5 group" title="Return to Store">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 flex items-center justify-center shadow-sm shadow-emerald-700/25 group-hover:scale-105 transition-all">
+          <svg class="w-5 h-5 text-white transform group-hover:rotate-6 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+          </svg>
+        </div>
+        <div class="leading-none">
+          <div class="font-heading font-black text-xl tracking-tight text-emerald-950">
+            Fresh<span class="text-emerald-600">Mart</span>
+          </div>
+          <span class="text-[8.5px] tracking-[0.2em] uppercase font-extrabold text-emerald-700 block mt-0.5">
+            Farm to Kitchen
+          </span>
+        </div>
+      </a>
+
+      <!-- Checkout Progress Indicator -->
+      <div class="hidden md:flex items-center gap-2 text-xs font-bold text-stone-500">
+        <span class="text-emerald-700 flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-[11px] font-black">1</span> Address</span>
+        <span class="text-stone-300">───</span>
+        <span class="text-emerald-700 flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-[11px] font-black">2</span> Delivery</span>
+        <span class="text-stone-300">───</span>
+        <span class="text-emerald-700 flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-[11px] font-black">3</span> Payment</span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Secure Trust Chip -->
+        <div class="hidden sm:flex items-center gap-2 text-xs font-semibold text-emerald-900 bg-emerald-50 border border-emerald-200/80 px-3 py-1.5 rounded-full">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-700"></i>
+          <span>256-Bit SSL</span>
+        </div>
+
+        <!-- Account Button -->
+        <button 
+          id="nav-account-btn" 
+          onclick="handleNavAccountClick()" 
+          class="nav-account-btn flex items-center gap-2 py-1.5 px-3 rounded-2xl bg-stone-100/80 hover:bg-emerald-50 text-stone-700 hover:text-emerald-800 border border-stone-200/80 transition-all text-xs font-bold cursor-pointer shrink-0"
+          title="Account"
+        >
+          <span id="nav-account-avatar" class="nav-account-avatar w-6 h-6 rounded-xl bg-white border border-stone-200/80 flex items-center justify-center text-xs text-emerald-800 shadow-2xs overflow-hidden">👤</span>
+          <span id="nav-account-label" class="nav-account-label font-bold">Account</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= MAIN CHECKOUT CONTENT ================= -->
+  <main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+    
+    <!-- Active Checkout Screen -->
+    <div id="checkout-container" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- LEFT COLUMN: 3 STEPS (Address, Delivery Option, Payment) -->
+      <div class="lg:col-span-7 space-y-6">
+
+        <!-- ================= STEP 1: DELIVERY ADDRESS ================= -->
+        <section class="bg-white rounded-3xl p-6 sm:p-7 border border-emerald-950/10 shadow-xs relative overflow-hidden">
+          <div class="flex items-center justify-between pb-4 border-b border-stone-100 mb-5">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-xl bg-emerald-800 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                1
+              </div>
+              <div>
+                <h2 class="text-base sm:text-lg font-bold text-emerald-950">Delivery Address</h2>
+                <p class="text-xs text-stone-500">Select where you want your fresh farm produce delivered</p>
+              </div>
+            </div>
+            <button onclick="openNewAddressModal()" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 hover:underline">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i> Add New Address
+            </button>
+          </div>
+
+          <!-- Saved Addresses List -->
+          <div id="addresses-list" class="space-y-3">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <!-- 90-Min Delivery Estimate Banner -->
+          <div class="mt-4 p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200/80 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">⚡</span>
+              <div>
+                <span class="text-xs font-bold text-emerald-950 block leading-tight">Express 90-Min Delivery Available</span>
+                <span class="text-[11px] text-emerald-700" id="address-hub-info">Nearest Hub: Indiranagar Central Hub (2.1 km)</span>
+              </div>
+            </div>
+            <span class="text-[10px] uppercase tracking-wider bg-emerald-200 text-emerald-900 font-black px-2 py-0.5 rounded-full">
+              LIVE
+            </span>
+          </div>
+        </section>
+
+        <!-- ================= STEP 2: DELIVERY OPTION & AVAILABLE SLOTS ================= -->
+        <section class="bg-white rounded-3xl p-6 sm:p-7 border border-emerald-950/10 shadow-xs">
+          <div class="flex items-center justify-between pb-4 border-b border-stone-100 mb-5">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-xl bg-emerald-800 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                2
+              </div>
+              <div>
+                <h2 class="text-base sm:text-lg font-bold text-emerald-950">Delivery Option & Slot</h2>
+                <p class="text-xs text-stone-500">Choose your preferred fresh produce handover slot</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+              🌱 Zero Cold Storage
+            </span>
+          </div>
+
+          <!-- Delivery Slots Grid -->
+          <div class="space-y-3" id="delivery-slots-container">
+            <!-- Slot 1: Express 90 Mins -->
+            <label class="delivery-slot-card relative flex items-start gap-3.5 p-4 rounded-2xl border-2 border-emerald-600 bg-emerald-50/40 cursor-pointer transition-all">
+              <input type="radio" name="deliveryOption" value="EXPRESS_90_MIN" checked onchange="handleSlotChange(this)" class="mt-1 text-emerald-600 focus:ring-emerald-500 w-4 h-4" />
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-bold text-sm text-emerald-950">⚡ Express Delivery</span>
+                    <span class="text-[9px] font-black uppercase tracking-wider bg-emerald-200 text-emerald-950 px-1.5 py-0.5 rounded">Fastest</span>
+                  </div>
+                  <span class="text-xs font-bold text-emerald-800">30–90 Minutes</span>
+                </div>
+                <p class="text-xs text-stone-600 mt-1">Dispatched directly from Indiranagar Hub via zero-emission electric vehicles.</p>
+              </div>
+            </label>
+
+            <!-- Slot 2: Morning Harvest -->
+            <label class="delivery-slot-card relative flex items-start gap-3.5 p-4 rounded-2xl border border-stone-200 hover:border-emerald-300 hover:bg-stone-50/70 cursor-pointer transition-all">
+              <input type="radio" name="deliveryOption" value="MORNING_HARVEST" onchange="handleSlotChange(this)" class="mt-1 text-emerald-600 focus:ring-emerald-500 w-4 h-4" />
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-bold text-sm text-stone-900">🌅 Morning Harvest</span>
+                    <span class="text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded">Fresh at Dawn</span>
+                  </div>
+                  <span class="text-xs font-bold text-stone-700">Tomorrow • 4:00 AM – 7:00 AM</span>
+                </div>
+                <p class="text-xs text-stone-500 mt-1">Plucked at 3:30 AM from Kolar kisan fields, washed in ozone water, and placed at your door.</p>
+              </div>
+            </label>
+
+            <!-- Slot 3: Standard Afternoon -->
+            <label class="delivery-slot-card relative flex items-start gap-3.5 p-4 rounded-2xl border border-stone-200 hover:border-emerald-300 hover:bg-stone-50/70 cursor-pointer transition-all">
+              <input type="radio" name="deliveryOption" value="STANDARD_AFTERNOON" onchange="handleSlotChange(this)" class="mt-1 text-emerald-600 focus:ring-emerald-500 w-4 h-4" />
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-sm text-stone-900">Standard Afternoon</span>
+                  <span class="text-xs font-bold text-stone-700">Today • 1:00 PM – 4:00 PM</span>
+                </div>
+                <p class="text-xs text-stone-500 mt-1">Convenient scheduled afternoon delivery slot.</p>
+              </div>
+            </label>
+          </div>
+        </section>
+
+        <!-- ================= STEP 3: PAYMENT METHOD ================= -->
+        <section class="bg-white rounded-3xl p-6 sm:p-7 border border-emerald-950/10 shadow-xs">
+          <div class="flex items-center justify-between pb-4 border-b border-stone-100 mb-5">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-xl bg-emerald-800 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                3
+              </div>
+              <div>
+                <h2 class="text-base sm:text-lg font-bold text-emerald-950">Payment Method</h2>
+                <p class="text-xs text-stone-500">100% Secure tokenized payments. Raw card info is never stored.</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-emerald-700 flex items-center gap-1">
+              <i data-lucide="lock" class="w-3.5 h-3.5"></i> Encrypted
+            </span>
+          </div>
+
+          <!-- Payment Tabs -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
+            <button type="button" onclick="selectPaymentTab('upi')" id="tab-upi" class="pay-tab px-3 py-2.5 rounded-2xl text-xs font-bold border border-emerald-600 bg-emerald-50 text-emerald-950 transition-all text-center flex flex-col items-center gap-1">
+              <span class="text-base">⚡</span>
+              <span>UPI / QR</span>
+            </button>
+            <button type="button" onclick="selectPaymentTab('card')" id="tab-card" class="pay-tab px-3 py-2.5 rounded-2xl text-xs font-semibold border border-stone-200 bg-white text-stone-700 hover:bg-stone-50 transition-all text-center flex flex-col items-center gap-1">
+              <span class="text-base">💳</span>
+              <span>Credit / Debit</span>
+            </button>
+            <button type="button" onclick="selectPaymentTab('wallet')" id="tab-wallet" class="pay-tab px-3 py-2.5 rounded-2xl text-xs font-semibold border border-stone-200 bg-white text-stone-700 hover:bg-stone-50 transition-all text-center flex flex-col items-center gap-1">
+              <span class="text-base">👛</span>
+              <span>FreshMart Cash</span>
+            </button>
+            <button type="button" onclick="selectPaymentTab('cod')" id="tab-cod" class="pay-tab px-3 py-2.5 rounded-2xl text-xs font-semibold border border-stone-200 bg-white text-stone-700 hover:bg-stone-50 transition-all text-center flex flex-col items-center gap-1">
+              <span class="text-base">💵</span>
+              <span>Pay on Delivery</span>
+            </button>
+          </div>
+
+          <!-- Payment Panels -->
+          <!-- 1. UPI -->
+          <div id="panel-upi" class="payment-panel space-y-4">
+            <div class="grid grid-cols-3 gap-2.5">
+              <label class="flex items-center gap-2 p-3 rounded-2xl border border-stone-200 hover:border-emerald-300 hover:bg-emerald-50/50 cursor-pointer">
+                <input type="radio" name="upiApp" value="Google Pay" checked class="text-emerald-600" />
+                <span class="text-xs font-bold text-emerald-950">GPay</span>
+              </label>
+              <label class="flex items-center gap-2 p-3 rounded-2xl border border-stone-200 hover:border-emerald-300 hover:bg-emerald-50/50 cursor-pointer">
+                <input type="radio" name="upiApp" value="PhonePe" class="text-emerald-600" />
+                <span class="text-xs font-bold text-emerald-950">PhonePe</span>
+              </label>
+              <label class="flex items-center gap-2 p-3 rounded-2xl border border-stone-200 hover:border-emerald-300 hover:bg-emerald-50/50 cursor-pointer">
+                <input type="radio" name="upiApp" value="Paytm" class="text-emerald-600" />
+                <span class="text-xs font-bold text-emerald-950">Paytm</span>
+              </label>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-stone-700 mb-1.5">Or enter your UPI ID / VPA</label>
+              <div class="relative">
+                <input type="text" id="upi-id-input" placeholder="e.g. yourname@oksbi" class="w-full text-xs font-medium px-4 py-2.5 rounded-xl border border-stone-200 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 outline-none" />
+                <span class="absolute right-3 top-2.5 text-xs text-emerald-700 font-bold">Verify</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. CARD -->
+          <div id="panel-card" class="payment-panel hidden space-y-3">
+            <div>
+              <label class="block text-xs font-bold text-stone-700 mb-1">Card Number</label>
+              <div class="relative">
+                <input type="text" maxlength="19" placeholder="4532 •••• •••• 8821" class="w-full text-xs font-mono px-4 py-2.5 rounded-xl border border-stone-200 focus:border-emerald-600 outline-none" />
+                <span class="absolute right-3 top-2.5 text-xs">💳</span>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-stone-700 mb-1">Valid Thru (MM/YY)</label>
+                <input type="text" maxlength="5" placeholder="08/28" class="w-full text-xs font-mono px-4 py-2.5 rounded-xl border border-stone-200 focus:border-emerald-600 outline-none" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-stone-700 mb-1">CVV / Security Code</label>
+                <input type="password" maxlength="4" placeholder="•••" class="w-full text-xs font-mono px-4 py-2.5 rounded-xl border border-stone-200 focus:border-emerald-600 outline-none" />
+              </div>
+            </div>
+            <p class="text-[10px] text-stone-400">🛡️ Tokenized via RBI-compliant payment gateway. No raw data stored.</p>
+          </div>
+
+          <!-- 3. WALLET -->
+          <div id="panel-wallet" class="payment-panel hidden">
+            <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-white text-emerald-800 flex items-center justify-center font-bold text-lg shadow-2xs">
+                  👛
+                </div>
+                <div>
+                  <span class="text-xs text-emerald-800 font-bold block">FreshMart Cash Balance</span>
+                  <span class="text-lg font-black text-emerald-950">₹420.00</span>
+                </div>
+              </div>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="use-wallet-toggle" onchange="toggleWalletDeduction(this)" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500" />
+                <span class="text-xs font-bold text-emerald-900">Apply to Bill</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 4. COD -->
+          <div id="panel-cod" class="payment-panel hidden">
+            <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200/80">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-base">💵</span>
+                <span class="text-xs font-bold text-amber-950">Cash or UPI on Delivery</span>
+              </div>
+              <p class="text-xs text-amber-900/90 leading-relaxed">
+                You can pay cash or scan the EV courier's dynamic UPI QR code on arrival after inspecting your produce.
+              </p>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+
+      <!-- RIGHT COLUMN: ORDER SUMMARY & BILL (Sticky) -->
+      <div class="lg:col-span-5 sticky top-24 space-y-4">
+        
+        <!-- Summary Card -->
+        <div class="bg-white rounded-3xl p-6 border border-emerald-950/10 shadow-sm space-y-5">
+          <div class="flex items-center justify-between pb-3 border-b border-stone-100">
+            <h3 class="font-bold text-sm text-emerald-950 flex items-center gap-2">
+              <i data-lucide="shopping-basket" class="w-4 h-4 text-emerald-700"></i>
+              Basket Summary (<span id="summary-items-count">3</span> items)
+            </h3>
+            <a href="index.html" class="text-[11px] font-bold text-emerald-700 hover:underline">Edit Basket</a>
+          </div>
+
+          <!-- Items Mini List -->
+          <div id="checkout-items-list" class="space-y-3 max-h-60 overflow-y-auto pr-1 text-xs">
+            <!-- Dynamically populated -->
+          </div>
+
+          <!-- Promo Code Input -->
+          <div class="pt-2">
+            <label class="block text-[11px] font-bold text-stone-500 uppercase tracking-wider mb-1.5">Apply Coupon</label>
+            <div class="flex gap-2">
+              <input 
+                type="text" 
+                id="checkout-coupon-input" 
+                placeholder="e.g. FIRST100" 
+                class="flex-1 px-3.5 py-2 text-xs font-mono uppercase rounded-xl border border-stone-200 focus:border-emerald-600 outline-none"
+              />
+              <button onclick="applyCheckoutCoupon()" class="px-4 py-2 rounded-xl bg-emerald-800 text-white font-bold text-xs hover:bg-emerald-900 transition-colors shadow-2xs">
+                Apply
+              </button>
+            </div>
+            <div id="coupon-alert" class="mt-1.5 text-[11px] hidden font-semibold"></div>
+          </div>
+
+          <!-- Bill Breakdown -->
+          <div class="space-y-2 text-xs text-stone-600 pt-3 border-t border-stone-100">
+            <div class="flex justify-between">
+              <span>Items Subtotal</span>
+              <span id="bill-subtotal" class="font-bold text-emerald-950">₹0</span>
+            </div>
+            <div id="bill-coupon-row" class="flex justify-between text-emerald-700 font-semibold hidden">
+              <span>Coupon Discount (<span id="bill-coupon-code">FIRST100</span>)</span>
+              <span id="bill-coupon-discount">- ₹100</span>
+            </div>
+            <div id="bill-wallet-row" class="flex justify-between text-emerald-700 font-semibold hidden">
+              <span>FreshMart Cash Applied</span>
+              <span id="bill-wallet-discount">- ₹0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="flex items-center gap-1">
+                90-Min Delivery Fee 
+                <span class="text-[10px] text-emerald-700 font-bold bg-emerald-100 px-1 rounded">FREE over ₹199</span>
+              </span>
+              <span id="bill-delivery" class="font-bold text-emerald-950">FREE</span>
+            </div>
+            <div class="flex justify-between text-emerald-700 font-bold">
+              <span>Total Savings</span>
+              <span id="bill-savings">₹0</span>
+            </div>
+            <div class="flex justify-between text-base font-black text-emerald-950 pt-2.5 border-t border-stone-200">
+              <span>Total to Pay</span>
+              <span id="bill-grand-total" class="text-xl text-emerald-800">₹0</span>
+            </div>
+          </div>
+
+          <!-- Main CTA: Place Order & Pay -->
+          <button 
+            id="place-order-btn"
+            onclick="submitOrder()" 
+            class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-700 via-emerald-800 to-emerald-950 hover:from-emerald-800 hover:to-emerald-950 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-lg shadow-emerald-900/25 transition-all transform active:scale-98 cursor-pointer"
+          >
+            <span>Place Order & Pay</span>
+            <span id="cta-amount-label">₹0</span>
+            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+          </button>
+
+          <!-- Trust Badges Strip -->
+          <div class="grid grid-cols-3 gap-2 pt-1 text-center text-[10px] text-stone-500 font-semibold">
+            <div class="p-2 rounded-xl bg-stone-50 border border-stone-200/60">
+              <span class="block text-sm mb-0.5">🫧</span>
+              Ozone Washed
+            </div>
+            <div class="p-2 rounded-xl bg-stone-50 border border-stone-200/60">
+              <span class="block text-sm mb-0.5">🌿</span>
+              Plastic-Free Bags
+            </div>
+            <div class="p-2 rounded-xl bg-stone-50 border border-stone-200/60">
+              <span class="block text-sm mb-0.5">⚡</span>
+              90-Min Direct
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ================= ORDER CONFIRMATION VIEW (Displayed on Success) ================= -->
+    <div id="order-confirmed-view" class="hidden max-w-2xl mx-auto text-center py-10 sm:py-16">
+      
+      <!-- Celebration Icon -->
+      <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white flex items-center justify-center text-4xl sm:text-5xl shadow-xl shadow-emerald-700/30 mb-6 animate-bounce">
+        🎉
+      </div>
+
+      <span class="text-xs uppercase tracking-[0.2em] font-black text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full inline-block mb-3">
+        ORDER CONFIRMED
+      </span>
+
+      <h1 class="font-heading font-black text-2xl sm:text-4xl text-emerald-950 mb-2">
+        Your fresh groceries are being prepared!
+      </h1>
+
+      <p class="text-stone-600 text-sm sm:text-base max-w-md mx-auto mb-6">
+        Harvest bins at Indiranagar Central Hub have received your order. An EV Pilot is on standby.
+      </p>
+
+      <!-- Confirmation Details Card -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-emerald-950/10 shadow-md text-left mb-8 max-w-lg mx-auto space-y-4">
+        
+        <div class="flex items-center justify-between pb-3 border-b border-stone-100">
+          <div>
+            <span class="text-[10px] text-stone-400 uppercase tracking-wider font-bold block">Order Number</span>
+            <span id="confirmed-order-id" class="text-lg sm:text-xl font-black font-mono text-emerald-950">#SJH10248</span>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] text-stone-400 uppercase tracking-wider font-bold block">Estimated Delivery</span>
+            <span class="text-sm sm:text-base font-extrabold text-emerald-700 flex items-center gap-1">
+              <span>⚡ Today • 90 Minutes</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- 4-Digit Delivery OTP Card -->
+        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-300/80 flex items-center justify-between">
+          <div>
+            <span class="text-[10px] uppercase font-bold text-emerald-800 tracking-wider block">Your Delivery OTP</span>
+            <span id="confirmed-delivery-otp" class="text-2xl sm:text-3xl font-mono font-black text-emerald-950 tracking-widest">4821</span>
+          </div>
+          <p class="text-[11px] text-emerald-900/80 max-w-[200px] text-right font-medium leading-tight">
+            Share this OTP with your EV Courier upon arrival to verify delivery.
+          </p>
+        </div>
+
+        <div class="text-xs text-stone-600 space-y-1 pt-1">
+          <div class="flex justify-between">
+            <span>Delivering To:</span>
+            <strong id="confirmed-delivery-address" class="text-emerald-950">Indiranagar, Bengaluru</strong>
+          </div>
+          <div class="flex justify-between">
+            <span>Payment Method:</span>
+            <strong id="confirmed-payment-method" class="text-emerald-950">UPI (Google Pay)</strong>
+          </div>
+          <div class="flex justify-between">
+            <span>Total Paid:</span>
+            <strong id="confirmed-total-amount" class="text-emerald-950 font-bold">₹103</strong>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-xl mx-auto">
+        <button 
+          onclick="openLiveTracking()" 
+          class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2"
+        >
+          <i data-lucide="map-pin" class="w-4 h-4"></i>
+          <span>Track Order in Real-Time</span>
+        </button>
+        <button 
+          onclick="viewMyOrders()" 
+          class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-bold text-sm border border-emerald-200 transition-all flex items-center justify-center gap-2"
+        >
+          <i data-lucide="package" class="w-4 h-4"></i>
+          <span>View in My Orders</span>
+        </button>
+        <a 
+          href="index.html" 
+          class="w-full sm:w-auto px-5 py-3.5 rounded-2xl bg-white hover:bg-stone-50 text-stone-700 font-bold text-sm border border-stone-200 transition-all flex items-center justify-center gap-2"
+        >
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          <span>Continue Shopping</span>
+        </a>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ================= ADD NEW ADDRESS MODAL ================= -->
+  <div id="new-address-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-stone-100">
+      <div class="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">
+        <h3 class="font-bold text-base text-emerald-950">Add New Delivery Address</h3>
+        <button onclick="closeNewAddressModal()" class="text-stone-400 hover:text-stone-700 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="saveNewAddress(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Address Label</label>
+          <div class="flex gap-2">
+            <label class="flex-1 text-center py-1.5 rounded-xl border border-emerald-600 bg-emerald-50 text-emerald-950 font-bold cursor-pointer">
+              <input type="radio" name="addrTag" value="Home" checked class="hidden" /> Home
+            </label>
+            <label class="flex-1 text-center py-1.5 rounded-xl border border-stone-200 hover:bg-stone-50 font-semibold cursor-pointer">
+              <input type="radio" name="addrTag" value="Work" class="hidden" /> Work
+            </label>
+            <label class="flex-1 text-center py-1.5 rounded-xl border border-stone-200 hover:bg-stone-50 font-semibold cursor-pointer">
+              <input type="radio" name="addrTag" value="Other" class="hidden" /> Other
+            </label>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">House / Flat / Block No.</label>
+          <input type="text" id="modal-flat" required placeholder="e.g. Flat 301, Tower B" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-emerald-600 outline-none" />
+        </div>
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Street / Apartment / Colony</label>
+          <input type="text" id="modal-street" required placeholder="e.g. 100ft Road, HAL 2nd Stage" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-emerald-600 outline-none" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Landmark (Optional)</label>
+            <input type="text" id="modal-landmark" placeholder="Near Metro Station" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-emerald-600 outline-none" />
+          </div>
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Pincode</label>
+            <input type="text" id="modal-pincode" required maxlength="6" value="560038" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-emerald-600 outline-none font-mono" />
+          </div>
+        </div>
+        <button type="submit" class="w-full py-3 mt-2 rounded-xl bg-emerald-800 text-white font-bold text-xs hover:bg-emerald-900 transition-colors">
+          Save Address
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 pointer-events-none"></div>
+
+  <!-- Checkout Logic Script -->
+  <script>
+    let checkoutCart = {};
+    let savedAddresses = [];
+    let selectedAddressId = null;
+    let selectedDeliverySlot = 'EXPRESS_90_MIN';
+    let selectedPaymentMethod = 'UPI (Google Pay)';
+    let appliedCouponCode = null;
+    let walletDiscountApplied = 0;
+    let lastConfirmedOrder = null;
+
+    // Load state from localStorage or DB
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const storedCart = localStorage.getItem('sabjihub_cart');
+        if (storedCart) {
+          checkoutCart = JSON.parse(storedCart);
+        }
+      } catch (e) {
+        checkoutCart = {};
+      }
+
+      // If cart is empty, add sample produce so checkout is immediately playable
+      if (Object.keys(checkoutCart).length === 0) {
+        checkoutCart = {
+          'veg-potato-0': { id: 'veg-potato', name: 'Pahadi Potato', weightLabel: '1 kg', price: 35, originalPrice: 45, qty: 1, image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=300&q=80' },
+          'veg-onion-0': { id: 'veg-onion', name: 'Nashik Onion', weightLabel: '1 kg', price: 28, originalPrice: 36, qty: 1, image: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=300&q=80' },
+          'veg-tomato-0': { id: 'veg-tomato', name: 'Fresh Tomato', weightLabel: '1 kg', price: 10, originalPrice: 50, qty: 1, image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=300&q=80' }
+        };
+        localStorage.setItem('sabjihub_cart', JSON.stringify(checkoutCart));
+      }
+
+      await loadAddresses();
+      renderCheckoutCart();
+      if (window.lucide) window.lucide.createIcons();
+    });
+
+    async function loadAddresses() {
+      try {
+        const res = await fetch('/api/addresses', { credentials: 'include' });
+        savedAddresses = await res.json();
+      } catch (e) {
+        savedAddresses = [
+          {
+            id: 'addr_1',
+            tag: 'Home',
+            fullName: 'Rahul Sharma',
+            phone: '+91 98450 12345',
+            flat: 'Flat 402, Green Glen Towers',
+            street: '12th Main Road, HAL 2nd Stage',
+            city: 'Indiranagar, Bengaluru',
+            pincode: '560038'
+          }
+        ];
+      }
+      renderAddresses();
+    }
+
+    function renderAddresses() {
+      const container = document.getElementById('addresses-list');
+      if (!container) return;
+
+      if (!selectedAddressId && savedAddresses.length > 0) {
+        selectedAddressId = savedAddresses[0].id;
+      }
+
+      container.innerHTML = savedAddresses.map(addr => {
+        const isSelected = addr.id === selectedAddressId;
+        return `
+          <div 
+            onclick="selectAddress('${addr.id}')" 
+            class="p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-start justify-between ${
+              isSelected ? 'border-emerald-600 bg-emerald-50/50 shadow-xs' : 'border-stone-200 hover:border-stone-300 bg-white'
+            }"
+          >
+            <div class="flex items-start gap-3">
+              <input type="radio" name="address" ${isSelected ? 'checked' : ''} class="mt-1 text-emerald-600 focus:ring-emerald-500" />
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-xs sm:text-sm text-emerald-950">${addr.tag}</span>
+                  <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded">${addr.pincode}</span>
+                </div>
+                <p class="text-xs text-stone-600 mt-0.5">${addr.flat}, ${addr.street}, ${addr.city}</p>
+                <p class="text-[11px] text-stone-400 mt-0.5">Contact: ${addr.phone}</p>
+              </div>
+            </div>
+            <span class="text-[11px] font-bold ${isSelected ? 'text-emerald-700' : 'text-stone-400'}">
+              ${isSelected ? '✓ Delivering Here' : 'Select'}
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectAddress(id) {
+      selectedAddressId = id;
+      renderAddresses();
+    }
+
+    function openNewAddressModal() {
+      document.getElementById('new-address-modal')?.classList.remove('hidden');
+    }
+
+    function closeNewAddressModal() {
+      document.getElementById('new-address-modal')?.classList.add('hidden');
+    }
+
+    async function saveNewAddress(e) {
+      e.preventDefault();
+      const tag = document.querySelector('input[name="addrTag"]:checked')?.value || 'Home';
+      const flat = document.getElementById('modal-flat').value.trim();
+      const street = document.getElementById('modal-street').value.trim();
+      const landmark = document.getElementById('modal-landmark').value.trim();
+      const pincode = document.getElementById('modal-pincode').value.trim();
+
+      const newAddr = {
+        tag,
+        flat,
+        street,
+        landmark,
+        pincode,
+        city: 'Indiranagar, Bengaluru'
+      };
+
+      try {
+        const res = await fetch('/api/addresses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(newAddr)
+        });
+        const saved = await res.json();
+        savedAddresses.unshift(saved);
+        selectedAddressId = saved.id;
+        renderAddresses();
+        closeNewAddressModal();
+        showCheckoutToast('Address saved successfully!', 'success');
+      } catch (err) {
+        showCheckoutToast('Could not save address', 'error');
+      }
+    }
+
+    function handleSlotChange(el) {
+      selectedDeliverySlot = el.value;
+      document.querySelectorAll('.delivery-slot-card').forEach(card => {
+        card.classList.remove('border-emerald-600', 'bg-emerald-50/40');
+        card.classList.add('border-stone-200');
+      });
+      el.closest('.delivery-slot-card').classList.add('border-emerald-600', 'bg-emerald-50/40');
+      el.closest('.delivery-slot-card').classList.remove('border-stone-200');
+    }
+
+    function selectPaymentTab(type) {
+      document.querySelectorAll('.pay-tab').forEach(b => {
+        b.classList.remove('border-emerald-600', 'bg-emerald-50', 'text-emerald-950');
+        b.classList.add('border-stone-200', 'bg-white', 'text-stone-700');
+      });
+      document.querySelectorAll('.payment-panel').forEach(p => p.classList.add('hidden'));
+
+      const activeTab = document.getElementById(`tab-${type}`);
+      activeTab?.classList.add('border-emerald-600', 'bg-emerald-50', 'text-emerald-950');
+      activeTab?.classList.remove('border-stone-200', 'bg-white', 'text-stone-700');
+
+      document.getElementById(`panel-${type}`)?.classList.remove('hidden');
+
+      if (type === 'upi') selectedPaymentMethod = 'UPI (Google Pay)';
+      else if (type === 'card') selectedPaymentMethod = 'Credit/Debit Card';
+      else if (type === 'wallet') selectedPaymentMethod = 'FreshMart Cash Wallet';
+      else if (type === 'cod') selectedPaymentMethod = 'Cash on Delivery';
+    }
+
+    function renderCheckoutCart() {
+      const itemsList = document.getElementById('checkout-items-list');
+      const items = Object.values(checkoutCart);
+
+      let subtotal = 0;
+      let totalOriginal = 0;
+
+      itemsList.innerHTML = items.map(item => {
+        subtotal += item.price * item.qty;
+        totalOriginal += (item.originalPrice || item.price) * item.qty;
+        return `
+          <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-stone-50 border border-stone-200/50">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <img src="${item.image}" alt="${item.name}" class="w-10 h-10 rounded-lg object-cover bg-white" />
+              <div class="min-w-0">
+                <h4 class="font-bold text-xs text-emerald-950 truncate">${item.name}</h4>
+                <span class="text-[10px] text-stone-500">${item.weightLabel} × ${item.qty}</span>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="font-bold text-xs text-emerald-950 block">₹${item.price * item.qty}</span>
+              <span class="text-[10px] text-stone-400 line-through">₹${(item.originalPrice || item.price) * item.qty}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('summary-items-count').textContent = items.length;
+
+      // Calculate totals
+      let couponDiscount = 0;
+      if (appliedCouponCode === 'FIRST100' && subtotal >= 299) couponDiscount = 100;
+      else if (appliedCouponCode === 'FRESH50' && subtotal >= 199) couponDiscount = 50;
+
+      const deliveryFee = subtotal >= 199 ? 0 : 30;
+      const totalSavings = (totalOriginal - subtotal) + couponDiscount + walletDiscountApplied;
+      const grandTotal = Math.max(0, subtotal - couponDiscount - walletDiscountApplied + deliveryFee);
+
+      document.getElementById('bill-subtotal').textContent = `₹${subtotal}`;
+      document.getElementById('bill-delivery').textContent = deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`;
+      document.getElementById('bill-savings').textContent = `₹${totalSavings}`;
+      document.getElementById('bill-grand-total').textContent = `₹${grandTotal}`;
+      document.getElementById('cta-amount-label').textContent = `₹${grandTotal}`;
+
+      const couponRow = document.getElementById('bill-coupon-row');
+      if (couponDiscount > 0) {
+        couponRow.classList.remove('hidden');
+        document.getElementById('bill-coupon-code').textContent = appliedCouponCode;
+        document.getElementById('bill-coupon-discount').textContent = `- ₹${couponDiscount}`;
+      } else {
+        couponRow.classList.add('hidden');
+      }
+    }
+
+    function applyCheckoutCoupon() {
+      const code = (document.getElementById('checkout-coupon-input')?.value || '').trim().toUpperCase();
+      const alert = document.getElementById('coupon-alert');
+      
+      let subtotal = 0;
+      Object.values(checkoutCart).forEach(it => subtotal += it.price * it.qty);
+
+      if (code === 'FIRST100') {
+        if (subtotal < 299) {
+          alert.classList.remove('hidden', 'text-emerald-700');
+          alert.classList.add('text-amber-700');
+          alert.textContent = 'Coupon FIRST100 requires a minimum order of ₹299.';
+          return;
+        }
+        appliedCouponCode = 'FIRST100';
+        alert.classList.remove('hidden', 'text-amber-700');
+        alert.classList.add('text-emerald-700');
+        alert.textContent = '🎉 ₹100 discount successfully applied!';
+      } else if (code === 'FRESH50') {
+        if (subtotal < 199) {
+          alert.classList.remove('hidden', 'text-emerald-700');
+          alert.classList.add('text-amber-700');
+          alert.textContent = 'Coupon FRESH50 requires a minimum order of ₹199.';
+          return;
+        }
+        appliedCouponCode = 'FRESH50';
+        alert.classList.remove('hidden', 'text-amber-700');
+        alert.classList.add('text-emerald-700');
+        alert.textContent = '🎉 ₹50 discount successfully applied!';
+      } else {
+        alert.classList.remove('hidden', 'text-emerald-700');
+        alert.classList.add('text-amber-700');
+        alert.textContent = 'Invalid promo code. Try FIRST100 or FRESH50.';
+        return;
+      }
+      renderCheckoutCart();
+    }
+
+    function toggleWalletDeduction(toggle) {
+      if (toggle.checked) {
+        walletDiscountApplied = 40; // Sample small wallet deduction
+        document.getElementById('bill-wallet-row')?.classList.remove('hidden');
+        document.getElementById('bill-wallet-discount').textContent = `- ₹${walletDiscountApplied}`;
+      } else {
+        walletDiscountApplied = 0;
+        document.getElementById('bill-wallet-row')?.classList.add('hidden');
+      }
+      renderCheckoutCart();
+    }
+
+    async function submitOrder() {
+      const btn = document.getElementById('place-order-btn');
+      btn.disabled = true;
+      btn.innerHTML = `
+        <span class="inline-block animate-spin mr-2">⏳</span>
+        <span>Processing Farm Order...</span>
+      `;
+
+      const selectedAddress = savedAddresses.find(a => a.id === selectedAddressId) || savedAddresses[0];
+      const authUser = window.sabjihubAuth?.user || null;
+
+      const payload = {
+        items: Object.values(checkoutCart),
+        couponCode: appliedCouponCode,
+        deliveryOption: selectedDeliverySlot,
+        deliverySlot: selectedDeliverySlot === 'EXPRESS_90_MIN' ? 'Express Delivery (30–90 Mins)' : 'Morning Harvest (4:00 AM – 7:00 AM)',
+        paymentMethod: selectedPaymentMethod,
+        deliveryAddress: selectedAddress,
+        customerId: authUser?.id || undefined,
+        customerName: authUser?.name || selectedAddress?.fullName || 'Customer',
+        customerPhone: authUser?.phone || selectedAddress?.phone || '',
+        customerEmail: authUser?.email || undefined
+      };
+
+      try {
+        const res = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload)
+        });
+
+        const createdOrder = await res.json();
+        lastConfirmedOrder = createdOrder;
+
+        // Clear client cart and save order tracking info
+        localStorage.setItem('sabjihub_cart', JSON.stringify({}));
+        localStorage.setItem('sabjihub_coupon', null);
+        const confirmedId = createdOrder.orderId || createdOrder.id;
+        if (confirmedId) {
+          localStorage.setItem('sabjihub_active_order_id', confirmedId);
+          try {
+            const rawHist = localStorage.getItem('sabjihub_order_history');
+            let hist = rawHist ? JSON.parse(rawHist) : [];
+            if (!Array.isArray(hist)) hist = [];
+            if (!hist.includes(confirmedId)) {
+              hist.unshift(confirmedId);
+              localStorage.setItem('sabjihub_order_history', JSON.stringify(hist.slice(0, 50)));
+            }
+          } catch (e) {
+            console.warn('Could not save order history locally', e);
+          }
+        }
+
+        // Transition to Confirmed Screen
+        document.getElementById('checkout-container').classList.add('hidden');
+        const confirmView = document.getElementById('order-confirmed-view');
+        confirmView.classList.remove('hidden');
+
+        document.getElementById('confirmed-order-id').textContent = `#${createdOrder.orderId}`;
+        document.getElementById('confirmed-delivery-otp').textContent = createdOrder.deliveryOtp;
+        document.getElementById('confirmed-delivery-address').textContent = `${selectedAddress.flat}, ${selectedAddress.city}`;
+        document.getElementById('confirmed-payment-method').textContent = selectedPaymentMethod;
+        document.getElementById('confirmed-total-amount').textContent = `₹${createdOrder.totalAmount}`;
+
+        if (window.lucide) window.lucide.createIcons();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      } catch (err) {
+        showCheckoutToast('Failed to place order. Please try again.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Place Order & Pay';
+      }
+    }
+
+    function openLiveTracking() {
+      if (lastConfirmedOrder) {
+        window.location.href = `index.html?trackOrder=${lastConfirmedOrder.orderId}`;
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    function viewMyOrders() {
+      window.location.href = 'index.html?openTab=orders';
+    }
+
+    function showCheckoutToast(msg, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `p-3.5 rounded-2xl shadow-xl text-white text-xs font-bold transition-all duration-300 pointer-events-auto ${
+        type === 'success' ? 'bg-emerald-800' : type === 'error' ? 'bg-red-700' : 'bg-stone-800'
+      }`;
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3200);
+    }
+  </script>
+
+  <!-- Google Identity Services (GIS) Official SDK -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- FreshMart Authentication & Account Dashboard Controller -->
+  <script src="auth.js" defer></script>
+</body>
+</html>
+

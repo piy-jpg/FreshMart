@@ -1,0 +1,21 @@
+{
+  "name": "freshmart-backend",
+  "version": "2.0.0",
+  "description": "FreshMart Quick Commerce Enterprise Backend REST API",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node test/api.test.js"
+  },
+  "dependencies": {},
+  "keywords": [
+    "freshmart",
+    "quick-commerce",
+    "api",
+    "backend",
+    "express"
+  ],
+  "author": "FreshMart Engineering",
+  "license": "MIT"
+}

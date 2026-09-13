@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delivery Partner EV Pilot App | FreshMart</title>
+  <meta name="description" content="FreshMart Delivery Partner Mobile App for EV Courier dispatch and secure OTP delivery verification." />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            emerald: {
+              50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7',
+              400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857',
+              800: '#065f46', 900: '#064e3b', 950: '#022c22',
+            },
+            amber: {
+              50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 400: '#fbbf24',
+              500: '#f59e0b', 600: '#d97706', 700: '#b45309', 900: '#78350f',
+            }
+          },
+          fontFamily: {
+            heading: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-stone-100 text-stone-800 antialiased min-h-screen font-sans flex flex-col justify-between">
+
+  <!-- ================= TOP PILOT HEADER ================= -->
+  <header class="sticky top-0 z-40 bg-white border-b border-stone-200 shadow-xs">
+    <div class="max-w-xl mx-auto px-4 py-3.5 flex items-center justify-between">
+      
+      <!-- Pilot Profile Info -->
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80" alt="Pilot" class="w-11 h-11 rounded-2xl object-cover ring-2 ring-emerald-600/30" />
+          <span class="w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white absolute -bottom-0.5 -right-0.5"></span>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 class="font-bold text-sm text-emerald-950">Ramesh K.</h1>
+            <span class="text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded">EV Pilot #42</span>
+          </div>
+          <p class="text-[11px] text-stone-500 flex items-center gap-1 mt-0.5">
+            <span class="text-amber-500">★ 4.9</span> • Ather 450X EV • Indiranagar Hub
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Portals Link -->
+      <div class="flex items-center gap-2">
+        <a href="hub.html" class="px-2.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold transition-colors">
+          🚜 Hub
+        </a>
+        <a href="index.html" class="px-2.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 text-xs font-bold transition-colors">
+          🛒 Store
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= PILOT METRICS STRIP ================= -->
+  <div class="bg-gradient-to-r from-emerald-900 to-emerald-950 text-white py-3 shadow-inner">
+    <div class="max-w-xl mx-auto px-4 grid grid-cols-3 gap-2 text-center text-xs">
+      <div>
+        <span class="text-[10px] text-emerald-300 uppercase font-bold block">Today's Deliveries</span>
+        <span class="font-black text-base text-white">14 Orders</span>
+      </div>
+      <div class="border-x border-emerald-800/80">
+        <span class="text-[10px] text-emerald-300 uppercase font-bold block">Today's Earnings</span>
+        <span class="font-black text-base text-white">₹840</span>
+      </div>
+      <div>
+        <span class="text-[10px] text-emerald-300 uppercase font-bold block">On-Time Score</span>
+        <span class="font-black text-base text-white">100%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= TABS ================= -->
+  <div class="bg-white border-b border-stone-200 sticky top-18 z-30">
+    <div class="max-w-xl mx-auto px-4 flex gap-4 text-xs font-bold">
+      <button onclick="switchTab('active')" id="tab-active" class="py-3 border-b-2 border-emerald-600 text-emerald-900 transition-colors flex items-center gap-1.5">
+        <i data-lucide="navigation" class="w-4 h-4 text-emerald-600"></i>
+        <span>Active Delivery</span>
+        <span id="active-badge" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      </button>
+      <button onclick="switchTab('pool')" id="tab-pool" class="py-3 border-b-2 border-transparent text-stone-500 hover:text-stone-800 transition-colors flex items-center gap-1.5">
+        <i data-lucide="package" class="w-4 h-4"></i>
+        <span>Available Jobs</span>
+        <span id="pool-badge" class="text-[10px] bg-stone-100 text-stone-700 px-1.5 py-0.2 rounded-full font-mono">0</span>
+      </button>
+      <button onclick="switchTab('history')" id="tab-history" class="py-3 border-b-2 border-transparent text-stone-500 hover:text-stone-800 transition-colors flex items-center gap-1.5">
+        <i data-lucide="clock" class="w-4 h-4"></i>
+        <span>Completed</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= MAIN PILOT CONTENT ================= -->
+  <main class="flex-1 max-w-xl mx-auto w-full px-4 py-5 space-y-4">
+    
+    <!-- 1. ACTIVE DELIVERY VIEW -->
+    <div id="view-active" class="space-y-4">
+      <!-- Populated dynamically -->
+    </div>
+
+    <!-- 2. AVAILABLE JOBS POOL -->
+    <div id="view-pool" class="space-y-4 hidden">
+      <!-- Populated dynamically -->
+    </div>
+
+    <!-- 3. COMPLETED DELIVERIES -->
+    <div id="view-history" class="space-y-4 hidden">
+      <!-- Populated dynamically -->
+    </div>
+
+  </main>
+
+  <!-- ================= OTP VERIFICATION MODAL ================= -->
+  <div id="otp-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-stone-100 text-center">
+      
+      <div class="w-12 h-12 mx-auto rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl mb-3 shadow-xs">
+        🔐
+      </div>
+
+      <h3 class="font-bold text-base text-emerald-950">Enter Customer Delivery OTP</h3>
+      <p class="text-xs text-stone-500 mt-1 mb-5">
+        Ask the customer for the 4-digit verification code displayed on their FreshMart order tracking screen.
+      </p>
+
+      <!-- 4-digit OTP Input -->
+      <div class="flex justify-center gap-3 mb-4">
+        <input type="text" maxlength="4" id="otp-input-field" placeholder="••••" class="w-40 text-center tracking-[0.4em] font-mono font-black text-2xl py-3 rounded-2xl border-2 border-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/20 bg-stone-50" />
+      </div>
+
+      <div id="otp-error-msg" class="text-xs text-red-600 font-bold mb-3 hidden">
+        Incorrect OTP. Please ask customer to re-check their screen.
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="closeOtpModal()" class="py-3 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs transition-colors">
+          Cancel
+        </button>
+        <button onclick="submitDeliveryOtp()" class="py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs transition-colors shadow-xs">
+          ✓ Verify & Complete
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 pointer-events-none"></div>
+
+  <!-- ================= PILOT JAVASCRIPT ================= -->
+  <script>
+    let activeDeliveryOrder = null;
+    let availableJobs = [];
+    let completedOrders = [];
+    let currentTab = 'active';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchPilotData();
+      initEventSource();
+      if (window.lucide) window.lucide.createIcons();
+    });
+
+    function initEventSource() {
+      try {
+        const evt = new EventSource('/api/events');
+        evt.onmessage = (e) => {
+          fetchPilotData();
+        };
+      } catch (err) {
+        setInterval(fetchPilotData, 8000);
+      }
+    }
+
+    async function fetchPilotData() {
+      try {
+        const res = await fetch('/api/orders');
+        const orders = await res.json();
+
+        // Find active order for this pilot (Ramesh K. / rider_1)
+        activeDeliveryOrder = orders.find(o => 
+          ['ACCEPTED_BY_HUB', 'PICKING', 'QUALITY_CHECK', 'PACKED', 'READY_FOR_PICKUP', 'PICKED_UP', 'OUT_FOR_DELIVERY', 'ARRIVED'].includes(o.orderStatus) &&
+          (o.deliveryPartnerId === 'rider_1' || !o.deliveryPartnerId)
+        ) || orders.find(o => o.orderStatus === 'OUT_FOR_DELIVERY');
+
+        availableJobs = orders.filter(o => ['READY_FOR_PICKUP', 'PACKED', 'CONFIRMED'].includes(o.orderStatus) && o.id !== activeDeliveryOrder?.id);
+        completedOrders = orders.filter(o => o.orderStatus === 'DELIVERED');
+
+        document.getElementById('pool-badge').textContent = availableJobs.length;
+        renderActiveDelivery();
+        renderAvailablePool();
+        renderHistory();
+      } catch (e) {
+        console.error('Failed to load pilot data', e);
+      }
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('#tab-active, #tab-pool, #tab-history').forEach(b => {
+        b.classList.remove('border-emerald-600', 'text-emerald-900');
+        b.classList.add('border-transparent', 'text-stone-500');
+      });
+      document.getElementById(`tab-${tab}`)?.classList.add('border-emerald-600', 'text-emerald-900');
+      document.getElementById(`tab-${tab}`)?.classList.remove('border-transparent', 'text-stone-500');
+
+      document.getElementById('view-active').classList.toggle('hidden', tab !== 'active');
+      document.getElementById('view-pool').classList.toggle('hidden', tab !== 'pool');
+      document.getElementById('view-history').classList.toggle('hidden', tab !== 'history');
+    }
+
+    function renderActiveDelivery() {
+      const container = document.getElementById('view-active');
+      if (!container) return;
+
+      if (!activeDeliveryOrder) {
+        container.innerHTML = `
+          <div class="bg-white rounded-3xl p-8 text-center border border-stone-200 space-y-3">
+            <span class="text-4xl block">🛵</span>
+            <h3 class="font-bold text-base text-emerald-950">No Active Delivery Right Now</h3>
+            <p class="text-xs text-stone-500 max-w-xs mx-auto">
+              Check the "Available Jobs" tab to pick up newly packed farm orders from Indiranagar Hub.
+            </p>
+            <button onclick="switchTab('pool')" class="px-5 py-2.5 rounded-xl bg-emerald-800 text-white font-bold text-xs shadow-xs">
+              View Available Jobs (${availableJobs.length})
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      const order = activeDeliveryOrder;
+      const statusSteps = getProgressStepNumber(order.orderStatus);
+
+      container.innerHTML = `
+        <!-- Order Header Card -->
+        <div class="bg-white rounded-3xl p-5 border border-stone-200 shadow-xs space-y-4">
+          
+          <div class="flex items-start justify-between pb-3 border-b border-stone-100">
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="font-heading font-black text-lg text-emerald-950">#${order.orderId}</h2>
+                <span class="text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-full">
+                  ⚡ 90-Min Delivery
+                </span>
+              </div>
+              <p class="text-xs text-stone-500 mt-0.5">${order.deliverySlot}</p>
+            </div>
+            <span class="text-xs font-black px-2.5 py-1 rounded-xl ${getStatusBg(order.orderStatus)}">
+              ${formatStatusLabel(order.orderStatus)}
+            </span>
+          </div>
+
+          <!-- Progress Stepper (Rider Flow) -->
+          <div class="grid grid-cols-4 gap-1 text-center text-[10px] font-bold">
+            <div class="${statusSteps >= 1 ? 'text-emerald-700' : 'text-stone-400'}">
+              <div class="w-6 h-6 mx-auto rounded-full mb-1 flex items-center justify-center ${statusSteps >= 1 ? 'bg-emerald-600 text-white' : 'bg-stone-200'}">1</div>
+              Hub Pickup
+            </div>
+            <div class="${statusSteps >= 2 ? 'text-emerald-700' : 'text-stone-400'}">
+              <div class="w-6 h-6 mx-auto rounded-full mb-1 flex items-center justify-center ${statusSteps >= 2 ? 'bg-emerald-600 text-white' : 'bg-stone-200'}">2</div>
+              Picked Up
+            </div>
+            <div class="${statusSteps >= 3 ? 'text-emerald-700' : 'text-stone-400'}">
+              <div class="w-6 h-6 mx-auto rounded-full mb-1 flex items-center justify-center ${statusSteps >= 3 ? 'bg-emerald-600 text-white' : 'bg-stone-200'}">3</div>
+              On the Way
+            </div>
+            <div class="${statusSteps >= 4 ? 'text-emerald-700' : 'text-stone-400'}">
+              <div class="w-6 h-6 mx-auto rounded-full mb-1 flex items-center justify-center ${statusSteps >= 4 ? 'bg-emerald-600 text-white' : 'bg-stone-200'}">4</div>
+              OTP Verify
+            </div>
+          </div>
+
+          <!-- Pickup & Drop Locations -->
+          <div class="space-y-3 bg-stone-50 p-4 rounded-2xl border border-stone-200/60 text-xs">
+            <!-- Pickup -->
+            <div class="flex items-start gap-2.5">
+              <span class="text-sm">📍</span>
+              <div class="flex-1 min-w-0">
+                <span class="text-[10px] uppercase font-bold text-stone-400 tracking-wider block">Pickup Location</span>
+                <strong class="text-emerald-950 text-xs block">${order.hubName}</strong>
+                <p class="text-[11px] text-stone-500">100ft Road, HAL 2nd Stage • Bay #1</p>
+              </div>
+            </div>
+
+            <div class="border-t border-stone-200/60 my-2"></div>
+
+            <!-- Drop -->
+            <div class="flex items-start gap-2.5">
+              <span class="text-sm">🏠</span>
+              <div class="flex-1 min-w-0">
+                <span class="text-[10px] uppercase font-bold text-stone-400 tracking-wider block">Customer Drop Address</span>
+                <strong class="text-emerald-950 text-xs block">${order.customerName}</strong>
+                <p class="text-[11px] text-stone-600">${order.deliveryAddress?.flat}, ${order.deliveryAddress?.street}</p>
+                <p class="text-[11px] text-emerald-700 font-semibold">${order.deliveryAddress?.city} • Pin: ${order.deliveryAddress?.pincode}</p>
+              </div>
+              <a href="tel:${order.customerPhone}" class="px-3 py-1.5 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold text-xs flex items-center gap-1 shrink-0">
+                📞 Call
+              </a>
+            </div>
+          </div>
+
+          <!-- Produce Items Checklist -->
+          <div class="p-3.5 rounded-2xl bg-white border border-stone-200 text-xs space-y-2">
+            <span class="text-[10px] uppercase font-bold text-stone-400 tracking-wider block">Package Contents (Eco Bag)</span>
+            ${order.items.map(it => `
+              <div class="flex justify-between items-center text-[11px]">
+                <span class="text-stone-700 font-medium">✓ ${it.name} (${it.weightLabel || '1 kg'})</span>
+                <span class="font-mono font-bold text-emerald-900">Qty: ${it.qty}</span>
+              </div>
+            `).join('')}
+            <div class="pt-2 border-t border-stone-100 flex justify-between font-bold text-xs text-emerald-950">
+              <span>Collection Amount:</span>
+              <span class="${order.paymentStatus === 'PAID' ? 'text-emerald-700' : 'text-amber-700'}">
+                ${order.paymentStatus === 'PAID' ? 'PAID ONLINE (₹0 to collect)' : `COLLECT CASH: ₹${order.totalAmount}`}
+              </span>
+            </div>
+          </div>
+
+          <!-- Next Action CTA Button -->
+          <div>
+            ${renderPilotActionButton(order)}
+          </div>
+
+        </div>
+      `;
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function getProgressStepNumber(status) {
+      if (['ACCEPTED_BY_HUB', 'PICKING', 'QUALITY_CHECK', 'PACKED', 'READY_FOR_PICKUP'].includes(status)) return 1;
+      if (status === 'PICKED_UP') return 2;
+      if (status === 'OUT_FOR_DELIVERY') return 3;
+      if (status === 'ARRIVED') return 4;
+      if (status === 'DELIVERED') return 5;
+      return 1;
+    }
+
+    function getStatusBg(status) {
+      if (status === 'DELIVERED') return 'bg-stone-200 text-stone-800';
+      if (status === 'OUT_FOR_DELIVERY') return 'bg-emerald-100 text-emerald-900';
+      if (status === 'ARRIVED') return 'bg-amber-100 text-amber-900';
+      return 'bg-blue-100 text-blue-900';
+    }
+
+    function formatStatusLabel(status) {
+      return status.replace(/_/g, ' ');
+    }
+
+    function renderPilotActionButton(order) {
+      switch (order.orderStatus) {
+        case 'CONFIRMED':
+        case 'ACCEPTED_BY_HUB':
+        case 'PICKING':
+        case 'QUALITY_CHECK':
+        case 'PACKED':
+        case 'READY_FOR_PICKUP':
+          return `
+            <button onclick="confirmPickup('${order.id}')" class="w-full py-4 rounded-2xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2">
+              <i data-lucide="package-check" class="w-4 h-4"></i>
+              <span>Confirm Pickup from Hub Bay</span>
+            </button>
+          `;
+        case 'PICKED_UP':
+          return `
+            <button onclick="startDeliveryRoute('${order.id}')" class="w-full py-4 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2">
+              <i data-lucide="navigation" class="w-4 h-4"></i>
+              <span>Start Delivery Route (Out for Delivery)</span>
+            </button>
+          `;
+        case 'OUT_FOR_DELIVERY':
+          return `
+            <button onclick="markArrived('${order.id}')" class="w-full py-4 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2">
+              <i data-lucide="map-pin" class="w-4 h-4"></i>
+              <span>Arrived at Customer Doorstep</span>
+            </button>
+          `;
+        case 'ARRIVED':
+          return `
+            <button onclick="openOtpModal()" class="w-full py-4 rounded-2xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 animate-pulse">
+              <i data-lucide="key" class="w-4 h-4"></i>
+              <span>Verify Customer OTP to Handover</span>
+            </button>
+          `;
+        case 'DELIVERED':
+          return `
+            <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-center font-bold text-xs text-emerald-950">
+              🎉 Handover Completed Successfully! Payout: ₹60 credited.
+            </div>
+          `;
+        default:
+          return '';
+      }
+    }
+
+    async function confirmPickup(id) {
+      await fetch(`/api/delivery/orders/${id}/pickup`, { method: 'PATCH' });
+      showToast('Order picked up from Hub. Ready for transit.', 'success');
+      fetchPilotData();
+    }
+
+    async function startDeliveryRoute(id) {
+      await fetch(`/api/delivery/orders/${id}/out-for-delivery`, { method: 'PATCH' });
+      showToast('Out for delivery. Customer notified via live tracker.', 'info');
+      fetchPilotData();
+    }
+
+    async function markArrived(id) {
+      await fetch(`/api/delivery/orders/${id}/arrived`, { method: 'PATCH' });
+      showToast('Doorstep arrival confirmed. Please ask customer for OTP.', 'info');
+      fetchPilotData();
+    }
+
+    function openOtpModal() {
+      document.getElementById('otp-modal')?.classList.remove('hidden');
+      document.getElementById('otp-error-msg')?.classList.add('hidden');
+      const input = document.getElementById('otp-input-field');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+    }
+
+    function closeOtpModal() {
+      document.getElementById('otp-modal')?.classList.add('hidden');
+    }
+
+    async function submitDeliveryOtp() {
+      const otp = document.getElementById('otp-input-field')?.value.trim();
+      if (!otp || otp.length !== 4) {
+        showToast('Please enter a valid 4-digit OTP', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/delivery/orders/${activeDeliveryOrder.id}/verify-otp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ otp })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          document.getElementById('otp-error-msg').classList.remove('hidden');
+          showToast(data.error || 'Invalid OTP', 'error');
+          return;
+        }
+
+        closeOtpModal();
+        showToast('🎉 OTP Verified! Order successfully delivered.', 'success');
+        fetchPilotData();
+      } catch (err) {
+        showToast('Verification error. Try again.', 'error');
+      }
+    }
+
+    function renderAvailablePool() {
+      const container = document.getElementById('view-pool');
+      if (!container) return;
+
+      if (availableJobs.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-3xl p-8 text-center border border-stone-200">
+            <p class="text-xs text-stone-500">No new pickup jobs waiting at this moment.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = availableJobs.map(job => `
+        <div class="bg-white rounded-3xl p-5 border border-stone-200 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="font-heading font-black text-base text-emerald-950">#${job.orderId}</span>
+            <span class="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full">₹55 Payout</span>
+          </div>
+          <div class="text-xs text-stone-600 space-y-1">
+            <p><strong>Pickup:</strong> ${job.hubName} (1.2 km)</p>
+            <p><strong>Drop:</strong> ${job.deliveryAddress?.city || 'Indiranagar'} (~2.4 km)</p>
+            <p><strong>Items:</strong> ${job.items?.length || 3} produce items (${job.packaging?.type || 'Eco Bag'})</p>
+          </div>
+          <button onclick="acceptPoolJob('${job.id}')" class="w-full py-2.5 rounded-xl bg-emerald-800 text-white font-bold text-xs hover:bg-emerald-900 transition-colors">
+            Accept Delivery Task
+          </button>
+        </div>
+      `).join('');
+    }
+
+    async function acceptPoolJob(id) {
+      await fetch(`/api/delivery/orders/${id}/accept`, { method: 'PATCH' });
+      showToast('Delivery task accepted! Assigned to you.', 'success');
+      switchTab('active');
+      fetchPilotData();
+    }
+
+    function renderHistory() {
+      const container = document.getElementById('view-history');
+      if (!container) return;
+
+      if (completedOrders.length === 0) {
+        container.innerHTML = `<p class="text-xs text-stone-400 text-center py-6">No completed deliveries yet today.</p>`;
+        return;
+      }
+
+      container.innerHTML = completedOrders.map(o => `
+        <div class="p-3.5 rounded-2xl bg-white border border-stone-200 text-xs flex justify-between items-center">
+          <div>
+            <strong class="text-emerald-950 block">#${o.orderId} • Delivered</strong>
+            <span class="text-[10px] text-stone-400">${o.deliveredAt ? new Date(o.deliveredAt).toLocaleTimeString() : 'Recently'}</span>
+          </div>
+          <span class="font-mono font-black text-emerald-700">+₹60.00</span>
+        </div>
+      `).join('');
+    }
+
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `p-3.5 rounded-2xl shadow-xl text-white text-xs font-bold transition-all duration-300 pointer-events-auto ${
+        type === 'success' ? 'bg-emerald-800' : type === 'error' ? 'bg-red-700' : 'bg-stone-800'
+      }`;
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3200);
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,2661 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enterprise Admin Console | FreshMart</title>
+  <meta name="description" content="FreshMart Enterprise Admin Management Panel - Unified Control for Products, Inventory, Orders, Farmers, Hubs & Finance." />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            emerald: {
+              50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7',
+              400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857',
+              800: '#065f46', 900: '#064e3b', 950: '#022c22',
+            }
+          },
+          fontFamily: {
+            heading: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Custom admin scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+  </style>
+</head>
+<body class="bg-stone-100 text-stone-800 antialiased min-h-screen font-sans flex flex-col md:flex-row">
+
+  <!-- ================= SIDEBAR NAVIGATION ================= -->
+  <aside id="admin-sidebar" class="w-72 bg-stone-900 text-stone-300 flex-shrink-0 flex flex-col min-h-screen border-r border-stone-800 fixed md:sticky top-0 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out h-screen overflow-y-auto">
+    <!-- Brand Header -->
+    <div class="p-5 border-b border-stone-800 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-2xl bg-emerald-700 flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-emerald-900/40">
+          🌾
+        </div>
+        <div>
+          <h1 class="font-heading font-black text-lg tracking-tight text-white flex items-center gap-1.5">
+            FreshMart <span class="text-[10px] uppercase font-bold tracking-widest bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">Enterprise</span>
+          </h1>
+          <p class="text-[11px] text-stone-400 font-medium">Unified Operations & Control</p>
+        </div>
+      </a>
+      <button id="close-sidebar-btn" class="md:hidden text-stone-400 hover:text-white p-1">
+        ✕
+      </button>
+    </div>
+
+    <!-- Navigation Groups -->
+    <nav class="p-3 space-y-6 flex-1 text-xs">
+      
+      <!-- Core Operations -->
+      <div>
+        <span class="px-3 text-[10px] font-bold uppercase tracking-widest text-stone-500 block mb-2">Core Operations</span>
+        <ul class="space-y-1">
+          <li>
+            <button onclick="switchTab('dashboard')" data-tab-btn="dashboard" class="sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-stone-300 hover:text-white hover:bg-stone-800 transition active bg-emerald-600/20 text-emerald-400 border border-emerald-500/30">
+              <span class="text-base">📊</span> <span>Dashboard & KPIs</span>
+            </button>
+          </li>
+          <li>
+            <button onclick="switchTab('orders')" data-tab-btn="orders" class="sidebar-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold text-stone-300 hover:text-white hover:bg-stone-800 transition">
+              <span class="flex items-center gap-3"><span class="text-base">📦</span> <span>Live Orders</span></span>
+              <span id="badge-live-orders" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400">0</span>
+            </button>
+          </li>
+          <li>
+            <button onclick="switchTab('customers')" data-tab-btn="customers" class="sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-stone-300 hover:text-white hover:bg-stone-800 transition">
+              <span class="text-base">👥</span> <span>Customer Directory</span>
+            </button>
+          </li>
+          <li>
+            <button onclick="switchTab('hubs')" data-tab-btn="hubs" class="sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-stone-300 hover:text-white hover:bg-stone-800 transition">
+              <span class="text-base">🏬</span> <span>Hubs & Rider Fleet</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Supply Chain & Inventory -->
+      <div>
+        <span class="px-3 text-[10px] font-bold uppercase tracking-widest text-stone-500 block mb-2">Supply Chain & Inventory</span>
+        <ul class="space-y-1">
+          <li>
+            <button onclick="switchTab('products')" data-tab-btn="products" class="sidebar-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold text-stone-300 hover:text-white hover:bg-stone-800 transition">
+              <span class="flex items-center gap-3"><span class="text-base">🥦</span> <span>Catalog & SKUs</span></span>
+              <span id="badge-products-count" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-stone-800 text-stone-300">0</span>
+            </button>
+          </li>
+          <li>
+            <button onclick="switchTab('inventory')" data-tab-btn="inventory" class="sidebar-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold text-stone-300 hover:text-white hover:bg-stone-800 transition">
+              <span class="flex items-center gap-3"><span class="text-base">📋</span> <span>Stock & Multi-Hub</span></span>
+              <span id="badge-low-stock" class="hidden px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400">0 Low</span>
+            </button>
+          </li>
+          <li>
+            <button onclick="switchTab('farmers')" data-tab-btn="farmers" class="sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-stone-300 hover:text-white hover:bg-stone-800 transition">
+              <span class="text-base">🚜</span> <span>Farmers & Procurements</span>
+            </button>
+          </li>
+          <li>
+            <button onclick="switchTab('movements')" data-tab-btn="movements" class="sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-stone-300 hover:text-white hover:bg-stone-800 transition">
+              <span class="text-base">📜</span> <span>Audit Ledger (Movements)</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Sales & Finance -->
+      <div>
+        <span class="px-3 text-[10px] font-bold uppercase tracking-widest text-stone-500 block mb-2">Sales & Finance</span>
+        <ul class="space-y-1">
+          <li>
+            <button onclick="switchTab('payments')" data-tab-btn="payments" class="sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-stone-300 hover:text-white hover:bg-stone-800 transition">
+              <span class="text-base">💳</span> <span>Payments & Ledger</span>
+            </button>
+          </li>
+          <li>
+            <button onclick="switchTab('refunds')" data-tab-btn="refunds" class="sidebar-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-semibold text-stone-300 hover:text-white hover:bg-stone-800 transition">
+              <span class="flex items-center gap-3"><span class="text-base">🔄</span> <span>Refund Claims</span></span>
+              <span id="badge-refunds" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400">0</span>
+            </button>
+          </li>
+          <li>
+            <button onclick="switchTab('coupons')" data-tab-btn="coupons" class="sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-stone-300 hover:text-white hover:bg-stone-800 transition">
+              <span class="text-base">🏷️</span> <span>Coupons & Flash Offers</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Intelligence & Control -->
+      <div>
+        <span class="px-3 text-[10px] font-bold uppercase tracking-widest text-stone-500 block mb-2">Intelligence & Control</span>
+        <ul class="space-y-1">
+          <li>
+            <button onclick="switchTab('reports')" data-tab-btn="reports" class="sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-stone-300 hover:text-white hover:bg-stone-800 transition">
+              <span class="text-base">📑</span> <span>CSV Reports & Analytics</span>
+            </button>
+          </li>
+          <li>
+            <button onclick="switchTab('logs')" data-tab-btn="logs" class="sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-stone-300 hover:text-white hover:bg-stone-800 transition">
+              <span class="text-base">🛡️</span> <span>Security Activity Logs</span>
+            </button>
+          </li>
+          <li>
+            <button onclick="switchTab('settings')" data-tab-btn="settings" class="sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-stone-300 hover:text-white hover:bg-stone-800 transition">
+              <span class="text-base">⚙️</span> <span>SLA & System Settings</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="p-4 border-t border-stone-800 text-[11px] text-stone-400 bg-stone-950/40">
+      <div class="flex items-center justify-between mb-2">
+        <span class="font-mono text-emerald-400 font-bold">● SSE Live Engine</span>
+        <span class="text-stone-500">v3.4.0</span>
+      </div>
+      <div class="flex gap-2">
+        <a href="index.html" class="flex-1 text-center py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 transition">Storefront</a>
+        <a href="hub.html" class="flex-1 text-center py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 transition">Hub Ops</a>
+        <a href="delivery.html" class="flex-1 text-center py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 transition">Rider</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN CONTENT AREA ================= -->
+  <main class="flex-1 flex flex-col min-w-0 min-h-screen">
+    
+    <!-- Top Administrative Header -->
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-40 px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+      
+      <div class="flex items-center gap-3">
+        <button id="open-sidebar-btn" class="md:hidden p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700">
+          ☰
+        </button>
+        <div>
+          <h2 id="current-tab-title" class="font-heading font-black text-xl text-stone-900 tracking-tight">Executive Dashboard</h2>
+          <p id="current-tab-sub" class="text-xs text-stone-500">Real-time platform overview & live supply chain performance</p>
+        </div>
+      </div>
+
+      <!-- Right Controls: Role Switcher & Live Ping -->
+      <div class="flex items-center gap-3 flex-wrap">
+        
+        <!-- SSE Live Status Indicator -->
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>SSE Connected</span>
+        </div>
+
+        <!-- RBAC Role Switcher -->
+        <div class="flex items-center gap-2 bg-stone-100 p-1 rounded-xl border border-stone-200 text-xs">
+          <span class="pl-2 font-medium text-stone-500">Role:</span>
+          <select id="admin-role-select" onchange="changeAdminRole(this.value)" class="bg-white border-0 rounded-lg px-2.5 py-1 font-bold text-stone-800 shadow-xs focus:ring-2 focus:ring-emerald-500 cursor-pointer">
+            <option value="SUPER_ADMIN">👑 Super Admin</option>
+            <option value="INVENTORY_MANAGER">📋 Inventory Manager</option>
+            <option value="ORDER_MANAGER">📦 Order Fulfillment Mgr</option>
+            <option value="HUB_MANAGER">🏬 Dark Store Hub Mgr</option>
+            <option value="SUPPORT_AGENT">🎧 Customer Support</option>
+          </select>
+        </div>
+
+        <button onclick="refreshCurrentTab()" class="px-3 py-1.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-semibold shadow-xs flex items-center gap-1.5 transition">
+          <span>🔄</span> <span>Sync</span>
+        </button>
+
+      </div>
+    </header>
+
+    <!-- Inner Content Container -->
+    <div class="p-4 sm:p-8 flex-1 max-w-7xl w-full mx-auto space-y-6">
+
+      <!-- ================= TAB 1: DASHBOARD ================= -->
+      <section id="tab-dashboard" class="tab-pane active space-y-6">
+        
+        <!-- KPI Cards Grid -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <div class="bg-white p-5 rounded-3xl border border-stone-200/80 shadow-xs hover:border-emerald-200 transition">
+            <div class="flex items-center justify-between text-stone-400 mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-stone-500">Gross Revenue</span>
+              <span class="text-lg">💰</span>
+            </div>
+            <div id="kpi-revenue" class="text-2xl sm:text-3xl font-black text-stone-900">₹0</div>
+            <p class="text-[11px] text-emerald-700 font-semibold mt-1">Real-time completed orders</p>
+          </div>
+
+          <div class="bg-white p-5 rounded-3xl border border-stone-200/80 shadow-xs hover:border-emerald-200 transition">
+            <div class="flex items-center justify-between text-stone-400 mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-stone-500">Total Orders</span>
+              <span class="text-lg">📦</span>
+            </div>
+            <div id="kpi-orders" class="text-2xl sm:text-3xl font-black text-stone-900">0</div>
+            <p id="kpi-orders-sub" class="text-[11px] text-stone-500 mt-1">0 active in dispatch pipeline</p>
+          </div>
+
+          <div class="bg-white p-5 rounded-3xl border border-stone-200/80 shadow-xs hover:border-emerald-200 transition">
+            <div class="flex items-center justify-between text-stone-400 mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-stone-500">Inventory Stock</span>
+              <span class="text-lg">🥦</span>
+            </div>
+            <div id="kpi-stock" class="text-2xl sm:text-3xl font-black text-stone-900">0 Units</div>
+            <p id="kpi-low-stock-sub" class="text-[11px] text-amber-600 font-semibold mt-1">0 low stock warnings</p>
+          </div>
+
+          <div class="bg-white p-5 rounded-3xl border border-stone-200/80 shadow-xs hover:border-emerald-200 transition">
+            <div class="flex items-center justify-between text-stone-400 mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-stone-500">Procurements</span>
+              <span class="text-lg">🚜</span>
+            </div>
+            <div id="kpi-procurement" class="text-2xl sm:text-3xl font-black text-stone-900">₹0</div>
+            <p id="kpi-procurement-sub" class="text-[11px] text-stone-500 mt-1">Direct from kisan partners</p>
+          </div>
+
+        </div>
+
+        <!-- Analytics Visual Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Category Sales Breakdown -->
+          <div class="bg-white p-6 rounded-3xl border border-stone-200/80 shadow-xs lg:col-span-1">
+            <h3 class="font-heading font-black text-base text-stone-900 mb-4">Stock Breakdown by Category</h3>
+            <div id="category-bars-container" class="space-y-4">
+              <!-- Dynamically populated -->
+              <div class="animate-pulse flex space-x-4">
+                <div class="flex-1 space-y-3 py-1">
+                  <div class="h-2 bg-stone-200 rounded"></div>
+                  <div class="h-2 bg-stone-200 rounded"></div>
+                  <div class="h-2 bg-stone-200 rounded"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Produce Items -->
+          <div class="bg-white p-6 rounded-3xl border border-stone-200/80 shadow-xs lg:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-heading font-black text-base text-stone-900">Produce Velocity & Availability</h3>
+              <button onclick="switchTab('products')" class="text-xs font-bold text-emerald-700 hover:text-emerald-800">Manage Catalog →</button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead>
+                  <tr class="border-b border-stone-100 text-[11px] uppercase tracking-wider text-stone-400 font-bold">
+                    <th class="pb-3">Produce / SKU</th>
+                    <th class="pb-3">Category</th>
+                    <th class="pb-3 text-right">Price</th>
+                    <th class="pb-3 text-right">Stock</th>
+                    <th class="pb-3 text-right">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboard-top-products" class="divide-y divide-stone-100">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Recent Audit Activity -->
+        <div class="bg-white p-6 rounded-3xl border border-stone-200/80 shadow-xs">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-heading font-black text-base text-stone-900">Recent Operational Activity</h3>
+            <button onclick="switchTab('logs')" class="text-xs font-bold text-emerald-700 hover:text-emerald-800">View All Logs →</button>
+          </div>
+          <div id="dashboard-recent-logs" class="space-y-3 text-xs">
+            <!-- Dynamic logs -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 2: LIVE ORDERS ================= -->
+      <section id="tab-orders" class="tab-pane space-y-4">
+        
+        <!-- Controls & Filters -->
+        <div class="bg-white p-4 rounded-3xl border border-stone-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-2 flex-wrap">
+            <input type="text" id="orders-search" placeholder="Search order ID, phone, customer..." oninput="filterOrdersTable()" class="px-3.5 py-2 rounded-xl border border-stone-200 text-xs w-64 focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+            <select id="orders-status-filter" onchange="filterOrdersTable()" class="px-3 py-2 rounded-xl border border-stone-200 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 bg-white">
+              <option value="ALL">All Statuses</option>
+              <option value="ORDER CONFIRMED">Order Confirmed</option>
+              <option value="ORDER PREPARING">Order Preparing</option>
+              <option value="QUALITY CHECK">Quality Check</option>
+              <option value="PACKED">Packed</option>
+              <option value="PICKED UP">Picked Up</option>
+              <option value="OUT FOR DELIVERY">Out for Delivery</option>
+              <option value="DELIVERED">Delivered</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="downloadReport('orders')" class="px-3 py-2 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-bold shadow-xs flex items-center gap-1.5 transition">
+              <span>📥</span> <span>Export Orders CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="bg-white rounded-3xl border border-stone-200/80 shadow-xs overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-stone-50/80 border-b border-stone-200 text-[11px] uppercase tracking-wider text-stone-500 font-bold">
+                <tr>
+                  <th class="py-3.5 px-4">Order ID & Date</th>
+                  <th class="py-3.5 px-4">Customer</th>
+                  <th class="py-3.5 px-4">Items & Hub</th>
+                  <th class="py-3.5 px-4 text-right">Amount</th>
+                  <th class="py-3.5 px-4 text-center">Payment</th>
+                  <th class="py-3.5 px-4 text-center">Status</th>
+                  <th class="py-3.5 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="orders-table-body" class="divide-y divide-stone-100">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 3: PRODUCTS & CATALOG ================= -->
+      <section id="tab-products" class="tab-pane space-y-4">
+        
+        <!-- Controls -->
+        <div class="bg-white p-4 rounded-3xl border border-stone-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-2 flex-wrap">
+            <input type="text" id="products-search" placeholder="Search title, SKU, category..." oninput="filterProductsTable()" class="px-3.5 py-2 rounded-xl border border-stone-200 text-xs w-64 focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+            <select id="products-category-filter" onchange="filterProductsTable()" class="px-3 py-2 rounded-xl border border-stone-200 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 bg-white">
+              <option value="ALL">All Categories</option>
+              <option value="vegetables">Vegetables</option>
+              <option value="fruits">Fruits</option>
+              <option value="grocery">Grocery & Staples</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="downloadReport('inventory')" class="px-3 py-2 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-bold shadow-xs transition">
+              📥 Export Inventory CSV
+            </button>
+            <button onclick="openAddProductModal()" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+              <span>➕</span> <span>Add New Produce / SKU</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="bg-white rounded-3xl border border-stone-200/80 shadow-xs overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-stone-50/80 border-b border-stone-200 text-[11px] uppercase tracking-wider text-stone-500 font-bold">
+                <tr>
+                  <th class="py-3.5 px-4">SKU / Item</th>
+                  <th class="py-3.5 px-4">Category & Origin</th>
+                  <th class="py-3.5 px-4 text-right">Cost</th>
+                  <th class="py-3.5 px-4 text-right">Price</th>
+                  <th class="py-3.5 px-4 text-right">Stock (Cur/Res/Avail)</th>
+                  <th class="py-3.5 px-4 text-center">Status</th>
+                  <th class="py-3.5 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="products-table-body" class="divide-y divide-stone-100">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 4: INVENTORY & MULTI-HUB ================= -->
+      <section id="tab-inventory" class="tab-pane space-y-4">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-white p-5 rounded-3xl border border-stone-200/80 shadow-xs">
+            <span class="text-[11px] uppercase font-bold text-stone-400 tracking-wider block">Total Physical Stock</span>
+            <span id="inv-total-physical" class="text-2xl font-black text-stone-900 mt-1 block">0 Units</span>
+          </div>
+          <div class="bg-white p-5 rounded-3xl border border-stone-200/80 shadow-xs">
+            <span class="text-[11px] uppercase font-bold text-amber-600 tracking-wider block">Reserved In Active Orders</span>
+            <span id="inv-total-reserved" class="text-2xl font-black text-amber-700 mt-1 block">0 Units</span>
+          </div>
+          <div class="bg-white p-5 rounded-3xl border border-stone-200/80 shadow-xs">
+            <span class="text-[11px] uppercase font-bold text-emerald-700 tracking-wider block">Available for Sale</span>
+            <span id="inv-total-available" class="text-2xl font-black text-emerald-800 mt-1 block">0 Units</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-3xl border border-stone-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-2">
+            <h3 class="font-heading font-black text-base text-stone-900">Multi-Hub Inventory Matrix</h3>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="openStockTransferModal()" class="px-3.5 py-2 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-bold shadow-xs transition">
+              🚚 Transfer Stock Between Hubs
+            </button>
+            <button onclick="openStockAdjustModal()" class="px-4 py-2 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-bold shadow-sm transition">
+              ⚡ Quick Stock Adjustment
+            </button>
+          </div>
+        </div>
+
+        <!-- Inventory List -->
+        <div class="bg-white rounded-3xl border border-stone-200/80 shadow-xs overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-stone-50/80 border-b border-stone-200 text-[11px] uppercase tracking-wider text-stone-500 font-bold">
+                <tr>
+                  <th class="py-3.5 px-4">Item & SKU</th>
+                  <th class="py-3.5 px-4 text-right">Physical Stock</th>
+                  <th class="py-3.5 px-4 text-right">Reserved Stock</th>
+                  <th class="py-3.5 px-4 text-right">Available Stock</th>
+                  <th class="py-3.5 px-4 text-right">Threshold Alert</th>
+                  <th class="py-3.5 px-4 text-center">Status</th>
+                  <th class="py-3.5 px-4 text-right">Adjust</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-table-body" class="divide-y divide-stone-100">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 5: FARMERS & PROCUREMENTS ================= -->
+      <section id="tab-farmers" class="tab-pane space-y-6">
+        
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-heading font-black text-lg text-stone-900">Direct Kisan Sourcing Network</h3>
+            <p class="text-xs text-stone-500">Traceable dawn harvest procurements with farm-gate QC grading</p>
+          </div>
+          <button onclick="openProcurementModal()" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+            <span>🚜</span> <span>Intake Dawn Harvest</span>
+          </button>
+        </div>
+
+        <!-- Farmer Cards Grid -->
+        <div id="farmers-cards-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <!-- Populated via JS -->
+        </div>
+
+        <!-- Procurements Intake History -->
+        <div class="bg-white rounded-3xl border border-stone-200/80 shadow-xs overflow-hidden">
+          <div class="p-4 border-b border-stone-200/80 flex items-center justify-between">
+            <h4 class="font-heading font-black text-sm text-stone-900">Procurement Inbound Receipts</h4>
+            <button onclick="downloadReport('procurement')" class="text-xs font-bold text-emerald-700 hover:text-emerald-800">Export CSV →</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-stone-50/80 border-b border-stone-200 text-[11px] uppercase tracking-wider text-stone-500 font-bold">
+                <tr>
+                  <th class="py-3.5 px-4">Receipt ID</th>
+                  <th class="py-3.5 px-4">Farmer</th>
+                  <th class="py-3.5 px-4">Produce</th>
+                  <th class="py-3.5 px-4 text-right">Quantity</th>
+                  <th class="py-3.5 px-4 text-right">Rate / Total</th>
+                  <th class="py-3.5 px-4 text-center">QC Grade</th>
+                  <th class="py-3.5 px-4 text-right">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody id="procurements-table-body" class="divide-y divide-stone-100">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 6: AUDIT MOVEMENTS LEDGER ================= -->
+      <section id="tab-movements" class="tab-pane space-y-4">
+        
+        <div class="bg-white p-4 rounded-3xl border border-stone-200/80 shadow-xs flex items-center justify-between">
+          <div>
+            <h3 class="font-heading font-black text-base text-stone-900">Immutable Stock Movement Ledger</h3>
+            <p class="text-xs text-stone-500">Full audit trail tracking every gram received, reserved, deducted, and adjusted</p>
+          </div>
+          <button onclick="refreshMovementsTable()" class="px-3 py-1.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-bold">
+            🔄 Refresh Ledger
+          </button>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-stone-200/80 shadow-xs overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-stone-50/80 border-b border-stone-200 text-[11px] uppercase tracking-wider text-stone-500 font-bold">
+                <tr>
+                  <th class="py-3.5 px-4">Timestamp</th>
+                  <th class="py-3.5 px-4">Product</th>
+                  <th class="py-3.5 px-4">Type</th>
+                  <th class="py-3.5 px-4 text-right">Delta</th>
+                  <th class="py-3.5 px-4 text-right">Balance</th>
+                  <th class="py-3.5 px-4">Actor</th>
+                  <th class="py-3.5 px-4">Note / Ref</th>
+                </tr>
+              </thead>
+              <tbody id="movements-table-body" class="divide-y divide-stone-100 font-mono">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 7: CUSTOMERS ================= -->
+      <section id="tab-customers" class="tab-pane space-y-4">
+        
+        <div class="bg-white p-4 rounded-3xl border border-stone-200/80 shadow-xs flex items-center justify-between">
+          <div>
+            <h3 class="font-heading font-black text-base text-stone-900">Customer Directory</h3>
+            <p class="text-xs text-stone-500">Customer engagement, delivery addresses, and lifetime transaction value</p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-stone-200/80 shadow-xs overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-stone-50/80 border-b border-stone-200 text-[11px] uppercase tracking-wider text-stone-500 font-bold">
+                <tr>
+                  <th class="py-3.5 px-4">Customer Name</th>
+                  <th class="py-3.5 px-4">Contact Info</th>
+                  <th class="py-3.5 px-4">Saved Address</th>
+                  <th class="py-3.5 px-4 text-right">Total Orders</th>
+                  <th class="py-3.5 px-4 text-right">Lifetime Spend</th>
+                </tr>
+              </thead>
+              <tbody id="customers-table-body" class="divide-y divide-stone-100">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 8: HUBS & RIDER FLEET ================= -->
+      <section id="tab-hubs" class="tab-pane space-y-6">
+        
+        <!-- Dark Store Hubs List -->
+        <div>
+          <h3 class="font-heading font-black text-base text-stone-900 mb-3">Dark Store Fulfillment Centers</h3>
+          <div id="hubs-cards-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Hubs dynamic -->
+          </div>
+        </div>
+
+        <!-- Rider Fleet Table -->
+        <div class="bg-white rounded-3xl border border-stone-200/80 shadow-xs overflow-hidden">
+          <div class="p-4 border-b border-stone-200/80 flex items-center justify-between">
+            <h4 class="font-heading font-black text-sm text-stone-900">Active Delivery Partner Fleet</h4>
+            <span class="text-xs text-emerald-700 font-bold">● Active 90-Min Fleet</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-stone-50/80 border-b border-stone-200 text-[11px] uppercase tracking-wider text-stone-500 font-bold">
+                <tr>
+                  <th class="py-3.5 px-4">Rider</th>
+                  <th class="py-3.5 px-4">Hub Base</th>
+                  <th class="py-3.5 px-4">Vehicle</th>
+                  <th class="py-3.5 px-4 text-center">Status</th>
+                  <th class="py-3.5 px-4 text-right">Completed Deliveries</th>
+                </tr>
+              </thead>
+              <tbody id="riders-table-body" class="divide-y divide-stone-100">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 9: PAYMENTS ================= -->
+      <section id="tab-payments" class="tab-pane space-y-4">
+        
+        <div class="bg-white p-4 rounded-3xl border border-stone-200/80 shadow-xs flex items-center justify-between">
+          <div>
+            <h3 class="font-heading font-black text-base text-stone-900">Payment Gateways & Ledger</h3>
+            <p class="text-xs text-stone-500">UPI, Card, NetBanking & Cash-on-Delivery transaction logs</p>
+          </div>
+          <button onclick="downloadReport('sales')" class="px-3 py-2 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-bold">
+            📥 Export Sales CSV
+          </button>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-stone-200/80 shadow-xs overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-stone-50/80 border-b border-stone-200 text-[11px] uppercase tracking-wider text-stone-500 font-bold">
+                <tr>
+                  <th class="py-3.5 px-4">Payment ID & Ref</th>
+                  <th class="py-3.5 px-4">Order ID</th>
+                  <th class="py-3.5 px-4">Method</th>
+                  <th class="py-3.5 px-4 text-right">Amount</th>
+                  <th class="py-3.5 px-4 text-center">Status</th>
+                  <th class="py-3.5 px-4 text-right">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody id="payments-table-body" class="divide-y divide-stone-100 font-mono">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 10: REFUNDS ================= -->
+      <section id="tab-refunds" class="tab-pane space-y-4">
+        
+        <div class="bg-white p-4 rounded-3xl border border-stone-200/80 shadow-xs flex items-center justify-between">
+          <div>
+            <h3 class="font-heading font-black text-base text-stone-900">Refund Claims & Returns</h3>
+            <p class="text-xs text-stone-500">Manage customer refund requests, approve immediate reversals or store credits</p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-stone-200/80 shadow-xs overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-stone-50/80 border-b border-stone-200 text-[11px] uppercase tracking-wider text-stone-500 font-bold">
+                <tr>
+                  <th class="py-3.5 px-4">Refund ID</th>
+                  <th class="py-3.5 px-4">Order ID</th>
+                  <th class="py-3.5 px-4">Customer Reason</th>
+                  <th class="py-3.5 px-4 text-right">Claim Amount</th>
+                  <th class="py-3.5 px-4 text-center">Status</th>
+                  <th class="py-3.5 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="refunds-table-body" class="divide-y divide-stone-100">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 11: COUPONS & OFFERS ================= -->
+      <section id="tab-coupons" class="tab-pane space-y-4">
+        
+        <div class="bg-white p-4 rounded-3xl border border-stone-200/80 shadow-xs flex items-center justify-between">
+          <div>
+            <h3 class="font-heading font-black text-base text-stone-900">Promotions, Coupons & Offers</h3>
+            <p class="text-xs text-stone-500">Configure discount promo codes and dynamic seasonal markdowns</p>
+          </div>
+          <button onclick="openAddCouponModal()" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition">
+            ➕ Create Promo Code
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Coupons Table -->
+          <div class="bg-white rounded-3xl border border-stone-200/80 shadow-xs p-5">
+            <h4 class="font-heading font-black text-sm text-stone-900 mb-3">Active Promotional Coupons</h4>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead>
+                  <tr class="border-b border-stone-100 text-[11px] uppercase tracking-wider text-stone-400 font-bold">
+                    <th class="pb-2.5">Code</th>
+                    <th class="pb-2.5">Discount</th>
+                    <th class="pb-2.5">Min Cart</th>
+                    <th class="pb-2.5 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="coupons-table-body" class="divide-y divide-stone-100 font-mono">
+                  <!-- Dynamic -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Active Today Offers -->
+          <div class="bg-white rounded-3xl border border-stone-200/80 shadow-xs p-5">
+            <h4 class="font-heading font-black text-sm text-stone-900 mb-3">Live Flash Deals & Banners</h4>
+            <div id="offers-list" class="space-y-3 text-xs">
+              <!-- Dynamic -->
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 12: CSV REPORTS & ANALYTICS ================= -->
+      <section id="tab-reports" class="tab-pane space-y-6">
+        
+        <div class="bg-white p-6 rounded-3xl border border-stone-200/80 shadow-xs">
+          <h3 class="font-heading font-black text-lg text-stone-900 mb-2">Export Business Intelligence Reports</h3>
+          <p class="text-xs text-stone-500 mb-6">Download real transactional CSV spreadsheets generated directly from our database.</p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <div class="p-5 rounded-2xl border border-stone-200 bg-stone-50 flex flex-col justify-between">
+              <div>
+                <span class="text-2xl mb-2 block">📊</span>
+                <h4 class="font-heading font-bold text-sm text-stone-900">Sales & Revenue Report</h4>
+                <p class="text-[11px] text-stone-500 mt-1">Full transaction ledger with gross revenue, customer details and payment statuses.</p>
+              </div>
+              <button onclick="downloadReport('sales')" class="mt-4 w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition">
+                Download Sales CSV
+              </button>
+            </div>
+
+            <div class="p-5 rounded-2xl border border-stone-200 bg-stone-50 flex flex-col justify-between">
+              <div>
+                <span class="text-2xl mb-2 block">📦</span>
+                <h4 class="font-heading font-bold text-sm text-stone-900">Order Fulfillment Report</h4>
+                <p class="text-[11px] text-stone-500 mt-1">Complete history of all customer orders, delivery time slots, and SLA delivery markers.</p>
+              </div>
+              <button onclick="downloadReport('orders')" class="mt-4 w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition">
+                Download Orders CSV
+              </button>
+            </div>
+
+            <div class="p-5 rounded-2xl border border-stone-200 bg-stone-50 flex flex-col justify-between">
+              <div>
+                <span class="text-2xl mb-2 block">📋</span>
+                <h4 class="font-heading font-bold text-sm text-stone-900">Inventory Valuation</h4>
+                <p class="text-[11px] text-stone-500 mt-1">Current stock levels, reserved quantities, cost basis, selling price, and stock worth.</p>
+              </div>
+              <button onclick="downloadReport('inventory')" class="mt-4 w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition">
+                Download Inventory CSV
+              </button>
+            </div>
+
+            <div class="p-5 rounded-2xl border border-stone-200 bg-stone-50 flex flex-col justify-between">
+              <div>
+                <span class="text-2xl mb-2 block">🚜</span>
+                <h4 class="font-heading font-bold text-sm text-stone-900">Farmer Procurements</h4>
+                <p class="text-[11px] text-stone-500 mt-1">Direct farm harvest intakes, QC grade records, payout rates, and intake dates.</p>
+              </div>
+              <button onclick="downloadReport('procurement')" class="mt-4 w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition">
+                Download Procurement CSV
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 13: AUDIT LOGS ================= -->
+      <section id="tab-logs" class="tab-pane space-y-4">
+        
+        <div class="bg-white p-4 rounded-3xl border border-stone-200/80 shadow-xs flex items-center justify-between">
+          <div>
+            <h3 class="font-heading font-black text-base text-stone-900">Security & Operational Activity Audit</h3>
+            <p class="text-xs text-stone-500">Every state change, role switch, price update, and stock adjustment is logged here</p>
+          </div>
+          <button onclick="loadActivityLogs()" class="px-3 py-1.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-bold">
+            🔄 Refresh Logs
+          </button>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-stone-200/80 shadow-xs overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-stone-50/80 border-b border-stone-200 text-[11px] uppercase tracking-wider text-stone-500 font-bold">
+                <tr>
+                  <th class="py-3.5 px-4">Timestamp</th>
+                  <th class="py-3.5 px-4">Admin / Role</th>
+                  <th class="py-3.5 px-4">Action Event</th>
+                  <th class="py-3.5 px-4">Details & Metadata</th>
+                </tr>
+              </thead>
+              <tbody id="logs-table-body" class="divide-y divide-stone-100 font-mono">
+                <!-- Dynamic -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 14: SLA & SETTINGS ================= -->
+      <section id="tab-settings" class="tab-pane space-y-6">
+        
+        <div class="bg-white p-6 rounded-3xl border border-stone-200/80 shadow-xs max-w-2xl">
+          <h3 class="font-heading font-black text-lg text-stone-900 mb-1">Fulfillment & Operations Settings</h3>
+          <p class="text-xs text-stone-500 mb-6">Manage SLA parameters, default dark store routing, and delivery charges.</p>
+
+          <form id="settings-form" onsubmit="saveSettings(event)" class="space-y-4 text-xs">
+            
+            <div>
+              <label class="block font-bold text-stone-700 mb-1">Platform Brand Name</label>
+              <input type="text" id="setting-site-name" class="w-full px-3.5 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block font-bold text-stone-700 mb-1">Delivery SLA Guarantee (Minutes)</label>
+                <input type="number" id="setting-delivery-minutes" class="w-full px-3.5 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+              </div>
+              <div>
+                <label class="block font-bold text-stone-700 mb-1">Standard Delivery Fee (₹)</label>
+                <input type="number" id="setting-delivery-fee" class="w-full px-3.5 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block font-bold text-stone-700 mb-1">Free Delivery Threshold (₹)</label>
+                <input type="number" id="setting-free-delivery-threshold" class="w-full px-3.5 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+              </div>
+              <div>
+                <label class="block font-bold text-stone-700 mb-1">Default Dark Store Hub</label>
+                <select id="setting-default-hub" class="w-full px-3.5 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500 bg-white">
+                  <option value="hub-1">Hub Central East (Indiranagar)</option>
+                  <option value="hub-2">Hub South West (Koramangala)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-stone-100 flex items-center justify-between">
+              <span id="settings-save-msg" class="text-xs font-bold text-emerald-700"></span>
+              <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition shadow-xs">
+                Save Platform Configuration
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- 0. VIEW PRODUCT MODAL -->
+  <div id="view-product-modal" class="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl border border-stone-200 shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto">
+      <!-- Header -->
+      <div class="flex items-center justify-between p-5 border-b border-stone-100 sticky top-0 bg-white/95 backdrop-blur-md z-10">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl">🥬</span>
+          <div>
+            <h3 id="view-admin-prod-title" class="font-heading font-black text-base text-stone-900">Product Details</h3>
+            <p id="view-admin-prod-sku" class="text-[11px] text-stone-400 font-mono">SKU: SJH-VEG-01</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="view-admin-prod-status" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">ACTIVE</span>
+          <button onclick="closeAdminViewProductModal()" class="text-stone-400 hover:text-stone-800 text-lg font-bold p-1 cursor-pointer">&times;</button>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="p-5 space-y-4 text-xs">
+        <div class="grid grid-cols-3 gap-4 items-start">
+          <img id="view-admin-prod-img" src="" class="w-full aspect-square rounded-2xl object-cover border border-stone-200" alt="Produce" />
+          <div class="col-span-2 space-y-2">
+            <h4 id="view-admin-prod-name" class="text-base font-bold text-stone-900">Produce Title</h4>
+            <div class="flex items-center gap-2">
+              <span id="view-admin-prod-cat" class="px-2 py-0.5 rounded-md bg-stone-100 text-stone-700 font-bold capitalize">Category</span>
+              <span class="text-stone-400">&bull;</span>
+              <span id="view-admin-prod-farmer" class="text-stone-500 font-medium">Farmer</span>
+            </div>
+            <p id="view-admin-prod-desc" class="text-stone-600 leading-relaxed pt-1">Description...</p>
+          </div>
+        </div>
+
+        <!-- Pricing & Margin -->
+        <div class="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/80">
+          <span class="text-[10px] uppercase font-bold text-stone-400 tracking-wider block mb-2">Economics & Margin</span>
+          <div class="grid grid-cols-4 gap-2 text-center">
+            <div class="p-2 rounded-xl bg-white border border-stone-200">
+              <span class="text-[10px] text-stone-400 block font-semibold">Selling</span>
+              <span id="view-admin-prod-price" class="font-mono font-bold text-emerald-700 mt-0.5 block">₹0</span>
+            </div>
+            <div class="p-2 rounded-xl bg-white border border-stone-200">
+              <span class="text-[10px] text-stone-400 block font-semibold">MRP</span>
+              <span id="view-admin-prod-mrp" class="font-mono font-bold text-stone-500 mt-0.5 block line-through">₹0</span>
+            </div>
+            <div class="p-2 rounded-xl bg-white border border-stone-200">
+              <span class="text-[10px] text-stone-400 block font-semibold">Cost</span>
+              <span id="view-admin-prod-cost" class="font-mono font-bold text-stone-700 mt-0.5 block">₹0</span>
+            </div>
+            <div class="p-2 rounded-xl bg-white border border-stone-200">
+              <span class="text-[10px] text-stone-400 block font-semibold">Gross Margin</span>
+              <span id="view-admin-prod-margin" class="font-mono font-bold text-teal-700 mt-0.5 block">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stock Balances -->
+        <div class="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/80">
+          <span class="text-[10px] uppercase font-bold text-stone-400 tracking-wider block mb-2">Live Inventory Balances</span>
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="p-2 rounded-xl bg-white border border-stone-200">
+              <span class="text-[10px] text-stone-400 block font-semibold">Physical Stock</span>
+              <span id="view-admin-prod-phys" class="text-base font-mono font-bold text-stone-900 mt-0.5 block">0</span>
+            </div>
+            <div class="p-2 rounded-xl bg-white border border-stone-200">
+              <span class="text-[10px] text-amber-600 block font-semibold">Reserved Stock</span>
+              <span id="view-admin-prod-res" class="text-base font-mono font-bold text-amber-700 mt-0.5 block">0</span>
+            </div>
+            <div class="p-2 rounded-xl bg-white border border-stone-200">
+              <span class="text-[10px] text-emerald-600 block font-semibold">Available for Sale</span>
+              <span id="view-admin-prod-avail" class="text-base font-mono font-bold text-emerald-800 mt-0.5 block">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="p-4 border-t border-stone-100 flex items-center justify-between">
+        <button id="view-admin-prod-suspend-btn" onclick="toggleSuspendProduct(currentAdminViewProductId)" class="px-3.5 py-1.5 rounded-xl font-bold transition text-xs cursor-pointer">
+          Suspend
+        </button>
+        <button type="button" onclick="closeAdminViewProductModal()" class="px-4 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-xs font-bold text-stone-700 transition cursor-pointer">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. ADD / EDIT PRODUCT MODAL -->
+  <div id="product-modal" class="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl border border-stone-200 shadow-2xl max-w-xl w-full p-6 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-stone-100 pb-3 mb-4">
+        <h3 id="product-modal-title" class="font-heading font-black text-lg text-stone-900">Add New Produce Item</h3>
+        <button onclick="closeProductModal()" class="text-stone-400 hover:text-stone-800 font-bold p-1">✕</button>
+      </div>
+
+      <form id="product-form" onsubmit="saveProduct(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="prod-id" />
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Item Title *</label>
+            <input type="text" id="prod-title" required placeholder="e.g. Farm Fresh Broccoli" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+          </div>
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Category *</label>
+            <select id="prod-category" required class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500 bg-white">
+              <option value="vegetables">Vegetables</option>
+              <option value="fruits">Fruits</option>
+              <option value="grocery">Grocery & Staples</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Selling Price (₹) *</label>
+            <input type="number" id="prod-price" required min="1" placeholder="49" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+          </div>
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Original MRP (₹)</label>
+            <input type="number" id="prod-mrp" min="1" placeholder="60" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+          </div>
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Procure Cost (₹)</label>
+            <input type="number" id="prod-cost" min="0" placeholder="32" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Initial Stock *</label>
+            <input type="number" id="prod-stock" required min="0" placeholder="100" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+          </div>
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Low Alert Limit</label>
+            <input type="number" id="prod-alert" min="1" value="15" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+          </div>
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Unit</label>
+            <input type="text" id="prod-unit" value="500 g" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">SKU Code</label>
+            <input type="text" id="prod-sku" placeholder="VEG-BROC-500G" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500 uppercase font-mono" />
+          </div>
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Kisan Partner Source</label>
+            <input type="text" id="prod-farmer" placeholder="e.g. Ramesh Patel, Nashik" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Image URL</label>
+          <input type="text" id="prod-image" placeholder="assets/images/produce.jpg" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+        </div>
+
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Description / Nutritional Highlight</label>
+          <textarea id="prod-desc" rows="2" placeholder="Naturally grown, crispy florets harvested fresh at 4 AM." class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500"></textarea>
+        </div>
+
+        <div class="pt-3 border-t border-stone-100 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeProductModal()" class="px-4 py-2 rounded-xl border border-stone-200 text-stone-600 hover:bg-stone-50 font-bold transition">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition shadow-xs">Save Produce</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. STOCK ADJUSTMENT MODAL -->
+  <div id="stock-adjust-modal" class="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl border border-stone-200 shadow-2xl max-w-md w-full p-6">
+      <div class="flex items-center justify-between border-b border-stone-100 pb-3 mb-4">
+        <h3 class="font-heading font-black text-lg text-stone-900">Adjust Physical Stock</h3>
+        <button onclick="closeStockAdjustModal()" class="text-stone-400 hover:text-stone-800 font-bold p-1">✕</button>
+      </div>
+
+      <form onsubmit="submitStockAdjust(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Select Produce Item *</label>
+          <select id="adjust-prod-id" required class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500 bg-white">
+            <!-- Populated via JS -->
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Adjustment Action</label>
+            <select id="adjust-type" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500 bg-white">
+              <option value="ADD">➕ Add Stock (Restock)</option>
+              <option value="REMOVE">➖ Reduce Stock</option>
+              <option value="DAMAGE">⚠️ Damage / Spoilage</option>
+              <option value="QC_LOSS">🔬 QC Sorting Loss</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Quantity (Units) *</label>
+            <input type="number" id="adjust-qty" required min="1" value="10" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Reason / Note *</label>
+          <input type="text" id="adjust-note" required placeholder="e.g. Dawn replenishment from Mandi batch #41" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+        </div>
+
+        <div class="pt-3 border-t border-stone-100 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeStockAdjustModal()" class="px-4 py-2 rounded-xl border border-stone-200 text-stone-600 hover:bg-stone-50 font-bold transition">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-stone-900 hover:bg-black text-white font-bold transition shadow-xs">Post Ledger Adjustment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. STOCK TRANSFER MODAL -->
+  <div id="stock-transfer-modal" class="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl border border-stone-200 shadow-2xl max-w-md w-full p-6">
+      <div class="flex items-center justify-between border-b border-stone-100 pb-3 mb-4">
+        <h3 class="font-heading font-black text-lg text-stone-900">Transfer Stock Between Hubs</h3>
+        <button onclick="closeStockTransferModal()" class="text-stone-400 hover:text-stone-800 font-bold p-1">✕</button>
+      </div>
+
+      <form onsubmit="submitStockTransfer(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Select Produce Item *</label>
+          <select id="transfer-prod-id" required class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500 bg-white">
+            <!-- Dynamic -->
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Source Hub</label>
+            <select id="transfer-from-hub" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500 bg-white">
+              <option value="hub-1">Hub Central East</option>
+              <option value="hub-2">Hub South West</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Destination Hub</label>
+            <select id="transfer-to-hub" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500 bg-white">
+              <option value="hub-2">Hub South West</option>
+              <option value="hub-1">Hub Central East</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Quantity (Units) *</label>
+          <input type="number" id="transfer-qty" required min="1" value="20" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+        </div>
+
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Transfer Note</label>
+          <input type="text" id="transfer-note" placeholder="Inter-store rebalancing for evening surge" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+        </div>
+
+        <div class="pt-3 border-t border-stone-100 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeStockTransferModal()" class="px-4 py-2 rounded-xl border border-stone-200 text-stone-600 hover:bg-stone-50 font-bold transition">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition shadow-xs">Execute Hub Transfer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. PROCUREMENT INTAKE MODAL -->
+  <div id="procurement-modal" class="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl border border-stone-200 shadow-2xl max-w-md w-full p-6">
+      <div class="flex items-center justify-between border-b border-stone-100 pb-3 mb-4">
+        <h3 class="font-heading font-black text-lg text-stone-900">Dawn Harvest Farm Intake</h3>
+        <button onclick="closeProcurementModal()" class="text-stone-400 hover:text-stone-800 font-bold p-1">✕</button>
+      </div>
+
+      <form onsubmit="submitProcurement(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Select Kisan Partner *</label>
+          <select id="proc-farmer-id" required class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500 bg-white">
+            <!-- Dynamic -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Catalog Item to Restock *</label>
+          <select id="proc-prod-id" required class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500 bg-white">
+            <!-- Dynamic -->
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Quantity (Kg/Units) *</label>
+            <input type="number" id="proc-qty" required min="1" value="50" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+          </div>
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Payout Rate / Unit (₹) *</label>
+            <input type="number" id="proc-rate" required min="1" value="25" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">QC Farm Grade</label>
+            <select id="proc-grade" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500 bg-white">
+              <option value="A+">Grade A+ (Premium Export)</option>
+              <option value="A" selected>Grade A (Standard Pure)</option>
+              <option value="B">Grade B (Fair Value)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Receiving Hub</label>
+            <select id="proc-hub" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500 bg-white">
+              <option value="hub-1">Hub Central East</option>
+              <option value="hub-2">Hub South West</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-stone-100 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeProcurementModal()" class="px-4 py-2 rounded-xl border border-stone-200 text-stone-600 hover:bg-stone-50 font-bold transition">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition shadow-xs">Verify & Post Stock Intake</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. CREATE PROMO COUPON MODAL -->
+  <div id="coupon-modal" class="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl border border-stone-200 shadow-2xl max-w-sm w-full p-6">
+      <div class="flex items-center justify-between border-b border-stone-100 pb-3 mb-4">
+        <h3 class="font-heading font-black text-lg text-stone-900">Create Promotional Coupon</h3>
+        <button onclick="closeCouponModal()" class="text-stone-400 hover:text-stone-800 font-bold p-1">✕</button>
+      </div>
+
+      <form onsubmit="submitNewCoupon(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Promo Code (Uppercase) *</label>
+          <input type="text" id="coupon-code" required placeholder="FARM30" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500 uppercase font-mono" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Discount % *</label>
+            <input type="number" id="coupon-pct" required min="1" max="100" value="20" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+          </div>
+          <div>
+            <label class="block font-bold text-stone-700 mb-1">Min Cart (₹)</label>
+            <input type="number" id="coupon-min" value="299" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Max Discount Cap (₹)</label>
+          <input type="number" id="coupon-max" value="100" class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:ring-2 focus:ring-emerald-500" />
+        </div>
+
+        <div class="pt-3 border-t border-stone-100 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeCouponModal()" class="px-4 py-2 rounded-xl border border-stone-200 text-stone-600 hover:bg-stone-50 font-bold transition">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold transition shadow-xs">Publish Coupon</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. ORDER DETAILS & TIMELINE MODAL -->
+  <div id="order-details-modal" class="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl border border-stone-200 shadow-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-stone-100 pb-3 mb-4">
+        <div>
+          <h3 id="modal-order-id" class="font-heading font-black text-lg text-stone-900">Order #ORD-12345</h3>
+          <p id="modal-order-meta" class="text-xs text-stone-500">Placed on Today, 10:15 AM</p>
+        </div>
+        <button onclick="closeOrderModal()" class="text-stone-400 hover:text-stone-800 font-bold p-1">✕</button>
+      </div>
+
+      <div class="space-y-6 text-xs">
+        
+        <!-- Status Progression Selector -->
+        <div class="p-4 bg-stone-50 rounded-2xl border border-stone-200 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span class="text-stone-500 font-medium block">Current Fulfillment Status:</span>
+            <span id="modal-order-status-badge" class="font-bold text-sm text-stone-900 mt-0.5 block">CONFIRMED</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <select id="modal-status-select" class="px-3 py-1.5 rounded-xl border border-stone-300 bg-white font-bold focus:ring-2 focus:ring-emerald-500">
+              <option value="ORDER CONFIRMED">ORDER CONFIRMED</option>
+              <option value="ORDER PREPARING">ORDER PREPARING</option>
+              <option value="QUALITY CHECK">QUALITY CHECK</option>
+              <option value="PACKED">PACKED</option>
+              <option value="PICKED UP">PICKED UP</option>
+              <option value="OUT FOR DELIVERY">OUT FOR DELIVERY</option>
+              <option value="DELIVERED">DELIVERED</option>
+              <option value="CANCELLED">CANCELLED</option>
+            </select>
+            <button onclick="updateOrderStatusFromModal()" class="px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold">
+              Update
+            </button>
+          </div>
+        </div>
+
+        <!-- Customer & Delivery Information -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="p-4 rounded-2xl bg-stone-50 border border-stone-100">
+            <span class="text-[10px] uppercase font-bold text-stone-400 block mb-1">Customer Details</span>
+            <div id="modal-cust-name" class="font-bold text-stone-900">Aarav Sharma</div>
+            <div id="modal-cust-phone" class="text-stone-600 font-mono mt-0.5">+91 98765 43210</div>
+            <div id="modal-cust-address" class="text-stone-500 mt-1">Flat 402, Green Glen Layout, Bellandur, Bangalore</div>
+          </div>
+          <div class="p-4 rounded-2xl bg-stone-50 border border-stone-100">
+            <span class="text-[10px] uppercase font-bold text-stone-400 block mb-1">Dispatch & SLA Slot</span>
+            <div id="modal-hub-name" class="font-bold text-stone-900">Hub Central East (Indiranagar)</div>
+            <div id="modal-slot" class="text-emerald-700 font-bold mt-0.5">⚡ 90-Min Superfast Express</div>
+            <div id="modal-assigned-rider" class="text-stone-500 mt-1">Rider: Rajesh Kumar (Hero Electric)</div>
+          </div>
+        </div>
+
+        <!-- Order Items List -->
+        <div>
+          <h4 class="font-heading font-black text-sm text-stone-900 mb-2">Order Line Items</h4>
+          <div class="border border-stone-200 rounded-2xl overflow-hidden">
+            <table class="w-full text-left">
+              <thead class="bg-stone-50 text-[10px] uppercase tracking-wider text-stone-400 font-bold border-b border-stone-200">
+                <tr>
+                  <th class="py-2.5 px-3">Item</th>
+                  <th class="py-2.5 px-3 text-center">Qty</th>
+                  <th class="py-2.5 px-3 text-right">Price</th>
+                  <th class="py-2.5 px-3 text-right">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody id="modal-items-tbody" class="divide-y divide-stone-100">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Timeline Log -->
+        <div>
+          <h4 class="font-heading font-black text-sm text-stone-900 mb-2">Fulfillment Progression Timeline</h4>
+          <div id="modal-timeline-container" class="space-y-2 p-3 bg-stone-50 rounded-2xl border border-stone-100 font-mono text-[11px]">
+            <!-- Dynamic -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= JAVASCRIPT APPLICATION LOGIC ================= -->
+  <script>
+    // State Store
+    let currentAdminRole = 'SUPER_ADMIN';
+    let activeTab = 'dashboard';
+    let cachedOrders = [];
+    let cachedProducts = [];
+    let cachedCategories = [];
+    let cachedFarmers = [];
+    let currentActiveOrder = null;
+
+    // Initialize application on DOM load
+    document.addEventListener('DOMContentLoaded', () => {
+      setupSidebar();
+      initRole();
+      loadDashboard();
+      initSSE();
+    });
+
+    // Sidebar Mobile Toggle
+    function setupSidebar() {
+      const sidebar = document.getElementById('admin-sidebar');
+      const openBtn = document.getElementById('open-sidebar-btn');
+      const closeBtn = document.getElementById('close-sidebar-btn');
+
+      if (openBtn) openBtn.onclick = () => sidebar.classList.remove('-translate-x-full');
+      if (closeBtn) closeBtn.onclick = () => sidebar.classList.add('-translate-x-full');
+    }
+
+    // Role switcher
+    async function initRole() {
+      try {
+        const res = await fetch('/api/admin/auth/me');
+        if (res.ok) {
+          const user = await res.json();
+          currentAdminRole = user.role || 'SUPER_ADMIN';
+          const select = document.getElementById('admin-role-select');
+          if (select) select.value = currentAdminRole;
+        }
+      } catch(e) {
+        console.warn('Could not fetch role, defaulting to SUPER_ADMIN');
+      }
+    }
+
+    async function changeAdminRole(newRole) {
+      currentAdminRole = newRole;
+      try {
+        await fetch('/api/admin/auth/switch-role', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: newRole })
+        });
+        showToast(`Role switched to ${newRole}`);
+        refreshCurrentTab();
+      } catch(e) {
+        console.error('Role switch failed', e);
+      }
+    }
+
+    // Tab Navigation
+    function switchTab(tabId) {
+      activeTab = tabId;
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+      const targetPane = document.getElementById('tab-' + tabId);
+      if (targetPane) targetPane.classList.add('active');
+
+      // Update sidebar active buttons
+      document.querySelectorAll('.sidebar-btn').forEach(btn => {
+        btn.classList.remove('bg-emerald-600/20', 'text-emerald-400', 'border', 'border-emerald-500/30');
+      });
+      const activeBtn = document.querySelector(`[data-tab-btn="${tabId}"]`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-emerald-600/20', 'text-emerald-400', 'border', 'border-emerald-500/30');
+      }
+
+      // Update Top Title
+      const titleMap = {
+        dashboard: ['Executive Dashboard', 'Real-time platform overview & live supply chain performance'],
+        orders: ['Live Orders & Dispatch', 'Supervise live customer orders and pipeline fulfillment progression'],
+        products: ['Catalog & SKUs', 'Manage produce listings, multi-weight variants, pricing, and farm origins'],
+        inventory: ['Multi-Hub Stock & Ledger', 'Monitor physical vs reserved balances and hub-level stock alerts'],
+        farmers: ['Direct Kisan Network', 'Traceable dawn harvest procurements with farm-gate QC grading'],
+        movements: ['Immutable Stock Ledger', 'Full audit trail of every automated and manual stock transaction'],
+        customers: ['Customer Directory', 'Customer profiles, delivery addresses, and lifetime transaction value'],
+        hubs: ['Dark Store Hubs & Fleet', 'Fulfillment centers, delivery partner dispatch, and vehicle statuses'],
+        payments: ['Payment Gateways & Ledger', 'UPI, Card, NetBanking & Cash-on-Delivery transaction logs'],
+        refunds: ['Refund Claims & Returns', 'Manage customer refund requests and instant store credit reversals'],
+        coupons: ['Promotions & Offers', 'Configure promotional discount codes and flash markdowns'],
+        reports: ['CSV Reports & Analytics', 'Export downloadable raw data spreadsheets for accounting and audit'],
+        logs: ['Security Activity Logs', 'Audit logs capturing every user role action and system state modification'],
+        settings: ['SLA & System Configuration', 'Tune 90-minute SLA parameters, dark store routing, and delivery charges']
+      };
+
+      if (titleMap[tabId]) {
+        document.getElementById('current-tab-title').textContent = titleMap[tabId][0];
+        document.getElementById('current-tab-sub').textContent = titleMap[tabId][1];
+      }
+
+      // Close mobile drawer if open
+      const sidebar = document.getElementById('admin-sidebar');
+      if (window.innerWidth < 768) {
+        sidebar.classList.add('-translate-x-full');
+      }
+
+      // Trigger data load
+      refreshCurrentTab();
+    }
+
+    function refreshCurrentTab() {
+      switch (activeTab) {
+        case 'dashboard': loadDashboard(); break;
+        case 'orders': loadOrders(); break;
+        case 'products': loadProducts(); break;
+        case 'inventory': loadInventory(); break;
+        case 'farmers': loadFarmers(); break;
+        case 'movements': loadMovements(); break;
+        case 'customers': loadCustomers(); break;
+        case 'hubs': loadHubs(); break;
+        case 'payments': loadPayments(); break;
+        case 'refunds': loadRefunds(); break;
+        case 'coupons': loadCoupons(); break;
+        case 'logs': loadActivityLogs(); break;
+        case 'settings': loadSettings(); break;
+      }
+    }
+
+    // SSE Real-Time Sync
+    function initSSE() {
+      try {
+        const evtSource = new EventSource('/api/events');
+        evtSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (['ORDER_CREATED', 'ORDER_STATUS_UPDATED', 'STOCK_ADJUSTED', 'PROCUREMENT_CREATED'].includes(data.type)) {
+              if (activeTab === 'dashboard') loadDashboard();
+              if (activeTab === 'orders') loadOrders();
+              if (activeTab === 'inventory') loadInventory();
+            }
+          } catch(e) {}
+        };
+      } catch(err) {
+        console.warn('SSE not supported or failed', err);
+      }
+    }
+
+    // ================= TAB LOADERS =================
+
+    // 1. Dashboard
+    async function loadDashboard() {
+      try {
+        const res = await fetch('/api/admin/dashboard');
+        if (!res.ok) return;
+        const data = await res.json();
+
+        // Update KPIs
+        document.getElementById('kpi-revenue').textContent = `₹${(data.kpis.revenue || 0).toLocaleString()}`;
+        document.getElementById('kpi-orders').textContent = data.kpis.totalOrders || 0;
+        document.getElementById('kpi-orders-sub').textContent = `${data.kpis.activeOrders || 0} active in dispatch pipeline`;
+        document.getElementById('kpi-stock').textContent = `${(data.kpis.totalStock || 0).toLocaleString()} Units`;
+        document.getElementById('kpi-low-stock-sub').textContent = `${data.kpis.lowStockCount || 0} low stock warnings`;
+        document.getElementById('kpi-procurement').textContent = `₹${(data.kpis.totalProcurementSpent || 0).toLocaleString()}`;
+
+        // Badges
+        document.getElementById('badge-live-orders').textContent = data.kpis.activeOrders || 0;
+        if (data.kpis.lowStockCount > 0) {
+          const b = document.getElementById('badge-low-stock');
+          b.classList.remove('hidden');
+          b.textContent = `${data.kpis.lowStockCount} Low`;
+        }
+
+        // Category breakdown bars
+        const catContainer = document.getElementById('category-bars-container');
+        if (catContainer && data.categoryBreakdown) {
+          const totalCatItems = Object.values(data.categoryBreakdown).reduce((a, b) => a + b, 0) || 1;
+          catContainer.innerHTML = Object.entries(data.categoryBreakdown).map(([cat, count]) => {
+            const pct = Math.round((count / totalCatItems) * 100);
+            return `
+              <div>
+                <div class="flex justify-between font-bold text-stone-700 capitalize mb-1">
+                  <span>${cat}</span>
+                  <span>${count} items (${pct}%)</span>
+                </div>
+                <div class="w-full bg-stone-100 rounded-full h-2.5 overflow-hidden">
+                  <div class="bg-emerald-600 h-2.5 rounded-full" style="width: ${pct}%"></div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        // Top Produce table
+        const topProdsTbody = document.getElementById('dashboard-top-products');
+        if (topProdsTbody && data.topProducts) {
+          topProdsTbody.innerHTML = data.topProducts.map(p => {
+            const isLow = (p.stock || 0) <= (p.minStockAlert || 15);
+            return `
+              <tr class="hover:bg-stone-50/50 transition">
+                <td class="py-3 flex items-center gap-2">
+                  <img src="${p.image || 'assets/images/produce.jpg'}" class="w-7 h-7 rounded-lg object-cover border border-stone-200" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥬</text></svg>'" />
+                  <div>
+                    <span class="font-bold text-stone-800 block">${p.title}</span>
+                    <span class="font-mono text-[10px] text-stone-400 uppercase">${p.sku || p.id}</span>
+                  </div>
+                </td>
+                <td class="py-3 capitalize text-stone-600">${p.category}</td>
+                <td class="py-3 text-right font-bold text-stone-900">₹${p.price}</td>
+                <td class="py-3 text-right font-mono font-bold ${isLow ? 'text-rose-600' : 'text-stone-800'}">${p.stock || 0}</td>
+                <td class="py-3 text-center">
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${isLow ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'}">
+                    ${isLow ? 'LOW STOCK' : 'HEALTHY'}
+                  </span>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+
+        // Recent logs
+        const logsContainer = document.getElementById('dashboard-recent-logs');
+        if (logsContainer && data.recentActivity) {
+          logsContainer.innerHTML = data.recentActivity.slice(0, 5).map(l => `
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-stone-50 border border-stone-100">
+              <div class="flex items-center gap-2.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <div>
+                  <span class="font-bold text-stone-800">${l.action}</span>
+                  <span class="text-stone-500 text-[11px] block">${typeof l.details === 'object' ? JSON.stringify(l.details) : l.details || ''}</span>
+                </div>
+              </div>
+              <span class="text-[10px] font-mono text-stone-400">${new Date(l.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+          `).join('');
+        }
+
+      } catch(e) {
+        console.error('Failed to load dashboard', e);
+      }
+    }
+
+    // 2. Orders Tab
+    async function loadOrders() {
+      try {
+        const res = await fetch('/api/admin/orders');
+        if (!res.ok) return;
+        cachedOrders = await res.json();
+        filterOrdersTable();
+      } catch(e) {
+        console.error('Failed to load orders', e);
+      }
+    }
+
+    function filterOrdersTable() {
+      const query = (document.getElementById('orders-search')?.value || '').toLowerCase();
+      const status = document.getElementById('orders-status-filter')?.value || 'ALL';
+
+      const filtered = cachedOrders.filter(o => {
+        const matchesQuery = (o.id || '').toLowerCase().includes(query) ||
+          (o.customer?.name || '').toLowerCase().includes(query) ||
+          (o.customer?.phone || '').toLowerCase().includes(query);
+        const matchesStatus = status === 'ALL' || o.status === status;
+        return matchesQuery && matchesStatus;
+      });
+
+      renderOrdersTable(filtered);
+    }
+
+    function renderOrdersTable(orders) {
+      const tbody = document.getElementById('orders-table-body');
+      if (!tbody) return;
+
+      if (orders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-stone-400 font-medium">No customer orders matching the filter.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = orders.map(o => {
+        const itemsCount = (o.items || []).reduce((sum, item) => sum + (item.quantity || 1), 0);
+        return `
+          <tr class="hover:bg-stone-50/60 transition">
+            <td class="py-3.5 px-4 font-mono font-bold text-stone-900">
+              <span class="block font-sans font-black text-stone-900">${o.id}</span>
+              <span class="text-[10px] text-stone-400 font-normal">${new Date(o.createdAt || Date.now()).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-bold text-stone-800 block">${o.customer?.name || 'Customer'}</span>
+              <span class="text-[11px] text-stone-400 font-mono">${o.customer?.phone || 'N/A'}</span>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-semibold text-stone-800">${itemsCount} items</span>
+              <span class="block text-[11px] text-stone-400">${o.hubId || 'Hub Central East'}</span>
+            </td>
+            <td class="py-3.5 px-4 text-right font-black text-stone-900">₹${o.total || 0}</td>
+            <td class="py-3.5 px-4 text-center">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${o.payment?.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200'}">
+                ${o.payment?.status || 'PENDING'}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${getStatusBadgeClass(o.status)}">
+                ${o.status || 'CONFIRMED'}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-right">
+              <button onclick="viewOrderDetails('${o.id}')" class="px-3 py-1 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold transition">
+                Inspect →
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function getStatusBadgeClass(status) {
+      switch (status) {
+        case 'DELIVERED': return 'bg-emerald-100 text-emerald-800';
+        case 'CANCELLED': return 'bg-rose-100 text-rose-800';
+        case 'OUT FOR DELIVERY': return 'bg-purple-100 text-purple-800';
+        default: return 'bg-amber-100 text-amber-800';
+      }
+    }
+
+    // 3. Products Tab
+    async function loadProducts() {
+      try {
+        const res = await fetch('/api/admin/products');
+        if (!res.ok) return;
+        cachedProducts = await res.json();
+        document.getElementById('badge-products-count').textContent = cachedProducts.length;
+        populateProductDropdowns();
+        filterProductsTable();
+      } catch(e) {
+        console.error('Failed to load products', e);
+      }
+    }
+
+    function populateProductDropdowns() {
+      const adjustSelect = document.getElementById('adjust-prod-id');
+      const transferSelect = document.getElementById('transfer-prod-id');
+      const procSelect = document.getElementById('proc-prod-id');
+
+      const optionsHtml = cachedProducts.map(p => `
+        <option value="${p.id}">${p.title} (${p.sku || p.id}) - Cur: ${p.stock || 0}</option>
+      `).join('');
+
+      if (adjustSelect) adjustSelect.innerHTML = optionsHtml;
+      if (transferSelect) transferSelect.innerHTML = optionsHtml;
+      if (procSelect) procSelect.innerHTML = optionsHtml;
+    }
+
+    function filterProductsTable() {
+      const query = (document.getElementById('products-search')?.value || '').toLowerCase();
+      const cat = document.getElementById('products-category-filter')?.value || 'ALL';
+
+      const filtered = cachedProducts.filter(p => {
+        const matchesQuery = (p.title || '').toLowerCase().includes(query) ||
+          (p.sku || '').toLowerCase().includes(query) ||
+          (p.id || '').toLowerCase().includes(query);
+        const matchesCat = cat === 'ALL' || p.category === cat;
+        return matchesQuery && matchesCat;
+      });
+
+      renderProductsTable(filtered);
+    }
+
+    function renderProductsTable(prods) {
+      const tbody = document.getElementById('products-table-body');
+      if (!tbody) return;
+
+      tbody.innerHTML = prods.map(p => {
+        const isSuspended = p.status === 'SUSPENDED';
+        const isLow = (p.stock || 0) <= (p.minStockAlert || 15);
+        const avail = Math.max(0, (p.stock || 0) - (p.reservedStock || 0));
+
+        let statusBadge = '';
+        if (isSuspended) {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">⏸️ SUSPENDED</span>';
+        } else if ((p.stock || 0) <= 0) {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">OUT OF STOCK</span>';
+        } else if (isLow) {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">LOW STOCK</span>';
+        } else {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">ACTIVE</span>';
+        }
+
+        return `
+          <tr class="hover:bg-stone-50/60 transition">
+            <td class="py-3.5 px-4 flex items-center gap-3">
+              <img src="${p.image || 'assets/images/produce.jpg'}" class="w-9 h-9 rounded-xl object-cover border border-stone-200" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥬</text></svg>'" />
+              <div>
+                <span class="font-bold text-stone-900 block">${p.title || p.name}</span>
+                <span class="font-mono text-[10px] text-stone-400 font-bold uppercase">${p.sku || p.id}</span>
+              </div>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="capitalize font-bold text-stone-700 block">${p.category}</span>
+              <span class="text-[10px] text-stone-400 font-medium">${p.farmer || 'Direct Kisan'}</span>
+            </td>
+            <td class="py-3.5 px-4 text-right font-mono text-stone-500">₹${p.costPrice || 0}</td>
+            <td class="py-3.5 px-4 text-right font-mono font-bold text-stone-900">₹${p.price}</td>
+            <td class="py-3.5 px-4 text-right font-mono">
+              <span class="font-bold ${isLow ? 'text-rose-600' : 'text-stone-900'}">${p.stock || 0}</span>
+              <span class="text-stone-400 text-[10px]"> / ${p.reservedStock || 0} / </span>
+              <span class="font-bold text-emerald-700">${avail}</span>
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              ${statusBadge}
+            </td>
+            <td class="py-3.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <button onclick="viewProduct('${p.id}')" title="View Details" class="px-2 py-1 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold border border-teal-200 text-xs cursor-pointer">👁️ View</button>
+                <button onclick="editProduct('${p.id}')" title="Edit Item" class="px-2 py-1 rounded-lg border border-stone-200 hover:bg-stone-100 text-stone-700 font-bold text-xs cursor-pointer">✏️ Edit</button>
+                ${isSuspended ? `
+                  <button onclick="toggleSuspendProduct('${p.id}')" title="Activate Produce" class="px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold border border-emerald-200 text-xs cursor-pointer">▶️ Activate</button>
+                ` : `
+                  <button onclick="toggleSuspendProduct('${p.id}')" title="Suspend Produce" class="px-2 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold border border-amber-200 text-xs cursor-pointer">⏸️ Suspend</button>
+                `}
+                <button onclick="deleteProduct('${p.id}')" title="Delete SKU" class="p-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold border border-rose-200 text-xs cursor-pointer">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // 4. Inventory Tab
+    async function loadInventory() {
+      try {
+        const res = await fetch('/api/admin/inventory');
+        const raw = await res.json();
+        const inv = Array.isArray(raw) ? raw : (raw.inventory || []);
+
+        // Calculate Totals
+        let totalPhys = 0;
+        let totalRes = 0;
+        let totalAvail = 0;
+
+        inv.forEach(i => {
+          totalPhys += Number(i.currentStock !== undefined ? i.currentStock : (i.stock || 0));
+          totalRes += Number(i.reservedStock || 0);
+          totalAvail += Number(i.availableStock || 0);
+        });
+
+        document.getElementById('inv-total-physical').textContent = `${totalPhys.toLocaleString()} Units`;
+        document.getElementById('inv-total-reserved').textContent = `${totalRes.toLocaleString()} Units`;
+        document.getElementById('inv-total-available').textContent = `${totalAvail.toLocaleString()} Units`;
+
+        const tbody = document.getElementById('inventory-table-body');
+        if (!tbody) return;
+
+        tbody.innerHTML = inv.map(i => {
+          const isLow = (i.availableStock || 0) <= (i.lowStockLimit || i.minStockAlert || 15);
+          const currentStockVal = i.currentStock !== undefined ? i.currentStock : (i.stock || 0);
+          return `
+            <tr class="hover:bg-stone-50/60 transition">
+              <td class="py-3.5 px-4">
+                <span class="font-bold text-stone-900 block">${i.name || i.title}</span>
+                <span class="font-mono text-[10px] text-stone-400 font-bold">${i.sku || i.id}</span>
+              </td>
+              <td class="py-3.5 px-4 text-right font-mono font-bold text-stone-800">${currentStockVal}</td>
+              <td class="py-3.5 px-4 text-right font-mono font-bold text-amber-700">${i.reservedStock || 0}</td>
+              <td class="py-3.5 px-4 text-right font-mono font-bold text-emerald-800">${i.availableStock || 0}</td>
+              <td class="py-3.5 px-4 text-right font-mono text-stone-400">${i.lowStockLimit || i.minStockAlert || 15}</td>
+              <td class="py-3.5 px-4 text-center">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isLow ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'}">
+                  ${isLow ? 'RESTOCK NEEDED' : 'HEALTHY'}
+                </span>
+              </td>
+              <td class="py-3.5 px-4 text-right">
+                <button onclick="quickAdjustProduct('${i.id}')" class="px-3 py-1 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold cursor-pointer">
+                  Adjust
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+      } catch(e) {
+        console.error('Failed to load inventory', e);
+      }
+    }
+
+    // 5. Farmers & Procurements
+    async function loadFarmers() {
+      try {
+        const [farmersRes, procRes] = await Promise.all([
+          fetch('/api/admin/farmers'),
+          fetch('/api/admin/procurements')
+        ]);
+
+        if (farmersRes.ok) {
+          cachedFarmers = await farmersRes.json();
+          const grid = document.getElementById('farmers-cards-grid');
+          if (grid) {
+            grid.innerHTML = cachedFarmers.map(f => `
+              <div class="bg-white p-5 rounded-3xl border border-stone-200/80 shadow-xs">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-2xl">👨‍🌾</span>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">${f.certification || 'Certified Organic'}</span>
+                </div>
+                <h4 class="font-heading font-black text-base text-stone-900">${f.name}</h4>
+                <p class="text-xs text-stone-500">${f.village}, ${f.district}</p>
+                <div class="mt-4 pt-3 border-t border-stone-100 flex justify-between text-[11px] text-stone-600 font-mono">
+                  <span>Phone: ${f.phone}</span>
+                  <span>Produce: ${(f.crops || []).slice(0, 2).join(', ')}</span>
+                </div>
+              </div>
+            `).join('');
+
+            // Populate farmer select in procurement modal
+            const farmerSelect = document.getElementById('proc-farmer-id');
+            if (farmerSelect) {
+              farmerSelect.innerHTML = cachedFarmers.map(f => `<option value="${f.id}">${f.name} (${f.district})</option>`).join('');
+            }
+          }
+        }
+
+        if (procRes.ok) {
+          const procs = await procRes.json();
+          const tbody = document.getElementById('procurements-table-body');
+          if (tbody) {
+            tbody.innerHTML = procs.map(p => `
+              <tr class="hover:bg-stone-50/60 transition">
+                <td class="py-3.5 px-4 font-mono font-bold text-stone-900">${p.id}</td>
+                <td class="py-3.5 px-4 font-bold text-stone-800">${p.farmerName || p.farmerId}</td>
+                <td class="py-3.5 px-4 font-medium text-stone-700">${p.productTitle || p.productId}</td>
+                <td class="py-3.5 px-4 text-right font-mono font-bold text-stone-900">${p.quantityKg} Kg</td>
+                <td class="py-3.5 px-4 text-right font-mono text-stone-700">₹${p.ratePerKg}/kg (₹${p.totalAmount})</td>
+                <td class="py-3.5 px-4 text-center">
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-100 text-emerald-800">${p.qcGrade}</span>
+                </td>
+                <td class="py-3.5 px-4 text-right text-[11px] text-stone-400 font-mono">${new Date(p.date || Date.now()).toLocaleDateString()}</td>
+              </tr>
+            `).join('');
+          }
+        }
+
+      } catch(e) {
+        console.error('Failed to load farmers', e);
+      }
+    }
+
+    // 6. Movements Ledger
+    async function loadMovements() {
+      try {
+        const res = await fetch('/api/admin/inventory/movements');
+        if (!res.ok) return;
+        const movements = await res.json();
+
+        const tbody = document.getElementById('movements-table-body');
+        if (!tbody) return;
+
+        tbody.innerHTML = movements.map(m => `
+          <tr class="hover:bg-stone-50/60 transition">
+            <td class="py-3.5 px-4 text-stone-400 text-[11px]">${new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+            <td class="py-3.5 px-4 font-bold text-stone-800 font-sans">${m.productId}</td>
+            <td class="py-3.5 px-4">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${m.delta >= 0 ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'}">
+                ${m.type}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-right font-bold ${m.delta >= 0 ? 'text-emerald-700' : 'text-rose-700'}">
+              ${m.delta >= 0 ? '+' + m.delta : m.delta}
+            </td>
+            <td class="py-3.5 px-4 text-right text-stone-800">${m.balanceAfter}</td>
+            <td class="py-3.5 px-4 font-sans text-stone-600">${m.actorRole || 'SYSTEM'}</td>
+            <td class="py-3.5 px-4 font-sans text-stone-500 text-[11px]">${m.note || m.orderId || '-'}</td>
+          </tr>
+        `).join('');
+      } catch(e) {
+        console.error('Failed to load movements', e);
+      }
+    }
+
+    // 7. Customers
+    async function loadCustomers() {
+      try {
+        const res = await fetch('/api/admin/customers');
+        if (!res.ok) return;
+        const customers = await res.json();
+
+        const tbody = document.getElementById('customers-table-body');
+        if (!tbody) return;
+
+        tbody.innerHTML = customers.map(c => `
+          <tr class="hover:bg-stone-50/60 transition">
+            <td class="py-3.5 px-4 font-bold text-stone-900">${c.name || 'Customer'}</td>
+            <td class="py-3.5 px-4 font-mono text-stone-600">${c.phone || c.email || 'N/A'}</td>
+            <td class="py-3.5 px-4 text-stone-500 text-[11px]">${c.address ? `${c.address.flat || ''}, ${c.address.locality || ''}` : 'Bangalore Central'}</td>
+            <td class="py-3.5 px-4 text-right font-mono font-bold text-stone-800">${c.ordersCount || 1}</td>
+            <td class="py-3.5 px-4 text-right font-mono font-black text-emerald-800">₹${c.lifetimeSpend || 0}</td>
+          </tr>
+        `).join('');
+      } catch(e) {
+        console.error('Failed to load customers', e);
+      }
+    }
+
+    // 8. Hubs & Fleet
+    async function loadHubs() {
+      try {
+        const [hubsRes, ridersRes] = await Promise.all([
+          fetch('/api/admin/hubs'),
+          fetch('/api/admin/delivery-partners')
+        ]);
+
+        if (hubsRes.ok) {
+          const hubs = await hubsRes.json();
+          const grid = document.getElementById('hubs-cards-grid');
+          if (grid) {
+            grid.innerHTML = hubs.map(h => `
+              <div class="bg-white p-5 rounded-3xl border border-stone-200/80 shadow-xs">
+                <div class="flex items-center justify-between mb-2">
+                  <h4 class="font-heading font-black text-base text-stone-900">${h.name}</h4>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">OPERATIONAL</span>
+                </div>
+                <p class="text-xs text-stone-500 mb-3">${h.address || 'Central Indiranagar Dark Store'}</p>
+                <div class="grid grid-cols-2 gap-3 pt-3 border-t border-stone-100 text-xs font-mono">
+                  <div>
+                    <span class="text-[10px] text-stone-400 block uppercase">Pincodes</span>
+                    <span class="font-bold text-stone-700">${(h.serviceablePincodes || []).join(', ')}</span>
+                  </div>
+                  <div>
+                    <span class="text-[10px] text-stone-400 block uppercase">Avg Pack Time</span>
+                    <span class="font-bold text-emerald-700">7.2 Minutes</span>
+                  </div>
+                </div>
+              </div>
+            `).join('');
+          }
+        }
+
+        if (ridersRes.ok) {
+          const riders = await ridersRes.json();
+          const tbody = document.getElementById('riders-table-body');
+          if (tbody) {
+            tbody.innerHTML = riders.map(r => `
+              <tr class="hover:bg-stone-50/60 transition">
+                <td class="py-3.5 px-4">
+                  <span class="font-bold text-stone-900 block">${r.name}</span>
+                  <span class="font-mono text-[10px] text-stone-400">${r.phone}</span>
+                </td>
+                <td class="py-3.5 px-4 text-stone-600 font-medium">${r.hubId || 'Hub Central East'}</td>
+                <td class="py-3.5 px-4 font-mono text-stone-600">${r.vehicle || 'EV Scooter'}</td>
+                <td class="py-3.5 px-4 text-center">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800">
+                    ${r.status || 'ONLINE'}
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right font-mono font-bold text-stone-800">${r.completedOrders || 0}</td>
+              </tr>
+            `).join('');
+          }
+        }
+
+      } catch(e) {
+        console.error('Failed to load hubs', e);
+      }
+    }
+
+    // 9. Payments
+    async function loadPayments() {
+      try {
+        const res = await fetch('/api/admin/payments');
+        if (!res.ok) return;
+        const payments = await res.json();
+
+        const tbody = document.getElementById('payments-table-body');
+        if (!tbody) return;
+
+        tbody.innerHTML = payments.map(p => `
+          <tr class="hover:bg-stone-50/60 transition">
+            <td class="py-3.5 px-4">
+              <span class="font-bold text-stone-900 block">${p.id}</span>
+              <span class="text-[10px] text-stone-400 font-sans">${p.gatewayRef || 'UPI-REF-001'}</span>
+            </td>
+            <td class="py-3.5 px-4 text-stone-700">${p.orderId}</td>
+            <td class="py-3.5 px-4 font-sans font-medium text-stone-700">${p.method}</td>
+            <td class="py-3.5 px-4 text-right font-black text-emerald-900">₹${p.amount}</td>
+            <td class="py-3.5 px-4 text-center">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                ${p.status}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-right text-stone-400 text-[11px]">${new Date(p.timestamp || Date.now()).toLocaleTimeString()}</td>
+          </tr>
+        `).join('');
+      } catch(e) {
+        console.error('Failed to load payments', e);
+      }
+    }
+
+    // 10. Refunds
+    async function loadRefunds() {
+      try {
+        const res = await fetch('/api/admin/refunds');
+        if (!res.ok) return;
+        const refunds = await res.json();
+        document.getElementById('badge-refunds').textContent = refunds.filter(r => r.status === 'PENDING').length;
+
+        const tbody = document.getElementById('refunds-table-body');
+        if (!tbody) return;
+
+        if (refunds.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-stone-400 font-medium">No refund claims pending.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = refunds.map(r => `
+          <tr class="hover:bg-stone-50/60 transition">
+            <td class="py-3.5 px-4 font-mono font-bold text-stone-900">${r.id}</td>
+            <td class="py-3.5 px-4 font-mono text-stone-700">${r.orderId}</td>
+            <td class="py-3.5 px-4 text-stone-600">${r.reason || 'Customer requested cancel'}</td>
+            <td class="py-3.5 px-4 text-right font-mono font-black text-rose-800">₹${r.amount}</td>
+            <td class="py-3.5 px-4 text-center">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${r.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                ${r.status}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-right">
+              ${r.status === 'PENDING' ? `
+                <button onclick="approveRefund('${r.id}')" class="px-3 py-1 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs">
+                  Approve Refund
+                </button>
+              ` : '<span class="text-xs text-stone-400 font-medium">Processed</span>'}
+            </td>
+          </tr>
+        `).join('');
+      } catch(e) {
+        console.error('Failed to load refunds', e);
+      }
+    }
+
+    async function approveRefund(id) {
+      try {
+        const res = await fetch(`/api/admin/refunds/${id}/approve`, { method: 'POST' });
+        if (res.ok) {
+          showToast('Refund approved and credited to customer');
+          loadRefunds();
+        }
+      } catch(e) {
+        console.error('Refund approval failed', e);
+      }
+    }
+
+    // 11. Coupons & Offers
+    async function loadCoupons() {
+      try {
+        const [coupRes, offRes] = await Promise.all([
+          fetch('/api/admin/coupons'),
+          fetch('/api/admin/offers')
+        ]);
+
+        if (coupRes.ok) {
+          const coupons = await coupRes.json();
+          const tbody = document.getElementById('coupons-table-body');
+          if (tbody) {
+            tbody.innerHTML = coupons.map(c => `
+              <tr class="hover:bg-stone-50/60 transition">
+                <td class="py-3 font-bold text-stone-900">${c.code}</td>
+                <td class="py-3 text-emerald-700 font-bold">${c.discountPct}% OFF</td>
+                <td class="py-3 text-stone-600">₹${c.minOrder || 0}</td>
+                <td class="py-3 text-right">
+                  <button onclick="deleteCoupon('${c.id}')" class="text-rose-600 hover:text-rose-800 font-bold text-xs font-sans">Delete</button>
+                </td>
+              </tr>
+            `).join('');
+          }
+        }
+
+        if (offRes.ok) {
+          const offers = await offRes.json();
+          const list = document.getElementById('offers-list');
+          if (list) {
+            list.innerHTML = offers.map(o => `
+              <div class="p-3 rounded-2xl bg-stone-50 border border-stone-200 flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-stone-900 block">${o.title}</span>
+                  <span class="text-[11px] text-stone-500">${o.badge || 'Active Campaign'}</span>
+                </div>
+                <span class="font-mono font-bold text-emerald-700">${o.discount || '50% OFF'}</span>
+              </div>
+            `).join('');
+          }
+        }
+
+      } catch(e) {
+        console.error('Failed to load coupons', e);
+      }
+    }
+
+    // 12. Security Activity Logs
+    async function loadActivityLogs() {
+      try {
+        const res = await fetch('/api/admin/logs');
+        if (!res.ok) return;
+        const logs = await res.json();
+
+        const tbody = document.getElementById('logs-table-body');
+        if (!tbody) return;
+
+        tbody.innerHTML = logs.slice(0, 50).map(l => `
+          <tr class="hover:bg-stone-50/60 transition">
+            <td class="py-3 px-4 text-stone-400 text-[11px]">${new Date(l.timestamp).toLocaleString()}</td>
+            <td class="py-3 px-4 font-bold text-stone-800 font-sans">${l.user || l.adminRole || 'SUPER_ADMIN'}</td>
+            <td class="py-3 px-4">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-stone-100 text-stone-700">${l.action}</span>
+            </td>
+            <td class="py-3 px-4 font-sans text-stone-600 text-[11px]">${typeof l.details === 'object' ? JSON.stringify(l.details) : l.details || '-'}</td>
+          </tr>
+        `).join('');
+      } catch(e) {
+        console.error('Failed to load logs', e);
+      }
+    }
+
+    // 13. SLA & System Settings
+    async function loadSettings() {
+      try {
+        const res = await fetch('/api/admin/settings');
+        if (!res.ok) return;
+        const s = await res.json();
+
+        document.getElementById('setting-site-name').value = s.siteName || 'FreshMart';
+        document.getElementById('setting-delivery-minutes').value = s.deliverySlaMinutes || 90;
+        document.getElementById('setting-delivery-fee').value = s.deliveryFee || 29;
+        document.getElementById('setting-free-delivery-threshold').value = s.freeDeliveryThreshold || 299;
+        document.getElementById('setting-default-hub').value = s.defaultHubId || 'hub-1';
+      } catch(e) {
+        console.error('Failed to load settings', e);
+      }
+    }
+
+    async function saveSettings(e) {
+      e.preventDefault();
+      const payload = {
+        siteName: document.getElementById('setting-site-name').value,
+        deliverySlaMinutes: parseInt(document.getElementById('setting-delivery-minutes').value),
+        deliveryFee: parseInt(document.getElementById('setting-delivery-fee').value),
+        freeDeliveryThreshold: parseInt(document.getElementById('setting-free-delivery-threshold').value),
+        defaultHubId: document.getElementById('setting-default-hub').value
+      };
+
+      try {
+        const res = await fetch('/api/admin/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          const msg = document.getElementById('settings-save-msg');
+          msg.textContent = '✓ Settings Saved Successfully!';
+          setTimeout(() => { msg.textContent = ''; }, 3000);
+          showToast('Platform SLA parameters updated');
+        }
+      } catch(err) {
+        console.error('Failed to save settings', err);
+      }
+    }
+
+    // ================= ACTIONS & MODAL HANDLERS =================
+
+    // Product Modal
+    function openAddProductModal() {
+      document.getElementById('product-form').reset();
+      document.getElementById('prod-id').value = '';
+      document.getElementById('product-modal-title').textContent = 'Add New Produce Item';
+      document.getElementById('product-modal').classList.remove('hidden');
+    }
+
+    function closeProductModal() {
+      document.getElementById('product-modal').classList.add('hidden');
+    }
+
+    function editProduct(id) {
+      const prod = cachedProducts.find(p => p.id === id);
+      if (!prod) return;
+
+      document.getElementById('prod-id').value = prod.id;
+      document.getElementById('prod-title').value = prod.title || '';
+      document.getElementById('prod-category').value = prod.category || 'vegetables';
+      document.getElementById('prod-price').value = prod.price || 0;
+      document.getElementById('prod-mrp').value = prod.mrp || 0;
+      document.getElementById('prod-cost').value = prod.costPrice || 0;
+      document.getElementById('prod-stock').value = prod.stock || 0;
+      document.getElementById('prod-alert').value = prod.minStockAlert || 15;
+      document.getElementById('prod-unit').value = prod.unit || '500 g';
+      document.getElementById('prod-sku').value = prod.sku || '';
+      document.getElementById('prod-farmer').value = prod.farmer || '';
+      document.getElementById('prod-image').value = prod.image || '';
+      document.getElementById('prod-desc').value = prod.description || '';
+
+      document.getElementById('product-modal-title').textContent = 'Edit Produce Item';
+      document.getElementById('product-modal').classList.remove('hidden');
+    }
+
+    async function saveProduct(e) {
+      e.preventDefault();
+      const id = document.getElementById('prod-id').value;
+      const data = {
+        title: document.getElementById('prod-title').value,
+        category: document.getElementById('prod-category').value,
+        price: parseFloat(document.getElementById('prod-price').value),
+        mrp: parseFloat(document.getElementById('prod-mrp').value) || undefined,
+        costPrice: parseFloat(document.getElementById('prod-cost').value) || undefined,
+        stock: parseInt(document.getElementById('prod-stock').value),
+        minStockAlert: parseInt(document.getElementById('prod-alert').value),
+        unit: document.getElementById('prod-unit').value,
+        sku: document.getElementById('prod-sku').value,
+        farmer: document.getElementById('prod-farmer').value,
+        image: document.getElementById('prod-image').value || 'assets/images/produce.jpg',
+        description: document.getElementById('prod-desc').value
+      };
+
+      const url = id ? `/api/admin/products/${id}` : '/api/admin/products';
+      const method = id ? 'PUT' : 'POST';
+
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (res.ok) {
+          closeProductModal();
+          showToast(id ? 'Produce updated successfully' : 'New produce item catalogued');
+          loadProducts();
+        } else {
+          alert('Failed to save product. Check role permissions.');
+        }
+      } catch(err) {
+        console.error('Error saving product', err);
+      }
+    }
+
+    let currentAdminViewProductId = null;
+
+    function viewProduct(id) {
+      const p = cachedProducts.find(prod => prod.id === id || prod.sku === id);
+      if (!p) return;
+      currentAdminViewProductId = p.id;
+
+      document.getElementById('view-admin-prod-title').textContent = p.title || p.name;
+      document.getElementById('view-admin-prod-sku').textContent = `SKU: ${p.sku || p.id} • ${p.unit || '500 g'}`;
+      
+      const isSuspended = p.status === 'SUSPENDED';
+      const isLow = (p.stock || 0) <= (p.minStockAlert || 15);
+      const isOut = (p.stock || 0) <= 0;
+      const statusBadge = document.getElementById('view-admin-prod-status');
+      if (statusBadge) {
+        if (isSuspended) {
+          statusBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200';
+          statusBadge.textContent = '⏸️ SUSPENDED';
+        } else if (isOut) {
+          statusBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-800 border border-rose-200';
+          statusBadge.textContent = '🔴 OUT OF STOCK';
+        } else if (isLow) {
+          statusBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200';
+          statusBadge.textContent = '⚠️ LOW STOCK';
+        } else {
+          statusBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
+          statusBadge.textContent = '🟢 ACTIVE';
+        }
+      }
+
+      document.getElementById('view-admin-prod-img').src = p.image || 'assets/images/produce.jpg';
+      document.getElementById('view-admin-prod-name').textContent = p.title || p.name;
+      document.getElementById('view-admin-prod-cat').textContent = p.category || 'Vegetables';
+      document.getElementById('view-admin-prod-desc').textContent = p.description || 'Farm-fresh certified harvest with complete origin traceability.';
+      document.getElementById('view-admin-prod-farmer').textContent = p.farmer || 'Direct Kisan Partner';
+
+      const price = p.price || 0;
+      const mrp = p.mrp || Math.round(price * 1.25);
+      const cost = p.costPrice || Math.round(price * 0.65);
+      const margin = price > 0 ? (((price - cost) / price) * 100).toFixed(1) : '0.0';
+
+      document.getElementById('view-admin-prod-price').textContent = `₹${price}`;
+      document.getElementById('view-admin-prod-mrp').textContent = `₹${mrp}`;
+      document.getElementById('view-admin-prod-cost').textContent = `₹${cost}`;
+      document.getElementById('view-admin-prod-margin').textContent = `${margin}%`;
+
+      const phys = p.stock || 0;
+      const res = p.reservedStock || 0;
+      const avail = Math.max(0, phys - res);
+
+      document.getElementById('view-admin-prod-phys').textContent = phys;
+      document.getElementById('view-admin-prod-res').textContent = res;
+      document.getElementById('view-admin-prod-avail').textContent = avail;
+
+      const suspBtn = document.getElementById('view-admin-prod-suspend-btn');
+      if (suspBtn) {
+        if (isSuspended) {
+          suspBtn.className = 'px-3.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 hover:bg-emerald-100 font-bold border border-emerald-200 transition text-xs cursor-pointer';
+          suspBtn.textContent = '▶️ Activate Product';
+        } else {
+          suspBtn.className = 'px-3.5 py-1.5 rounded-xl bg-amber-50 text-amber-800 hover:bg-amber-100 font-bold border border-amber-200 transition text-xs cursor-pointer';
+          suspBtn.textContent = '⏸️ Suspend Product';
+        }
+      }
+
+      document.getElementById('view-product-modal').classList.remove('hidden');
+    }
+
+    function closeAdminViewProductModal() {
+      document.getElementById('view-product-modal').classList.add('hidden');
+    }
+
+    async function toggleSuspendProduct(id) {
+      try {
+        const prod = cachedProducts.find(p => p.id === id);
+        const newStatus = (prod && prod.status === 'SUSPENDED') ? 'ACTIVE' : 'SUSPENDED';
+        const res = await fetch(`/api/admin/products/${id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+        if (res.ok) {
+          showToast(newStatus === 'SUSPENDED' ? 'Product suspended from live catalog' : 'Product activated for sale');
+          await loadProducts();
+          if (currentAdminViewProductId === id) {
+            viewProduct(id);
+          }
+        } else {
+          alert('Failed to update status. Check permissions.');
+        }
+      } catch (err) {
+        console.error('Error toggling product status', err);
+      }
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('Are you sure you want to remove this produce SKU?')) return;
+      try {
+        const res = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          showToast('Product SKU removed');
+          loadProducts();
+        } else {
+          alert('Failed to delete product. Check role permissions.');
+        }
+      } catch(e) {
+        console.error('Delete product failed', e);
+      }
+    }
+
+    // Stock Adjust Modal
+    function openStockAdjustModal() {
+      populateProductDropdowns();
+      document.getElementById('stock-adjust-modal').classList.remove('hidden');
+    }
+
+    function closeStockAdjustModal() {
+      document.getElementById('stock-adjust-modal').classList.add('hidden');
+    }
+
+    function quickAdjustProduct(id) {
+      openStockAdjustModal();
+      document.getElementById('adjust-prod-id').value = id;
+    }
+
+    async function submitStockAdjust(e) {
+      e.preventDefault();
+      const payload = {
+        productId: document.getElementById('adjust-prod-id').value,
+        type: document.getElementById('adjust-type').value,
+        quantity: parseInt(document.getElementById('adjust-qty').value),
+        note: document.getElementById('adjust-note').value
+      };
+
+      try {
+        const res = await fetch('/api/admin/inventory/adjust', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          closeStockAdjustModal();
+          showToast('Inventory balance and movement ledger updated');
+          if (activeTab === 'inventory') loadInventory();
+          if (activeTab === 'products') loadProducts();
+        } else {
+          const err = await res.json();
+          alert(err.error || 'Adjustment failed');
+        }
+      } catch(err) {
+        console.error('Adjust stock error', err);
+      }
+    }
+
+    // Stock Transfer Modal
+    function openStockTransferModal() {
+      populateProductDropdowns();
+      document.getElementById('stock-transfer-modal').classList.remove('hidden');
+    }
+
+    function closeStockTransferModal() {
+      document.getElementById('stock-transfer-modal').classList.add('hidden');
+    }
+
+    async function submitStockTransfer(e) {
+      e.preventDefault();
+      const fromHub = document.getElementById('transfer-from-hub').value;
+      const toHub = document.getElementById('transfer-to-hub').value;
+
+      if (fromHub === toHub) {
+        alert('Source and destination hubs must be distinct.');
+        return;
+      }
+
+      const payload = {
+        productId: document.getElementById('transfer-prod-id').value,
+        fromHubId: fromHub,
+        toHubId: toHub,
+        quantity: parseInt(document.getElementById('transfer-qty').value),
+        note: document.getElementById('transfer-note').value
+      };
+
+      try {
+        const res = await fetch('/api/admin/inventory/transfer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          closeStockTransferModal();
+          showToast('Multi-hub stock transfer executed');
+          if (activeTab === 'inventory') loadInventory();
+        } else {
+          const err = await res.json();
+          alert(err.error || 'Transfer failed');
+        }
+      } catch(err) {
+        console.error('Stock transfer error', err);
+      }
+    }
+
+    // Procurement Modal
+    function openProcurementModal() {
+      populateProductDropdowns();
+      document.getElementById('procurement-modal').classList.remove('hidden');
+    }
+
+    function closeProcurementModal() {
+      document.getElementById('procurement-modal').classList.add('hidden');
+    }
+
+    async function submitProcurement(e) {
+      e.preventDefault();
+      const payload = {
+        farmerId: document.getElementById('proc-farmer-id').value,
+        productId: document.getElementById('proc-prod-id').value,
+        quantityKg: parseInt(document.getElementById('proc-qty').value),
+        ratePerKg: parseFloat(document.getElementById('proc-rate').value),
+        qcGrade: document.getElementById('proc-grade').value,
+        hubId: document.getElementById('proc-hub').value
+      };
+
+      try {
+        const res = await fetch('/api/admin/procurements', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          closeProcurementModal();
+          showToast('Dawn harvest intake verified & product stock incremented');
+          loadFarmers();
+        } else {
+          const err = await res.json();
+          alert(err.error || 'Procurement creation failed');
+        }
+      } catch(err) {
+        console.error('Procurement error', err);
+      }
+    }
+
+    // Coupon Modal
+    function openAddCouponModal() {
+      document.getElementById('coupon-modal').classList.remove('hidden');
+    }
+
+    function closeCouponModal() {
+      document.getElementById('coupon-modal').classList.add('hidden');
+    }
+
+    async function submitNewCoupon(e) {
+      e.preventDefault();
+      const payload = {
+        code: document.getElementById('coupon-code').value.toUpperCase(),
+        discountPct: parseInt(document.getElementById('coupon-pct').value),
+        minOrder: parseInt(document.getElementById('coupon-min').value),
+        maxDiscount: parseInt(document.getElementById('coupon-max').value)
+      };
+
+      try {
+        const res = await fetch('/api/admin/coupons', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          closeCouponModal();
+          showToast('Coupon activated');
+          loadCoupons();
+        }
+      } catch(err) {
+        console.error('Coupon creation failed', err);
+      }
+    }
+
+    async function deleteCoupon(id) {
+      if (!confirm('Remove this promotional coupon?')) return;
+      try {
+        const res = await fetch(`/api/admin/coupons/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          showToast('Coupon removed');
+          loadCoupons();
+        }
+      } catch(e) {
+        console.error('Delete coupon failed', e);
+      }
+    }
+
+    // Order Details & Timeline Modal
+    function viewOrderDetails(id) {
+      const order = cachedOrders.find(o => o.id === id);
+      if (!order) return;
+      currentActiveOrder = order;
+
+      document.getElementById('modal-order-id').textContent = `Order #${order.id}`;
+      document.getElementById('modal-order-meta').textContent = `Placed on ${new Date(order.createdAt || Date.now()).toLocaleString()}`;
+      document.getElementById('modal-order-status-badge').textContent = order.status;
+      document.getElementById('modal-status-select').value = order.status;
+
+      document.getElementById('modal-cust-name').textContent = order.customer?.name || 'Customer';
+      document.getElementById('modal-cust-phone').textContent = order.customer?.phone || 'N/A';
+      document.getElementById('modal-cust-address').textContent = order.deliveryAddress ? `${order.deliveryAddress.flat || ''}, ${order.deliveryAddress.street || ''}, ${order.deliveryAddress.city || 'Bangalore'}` : 'Bangalore';
+
+      document.getElementById('modal-hub-name').textContent = order.hubId || 'Hub Central East (Indiranagar)';
+      document.getElementById('modal-slot').textContent = order.deliverySlot || '⚡ 90-Min Superfast Express';
+      document.getElementById('modal-assigned-rider').textContent = `Assigned Rider: ${order.assignedRider?.name || 'Rajesh Kumar (Hero Electric)'}`;
+
+      // Items
+      const tbody = document.getElementById('modal-items-tbody');
+      tbody.innerHTML = (order.items || []).map(item => `
+        <tr>
+          <td class="py-2 px-3 font-semibold text-stone-800">${item.title || item.name}</td>
+          <td class="py-2 px-3 text-center font-mono">${item.quantity || 1}</td>
+          <td class="py-2 px-3 text-right font-mono text-stone-600">₹${item.price}</td>
+          <td class="py-2 px-3 text-right font-mono font-bold text-stone-900">₹${(item.price || 0) * (item.quantity || 1)}</td>
+        </tr>
+      `).join('');
+
+      // Timeline
+      const timelineBox = document.getElementById('modal-timeline-container');
+      timelineBox.innerHTML = (order.timeline || []).map(t => `
+        <div class="flex items-center justify-between py-1 border-b border-stone-200/60 last:border-0">
+          <span class="font-bold text-emerald-800">● ${t.status}</span>
+          <span class="text-stone-400">${new Date(t.timestamp).toLocaleTimeString()}</span>
+        </div>
+      `).join('');
+
+      document.getElementById('order-details-modal').classList.remove('hidden');
+    }
+
+    function closeOrderModal() {
+      document.getElementById('order-details-modal').classList.add('hidden');
+    }
+
+    async function updateOrderStatusFromModal() {
+      if (!currentActiveOrder) return;
+      const newStatus = document.getElementById('modal-status-select').value;
+
+      try {
+        const res = await fetch(`/api/orders/${currentActiveOrder.id}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+
+        if (res.ok) {
+          showToast(`Order status updated to ${newStatus}`);
+          closeOrderModal();
+          loadOrders();
+        } else {
+          alert('Failed to update status');
+        }
+      } catch(e) {
+        console.error('Status update failed', e);
+      }
+    }
+
+    // Real CSV Report Downloader
+    function downloadReport(type) {
+      window.location.href = `/api/admin/reports/export?type=${type}`;
+    }
+
+    // UI Toast
+    function showToast(msg) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 z-50 bg-stone-900 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl border border-stone-700 flex items-center gap-2 transform translate-y-2 opacity-0 transition-all duration-300';
+      toast.innerHTML = `<span>✓</span><span>${msg}</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
+      setTimeout(() => {
+        toast.classList.add('translate-y-2', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
