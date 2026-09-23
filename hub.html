@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hub & Farmer Dispatch Terminal | FreshMart</title>
+  <meta name="description" content="FreshMart Hub & Farmer Fulfillment Portal for harvest picking, quality verification, and express dispatch." />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            emerald: {
+              50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7',
+              400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857',
+              800: '#065f46', 900: '#064e3b', 950: '#022c22',
+            },
+            amber: {
+              50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 400: '#fbbf24',
+              500: '#f59e0b', 600: '#d97706', 700: '#b45309', 900: '#78350f',
+            }
+          },
+          fontFamily: {
+            heading: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-stone-100 text-stone-800 antialiased min-h-screen font-sans flex flex-col">
+
+  <!-- ================= TOP HUB HEADER ================= -->
+  <header class="sticky top-0 z-40 bg-emerald-950 text-white shadow-md border-b border-emerald-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+      
+      <!-- Brand & Hub Identifier -->
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="w-9 h-9 rounded-2xl bg-emerald-700 flex items-center justify-center font-bold text-lg text-white shadow-xs">
+          🌱
+        </a>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-heading font-black text-base sm:text-lg tracking-tight text-white">
+              Fresh<span class="text-emerald-400">Mart</span> <span class="text-xs font-semibold text-emerald-300 font-sans uppercase tracking-widest bg-white/10 px-2 py-0.5 rounded-md">Hub Dispatch</span>
+            </h1>
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          </div>
+          <p class="text-[11px] text-emerald-200/80">Indiranagar Central Hub #BLR-IND-01 • Dawn Harvest Terminal</p>
+        </div>
+      </div>
+
+      <!-- Quick Role Switcher & Live Stats -->
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center gap-4 text-xs font-semibold text-emerald-200">
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> 4 AM Harvest Active</span>
+          <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400"></span> 3 Active EV Pilots</span>
+        </div>
+
+        <!-- Portal Navigator Dropdown -->
+        <div class="relative">
+          <a href="delivery.html" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-colors flex items-center gap-1.5">
+            <span>🛵 Delivery App</span>
+          </a>
+        </div>
+        <a href="admin.html" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-colors">
+          ⚡ Admin
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= SUBHEADER / METRICS BAR ================= -->
+  <div class="bg-emerald-900/90 text-white border-b border-emerald-800/80 py-3">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-4 text-xs">
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+        <button onclick="filterHubOrders('ALL')" id="tab-ALL" class="hub-filter-btn px-3 py-1 rounded-full bg-white text-emerald-950 font-bold transition-all shadow-xs">
+          All Orders (<span id="count-all">0</span>)
+        </button>
+        <button onclick="filterHubOrders('NEW')" id="tab-NEW" class="hub-filter-btn px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white font-medium transition-all">
+          New Orders (<span id="count-new">0</span>)
+        </button>
+        <button onclick="filterHubOrders('PICKING')" id="tab-PICKING" class="hub-filter-btn px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white font-medium transition-all">
+          Harvest Picking (<span id="count-picking">0</span>)
+        </button>
+        <button onclick="filterHubOrders('QC')" id="tab-QC" class="hub-filter-btn px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white font-medium transition-all">
+          Quality Check (<span id="count-qc">0</span>)
+        </button>
+        <button onclick="filterHubOrders('READY')" id="tab-READY" class="hub-filter-btn px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white font-medium transition-all">
+          Ready for Pickup (<span id="count-ready">0</span>)
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2 text-[11px] text-emerald-200">
+        <span>⚡ 90-Min Target SLA:</span>
+        <strong class="text-white bg-emerald-950 px-2 py-0.5 rounded font-mono">28m Avg Pack Time</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MAIN ORDERS BOARD ================= -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+    
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-xl font-heading font-black text-emerald-950">Live Fulfillment Queue</h2>
+        <p class="text-xs text-stone-500">Orders placed by customers across Indiranagar, HAL, and Domlur</p>
+      </div>
+      <button onclick="fetchHubOrders()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-stone-200 text-stone-700 text-xs font-bold hover:bg-stone-50 shadow-2xs">
+        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Board
+      </button>
+    </div>
+
+    <!-- Orders Grid -->
+    <div id="hub-orders-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+      <!-- Order cards rendered dynamically -->
+    </div>
+
+  </main>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 pointer-events-none"></div>
+
+  <!-- ================= HUB JAVASCRIPT LOGIC ================= -->
+  <script>
+    let allOrders = [];
+    let activeFilter = 'ALL';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchHubOrders();
+      initEventSource();
+      if (window.lucide) window.lucide.createIcons();
+    });
+
+    // Real-Time EventSource
+    function initEventSource() {
+      try {
+        const evtSource = new EventSource('/api/events');
+        evtSource.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          if (data.type === 'ORDER_CREATED' || data.type === 'ORDER_UPDATED') {
+            showToast(`⚡ Order #${data.payload.orderId || data.payload.id} updated: ${data.payload.orderStatus}`, 'info');
+            fetchHubOrders();
+          }
+        };
+      } catch (e) {
+        console.warn('SSE not available, falling back to polling');
+        setInterval(fetchHubOrders, 8000);
+      }
+    }
+
+    async function fetchHubOrders() {
+      try {
+        const res = await fetch('/api/hub/orders');
+        allOrders = await res.json();
+        updateCounts();
+        renderHubOrders();
+      } catch (e) {
+        console.error('Failed to load orders', e);
+      }
+    }
+
+    function updateCounts() {
+      document.getElementById('count-all').textContent = allOrders.length;
+      document.getElementById('count-new').textContent = allOrders.filter(o => o.orderStatus === 'CONFIRMED').length;
+      document.getElementById('count-picking').textContent = allOrders.filter(o => ['ACCEPTED_BY_HUB', 'PICKING'].includes(o.orderStatus)).length;
+      document.getElementById('count-qc').textContent = allOrders.filter(o => o.orderStatus === 'QUALITY_CHECK').length;
+      document.getElementById('count-ready').textContent = allOrders.filter(o => ['READY_FOR_PICKUP', 'PACKED'].includes(o.orderStatus)).length;
+    }
+
+    function filterHubOrders(filter) {
+      activeFilter = filter;
+      document.querySelectorAll('.hub-filter-btn').forEach(b => {
+        b.classList.remove('bg-white', 'text-emerald-950', 'font-bold');
+        b.classList.add('bg-white/10', 'text-white', 'font-medium');
+      });
+      const activeTab = document.getElementById(`tab-${filter}`);
+      activeTab?.classList.add('bg-white', 'text-emerald-950', 'font-bold');
+      activeTab?.classList.remove('bg-white/10', 'text-white', 'font-medium');
+
+      renderHubOrders();
+    }
+
+    function renderHubOrders() {
+      const container = document.getElementById('hub-orders-container');
+      if (!container) return;
+
+      let filtered = allOrders;
+      if (activeFilter === 'NEW') filtered = allOrders.filter(o => o.orderStatus === 'CONFIRMED');
+      else if (activeFilter === 'PICKING') filtered = allOrders.filter(o => ['ACCEPTED_BY_HUB', 'PICKING'].includes(o.orderStatus));
+      else if (activeFilter === 'QC') filtered = allOrders.filter(o => o.orderStatus === 'QUALITY_CHECK');
+      else if (activeFilter === 'READY') filtered = allOrders.filter(o => ['READY_FOR_PICKUP', 'PACKED'].includes(o.orderStatus));
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full text-center py-12 bg-white rounded-3xl border border-stone-200 p-8">
+            <span class="text-4xl block mb-2">🌱</span>
+            <h3 class="font-bold text-base text-emerald-950">Queue is clear!</h3>
+            <p class="text-xs text-stone-500 mt-1">No orders currently in this category.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(order => {
+        const isExpress = order.deliveryOption === 'EXPRESS_90_MIN';
+        const statusBadge = getStatusBadge(order.orderStatus);
+
+        return `
+          <div class="bg-white rounded-3xl p-5 border border-stone-200/80 shadow-xs hover:shadow-md transition-shadow relative space-y-4">
+            
+            <!-- Card Top Header -->
+            <div class="flex items-start justify-between pb-3 border-b border-stone-100">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-heading font-black text-base text-emerald-950">#${order.orderId}</span>
+                  ${isExpress ? `<span class="text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full border border-amber-300/80">⚡ EXPRESS 90M</span>` : ''}
+                </div>
+                <p class="text-xs text-stone-600 font-semibold mt-0.5">${order.customerName} • <span class="text-stone-400 font-normal">${order.deliveryAddress?.city || 'Indiranagar'}</span></p>
+              </div>
+              <div>${statusBadge}</div>
+            </div>
+
+            <!-- Fresh Produce Items -->
+            <div class="space-y-2">
+              <div class="text-[10px] uppercase font-bold text-stone-400 tracking-wider flex items-center justify-between">
+                <span>Produce to Harvest & Pack</span>
+                <span class="text-emerald-700 font-semibold">🌱 Freshly picked for order</span>
+              </div>
+              <div class="space-y-1.5">
+                ${order.items.map(it => `
+                  <div class="flex items-center justify-between p-2 rounded-xl bg-stone-50 text-xs border border-stone-100">
+                    <div class="flex items-center gap-2 min-w-0">
+                      <span class="text-base">🥬</span>
+                      <div class="truncate">
+                        <span class="font-bold text-emerald-950">${it.name}</span>
+                        <span class="text-stone-500 font-medium">(${it.weightLabel || '1 kg'})</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                      <span class="font-black text-emerald-900 bg-white px-2 py-0.5 rounded-lg border border-stone-200 text-[11px]">Qty: ${it.qty}</span>
+                      ${order.orderStatus === 'PICKING' ? `
+                        <button onclick="toggleItemStatus('${order.id}', '${it.id}')" class="text-[10px] font-bold px-2 py-0.5 rounded-md ${it.status === 'UNAVAILABLE' ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">
+                          ${it.status || 'AVAILABLE'}
+                        </button>
+                      ` : ''}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- SLA & Delivery Info -->
+            <div class="p-3 rounded-2xl bg-stone-50 border border-stone-200/60 text-xs space-y-1 text-stone-600">
+              <div class="flex justify-between">
+                <span>Delivery Slot:</span>
+                <strong class="text-emerald-950">${order.deliverySlot}</strong>
+              </div>
+              <div class="flex justify-between">
+                <span>EV Partner Assigned:</span>
+                <strong class="text-emerald-800">${order.deliveryPartnerName}</strong>
+              </div>
+              <div class="flex justify-between">
+                <span>Total Value:</span>
+                <strong class="text-emerald-950 font-bold">₹${order.totalAmount} (${order.paymentMethod})</strong>
+              </div>
+            </div>
+
+            <!-- Action Controls Per Status -->
+            <div class="pt-1">
+              ${renderHubActions(order)}
+            </div>
+
+          </div>
+        `;
+      }).join('');
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function getStatusBadge(status) {
+      switch (status) {
+        case 'CONFIRMED':
+          return '<span class="text-[10px] font-black uppercase tracking-wider bg-blue-100 text-blue-900 px-2 py-1 rounded-full">New Order</span>';
+        case 'ACCEPTED_BY_HUB':
+          return '<span class="text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-900 px-2 py-1 rounded-full">Accepted</span>';
+        case 'PICKING':
+          return '<span class="text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 px-2 py-1 rounded-full">Picking</span>';
+        case 'QUALITY_CHECK':
+          return '<span class="text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-900 px-2 py-1 rounded-full">In QC</span>';
+        case 'READY_FOR_PICKUP':
+        case 'PACKED':
+          return '<span class="text-[10px] font-black uppercase tracking-wider bg-teal-100 text-teal-900 px-2 py-1 rounded-full">Ready for Rider</span>';
+        case 'PICKED_UP':
+        case 'OUT_FOR_DELIVERY':
+          return '<span class="text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-900 px-2 py-1 rounded-full">Out for Delivery</span>';
+        case 'DELIVERED':
+          return '<span class="text-[10px] font-black uppercase tracking-wider bg-stone-200 text-stone-700 px-2 py-1 rounded-full">Delivered</span>';
+        default:
+          return `<span class="text-[10px] font-bold bg-stone-100 px-2 py-1 rounded-full">${status}</span>`;
+      }
+    }
+
+    function renderHubActions(order) {
+      switch (order.orderStatus) {
+        case 'CONFIRMED':
+          return `
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="acceptOrder('${order.id}')" class="py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs shadow-xs transition-colors">
+                ✓ Accept Order
+              </button>
+              <button onclick="cancelOrder('${order.id}')" class="py-2.5 rounded-xl bg-stone-100 hover:bg-red-50 text-stone-600 hover:text-red-700 font-bold text-xs transition-colors">
+                ✕ Reject
+              </button>
+            </div>
+          `;
+        case 'ACCEPTED_BY_HUB':
+          return `
+            <button onclick="startPicking('${order.id}')" class="w-full py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5">
+              <span>🌾 Start Harvest Picking</span>
+            </button>
+          `;
+        case 'PICKING':
+          return `
+            <button onclick="runQualityCheck('${order.id}')" class="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5">
+              <span>🔍 Run 5-Point Quality Check</span>
+            </button>
+          `;
+        case 'QUALITY_CHECK':
+          return `
+            <button onclick="packOrder('${order.id}')" class="w-full py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5">
+              <span>🌿 Pack in Plastic-Free Bag</span>
+            </button>
+          `;
+        case 'READY_FOR_PICKUP':
+        case 'PACKED':
+          return `
+            <div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-center text-xs font-bold text-emerald-900">
+              ✓ Staged at Bay #1 • Ready for EV Pilot
+            </div>
+          `;
+        default:
+          return `
+            <div class="text-center text-xs text-stone-400 py-1 font-medium">
+              Fulfillment complete. In transit or delivered.
+            </div>
+          `;
+      }
+    }
+
+    async function acceptOrder(id) {
+      await fetch(`/api/hub/orders/${id}/accept`, { method: 'PATCH' });
+      showToast('Order accepted! Moved to picking queue.', 'success');
+      fetchHubOrders();
+    }
+
+    async function startPicking(id) {
+      await fetch(`/api/hub/orders/${id}/picking`, { method: 'PATCH' });
+      showToast('Picking started. Fresh harvest sorting underway.', 'info');
+      fetchHubOrders();
+    }
+
+    async function toggleItemStatus(orderId, itemId) {
+      const order = allOrders.find(o => o.id === orderId);
+      const item = order?.items.find(i => i.id === itemId);
+      const newStatus = item?.status === 'AVAILABLE' ? 'UNAVAILABLE' : 'AVAILABLE';
+
+      await fetch(`/api/hub/orders/${orderId}/item-status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId, status: newStatus })
+      });
+      showToast(`Item marked as ${newStatus}`, 'info');
+      fetchHubOrders();
+    }
+
+    async function runQualityCheck(id) {
+      await fetch(`/api/hub/orders/${id}/quality-check`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          inspector: 'QC Lead Anand Verma',
+          checklist: ['Freshness', 'Correct Product', 'Correct Quantity', 'Correct Weight', 'No Visible Damage']
+        })
+      });
+      showToast('5-Point Quality Check Cleared!', 'success');
+      fetchHubOrders();
+    }
+
+    async function packOrder(id) {
+      await fetch(`/api/hub/orders/${id}/packed`, { method: 'PATCH' });
+      showToast('Order packed in 100% biodegradable bag and staged for pickup!', 'success');
+      fetchHubOrders();
+    }
+
+    async function cancelOrder(id) {
+      if (confirm('Are you sure you want to reject this order? Customer will receive a full instant refund.')) {
+        await fetch(`/api/orders/${id}/cancel`, { method: 'POST' });
+        showToast('Order cancelled & refund issued.', 'info');
+        fetchHubOrders();
+      }
+    }
+
+    function showToast(msg, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `p-3.5 rounded-2xl shadow-xl text-white text-xs font-bold transition-all duration-300 pointer-events-auto ${
+        type === 'success' ? 'bg-emerald-800' : 'bg-stone-900'
+      }`;
+      toast.textContent = msg;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3200);
+    }
+  </script>
+
+</body>
+</html>

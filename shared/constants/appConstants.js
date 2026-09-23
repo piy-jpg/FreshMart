@@ -1,0 +1,21 @@
+const APP_CONSTANTS = {
+  APP_NAME: 'FreshMart',
+  FREE_DELIVERY_THRESHOLD: 199,
+  STANDARD_DELIVERY_FEE: 29,
+  EXPRESS_DELIVERY_FEE: 49,
+  MAX_DELIVERY_RADIUS_KM: 25,
+  BASE_DELIVERY_RADIUS_KM: 8,
+  STORE_ORIGIN: {
+    lat: 28.5355,
+    lng: 77.3910,
+    address: 'FreshMart Central Hub, Sector 68, Noida, UP 201301'
+  },
+  DEFAULT_ETA_MINS: 20,
+  EXPRESS_ETA_MINS: 15,
+  WALLET_WELCOME_BONUS: 100,
+  OTP_LENGTH: 4
+};
+
+module.exports = {
+  APP_CONSTANTS
+};

@@ -1,0 +1,19 @@
+const PAYMENT_METHODS = {
+  COD: 'COD',
+  RAZORPAY: 'RAZORPAY',
+  UPI: 'UPI',
+  CARD: 'CARD',
+  WALLET: 'WALLET'
+};
+
+const PAYMENT_STATUS = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  FAILED: 'FAILED',
+  REFUNDED: 'REFUNDED'
+};
+
+module.exports = {
+  PAYMENT_METHODS,
+  PAYMENT_STATUS
+};
