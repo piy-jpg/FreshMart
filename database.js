@@ -9928,6 +9928,7 @@ class Database {
               u.passwordHash = hash;
               u.salt = salt;
               u.passwordSalt = salt;
+              u.emailVerified = true;
               u.failedLoginAttempts = 0;
               u.lockUntil = null;
               modified = true;
