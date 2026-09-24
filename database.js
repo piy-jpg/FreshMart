@@ -9854,8 +9854,12 @@ class Database {
       const collections = ['users', 'products', 'categories', 'orders', 'delivery_partners', 'farmers', 'hubs', 'inventory_movements', 'audit_logs'];
       for (const coll of collections) {
         const rows = await this.postgres.getAll(coll);
-        if (Array.isArray(rows)) {
+        if (Array.isArray(rows) && rows.length > 0) {
           this.data[coll] = rows;
+        } else if ((!rows || rows.length === 0) && Array.isArray(this.data[coll]) && this.data[coll].length > 0) {
+          for (const item of this.data[coll]) {
+            await this.postgres.insert(coll, item).catch(() => {});
+          }
         }
       }
       const settingsRes = await this.postgres.query("SELECT value FROM freshmart_settings WHERE key = 'global_settings' LIMIT 1");
@@ -10090,7 +10094,20 @@ class Database {
     );
   }
 
-  async insert(collection, item) {
+  insert(collection, item) {
+    if (!this.data[collection]) this.data[collection] = [];
+    if (!item.id) {
+      item.id = `${collection.slice(0, 4)}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+    }
+    this.data[collection].unshift(item);
+    this.save();
+    if (this.postgres.isAvailable()) {
+      this.postgres.insert(collection, item).catch(e => console.error('PostgreSQL insert error:', e.message));
+    }
+    return item;
+  }
+
+  async insertAsync(collection, item) {
     if (!this.data[collection]) this.data[collection] = [];
     if (!item.id) {
       item.id = `${collection.slice(0, 4)}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
@@ -10107,7 +10124,34 @@ class Database {
     return item;
   }
 
-  async update(collection, id, updates) {
+  update(collection, id, updates) {
+    if (!this.data[collection] || !id) return null;
+    const sId = String(id);
+    const idx = this.data[collection].findIndex(item => 
+      item.id === id || 
+      item.orderId === id || 
+      item.sku === id ||
+      item.storefrontId === id ||
+      (item.storefrontId && ('prod_' + item.storefrontId.replace(/-/g, '_')) === id) ||
+      ('prod_' + sId.replace(/-/g, '_')) === item.id ||
+      (typeof item.id === 'string' && item.id.startsWith('prod_') && item.id.slice(5) === id) ||
+      (item.name && item.name.toLowerCase() === sId.toLowerCase())
+    );
+    if (idx === -1) return null;
+    this.data[collection][idx] = {
+      ...this.data[collection][idx],
+      ...updates,
+      updatedAt: new Date().toISOString()
+    };
+    const updated = this.data[collection][idx];
+    this.save();
+    if (this.postgres.isAvailable()) {
+      this.postgres.update(collection, updated.id || id, updates).catch(e => console.error('PostgreSQL update error:', e.message));
+    }
+    return updated;
+  }
+
+  async updateAsync(collection, id, updates) {
     if (!this.data[collection] || !id) return null;
     const sId = String(id);
     const idx = this.data[collection].findIndex(item => 
@@ -10138,7 +10182,43 @@ class Database {
     return updated;
   }
 
-  async delete(collection, id) {
+  delete(collection, id) {
+    if (!this.data[collection] || !id) return false;
+    const sId = String(id);
+    const initialLen = this.data[collection].length;
+    let targetId = id;
+    const found = this.data[collection].find(item => 
+      item.id === id || 
+      item.orderId === id || 
+      item.sku === id ||
+      item.storefrontId === id ||
+      (item.storefrontId && ('prod_' + item.storefrontId.replace(/-/g, '_')) === id) ||
+      ('prod_' + sId.replace(/-/g, '_')) === item.id ||
+      (typeof item.id === 'string' && item.id.startsWith('prod_') && item.id.slice(5) === id) ||
+      (item.name && item.name.toLowerCase() === sId.toLowerCase())
+    );
+    if (found && found.id) targetId = found.id;
+    this.data[collection] = this.data[collection].filter(item => !(
+      item.id === id || 
+      item.orderId === id || 
+      item.sku === id || 
+      item.storefrontId === id ||
+      (item.storefrontId && ('prod_' + item.storefrontId.replace(/-/g, '_')) === id) ||
+      ('prod_' + sId.replace(/-/g, '_')) === item.id ||
+      (typeof item.id === 'string' && item.id.startsWith('prod_') && item.id.slice(5) === id) ||
+      (item.name && item.name.toLowerCase() === sId.toLowerCase())
+    ));
+    if (this.data[collection].length !== initialLen) {
+      this.save();
+      if (this.postgres.isAvailable()) {
+        this.postgres.delete(collection, targetId).catch(e => console.error('PostgreSQL delete error:', e.message));
+      }
+      return true;
+    }
+    return false;
+  }
+
+  async deleteAsync(collection, id) {
     if (!this.data[collection] || !id) return false;
     const sId = String(id);
     const initialLen = this.data[collection].length;

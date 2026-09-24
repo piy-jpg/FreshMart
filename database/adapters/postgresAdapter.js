@@ -440,8 +440,9 @@ class PostgresAdapter {
 
   async update(collection, id, updates) {
     const existing = await this.getById(collection, id);
-    if (!existing) return null;
-    const merged = { ...existing, ...updates, updatedAt: new Date().toISOString() };
+    const merged = existing 
+      ? { ...existing, ...updates, updatedAt: new Date().toISOString() }
+      : { id, ...updates, updatedAt: new Date().toISOString() };
     await this.insert(collection, merged);
     return merged;
   }
