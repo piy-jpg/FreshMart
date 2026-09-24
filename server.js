@@ -1205,13 +1205,17 @@ const server = http.createServer(async (req, res) => {
       user.failedLoginAttempts = 0;
       user.lockUntil = null;
 
-      // Enforce email verification for customers (staff accounts are created verified)
-      if (user.role === 'CUSTOMER' && !user.emailVerified) {
+      // Enforce email verification for customers only if REQUIRE_EMAIL_VERIFICATION is explicitly configured
+      const enforceEmailVerification = process.env.REQUIRE_EMAIL_VERIFICATION === 'true' && db.data.settings?.requireEmailVerification === true;
+      if (user.role === 'CUSTOMER' && !user.emailVerified && enforceEmailVerification) {
         return sendJson(res, 403, {
           error: 'Your email address has not been verified. Please check your inbox or click Resend.',
           unverified: true,
           email: user.email
         });
+      } else if (user.role === 'CUSTOMER' && !user.emailVerified) {
+        user.emailVerified = true;
+        db.update('users', user.id, { emailVerified: true });
       }
 
       // Successful login
