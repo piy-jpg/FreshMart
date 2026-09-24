@@ -12,14 +12,22 @@ module.exports = async (req, res) => {
         await db.syncFromPostgres();
       }
     } catch (e) {
-      console.error('PostgreSQL error in serverless function:', e.message);
-      res.statusCode = 503;
-      res.setHeader('Content-Type', 'application/json');
-      return res.end(JSON.stringify({
-        error: 'Database Unavailable',
-        message: 'PostgreSQL is the production single source of truth and is currently unreachable.',
-        detail: e.message
-      }));
+      console.warn('PostgreSQL sync notice:', e.message);
+      // If we don't have products loaded in memory yet (cold container error), retry once
+      if (!db.data || !db.data.products || db.data.products.length === 0) {
+        try {
+          await db.initPostgres();
+        } catch (retryErr) {
+          console.error('PostgreSQL cold-start init failed:', retryErr.message);
+          res.statusCode = 503;
+          res.setHeader('Content-Type', 'application/json');
+          return res.end(JSON.stringify({
+            error: 'Database Unavailable',
+            message: 'PostgreSQL is the production single source of truth and is currently unreachable.',
+            detail: retryErr.message
+          }));
+        }
+      }
     }
   }
   // Attach request to response for origin and header inspection in helpers

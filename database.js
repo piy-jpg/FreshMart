@@ -9854,15 +9854,19 @@ class Database {
       return;
     }
     const collections = ['users', 'products', 'categories', 'orders', 'delivery_partners', 'farmers', 'hubs', 'inventory_movements', 'audit_logs'];
-    for (const coll of collections) {
-      const rows = await this.postgres.getAll(coll);
-      // In production, PostgreSQL is the single source of truth:
-      this.data[coll] = Array.isArray(rows) ? rows : [];
-    }
-    const settingsRes = await this.postgres.query("SELECT value FROM freshmart_settings WHERE key = 'global_settings' LIMIT 1");
-    if (settingsRes.rows.length > 0) {
-      this.data.settings = settingsRes.rows[0].value;
-    }
+    const results = await Promise.allSettled(collections.map(coll => this.postgres.getAll(coll)));
+    results.forEach((res, idx) => {
+      const coll = collections[idx];
+      if (res.status === 'fulfilled' && Array.isArray(res.value) && res.value.length > 0) {
+        this.data[coll] = res.value;
+      }
+    });
+    try {
+      const settingsRes = await this.postgres.query("SELECT value FROM freshmart_settings WHERE key = 'global_settings' LIMIT 1");
+      if (settingsRes && settingsRes.rows && settingsRes.rows.length > 0) {
+        this.data.settings = settingsRes.rows[0].value;
+      }
+    } catch (e) {}
   }
 
   reloadIfModified() {

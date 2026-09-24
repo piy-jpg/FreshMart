@@ -9,8 +9,8 @@ class PostgresAdapter {
   constructor(connectionString) {
     const candidateUrls = [
       connectionString,
-      process.env.POSTGRES_URL,
       process.env.POSTGRES_PRISMA_URL,
+      process.env.POSTGRES_URL,
       process.env.POSTGRES_DATABASE_URL,
       process.env.STORAGE_URL,
       process.env.DATABASE_URL,
@@ -56,9 +56,10 @@ class PostgresAdapter {
       this.pool = new Pool({
         connectionString: this.connectionString,
         ssl: sslConfig,
-        max: Number(process.env.DATABASE_POOL_MAX || 10),
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 10000
+        max: Number(process.env.DATABASE_POOL_MAX || 5),
+        idleTimeoutMillis: 10000,
+        connectionTimeoutMillis: 15000,
+        keepAlive: true
       });
 
       this.pool.on('error', (err) => {
