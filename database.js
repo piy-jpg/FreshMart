@@ -9863,11 +9863,17 @@ class Database {
         if (!this.data.products || this.data.products.length === 0) {
           this.data.products = seeds.products;
           modified = true;
-        } else {
+        } else if (Array.isArray(seeds.products)) {
           const existingIds = new Set(this.data.products.map(p => p.id));
-          const missingSeeds = seeds.products.filter(sp => !existingIds.has(sp.id));
+          const existingSkus = new Set(this.data.products.map(p => p.sku).filter(Boolean));
+          const existingNames = new Set(this.data.products.map(p => (p.name || '').toLowerCase()).filter(Boolean));
+          const missingSeeds = seeds.products.filter(sp => 
+            !existingIds.has(sp.id) && 
+            !existingSkus.has(sp.sku) && 
+            !existingNames.has((sp.name || '').toLowerCase())
+          );
           if (missingSeeds.length > 0) {
-            this.data.products.push(...missingSeeds);
+            this.data.products.unshift(...missingSeeds);
             modified = true;
           }
         }
