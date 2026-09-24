@@ -6,27 +6,27 @@ module.exports = (req, res) => {
   res.req = req;
 
   // Resolve the true requested URL on Vercel
-  const originalUrl = req.originalUrl;
-  const forwardedUri = req.headers['x-forwarded-uri'] || req.headers['x-real-url'] || req.headers['x-original-uri'];
-  const matchedPath = req.headers['x-matched-path'] || req.headers['x-vercel-matched-path'];
-  const nowRouteMatches = req.headers['x-now-route-matches'] || req.headers['x-vercel-route-matches'];
-  
-  if (originalUrl && typeof originalUrl === 'string' && originalUrl.startsWith('/api')) {
-    req.url = originalUrl;
-  } else if (forwardedUri && typeof forwardedUri === 'string' && forwardedUri.startsWith('/api')) {
-    req.url = forwardedUri;
-  } else if (matchedPath && typeof matchedPath === 'string' && matchedPath.length > 4 && matchedPath.startsWith('/api/')) {
-    const urlParts = req.url.split('?');
-    const query = urlParts.length > 1 ? '?' + urlParts.slice(1).join('?') : '';
-    req.url = matchedPath + query;
+  let resolvedPath = req.url || '/';
+  const forwardedUri = req.headers['x-forwarded-uri'] || req.headers['x-real-url'] || req.headers['x-original-uri'] || req.originalUrl;
+
+  if (forwardedUri && typeof forwardedUri === 'string' && forwardedUri.startsWith('/api')) {
+    resolvedPath = forwardedUri;
+  } else if (req.headers['x-matched-path'] && req.headers['x-matched-path'].startsWith('/api/') && !req.headers['x-matched-path'].includes('/api/index')) {
+    const queryParts = (req.url || '').split('?');
+    const query = queryParts.length > 1 ? '?' + queryParts.slice(1).join('?') : '';
+    resolvedPath = req.headers['x-matched-path'] + query;
   } else if (req.query && (req.query.match || req.query['0'] || req.query['1'])) {
     const subpath = req.query.match || req.query['0'] || req.query['1'];
-    const queryParts = req.url.split('?');
+    const queryParts = (req.url || '').split('?');
     const query = queryParts.length > 1 ? '?' + queryParts.slice(1).join('?') : '';
-    req.url = '/api/' + String(subpath).replace(/^\//, '') + query;
-  } else if (req.url && !req.url.startsWith('/api')) {
-    req.url = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);
+    resolvedPath = '/api/' + String(subpath).replace(/^\//, '') + query;
   }
+
+  if (!resolvedPath.startsWith('/api')) {
+    resolvedPath = '/api' + (resolvedPath.startsWith('/') ? resolvedPath : '/' + resolvedPath);
+  }
+
+  req.url = resolvedPath;
 
   server.emit("request", req, res);
 };
