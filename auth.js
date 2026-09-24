@@ -37,9 +37,20 @@
    */
   async function initAuth() {
     try {
-      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      const token = sessionStorage.getItem('fm_session_token') || localStorage.getItem('fm_session_token');
+      const headers = {};
+      if (token) {
+        headers['Authorization'] = 'Bearer ' + token;
+        headers['x-session-token'] = token;
+      }
+      const res = await fetch('/api/auth/me', { credentials: 'include', headers });
       if (res.ok) {
         const data = await res.json();
+        if (data.session && (data.session.token || data.session.id)) {
+          const sessionTok = data.session.token || data.session.id;
+          sessionStorage.setItem('fm_session_token', sessionTok);
+          localStorage.setItem('fm_session_token', sessionTok);
+        }
         if (data.isAuthenticated && data.user) {
           window.sabjihubAuth.isAuthenticated = true;
           window.sabjihubAuth.user = data.user;
@@ -278,6 +289,14 @@
       const data = await res.json();
 
       if (res.ok && data.success) {
+        if (data.session && (data.session.token || data.session.id)) {
+          const sessionTok = data.session.token || data.session.id;
+          sessionStorage.setItem('fm_session_token', sessionTok);
+          localStorage.setItem('fm_session_token', sessionTok);
+        } else if (data.token) {
+          sessionStorage.setItem('fm_session_token', data.token);
+          localStorage.setItem('fm_session_token', data.token);
+        }
         window.sabjihubAuth.isAuthenticated = true;
         window.sabjihubAuth.user = data.user;
         window.sabjihubAuth.emailVerified = true;

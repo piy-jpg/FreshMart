@@ -2668,11 +2668,17 @@
     }
 
     function getAuthHeaders(customHeaders = {}) {
-      const headers = { ...customHeaders };
+      let headers = {};
+      if (typeof Headers !== 'undefined' && customHeaders instanceof Headers) {
+        customHeaders.forEach((val, key) => { headers[key] = val; });
+      } else if (customHeaders && typeof customHeaders === 'object') {
+        headers = { ...customHeaders };
+      }
       const token = sessionStorage.getItem('fm_session_token') || localStorage.getItem('fm_session_token');
       if (token) {
         headers['Authorization'] = 'Bearer ' + token;
         headers['x-session-token'] = token;
+        headers['x-auth-token'] = token;
       }
       return headers;
     }

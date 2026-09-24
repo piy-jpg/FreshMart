@@ -702,22 +702,31 @@ function clearAuthCookie(res) {
 }
 
 function extractUserSession(req) {
-  const cookies = parseCookies(req);
-  let token = cookies.sjh_session || cookies.sabjihub_session || cookies.freshmart_session;
-  
-  if (!token && req?.headers) {
+  let headerToken = null;
+  if (req?.headers) {
     const authHeader = req.headers['authorization'] || req.headers['Authorization'];
     if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
-      token = authHeader.substring(7).trim();
+      headerToken = authHeader.substring(7).trim();
     } else if (req.headers['x-session-token']) {
-      token = req.headers['x-session-token'];
+      headerToken = req.headers['x-session-token'];
     } else if (req.headers['x-auth-token']) {
-      token = req.headers['x-auth-token'];
+      headerToken = req.headers['x-auth-token'];
     }
   }
 
-  if (!token) return null;
-  return db.validateSession(token);
+  if (headerToken) {
+    const valid = db.validateSession(headerToken);
+    if (valid) return valid;
+  }
+
+  const cookies = parseCookies(req);
+  const cookieToken = cookies.sjh_session || cookies.sabjihub_session || cookies.freshmart_session;
+  if (cookieToken && cookieToken !== headerToken) {
+    const valid = db.validateSession(cookieToken);
+    if (valid) return valid;
+  }
+
+  return null;
 }
 
 function sanitizeUser(user) {

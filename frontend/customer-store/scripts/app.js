@@ -2771,21 +2771,31 @@ function mapDbProductToStorefront(p) {
 
   let weights = [];
   if (Array.isArray(p.weights) && p.weights.length > 0) {
-    weights = p.weights.map(w => ({
-      label: w.label || w.weightLabel || p.unit || '1 unit',
-      price: Number(w.price !== undefined ? w.price : effectivePrice),
-      originalPrice: Number(w.originalPrice !== undefined ? w.originalPrice : (w.mrp || effectiveMrp)),
-      discount: w.discount || ((w.originalPrice && w.originalPrice > w.price) ? `${Math.round(((w.originalPrice - w.price) / w.originalPrice) * 100)}% OFF` : (effectiveMrp > effectivePrice ? `${Math.round(((effectiveMrp - effectivePrice) / effectiveMrp) * 100)}% OFF` : 'Best Value')),
-      savings: w.savings || ((w.originalPrice && w.originalPrice > w.price) ? (w.originalPrice - w.price) : (effectiveMrp > effectivePrice ? effectiveMrp - effectivePrice : 0))
-    }));
+    weights = p.weights.map((w, idx) => {
+      const isPrimary = p.weights.length === 1 || idx === 0 || (w.label || '').toLowerCase().trim() === (p.unit || '').toLowerCase().trim();
+      const weightPrice = isPrimary && effectivePrice > 0 ? effectivePrice : Number(w.price !== undefined ? w.price : effectivePrice);
+      const weightMrp = isPrimary && effectiveMrp > 0 ? effectiveMrp : Number(w.originalPrice !== undefined ? w.originalPrice : (w.mrp || effectiveMrp));
+      return {
+        label: w.label || w.weightLabel || p.unit || '1 unit',
+        price: weightPrice,
+        originalPrice: weightMrp,
+        discount: weightMrp > weightPrice ? `${Math.round(((weightMrp - weightPrice) / weightMrp) * 100)}% OFF` : (effectiveMrp > effectivePrice ? `${Math.round(((effectiveMrp - effectivePrice) / effectiveMrp) * 100)}% OFF` : 'Best Value'),
+        savings: weightMrp > weightPrice ? (weightMrp - weightPrice) : (effectiveMrp > effectivePrice ? effectiveMrp - effectivePrice : 0)
+      };
+    });
   } else if (Array.isArray(p.variants) && p.variants.length > 0) {
-    weights = p.variants.map(v => ({
-      label: v.weightLabel || v.label || p.unit || '1 unit',
-      price: Number(v.price !== undefined ? v.price : effectivePrice),
-      originalPrice: Number(v.mrp !== undefined ? v.mrp : (v.originalPrice || effectiveMrp)),
-      discount: (v.mrp && v.mrp > v.price) ? `${Math.round(((v.mrp - v.price) / v.mrp) * 100)}% OFF` : (effectiveMrp > effectivePrice ? `${Math.round(((effectiveMrp - effectivePrice) / effectiveMrp) * 100)}% OFF` : 'Best Value'),
-      savings: (v.mrp && v.mrp > v.price) ? (v.mrp - v.price) : 0
-    }));
+    weights = p.variants.map((v, idx) => {
+      const isPrimary = p.variants.length === 1 || idx === 0 || (v.weightLabel || v.label || '').toLowerCase().trim() === (p.unit || '').toLowerCase().trim();
+      const variantPrice = isPrimary && effectivePrice > 0 ? effectivePrice : Number(v.price !== undefined ? v.price : effectivePrice);
+      const variantMrp = isPrimary && effectiveMrp > 0 ? effectiveMrp : Number(v.mrp !== undefined ? v.mrp : (v.originalPrice || effectiveMrp));
+      return {
+        label: v.weightLabel || v.label || p.unit || '1 unit',
+        price: variantPrice,
+        originalPrice: variantMrp,
+        discount: variantMrp > variantPrice ? `${Math.round(((variantMrp - variantPrice) / variantMrp) * 100)}% OFF` : (effectiveMrp > effectivePrice ? `${Math.round(((effectiveMrp - effectivePrice) / effectiveMrp) * 100)}% OFF` : 'Best Value'),
+        savings: variantMrp > variantPrice ? (variantMrp - variantPrice) : 0
+      };
+    });
   } else {
     weights = [{
       label: p.unit || '1 unit',
