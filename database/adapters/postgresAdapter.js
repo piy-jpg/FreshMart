@@ -13,8 +13,16 @@ class PostgresAdapter {
     this._initPromise = null;
   }
 
+  isPlaceholder() {
+    if (!this.connectionString) return false;
+    const str = String(this.connectionString).trim();
+    return str.includes('@HOST') || str.includes('@<host>') || str.includes('HOST:') || str.includes('<host>') || str.includes('PLACEHOLDER') || str.includes('example.com');
+  }
+
   isAvailable() {
-    return Boolean(this.connectionString);
+    if (!this.connectionString || this.isPlaceholder()) return false;
+    const str = String(this.connectionString).trim();
+    return Boolean(str.startsWith('postgres://') || str.startsWith('postgresql://'));
   }
 
   getPool() {

@@ -1083,9 +1083,10 @@ const server = http.createServer(async (req, res) => {
 
     // Database connectivity & persistence health check
     if (pathname === '/api/database/status' && method === 'GET') {
+      const isPlaceholder = Boolean(db.postgres && db.postgres.isPlaceholder());
       const isPgConfigured = Boolean(db.postgres && db.postgres.isAvailable());
       let pgHealthy = false;
-      let pgError = null;
+      let pgError = isPlaceholder ? 'DATABASE_URL contains placeholder hostname (HOST). Update with real PostgreSQL server host.' : null;
       let tables = [];
       if (isPgConfigured) {
         try {
@@ -1098,12 +1099,16 @@ const server = http.createServer(async (req, res) => {
         }
       }
       return sendJson(res, 200, {
-        database: isPgConfigured ? 'PostgreSQL' : 'None (DATABASE_URL not set)',
+        database: isPgConfigured ? 'PostgreSQL' : (isPlaceholder ? 'PostgreSQL (Placeholder Detected)' : 'None (DATABASE_URL not set)'),
         connected: pgHealthy,
         isProductionConfigured: isPgConfigured,
+        isPlaceholder,
         tables,
         error: pgError,
-        environment: process.env.NODE_ENV || 'production'
+        environment: process.env.NODE_ENV || 'production',
+        instruction: isPlaceholder
+          ? 'In Vercel Dashboard -> freshmart -> Settings -> Environment Variables, replace HOST in DATABASE_URL with your actual PostgreSQL endpoint.'
+          : (pgHealthy ? 'PostgreSQL connected and active.' : 'Configure DATABASE_URL to connect to PostgreSQL.')
       });
     }
 

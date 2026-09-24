@@ -341,8 +341,8 @@
       "walletBalance": 10000,
       "provider": "local",
       "createdAt": "2026-09-12T11:54:26.481Z",
-      "updatedAt": "2026-09-24T16:37:33.809Z",
-      "lastLoginAt": "2026-09-24T16:37:33.809Z",
+      "updatedAt": "2026-09-24T17:29:15.620Z",
+      "lastLoginAt": "2026-09-24T17:29:15.620Z",
       "googleSub": "google_sub_owner_730929",
       "profileImage": "https://lh3.googleusercontent.com/a/owner-pic",
       "active": true,
@@ -19752,6 +19752,36 @@
   ],
   "inventory_movements": [
     {
+      "id": "mov_1790270955485",
+      "date": "2026-09-24T17:29:15.485Z",
+      "productId": "prod_1790270955452",
+      "productName": "Organic Kinnow Orange #1790270955407 (Premium Export Grade)",
+      "sku": "SJH-FRU-ORG-23",
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "type": "HARVEST",
+      "quantity": 25,
+      "before": 60,
+      "after": 85,
+      "reason": "Fresh morning harvest batch intake #1790270955407",
+      "user": "Piyush Verma (OWNER)"
+    },
+    {
+      "id": "mov_1790270955456",
+      "date": "2026-09-24T17:29:15.456Z",
+      "productId": "prod_1790270955452",
+      "productName": "Organic Kinnow Orange #1790270955407",
+      "sku": "SJH-FRU-ORG-23",
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "type": "HARVEST",
+      "quantity": 45,
+      "before": 0,
+      "after": 45,
+      "reason": "Initial catalog intake from Abohar Kinnow Orchards (QC Passed)",
+      "user": "Piyush Verma (Owner)"
+    },
+    {
       "id": "mov_1790267853671",
       "date": "2026-09-24T16:37:33.671Z",
       "productId": "prod_1790267853637",
@@ -24373,6 +24403,204 @@
   ],
   "activity_logs": [
     {
+      "id": "log_1790270955669_835",
+      "timestamp": "2026-09-24T17:29:15.669Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STAFF_DELETED",
+      "entity": "Staff",
+      "target": "Staff",
+      "entityId": "usr_staff_1790270955571_892",
+      "details": "Permanently deleted staff member Ananya Operations Lead"
+    },
+    {
+      "id": "log_1790270955661_289",
+      "timestamp": "2026-09-24T17:29:15.661Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "DELIVERY_PARTNER_DELETED",
+      "entity": "Delivery",
+      "target": "Delivery",
+      "entityId": "usr_staff_1790270955538",
+      "details": "Removed delivery partner"
+    },
+    {
+      "id": "log_1790270955655_959",
+      "timestamp": "2026-09-24T17:29:15.655Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "HUB_DELETED",
+      "entity": "Hubs",
+      "target": "Hubs",
+      "entityId": "hub_1790270955530",
+      "details": "Decommissioned hub"
+    },
+    {
+      "id": "log_1790270955649_66",
+      "timestamp": "2026-09-24T17:29:15.649Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "FARMER_DELETED",
+      "entity": "Farmers",
+      "target": "Farmers",
+      "entityId": "frm_1790270955516",
+      "details": "Removed farmer"
+    },
+    {
+      "id": "log_1790270955643_673",
+      "timestamp": "2026-09-24T17:29:15.643Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "CATEGORY_DELETED",
+      "entity": "Categories",
+      "target": "Categories",
+      "entityId": "cat_1790270955474",
+      "details": "Deleted category"
+    },
+    {
+      "id": "log_1790270955636_557",
+      "timestamp": "2026-09-24T17:29:15.636Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_DELETED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790270955452",
+      "details": "Deleted product \"Organic Kinnow Orange #1790270955407 (Premium Export Grade)\" (prod_1790270955452)"
+    },
+    {
+      "id": "log_1790270955626_399",
+      "timestamp": "2026-09-24T17:29:15.626Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
+      "id": "log_1790270955588_395",
+      "timestamp": "2026-09-24T17:29:15.588Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "CUSTOMER_LOGOUT",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session destroyed"
+    },
+    {
+      "id": "log_1790270955581_133",
+      "timestamp": "2026-09-24T17:29:15.581Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "SETTINGS_UPDATED",
+      "entity": "Platform",
+      "target": "Platform",
+      "entityId": "GLOBAL",
+      "details": "Updated platform settings: Delivery Fee ₹35, Free Threshold ₹349, Maintenance: OFF"
+    },
+    {
+      "id": "log_1790270955574_880",
+      "timestamp": "2026-09-24T17:29:15.574Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STAFF_CREATED",
+      "entity": "Staff",
+      "target": "Staff",
+      "entityId": "usr_staff_1790270955571_892",
+      "details": "Created staff member Ananya Operations Lead with role INVENTORY_MANAGER"
+    },
+    {
+      "id": "log_1790270955541_875",
+      "timestamp": "2026-09-24T17:29:15.541Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "DELIVERY_PARTNER_ADDED",
+      "entity": "Delivery",
+      "target": "Delivery",
+      "entityId": "usr_staff_1790270955538",
+      "details": "Enrolled delivery partner \"Kishore EV Rider #1790270955407\""
+    },
+    {
+      "id": "log_1790270955533_87",
+      "timestamp": "2026-09-24T17:29:15.533Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "HUB_CREATED",
+      "entity": "Hubs",
+      "target": "Hubs",
+      "entityId": "hub_1790270955530",
+      "details": "Registered dark store hub \"Electronic City Phase 1 Dark Store #1790270955407\""
+    },
+    {
+      "id": "log_1790270955523_967",
+      "timestamp": "2026-09-24T17:29:15.523Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "FARMER_CREATED",
+      "entity": "Farmers",
+      "target": "Farmers",
+      "entityId": "frm_1790270955516",
+      "details": "Enrolled farmer \"Gurpreet Singh Orchards #1790270955407\""
+    },
+    {
+      "id": "log_1790270955505_493",
+      "timestamp": "2026-09-24T17:29:15.505Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STOCK_ADJUSTED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790270955452",
+      "details": "Stock adjusted by +25 (undefined: Fresh morning harvest batch intake #1790270955407)"
+    },
+    {
+      "id": "log_1790270955478_336",
+      "timestamp": "2026-09-24T17:29:15.478Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "CATEGORY_CREATED",
+      "entity": "Categories",
+      "target": "Categories",
+      "entityId": "cat_1790270955474",
+      "details": "Created category \"Hydroponic Greens #1790270955407\""
+    },
+    {
+      "id": "log_1790270955470_144",
+      "timestamp": "2026-09-24T17:29:15.470Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790270955452",
+      "details": "Updated product \"Organic Kinnow Orange #1790270955407 (Premium Export Grade)\" (SJH-FRU-ORG-23)"
+    },
+    {
+      "id": "log_1790270955459_503",
+      "timestamp": "2026-09-24T17:29:15.459Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_CREATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790270955452",
+      "details": "Created product \"Organic Kinnow Orange #1790270955407\" (SKU: SJH-FRU-ORG-23)"
+    },
+    {
+      "id": "log_1790270955447_72",
+      "timestamp": "2026-09-24T17:29:15.447Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
       "id": "log_1790267853861_38",
       "timestamp": "2026-09-24T16:37:33.861Z",
       "user": "Piyush Verma",
@@ -26541,9 +26769,19 @@
     "supportEmail": "support@freshmart.in",
     "supportPhone": "+91 80 4000 9000",
     "deliverySLA": "12-15 mins",
-    "updatedAt": "2026-09-24T16:37:33.733Z"
+    "updatedAt": "2026-09-24T17:29:15.578Z"
   },
   "sessions": [
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzU3MzU1NjIzLCJpYXQiOjE3OTAyNzA5NTU2MjMsInJuZCI6IjMxNWNjMzJhMmY1N2I4OTYifQ.9Rsli4X49sy6fr6ucQAqb2M9iqIMugwHo4jmdnL6xSo",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": false,
+      "createdAt": "2026-09-24T17:29:15.623Z",
+      "expiresAt": "2026-09-25T17:29:15.623Z",
+      "userAgent": "FreshMart-Owner-Persistence-Tester/2.0",
+      "ip": "::ffff:127.0.0.1"
+    },
     {
       "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzU0MjUzODEyLCJpYXQiOjE3OTAyNjc4NTM4MTIsInJuZCI6ImJhOTc2YjQ4NTQ4YTQyYWQifQ.txc-NG5kQswSZsEvsX_D6KsQ4VxV8Pv2w1FTuM_jugU",
       "userId": "usr_owner_1789214066481",
@@ -29248,6 +29486,204 @@
   ],
   "audit_logs": [
     {
+      "id": "log_1790270955669_835",
+      "timestamp": "2026-09-24T17:29:15.669Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STAFF_DELETED",
+      "entity": "Staff",
+      "target": "Staff",
+      "entityId": "usr_staff_1790270955571_892",
+      "details": "Permanently deleted staff member Ananya Operations Lead"
+    },
+    {
+      "id": "log_1790270955661_289",
+      "timestamp": "2026-09-24T17:29:15.661Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "DELIVERY_PARTNER_DELETED",
+      "entity": "Delivery",
+      "target": "Delivery",
+      "entityId": "usr_staff_1790270955538",
+      "details": "Removed delivery partner"
+    },
+    {
+      "id": "log_1790270955655_959",
+      "timestamp": "2026-09-24T17:29:15.655Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "HUB_DELETED",
+      "entity": "Hubs",
+      "target": "Hubs",
+      "entityId": "hub_1790270955530",
+      "details": "Decommissioned hub"
+    },
+    {
+      "id": "log_1790270955649_66",
+      "timestamp": "2026-09-24T17:29:15.649Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "FARMER_DELETED",
+      "entity": "Farmers",
+      "target": "Farmers",
+      "entityId": "frm_1790270955516",
+      "details": "Removed farmer"
+    },
+    {
+      "id": "log_1790270955643_673",
+      "timestamp": "2026-09-24T17:29:15.643Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "CATEGORY_DELETED",
+      "entity": "Categories",
+      "target": "Categories",
+      "entityId": "cat_1790270955474",
+      "details": "Deleted category"
+    },
+    {
+      "id": "log_1790270955636_557",
+      "timestamp": "2026-09-24T17:29:15.636Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_DELETED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790270955452",
+      "details": "Deleted product \"Organic Kinnow Orange #1790270955407 (Premium Export Grade)\" (prod_1790270955452)"
+    },
+    {
+      "id": "log_1790270955626_399",
+      "timestamp": "2026-09-24T17:29:15.626Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
+      "id": "log_1790270955588_395",
+      "timestamp": "2026-09-24T17:29:15.588Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "CUSTOMER_LOGOUT",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session destroyed"
+    },
+    {
+      "id": "log_1790270955581_133",
+      "timestamp": "2026-09-24T17:29:15.581Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "SETTINGS_UPDATED",
+      "entity": "Platform",
+      "target": "Platform",
+      "entityId": "GLOBAL",
+      "details": "Updated platform settings: Delivery Fee ₹35, Free Threshold ₹349, Maintenance: OFF"
+    },
+    {
+      "id": "log_1790270955574_880",
+      "timestamp": "2026-09-24T17:29:15.574Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STAFF_CREATED",
+      "entity": "Staff",
+      "target": "Staff",
+      "entityId": "usr_staff_1790270955571_892",
+      "details": "Created staff member Ananya Operations Lead with role INVENTORY_MANAGER"
+    },
+    {
+      "id": "log_1790270955541_875",
+      "timestamp": "2026-09-24T17:29:15.541Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "DELIVERY_PARTNER_ADDED",
+      "entity": "Delivery",
+      "target": "Delivery",
+      "entityId": "usr_staff_1790270955538",
+      "details": "Enrolled delivery partner \"Kishore EV Rider #1790270955407\""
+    },
+    {
+      "id": "log_1790270955533_87",
+      "timestamp": "2026-09-24T17:29:15.533Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "HUB_CREATED",
+      "entity": "Hubs",
+      "target": "Hubs",
+      "entityId": "hub_1790270955530",
+      "details": "Registered dark store hub \"Electronic City Phase 1 Dark Store #1790270955407\""
+    },
+    {
+      "id": "log_1790270955523_967",
+      "timestamp": "2026-09-24T17:29:15.523Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "FARMER_CREATED",
+      "entity": "Farmers",
+      "target": "Farmers",
+      "entityId": "frm_1790270955516",
+      "details": "Enrolled farmer \"Gurpreet Singh Orchards #1790270955407\""
+    },
+    {
+      "id": "log_1790270955505_493",
+      "timestamp": "2026-09-24T17:29:15.505Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STOCK_ADJUSTED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790270955452",
+      "details": "Stock adjusted by +25 (undefined: Fresh morning harvest batch intake #1790270955407)"
+    },
+    {
+      "id": "log_1790270955478_336",
+      "timestamp": "2026-09-24T17:29:15.478Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "CATEGORY_CREATED",
+      "entity": "Categories",
+      "target": "Categories",
+      "entityId": "cat_1790270955474",
+      "details": "Created category \"Hydroponic Greens #1790270955407\""
+    },
+    {
+      "id": "log_1790270955470_144",
+      "timestamp": "2026-09-24T17:29:15.470Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790270955452",
+      "details": "Updated product \"Organic Kinnow Orange #1790270955407 (Premium Export Grade)\" (SJH-FRU-ORG-23)"
+    },
+    {
+      "id": "log_1790270955459_503",
+      "timestamp": "2026-09-24T17:29:15.459Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_CREATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790270955452",
+      "details": "Created product \"Organic Kinnow Orange #1790270955407\" (SKU: SJH-FRU-ORG-23)"
+    },
+    {
+      "id": "log_1790270955447_72",
+      "timestamp": "2026-09-24T17:29:15.447Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
       "id": "log_1790267853861_38",
       "timestamp": "2026-09-24T16:37:33.861Z",
       "user": "Piyush Verma",
@@ -31420,6 +31856,7 @@
     "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzUyNjgwODU1LCJpYXQiOjE3OTAyNjYyODA4NTUsInJuZCI6IjNjMGYyOTU1NWJkMzZmYWIifQ.xbPilOJAtX1S_oy_XBOU2dxbB1g13rP_4Yc_tLLooQg",
     "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzUyNzA0ODQzLCJpYXQiOjE3OTAyNjYzMDQ4NDMsInJuZCI6ImU4MjZkNTdlZDNlZTYzZWUifQ.wvBNpkVvmOBcyvMmPgg88tlzDHuNfaT-wVTULk34ob0",
     "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzUyNzM1MjE0LCJpYXQiOjE3OTAyNjYzMzUyMTQsInJuZCI6IjU4MjlhMDdhNmZiZDc3YzcifQ.vfqrnPldKkuR7a2VIJ9ZsFwzqPdWeljtEjTVixNXhYc",
-    "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzU0MjUzNjI3LCJpYXQiOjE3OTAyNjc4NTM2MjcsInJuZCI6ImRiOTNhNTAxMGJlYTEzMjAifQ.1SykbgDdSS2w3020BsgjuMeM9m6wnEwNJH3n1ZJtjTE"
+    "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzU0MjUzNjI3LCJpYXQiOjE3OTAyNjc4NTM2MjcsInJuZCI6ImRiOTNhNTAxMGJlYTEzMjAifQ.1SykbgDdSS2w3020BsgjuMeM9m6wnEwNJH3n1ZJtjTE",
+    "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzU3MzU1NDQzLCJpYXQiOjE3OTAyNzA5NTU0NDMsInJuZCI6ImJjNzA5YzE0ZDdjOGFmMzQifQ.pd5m_hOCQNyiMBdLGuu5lUbPJR7nnT6XVJfqekTkQw4"
   ]
 }
