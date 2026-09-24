@@ -346,10 +346,14 @@ class PostgresAdapter {
   async getAll(collection) {
     const table = this.getTableName(collection);
     if (table) {
-      const res = await this.query(`SELECT data FROM ${table} ORDER BY created_at DESC`);
+      if (collection === 'audit_logs' || collection === 'activity_logs') {
+        const res = await this.query(`SELECT data FROM ${table} ORDER BY timestamp DESC LIMIT 500`);
+        return res.rows.map(r => r.data);
+      }
+      const res = await this.query(`SELECT data FROM ${table}`);
       return res.rows.map(r => r.data);
     }
-    const res = await this.query('SELECT data FROM freshmart_kv WHERE collection = $1 ORDER BY updated_at DESC', [collection]);
+    const res = await this.query('SELECT data FROM freshmart_kv WHERE collection = $1', [collection]);
     return res.rows.map(r => r.data);
   }
 
