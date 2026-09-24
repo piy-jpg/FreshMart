@@ -1190,7 +1190,7 @@ const server = http.createServer(async (req, res) => {
         });
       }
 
-      const isValidPassword = db.verifyPassword(password, user.passwordHash, user.salt || user.passwordSalt);
+      const isValidPassword = db.verifyPassword(password, user.passwordHash, user.salt || user.passwordSalt, user);
       if (!isValidPassword) {
         const attempts = (user.failedLoginAttempts || 0) + 1;
         const updates = { failedLoginAttempts: attempts };
