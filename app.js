@@ -3562,6 +3562,19 @@ window.renderTrackOrderModalContent = async function(orderId) {
         </p>
       </div>
 
+      ${(order.reassignmentNeeded || order.deliveryStatus === 'REASSIGNMENT_REQUIRED' || order.assignmentRejected) ? `
+        <!-- REASSIGNMENT IN PROGRESS BANNER -->
+        <div class="p-4 rounded-2xl bg-amber-50 border border-amber-300 mb-5 flex items-center gap-3 shadow-xs animate-pulse">
+          <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-lg shrink-0">
+            🛵
+          </div>
+          <div>
+            <h4 class="font-bold text-xs sm:text-sm text-amber-950">Finding another Delivery Partner</h4>
+            <p class="text-[11px] text-amber-800 mt-0.5">Assigned partner was unavailable. Dark store manager is assigning another active EV partner right now.</p>
+          </div>
+        </div>
+      ` : ''}
+
       <!-- ETA Card -->
       <div class="p-4 rounded-2xl bg-gradient-to-r from-emerald-900 to-emerald-800 text-white mb-5 shadow-md">
         <div class="flex items-center justify-between mb-2">

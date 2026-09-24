@@ -3169,10 +3169,18 @@
         const riderPhone = (o.deliveryBoyPhone || o.deliveryPartnerPhone) ? ` &bull; ${o.deliveryBoyPhone || o.deliveryPartnerPhone}` : '';
         const addr = o.deliveryAddress ? (typeof o.deliveryAddress === 'string' ? o.deliveryAddress : `${o.deliveryAddress.street || o.deliveryAddress.flat || ''}, ${o.deliveryAddress.city || ''}`) : 'Bengaluru Central';
 
+        const isReassignNeeded = !!(o.reassignmentNeeded || o.assignmentRejected || status === 'REASSIGNMENT_REQUIRED' || o.deliveryStatus === 'REASSIGNMENT_REQUIRED');
+
         // Render Single Next Step Action Button for row
         let rowActionBtn = '';
         if (status === 'CANCELLED') {
           rowActionBtn = '<span class="text-[10px] text-slate-500 font-bold">Cancelled</span>';
+        } else if (isReassignNeeded) {
+          rowActionBtn = `
+            <button onclick="openAssignDeliveryBoyModal('${orderId}')" class="px-2.5 py-1 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] shadow-xs flex items-center gap-1 cursor-pointer animate-pulse">
+              <span>🛵</span> Reassign
+            </button>
+          `;
         } else if (status === 'DELIVERY_FAILED') {
           rowActionBtn = `
             <button onclick="overrideOrderStatus('${orderId}', 'READY_FOR_HANDOVER', 'Rescheduled for retry delivery')" class="px-2.5 py-1 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-[10px] shadow-xs flex items-center gap-1 cursor-pointer">
@@ -3226,11 +3234,11 @@
         }
 
         return `
-          <tr class="hover:bg-slate-800/40 transition ${isNewOrder ? 'bg-amber-950/20 border-l-2 border-l-amber-500' : ''}">
+          <tr class="hover:bg-slate-800/40 transition ${isNewOrder ? 'bg-amber-950/20 border-l-2 border-l-amber-500' : isReassignNeeded ? 'bg-amber-950/25 border-l-2 border-l-amber-400' : ''}">
             <td class="py-3.5 px-4">
               <div class="flex items-center gap-1.5">
                 <div class="font-mono text-amber-400 font-black text-xs">#${orderId}</div>
-                ${isNewOrder ? '<span class="px-1.5 py-0.2 rounded bg-amber-500 text-slate-950 font-black text-[9px] uppercase animate-pulse">🔔 NEW</span>' : ''}
+                ${isNewOrder ? '<span class="px-1.5 py-0.2 rounded bg-amber-500 text-slate-950 font-black text-[9px] uppercase animate-pulse">🔔 NEW</span>' : isReassignNeeded ? '<span class="px-1.5 py-0.2 rounded bg-rose-500 text-white font-black text-[9px] uppercase animate-pulse">⚠️ REJECTED</span>' : ''}
               </div>
               <div class="text-[10px] text-slate-400 mt-0.5">${dateStr}</div>
               <span class="inline-block mt-1 px-1.5 py-0.5 rounded text-[9px] font-bold ${isPaid ? 'bg-emerald-950/70 border border-emerald-500/30 text-emerald-400' : 'bg-amber-950/70 border border-amber-500/30 text-amber-400'}">
@@ -3248,7 +3256,14 @@
             </td>
             <td class="py-3.5 px-4">
               <div class="font-bold text-slate-200 flex items-center gap-1">🏬 ${hubName}</div>
-              ${hasRider ? `
+              ${isReassignNeeded ? `
+                <div class="text-[11px] text-rose-400 font-bold mt-1 flex items-center gap-1">
+                  <span>❌</span> <span>Assignment Declined</span>
+                </div>
+                <button onclick="openAssignDeliveryBoyModal('${orderId}')" class="mt-1 px-2.5 py-1 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[11px] transition inline-flex items-center gap-1 cursor-pointer shadow-xs animate-pulse">
+                  <span>🛵</span> Reassign Delivery Boy
+                </button>
+              ` : hasRider ? `
                 <div class="text-[11px] text-emerald-400 font-bold mt-1 flex items-center gap-1">
                   <span>🛵</span> <span>${riderName}</span>${riderPhone}
                 </div>
@@ -3272,7 +3287,7 @@
               ₹${totalAmount}
             </td>
             <td class="py-3.5 px-4 text-center">
-              ${renderStatusBadge(status)}
+              ${isReassignNeeded ? '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-950/70 border border-rose-500/40 text-rose-400 animate-pulse">⚠️ REASSIGNMENT REQUIRED</span>' : renderStatusBadge(status)}
             </td>
             <td class="py-3.5 px-4 text-right">
               <div class="flex items-center justify-end gap-1.5">

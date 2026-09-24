@@ -530,6 +530,8 @@ function applyOrderStepTransition(order, targetStatus, user = {}, options = {}) 
       order.handedOverAt = nowIso;
       order.handedOverBy = userName;
       order.handedOverById = userId;
+      order.reassignmentNeeded = false;
+      order.assignmentRejected = false;
       if (options.deliveryBoyId || options.deliveryPartnerId) {
         const dId = options.deliveryBoyId || options.deliveryPartnerId;
         order.deliveryBoyId = dId;
@@ -2890,7 +2892,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // C. Accept Delivery Assignment
-    const riderAcceptMatch = pathname.match(/^\/api\/delivery\/orders\/([A-Za-z0-9_-]+)\/accept$/);
+    const riderAcceptMatch = pathname.match(/^\/api\/(?:delivery\/)?orders\/([A-Za-z0-9_-]+)\/accept$/);
     if (riderAcceptMatch && (method === 'PATCH' || method === 'POST')) {
       const orderId = riderAcceptMatch[1];
       const orders = db.getAll('orders') || [];
@@ -2909,6 +2911,74 @@ const server = http.createServer(async (req, res) => {
       db.save();
       broadcastEvent('ORDER_UPDATED', order);
       return sendJson(res, 200, { success: true, order });
+    }
+
+    // C2. Reject Delivery Assignment (Rider declines handover)
+    const riderRejectMatch = pathname.match(/^\/api\/(?:delivery\/)?orders\/([A-Za-z0-9_-]+)\/reject$/);
+    if (riderRejectMatch && (method === 'PATCH' || method === 'POST')) {
+      const orderId = riderRejectMatch[1];
+      const orders = db.getAll('orders') || [];
+      const order = orders.find(o => o.id === orderId || o.orderId === orderId);
+      if (!order) return sendJson(res, 404, { error: 'Order not found' });
+
+      const auth = extractUserSession(req);
+      const currentUser = auth?.user || { id: order.deliveryBoyId || 'usr_delivery_boy', name: order.deliveryBoyName || 'Delivery Boy', role: 'DELIVERY_BOY' };
+      const body = await parseBody(req);
+      const reason = body.reason || body.rejectionReason || 'Delivery Partner declined assignment (vehicle issue or out of area)';
+
+      const rejectedRiderId = currentUser.id || order.deliveryBoyId || 'usr_delivery_boy';
+      const rejectedRiderName = currentUser.name || order.deliveryBoyName || 'Delivery Boy';
+
+      // Keep record of rejected delivery boy IDs
+      order.rejectedDeliveryBoyIds = Array.isArray(order.rejectedDeliveryBoyIds) ? order.rejectedDeliveryBoyIds : [];
+      if (!order.rejectedDeliveryBoyIds.includes(rejectedRiderId)) {
+        order.rejectedDeliveryBoyIds.push(rejectedRiderId);
+      }
+
+      // Crucial: Order is NOT cancelled! Reset to READY_FOR_HANDOVER so Owner can reassign
+      order.orderStatus = 'READY_FOR_HANDOVER';
+      order.status = 'READY_FOR_HANDOVER';
+      order.deliveryStatus = 'REASSIGNMENT_REQUIRED';
+      order.reassignmentNeeded = true;
+      order.assignmentRejected = true;
+      order.rejectionReason = reason;
+      order.rejectedAt = new Date().toISOString();
+      order.rejectedBy = rejectedRiderName;
+      order.rejectedById = rejectedRiderId;
+
+      // Clear the active assignment from the order
+      order.deliveryBoyId = null;
+      order.deliveryBoyName = null;
+      order.deliveryBoyPhone = null;
+      order.deliveryPartnerId = null;
+      order.deliveryPartnerName = null;
+      order.deliveryPartnerPhone = null;
+      order.deliveryPartnerVehicle = null;
+      order.assignedAt = null;
+      order.acceptedAt = null;
+
+      if (!order.timeline) order.timeline = [];
+      order.timeline.push({
+        step: 5,
+        status: 'DELIVERY_ASSIGNMENT_REJECTED',
+        title: 'Delivery Assignment Rejected',
+        desc: `Delivery Partner (${rejectedRiderName}) declined assignment: ${reason}. Order queued for reassignment.`,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestamp: new Date().toISOString(),
+        userId: currentUser.id,
+        userName: rejectedRiderName,
+        userRole: currentUser.role || 'DELIVERY_BOY'
+      });
+
+      order.updatedAt = new Date().toISOString();
+      db.save();
+      db.logActivity(rejectedRiderName, 'DELIVERY_REJECTED', 'Order', order.orderId || order.id, `Delivery assignment rejected by ${rejectedRiderName}: ${reason}`);
+      broadcastEvent('ORDER_UPDATED', order);
+      return sendJson(res, 200, {
+        success: true,
+        message: 'Delivery assignment rejected. Order returned to pool for reassignment.',
+        order
+      });
     }
 
     // D. Confirm Pickup from Hub
