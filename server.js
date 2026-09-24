@@ -1003,7 +1003,13 @@ function calculateEligibility(pincode) {
 const server = http.createServer(async (req, res) => {
   res.req = req;
   const parsedUrl = url.parse(req.url, true);
-  let pathname = parsedUrl.pathname;
+  let pathname = parsedUrl.pathname || '/';
+  if (pathname === '/api/index.js' || pathname === '/api/index') {
+    if (parsedUrl.query && (parsedUrl.query.subpath || parsedUrl.query.match || parsedUrl.query['0'])) {
+      const sub = parsedUrl.query.subpath || parsedUrl.query.match || parsedUrl.query['0'];
+      pathname = '/api/' + String(sub).replace(/^\//, '');
+    }
+  }
   const method = req.method;
   const reqOrigin = req.headers?.origin;
 
