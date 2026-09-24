@@ -10174,6 +10174,7 @@ class Database {
   validateSession(token) {
     if (!token || typeof token !== 'string') return null;
     if (!this.data.sessions) this.data.sessions = [];
+    if (this.data.revokedTokens && this.data.revokedTokens.includes(token)) return null;
 
     // 1. Direct in-memory lookup
     const session = this.data.sessions.find(s => s.id === token);
@@ -10184,6 +10185,10 @@ class Database {
       }
       const user = this.getById('users', session.userId);
       if (!user || user.status === 'BLOCKED' || user.active === false) {
+        return null;
+      }
+      if (user.sessionsInvalidatedAt && session.createdAt && new Date(session.createdAt).getTime() < user.sessionsInvalidatedAt) {
+        this.invalidateSession(token);
         return null;
       }
       return { session, user };
@@ -10206,6 +10211,9 @@ class Database {
               }
               if (!user && (payload.r === 'OWNER' || String(payload.email).toLowerCase() === 'piyushverma730929@gmail.com')) {
                 user = (this.data.users || []).find(u => u.role === 'OWNER' || (u.email && u.email.toLowerCase() === 'piyushverma730929@gmail.com'));
+              }
+              if (user && user.sessionsInvalidatedAt && payload.iat && payload.iat < user.sessionsInvalidatedAt) {
+                return null;
               }
               if (user && user.status !== 'BLOCKED' && user.active !== false) {
                 const recoveredSession = {
@@ -10233,15 +10241,33 @@ class Database {
   }
 
   invalidateSession(token) {
-    if (!this.data.sessions) return false;
+    if (!token) return false;
+    if (!this.data.sessions) this.data.sessions = [];
+    if (!this.data.revokedTokens) this.data.revokedTokens = [];
     this.data.sessions = this.data.sessions.filter(s => s.id !== token);
+    if (!this.data.revokedTokens.includes(token)) {
+      this.data.revokedTokens.push(token);
+      if (this.data.revokedTokens.length > 500) this.data.revokedTokens.splice(0, 100);
+    }
     this.save();
     return true;
   }
 
   invalidateAllUserSessions(userId) {
-    if (!this.data.sessions) return false;
+    if (!userId) return false;
+    if (!this.data.sessions) this.data.sessions = [];
+    if (!this.data.revokedTokens) this.data.revokedTokens = [];
+    const userSessions = this.data.sessions.filter(s => s.userId === userId);
     this.data.sessions = this.data.sessions.filter(s => s.userId !== userId);
+    for (const s of userSessions) {
+      if (s.id && !this.data.revokedTokens.includes(s.id)) {
+        this.data.revokedTokens.push(s.id);
+      }
+    }
+    const user = this.getById('users', userId);
+    if (user) {
+      user.sessionsInvalidatedAt = Date.now();
+    }
     this.save();
     return true;
   }

@@ -35,6 +35,10 @@
       "destination": "/owner.html"
     },
     {
+      "source": "/staff",
+      "destination": "/owner.html"
+    },
+    {
       "source": "/admin",
       "destination": "/admin.html"
     },

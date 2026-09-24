@@ -3731,6 +3731,8 @@ const server = http.createServer(async (req, res) => {
         const auditLogs = (db.getAll('audit_logs') || []).slice(0, 10);
         const topProducts = ledger.slice(0, 5);
 
+        const hubs = db.getAll('hubs') || [];
+
         return sendJson(res, 200, {
           success: true,
           owner: sanitizeUser(owner),
@@ -3738,7 +3740,8 @@ const server = http.createServer(async (req, res) => {
           recentOrders,
           lowStock,
           recentActivity: auditLogs,
-          topProducts
+          topProducts,
+          hubs
         });
       }
 
