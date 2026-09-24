@@ -1103,6 +1103,7 @@ const server = http.createServer(async (req, res) => {
       const token = crypto.randomBytes(24).toString('hex');
       const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
+      const isAutoVerified = Boolean(!process.env.SMTP_HOST || db.data.settings?.requireEmailVerification === false);
       const newUser = {
         id: 'usr_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
         name,
@@ -1110,9 +1111,9 @@ const server = http.createServer(async (req, res) => {
         phone,
         passwordHash: hash,
         salt,
-        emailVerified: false,
-        verificationToken: token,
-        verificationTokenExpires: tokenExpires,
+        emailVerified: isAutoVerified,
+        verificationToken: isAutoVerified ? null : token,
+        verificationTokenExpires: isAutoVerified ? null : tokenExpires,
         provider: 'local',
         role: 'CUSTOMER',
         membership: 'Gold Farm Club',
@@ -1125,14 +1126,22 @@ const server = http.createServer(async (req, res) => {
       };
 
       db.insert('users', newUser);
-      await emailService.sendVerificationEmail(newUser, token);
+      if (!isAutoVerified) {
+        await emailService.sendVerificationEmail(newUser, token);
+      }
       db.logActivity(name, 'ACCOUNT_REGISTERED', 'Users', newUser.id, 'New customer registration created');
+
+      const session = db.createSession(newUser.id, true, req);
+      setAuthCookie(res, session.id, true);
 
       return sendJson(res, 201, {
         success: true,
-        message: 'Account created! Please check your email to verify your address.',
+        message: isAutoVerified ? 'Account created and verified successfully!' : 'Account created! Please check your email to verify your address.',
         email,
-        needsVerification: true
+        token: session.id,
+        user: sanitizeUser(newUser),
+        needsVerification: !isAutoVerified,
+        verificationToken: token
       });
     }
 

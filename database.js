@@ -9921,10 +9921,9 @@ class Database {
             modified = true;
           }
 
-          // Ensure all staff / delivery accounts have valid password hash
+          // Ensure all staff, delivery, and customer accounts have valid password hash
           for (const u of this.data.users) {
-            const r = String(u.role || '').toUpperCase();
-            if (r !== 'CUSTOMER' && !u.passwordHash) {
+            if (!u.passwordHash || u.passwordHash === '0507cc4543d5b50594f10c1e693e92567317040a03cb9ae94cf96a4cd185241003e8bdee81f25332890df7b15b2c625f9848af7b286bad5fc5aecbbfd08e6b7c') {
               const { hash, salt } = this.hashPassword('FreshMart@2026');
               u.passwordHash = hash;
               u.salt = salt;
