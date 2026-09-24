@@ -1,79 +1,92 @@
 {
   "version": 2,
-  "cleanUrls": true,
-  "outputDirectory": ".",
-  "headers": [
+  "builds": [
     {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
-      ]
+      "src": "api/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "images/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "data/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "frontend/**",
+      "use": "@vercel/static"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index.js"
+      "src": "/api/(.*)",
+      "dest": "/api/index.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, x-session-token, x-auth-token"
+      }
     },
     {
-      "source": "/api",
-      "destination": "/api/index.js"
+      "src": "/api",
+      "dest": "/api/index.js"
     },
     {
-      "source": "/owner",
-      "destination": "/owner.html"
+      "src": "/owner",
+      "dest": "/owner.html"
     },
     {
-      "source": "/staff",
-      "destination": "/owner.html"
+      "src": "/staff",
+      "dest": "/owner.html"
     },
     {
-      "source": "/admin",
-      "destination": "/admin.html"
+      "src": "/admin",
+      "dest": "/admin.html"
     },
     {
-      "source": "/checkout",
-      "destination": "/checkout.html"
+      "src": "/checkout",
+      "dest": "/checkout.html"
     },
     {
-      "source": "/delivery",
-      "destination": "/delivery.html"
+      "src": "/delivery",
+      "dest": "/delivery.html"
     },
     {
-      "source": "/hub",
-      "destination": "/hub.html"
+      "src": "/hub",
+      "dest": "/hub.html"
     },
     {
-      "source": "/offers",
-      "destination": "/offers.html"
+      "src": "/offers",
+      "dest": "/offers.html"
     },
     {
-      "source": "/grocery",
-      "destination": "/grocery.html"
+      "src": "/grocery",
+      "dest": "/grocery.html"
     },
     {
-      "source": "/fruits",
-      "destination": "/fruits.html"
+      "src": "/fruits",
+      "dest": "/fruits.html"
     },
     {
-      "source": "/vegetables",
-      "destination": "/vegetables.html"
+      "src": "/vegetables",
+      "dest": "/vegetables.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
     }
-  ],
-  "functions": {
-    "api/index.js": {
-      "maxDuration": 15
-    }
-  }
+  ]
 }
