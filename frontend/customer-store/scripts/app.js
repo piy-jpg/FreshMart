@@ -2854,87 +2854,116 @@ function mapDbProductToStorefront(p) {
 }
 window.mapDbProductToStorefront = mapDbProductToStorefront;
 
+function applyProductArrayToStorefront(products, triggerRerender = true) {
+  if (!Array.isArray(products) || products.length === 0) return;
+  if (!window.__suspendedProductIds) window.__suspendedProductIds = new Set();
+  window.__suspendedProductIds.clear();
+
+  const newVeg = [];
+  const newFruits = [];
+  const newGrocery = [];
+
+  products.forEach(p => {
+    const cleanId = (p.storefrontId || p.id || '').replace(/^prod_/, '');
+    const isSuspended = p.status === 'SUSPENDED' || p.status === 'INACTIVE' || p.status === 'DRAFT' || p.status === 'DELETED';
+    
+    if (isSuspended) {
+      window.__suspendedProductIds.add(p.id);
+      window.__suspendedProductIds.add(cleanId);
+      if (p.storefrontId) window.__suspendedProductIds.add(p.storefrontId);
+    }
+
+    const mapped = mapDbProductToStorefront(p);
+    const cat = (p.category || '').toLowerCase();
+    if (cat.includes('fruit')) {
+      newFruits.push(mapped);
+    } else if (cat.includes('groc') || cat.includes('pant') || cat.includes('staple') || cat.includes('oil') || cat.includes('dal') || cat.includes('atta') || cat.includes('rice') || cat.includes('flour') || cat.includes('spice')) {
+      newGrocery.push(mapped);
+    } else {
+      newVeg.push(mapped);
+    }
+  });
+
+  if (newVeg.length > 0) allVegetablesData = newVeg;
+  if (newFruits.length > 0) allFruitsData = newFruits;
+  if (newGrocery.length > 0) allGroceryData = newGrocery;
+
+  if (triggerRerender) {
+    if (document.getElementById('veg-products-grid')) {
+      if (typeof applyFiltersAndRender === 'function') applyFiltersAndRender();
+      else if (typeof applyVegetableFiltersAndRender === 'function') applyVegetableFiltersAndRender();
+    }
+    if (document.getElementById('fruit-products-grid') && typeof applyFruitFiltersAndRender === 'function') {
+      applyFruitFiltersAndRender();
+    }
+    if (document.getElementById('grocery-products-grid') && typeof applyGroceryFiltersAndRender === 'function') {
+      applyGroceryFiltersAndRender();
+    }
+    if (document.getElementById('offers-products-grid') && typeof applyOffersFiltersAndRender === 'function') {
+      applyOffersFiltersAndRender();
+    }
+    if (document.getElementById('products-grid')) {
+      if (typeof renderHomeProductGrid === 'function') renderHomeProductGrid();
+      if (typeof renderTodaysDeals === 'function') renderTodaysDeals();
+    }
+
+    if (document.getElementById('product-details-page') && typeof currentDetailProduct !== 'undefined' && currentDetailProduct) {
+      const fresh = findAnyProduct(currentDetailProduct.id);
+      if (fresh) currentDetailProduct = fresh;
+      if (typeof populateProductDetailsDOM === 'function') populateProductDetailsDOM(currentDetailProduct);
+      if (typeof updateDetailPricingUI === 'function') updateDetailPricingUI();
+    }
+    if (typeof updateCartUI === 'function') {
+      updateCartUI();
+    }
+    if (typeof updateStorefrontSubnavs === 'function') {
+      updateStorefrontSubnavs();
+    }
+    if (typeof updateGlobalNavBadges === 'function') {
+      updateGlobalNavBadges();
+    }
+    if (typeof updateHomeCategoryCounts === 'function') {
+      updateHomeCategoryCounts();
+    }
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+  }
+}
+window.applyProductArrayToStorefront = applyProductArrayToStorefront;
+
+function hydrateCatalogFromStorage() {
+  try {
+    const raw = sessionStorage.getItem('freshmart_synced_catalog') || localStorage.getItem('freshmart_synced_catalog');
+    if (raw) {
+      const prods = JSON.parse(raw);
+      if (Array.isArray(prods) && prods.length > 0) {
+        applyProductArrayToStorefront(prods, false);
+      }
+    }
+  } catch (e) {}
+}
+hydrateCatalogFromStorage();
+
 async function syncStorefrontCatalogWithBackend() {
   try {
     const res = await fetch('/api/products?_t=' + Date.now(), { 
       cache: 'no-store', 
-      credentials: 'include' 
+      credentials: 'include',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
     });
     if (!res.ok) return;
     const products = await res.json();
 
     if (Array.isArray(products) && products.length > 0) {
-      window.__suspendedProductIds.clear();
-
-      const newVeg = [];
-      const newFruits = [];
-      const newGrocery = [];
-
-      products.forEach(p => {
-        const cleanId = (p.storefrontId || p.id || '').replace(/^prod_/, '');
-        const isSuspended = p.status === 'SUSPENDED' || p.status === 'INACTIVE' || p.status === 'DRAFT' || p.status === 'DELETED';
-        
-        if (isSuspended) {
-          window.__suspendedProductIds.add(p.id);
-          window.__suspendedProductIds.add(cleanId);
-          if (p.storefrontId) window.__suspendedProductIds.add(p.storefrontId);
-        }
-
-        const mapped = mapDbProductToStorefront(p);
-        const cat = (p.category || '').toLowerCase();
-        if (cat.includes('fruit')) {
-          newFruits.push(mapped);
-        } else if (cat.includes('groc') || cat.includes('pant') || cat.includes('staple') || cat.includes('oil') || cat.includes('dal') || cat.includes('atta') || cat.includes('rice') || cat.includes('flour') || cat.includes('spice')) {
-          newGrocery.push(mapped);
-        } else {
-          newVeg.push(mapped);
-        }
-      });
-
-      if (newVeg.length > 0) allVegetablesData = newVeg;
-      if (newFruits.length > 0) allFruitsData = newFruits;
-      if (newGrocery.length > 0) allGroceryData = newGrocery;
-
-      // Re-render active screens immediately
-      if (document.getElementById('veg-products-grid')) {
-        if (typeof applyFiltersAndRender === 'function') applyFiltersAndRender();
-        else if (typeof applyVegetableFiltersAndRender === 'function') applyVegetableFiltersAndRender();
-      }
-      if (document.getElementById('fruit-products-grid') && typeof applyFruitFiltersAndRender === 'function') {
-        applyFruitFiltersAndRender();
-      }
-      if (document.getElementById('grocery-products-grid') && typeof applyGroceryFiltersAndRender === 'function') {
-        applyGroceryFiltersAndRender();
-      }
-      if (document.getElementById('offers-products-grid') && typeof applyOffersFiltersAndRender === 'function') {
-        applyOffersFiltersAndRender();
-      }
-      if (document.getElementById('products-grid')) {
-        if (typeof renderHomeProductGrid === 'function') renderHomeProductGrid();
-        if (typeof renderTodaysDeals === 'function') renderTodaysDeals();
-      }
-
-      if (document.getElementById('product-details-page') && typeof currentDetailProduct !== 'undefined' && currentDetailProduct) {
-        const fresh = findAnyProduct(currentDetailProduct.id);
-        if (fresh) currentDetailProduct = fresh;
-        if (typeof populateProductDetailsDOM === 'function') populateProductDetailsDOM(currentDetailProduct);
-        if (typeof updateDetailPricingUI === 'function') updateDetailPricingUI();
-      }
-      if (typeof updateCartUI === 'function') {
-        updateCartUI();
-      }
-      if (typeof updateStorefrontSubnavs === 'function') {
-        updateStorefrontSubnavs();
-      }
-      if (typeof updateGlobalNavBadges === 'function') {
-        updateGlobalNavBadges();
-      }
-      if (typeof updateHomeCategoryCounts === 'function') {
-        updateHomeCategoryCounts();
-      }
-      if (window.lucide && typeof window.lucide.createIcons === 'function') {
-        window.lucide.createIcons();
-      }
+      try {
+        sessionStorage.setItem('freshmart_synced_catalog', JSON.stringify(products));
+        localStorage.setItem('freshmart_synced_catalog', JSON.stringify(products));
+      } catch (e) {}
+      applyProductArrayToStorefront(products, true);
     }
   } catch (e) {
     console.warn('Storefront catalog sync error:', e);

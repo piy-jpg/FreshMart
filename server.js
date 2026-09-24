@@ -653,11 +653,14 @@ function sendJson(res, statusCode, data, extraHeaders = {}) {
   const reqOrigin = res.req?.headers?.origin;
   const headers = {
     'Content-Type': 'application/json; charset=utf-8',
-    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0',
     'Pragma': 'no-cache',
     'Expires': '0',
+    'Surrogate-Control': 'no-store',
+    'CDN-Cache-Control': 'no-store',
+    'Vercel-CDN-Cache-Control': 'no-store',
     'Access-Control-Allow-Origin': reqOrigin || '*',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Role, X-Requested-With, Accept',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Role, X-Requested-With, Accept, x-session-token, x-auth-token',
     'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
     ...extraHeaders
   };

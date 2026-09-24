@@ -9831,7 +9831,23 @@ function getInitialSeeds() {
 class Database {
   constructor() {
     this.data = null;
+    this._lastLoadedMtime = 0;
     this.load();
+  }
+
+  reloadIfModified() {
+    try {
+      if (fs.existsSync(DB_FILE)) {
+        const stats = fs.statSync(DB_FILE);
+        if (stats.mtimeMs > this._lastLoadedMtime) {
+          const raw = fs.readFileSync(DB_FILE, 'utf8');
+          if (raw) {
+            this.data = JSON.parse(raw);
+            this._lastLoadedMtime = stats.mtimeMs;
+          }
+        }
+      }
+    } catch (e) {}
   }
 
   load() {
@@ -9839,11 +9855,13 @@ class Database {
       let raw = null;
       if (fs.existsSync(DB_FILE)) {
         raw = fs.readFileSync(DB_FILE, 'utf8');
+        try { this._lastLoadedMtime = fs.statSync(DB_FILE).mtimeMs; } catch (e) {}
       } else if (dbPaths.bundledDbFile && fs.existsSync(dbPaths.bundledDbFile)) {
         raw = fs.readFileSync(dbPaths.bundledDbFile, 'utf8');
         // If writing to /tmp, save a copy there for persistence
         try {
           fs.writeFileSync(DB_FILE, raw, 'utf8');
+          this._lastLoadedMtime = fs.statSync(DB_FILE).mtimeMs;
         } catch (e) {}
       }
 
@@ -9977,16 +9995,19 @@ class Database {
         fs.mkdirSync(DATA_DIR, { recursive: true });
       }
       fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf8');
+      try { this._lastLoadedMtime = fs.statSync(DB_FILE).mtimeMs; } catch (e) {}
     } catch (err) {
       console.error('Error writing database file (' + DB_FILE + '):', err.message);
     }
   }
 
   getAll(collection) {
+    this.reloadIfModified();
     return this.data[collection] || [];
   }
 
   getById(collection, id) {
+    this.reloadIfModified();
     if (!id) return null;
     const sId = String(id);
     return (this.data[collection] || []).find(item => 
