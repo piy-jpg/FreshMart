@@ -2243,7 +2243,17 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // 6. Public Categories & Products CRUD API
+    // 6. Audit Logs & Public Categories/Products CRUD API
+    if (pathname === '/api/audit-logs' && method === 'GET') {
+      const filters = {
+        action: parsedUrl.query.action,
+        search: parsedUrl.query.search,
+        limit: parsedUrl.query.limit
+      };
+      const logs = db.getAuditLogs(filters);
+      return sendJson(res, 200, logs);
+    }
+
     if (pathname === '/api/categories' && method === 'GET') {
       return sendJson(res, 200, db.getAll('categories') || []);
     }

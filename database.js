@@ -10172,7 +10172,7 @@ class Database {
     }
 
     if (this.postgres.isAvailable()) {
-      this.postgres.update(collection, updated.id || id, updates).catch(e => console.error('PostgreSQL update error:', e.message));
+      this.postgres.insert(collection, updated).catch(e => console.error('PostgreSQL update error:', e.message));
     }
     return updated;
   }
@@ -10226,7 +10226,7 @@ class Database {
 
     if (this.postgres.isAvailable()) {
       try {
-        await this.postgres.update(collection, updated.id || id, updates);
+        await this.postgres.insert(collection, updated);
       } catch (e) {
         console.error('PostgreSQL update error:', e.message);
       }
