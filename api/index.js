@@ -12,7 +12,14 @@ module.exports = async (req, res) => {
         await db.syncFromPostgres();
       }
     } catch (e) {
-      console.warn('Postgres connection in serverless function:', e.message);
+      console.error('PostgreSQL error in serverless function:', e.message);
+      res.statusCode = 503;
+      res.setHeader('Content-Type', 'application/json');
+      return res.end(JSON.stringify({
+        error: 'Database Unavailable',
+        message: 'PostgreSQL is the production single source of truth and is currently unreachable.',
+        detail: e.message
+      }));
     }
   }
   // Attach request to response for origin and header inspection in helpers

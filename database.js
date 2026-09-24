@@ -9842,36 +9842,34 @@ class Database {
 
   async initPostgres() {
     if (!this.postgres.isAvailable()) return false;
-    const initialSeed = this.data || getInitialSeeds();
-    await this.postgres.init(initialSeed);
+    await this.postgres.init();
     await this.syncFromPostgres();
     return true;
   }
 
   async syncFromPostgres() {
-    if (!this.postgres.isAvailable() || !this.postgres.isInitialized) return;
-    try {
-      const collections = ['users', 'products', 'categories', 'orders', 'delivery_partners', 'farmers', 'hubs', 'inventory_movements', 'audit_logs'];
-      for (const coll of collections) {
-        const rows = await this.postgres.getAll(coll);
-        if (Array.isArray(rows) && rows.length > 0) {
-          this.data[coll] = rows;
-        } else if ((!rows || rows.length === 0) && Array.isArray(this.data[coll]) && this.data[coll].length > 0) {
-          for (const item of this.data[coll]) {
-            await this.postgres.insert(coll, item).catch(() => {});
-          }
-        }
-      }
-      const settingsRes = await this.postgres.query("SELECT value FROM freshmart_settings WHERE key = 'global_settings' LIMIT 1");
-      if (settingsRes.rows.length > 0) {
-        this.data.settings = settingsRes.rows[0].value;
-      }
-    } catch (e) {
-      console.warn('Sync from PostgreSQL notice:', e.message);
+    if (!this.postgres.isAvailable()) return;
+    if (!this.postgres.isInitialized) {
+      await this.initPostgres();
+      return;
+    }
+    const collections = ['users', 'products', 'categories', 'orders', 'delivery_partners', 'farmers', 'hubs', 'inventory_movements', 'audit_logs'];
+    for (const coll of collections) {
+      const rows = await this.postgres.getAll(coll);
+      // In production, PostgreSQL is the single source of truth:
+      this.data[coll] = Array.isArray(rows) ? rows : [];
+    }
+    const settingsRes = await this.postgres.query("SELECT value FROM freshmart_settings WHERE key = 'global_settings' LIMIT 1");
+    if (settingsRes.rows.length > 0) {
+      this.data.settings = settingsRes.rows[0].value;
     }
   }
 
   reloadIfModified() {
+    if (this.postgres && this.postgres.isAvailable()) {
+      // In production with PostgreSQL, do not reload from local JSON file
+      return;
+    }
     try {
       if (fs.existsSync(DB_FILE)) {
         const stats = fs.statSync(DB_FILE);
@@ -9890,6 +9888,24 @@ class Database {
   }
 
   load() {
+    // If PostgreSQL is available, initialize empty in-memory collections until synced from PostgreSQL
+    if (this.postgres && this.postgres.isAvailable()) {
+      this.data = {
+        users: [],
+        products: [],
+        categories: [],
+        orders: [],
+        delivery_partners: [],
+        farmers: [],
+        hubs: [],
+        inventory_movements: [],
+        audit_logs: [],
+        activity_logs: [],
+        settings: {}
+      };
+      return;
+    }
+
     try {
       let raw = null;
       // 1. Prefer existing DB_FILE if valid
