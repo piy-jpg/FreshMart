@@ -6,7 +6,11 @@ const db = require("../database");
 module.exports = async (req, res) => {
   if (db.postgres && db.postgres.isAvailable()) {
     try {
-      await db.initPostgres();
+      if (!db.postgres.isInitialized) {
+        await db.initPostgres();
+      } else {
+        await db.syncFromPostgres();
+      }
     } catch (e) {
       console.warn('Postgres connection in serverless function:', e.message);
     }

@@ -9854,7 +9854,7 @@ class Database {
       const collections = ['users', 'products', 'categories', 'orders', 'delivery_partners', 'farmers', 'hubs', 'inventory_movements', 'audit_logs'];
       for (const coll of collections) {
         const rows = await this.postgres.getAll(coll);
-        if (rows && rows.length > 0) {
+        if (Array.isArray(rows)) {
           this.data[coll] = rows;
         }
       }
@@ -10090,7 +10090,7 @@ class Database {
     );
   }
 
-  insert(collection, item) {
+  async insert(collection, item) {
     if (!this.data[collection]) this.data[collection] = [];
     if (!item.id) {
       item.id = `${collection.slice(0, 4)}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
@@ -10098,12 +10098,16 @@ class Database {
     this.data[collection].unshift(item);
     this.save();
     if (this.postgres.isAvailable()) {
-      this.postgres.insert(collection, item).catch(e => console.error('PostgreSQL insert error:', e.message));
+      try {
+        await this.postgres.insert(collection, item);
+      } catch (e) {
+        console.error('PostgreSQL insert error:', e.message);
+      }
     }
     return item;
   }
 
-  update(collection, id, updates) {
+  async update(collection, id, updates) {
     if (!this.data[collection] || !id) return null;
     const sId = String(id);
     const idx = this.data[collection].findIndex(item => 
@@ -10125,12 +10129,16 @@ class Database {
     const updated = this.data[collection][idx];
     this.save();
     if (this.postgres.isAvailable()) {
-      this.postgres.update(collection, updated.id || id, updates).catch(e => console.error('PostgreSQL update error:', e.message));
+      try {
+        await this.postgres.update(collection, updated.id || id, updates);
+      } catch (e) {
+        console.error('PostgreSQL update error:', e.message);
+      }
     }
     return updated;
   }
 
-  delete(collection, id) {
+  async delete(collection, id) {
     if (!this.data[collection] || !id) return false;
     const sId = String(id);
     const initialLen = this.data[collection].length;
@@ -10149,7 +10157,7 @@ class Database {
     this.data[collection] = this.data[collection].filter(item => !(
       item.id === id || 
       item.orderId === id || 
-      item.sku === id ||
+      item.sku === id || 
       item.storefrontId === id ||
       (item.storefrontId && ('prod_' + item.storefrontId.replace(/-/g, '_')) === id) ||
       ('prod_' + sId.replace(/-/g, '_')) === item.id ||
@@ -10159,7 +10167,11 @@ class Database {
     if (this.data[collection].length !== initialLen) {
       this.save();
       if (this.postgres.isAvailable()) {
-        this.postgres.delete(collection, targetId).catch(e => console.error('PostgreSQL delete error:', e.message));
+        try {
+          await this.postgres.delete(collection, targetId);
+        } catch (e) {
+          console.error('PostgreSQL delete error:', e.message);
+        }
       }
       return true;
     }
