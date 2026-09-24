@@ -1081,6 +1081,32 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, { status: 'OK', version: '2026.09.24.rejection.v1', uptime: process.uptime(), serverTime: new Date().toISOString() });
     }
 
+    // Database connectivity & persistence health check
+    if (pathname === '/api/database/status' && method === 'GET') {
+      const isPgConfigured = Boolean(db.postgres && db.postgres.isAvailable());
+      let pgHealthy = false;
+      let pgError = null;
+      let tables = [];
+      if (isPgConfigured) {
+        try {
+          const testRes = await db.postgres.query('SELECT NOW() AS now');
+          pgHealthy = Boolean(testRes && testRes.rows && testRes.rows.length > 0);
+          const tablesRes = await db.postgres.query("SELECT tablename FROM pg_tables WHERE schemaname = 'public'");
+          tables = tablesRes.rows.map(r => r.tablename);
+        } catch (e) {
+          pgError = e.message;
+        }
+      }
+      return sendJson(res, 200, {
+        database: isPgConfigured ? 'PostgreSQL' : 'None (DATABASE_URL not set)',
+        connected: pgHealthy,
+        isProductionConfigured: isPgConfigured,
+        tables,
+        error: pgError,
+        environment: process.env.NODE_ENV || 'production'
+      });
+    }
+
     // Public Settings Endpoint
     if (pathname === '/api/settings' && method === 'GET') {
       const settings = db.data.settings || {};
