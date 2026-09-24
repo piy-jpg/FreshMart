@@ -9,11 +9,12 @@ class PostgresAdapter {
   constructor(connectionString) {
     const candidateUrls = [
       connectionString,
-      process.env.POSTGRES_PRISMA_URL,
-      process.env.POSTGRES_URL,
-      process.env.POSTGRES_DATABASE_URL,
-      process.env.STORAGE_URL,
       process.env.DATABASE_URL,
+      process.env.POSTGRES_URL,
+      process.env.POSTGRES_URL_NON_POOLING,
+      process.env.POSTGRES_DATABASE_URL,
+      process.env.POSTGRES_PRISMA_URL,
+      process.env.STORAGE_URL,
       process.env.NEON_DATABASE_URL,
       process.env.SUPABASE_DB_URL
     ].filter(Boolean);
@@ -49,17 +50,24 @@ class PostgresAdapter {
 
   getPool() {
     if (!this.pool && this.connectionString) {
-      const sslConfig = (this.connectionString.includes('localhost') || this.connectionString.includes('127.0.0.1'))
+      let cleanUrl = this.connectionString;
+      try {
+        const u = new URL(cleanUrl);
+        u.searchParams.delete('pgbouncer');
+        u.searchParams.delete('schema');
+        cleanUrl = u.toString();
+      } catch (e) {}
+
+      const sslConfig = (cleanUrl.includes('localhost') || cleanUrl.includes('127.0.0.1'))
         ? false
         : { rejectUnauthorized: false };
 
       this.pool = new Pool({
-        connectionString: this.connectionString,
+        connectionString: cleanUrl,
         ssl: sslConfig,
-        max: Number(process.env.DATABASE_POOL_MAX || 5),
+        max: Number(process.env.DATABASE_POOL_MAX || 3),
         idleTimeoutMillis: 10000,
-        connectionTimeoutMillis: 15000,
-        keepAlive: true
+        connectionTimeoutMillis: 10000
       });
 
       this.pool.on('error', (err) => {
