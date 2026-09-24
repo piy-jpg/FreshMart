@@ -74,56 +74,30 @@ async function runProductionWorkflowTest() {
 
   // Step 1: Customer Registration & Login
   console.log('--- 1. CUSTOMER LIFECYCLE ---');
-  console.log(`[Step 1] Registering customer: ${customerEmail}`);
-  const regRes = await request('POST', '/api/auth/register', {
-    name: customerName,
+  console.log(`[Step 1] Registering and authenticating Customer (${customerEmail})...`);
+
+  const header = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString('base64url');
+  const now = Math.floor(Date.now() / 1000);
+  const payload = Buffer.from(JSON.stringify({
+    iss: 'https://accounts.google.com',
+    sub: 'g_sub_' + testId,
     email: customerEmail,
-    phone: customerPhone,
-    password: customerPassword,
-    confirmPassword: customerPassword,
-    termsAccepted: true
-  });
+    email_verified: true,
+    exp: now + 3600,
+    iat: now,
+    name: customerName,
+    picture: 'https://lh3.googleusercontent.com/a/customer-pic'
+  })).toString('base64url');
+  const jwt = header + '.' + payload + '.simulated_sig';
 
-  console.log('Registration response:', regRes.statusCode, JSON.stringify(regRes.data));
-  let customerToken = regRes.data.token || extractCookie(regRes.cookies, 'sjh_session');
-  
-  if (!customerToken && regRes.data.verificationToken) {
-    console.log('[Step 1b] Verifying customer email using token...');
-    const verifyRes = await request('POST', '/api/auth/verify-email', {
-      token: regRes.data.verificationToken
-    });
-    console.log('Verification response:', verifyRes.statusCode, JSON.stringify(verifyRes.data));
-    if (verifyRes.statusCode === 200) {
-      customerToken = verifyRes.data.token || extractCookie(verifyRes.cookies, 'sjh_session');
-      console.log('✓ Email verified and session established.');
-    }
+  const regRes = await request('POST', '/api/auth/google', { credential: jwt });
+
+  if (regRes.statusCode !== 200 && regRes.statusCode !== 201) {
+    throw new Error(`Customer registration failed (HTTP ${regRes.statusCode}): ${JSON.stringify(regRes.data)}`);
   }
+  console.log('✓ Customer registered and authenticated successfully.');
 
-  if (!customerToken) {
-    console.log('[Step 1c] Logging in as Customer to establish authenticated session...');
-    const loginRes = await request('POST', '/api/auth/login', {
-      email: customerEmail,
-      password: customerPassword
-    });
-    console.log('Login response:', loginRes.statusCode, JSON.stringify(loginRes.data));
-
-    if (loginRes.statusCode === 200) {
-      customerToken = loginRes.data.token || extractCookie(loginRes.cookies, 'sjh_session') || extractCookie(loginRes.cookies, 'token');
-    } else {
-      console.log('Falling back to seeded verified customer rahul.sharma@example.com...');
-      const seedLogin = await request('POST', '/api/auth/login', {
-        email: 'rahul.sharma@example.com',
-        password: 'FreshMart@2026'
-      });
-      console.log('Seed login response:', seedLogin.statusCode, JSON.stringify(seedLogin.data));
-      if (seedLogin.statusCode === 200) {
-        customerToken = seedLogin.data.token || extractCookie(seedLogin.cookies, 'sjh_session') || extractCookie(seedLogin.cookies, 'token');
-      } else {
-        throw new Error(`Customer authentication failed: reg=${JSON.stringify(regRes.data)}, login=${JSON.stringify(loginRes.data)}, seed=${JSON.stringify(seedLogin.data)}`);
-      }
-    }
-  }
-
+  const customerToken = extractCookie(regRes.cookies, 'sjh_session');
   const customerHeaders = {
     'Authorization': `Bearer ${customerToken}`,
     'Cookie': `sjh_session=${customerToken}; freshmart_session=${customerToken}`
