@@ -1220,8 +1220,8 @@
       "walletBalance": 10000,
       "provider": "local",
       "createdAt": "2026-09-12T11:54:26.481Z",
-      "updatedAt": "2026-09-24T07:45:04.679Z",
-      "lastLoginAt": "2026-09-24T07:45:04.679Z",
+      "updatedAt": "2026-09-24T07:52:54.305Z",
+      "lastLoginAt": "2026-09-24T07:52:54.305Z",
       "googleSub": "google_sub_owner_730929",
       "profileImage": "https://lh3.googleusercontent.com/a/owner-pic",
       "active": true,
@@ -10848,15 +10848,15 @@
       "hindiName": "",
       "sku": "SJH-FRU-JJ-12",
       "barcode": "890123470872",
-      "category": "Certified Organic",
+      "category": "Fruits & Berries",
       "subcategory": "Organic Premium",
-      "price": 135,
-      "sellingPrice": 135,
-      "mrp": 199,
-      "originalPrice": 199,
-      "discountPercent": 32,
+      "price": 175,
+      "sellingPrice": 175,
+      "mrp": 220,
+      "originalPrice": 220,
+      "discountPercent": 20,
       "costPrice": 95,
-      "stock": 520,
+      "stock": 880,
       "unit": "200g",
       "lowStockLimit": 20,
       "reorderLevel": 30,
@@ -10866,14 +10866,14 @@
       "expressEligible": true,
       "harvestDate": "2026-09-23",
       "freshnessDays": 5,
-      "image": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
-      "description": "Freshly updated by Owner from dashboard on Vercel with verified organic certification.",
+      "image": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?auto=format&fit=crop&w=600&q=80",
+      "description": "Hand-plucked at peak crispness directly from certified orchard trees.",
       "variants": [
         {
           "sku": "SJH-FRU-JJ-12-1KG",
           "weightLabel": "200g",
-          "price": 149,
-          "mrp": 199,
+          "price": 175,
+          "mrp": 220,
           "costPrice": 95,
           "stock": 22
         }
@@ -10881,14 +10881,14 @@
       "weights": [
         {
           "label": "200g",
-          "price": 149,
-          "originalPrice": 199,
-          "discount": "25% OFF",
-          "savings": 50
+          "price": 175,
+          "originalPrice": 220,
+          "discount": "20% OFF",
+          "savings": 45
         }
       ],
       "createdAt": "2026-09-23T11:17:50.872Z",
-      "updatedAt": "2026-09-24T07:28:50.522Z",
+      "updatedAt": "2026-09-24T07:47:19.215Z",
       "stockCount": 545,
       "inStock": true,
       "title": "Organic Golden Farm Fresh Honeycrisp Apple"
@@ -11127,7 +11127,7 @@
           "stock": 28
         }
       ],
-      "updatedAt": "2026-09-24T07:44:05.683Z"
+      "updatedAt": "2026-09-24T07:52:54.346Z"
     },
     {
       "id": "prod_potato",
@@ -19114,6 +19114,21 @@
   ],
   "inventory_movements": [
     {
+      "id": "mov_1790236038768",
+      "date": "2026-09-24T07:47:18.768Z",
+      "productId": "prod_1790236038763",
+      "productName": "Fresh Organic Dragonfruit Premium",
+      "sku": "TEST-PROD-1790236038763",
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "type": "HARVEST",
+      "quantity": 45,
+      "before": 0,
+      "after": 45,
+      "reason": "Initial catalog intake from Mysuru Exotic Orchards (QC Passed)",
+      "user": "Piyush Verma (Owner)"
+    },
+    {
       "id": "mov_1790235904696",
       "date": "2026-09-24T07:45:04.696Z",
       "productId": "prod_1790235904692",
@@ -23014,6 +23029,292 @@
     }
   ],
   "activity_logs": [
+    {
+      "id": "log_1790236374350_177",
+      "timestamp": "2026-09-24T07:52:54.350Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_ACTIVATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Activated \"Fresh Tomato\""
+    },
+    {
+      "id": "log_1790236374341_780",
+      "timestamp": "2026-09-24T07:52:54.341Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Suspended \"Fresh Tomato\""
+    },
+    {
+      "id": "log_1790236374331_703",
+      "timestamp": "2026-09-24T07:52:54.331Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790236374316_192",
+      "timestamp": "2026-09-24T07:52:54.316Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
+      "id": "log_1790236039410_195",
+      "timestamp": "2026-09-24T07:47:19.410Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_ACTIVATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Activated \"Fresh Tomato\""
+    },
+    {
+      "id": "log_1790236039400_621",
+      "timestamp": "2026-09-24T07:47:19.400Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Suspended \"Fresh Tomato\""
+    },
+    {
+      "id": "log_1790236039391_496",
+      "timestamp": "2026-09-24T07:47:19.391Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790236039377_594",
+      "timestamp": "2026-09-24T07:47:19.377Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
+      "id": "log_1790236039219_751",
+      "timestamp": "2026-09-24T07:47:19.219Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_ACTIVATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Activated \"Organic Golden Farm Fresh Honeycrisp Apple\""
+    },
+    {
+      "id": "log_1790236039210_650",
+      "timestamp": "2026-09-24T07:47:19.210Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Suspended \"Organic Golden Farm Fresh Honeycrisp Apple\""
+    },
+    {
+      "id": "log_1790236039200_704",
+      "timestamp": "2026-09-24T07:47:19.200Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
+    },
+    {
+      "id": "log_1790236039187_390",
+      "timestamp": "2026-09-24T07:47:19.187Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
+    },
+    {
+      "id": "log_1790236039174_364",
+      "timestamp": "2026-09-24T07:47:19.174Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
+    },
+    {
+      "id": "log_1790236039160_595",
+      "timestamp": "2026-09-24T07:47:19.160Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
+    },
+    {
+      "id": "log_1790236039147_839",
+      "timestamp": "2026-09-24T07:47:19.147Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
+    },
+    {
+      "id": "log_1790236039134_80",
+      "timestamp": "2026-09-24T07:47:19.134Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
+    },
+    {
+      "id": "log_1790236039120_700",
+      "timestamp": "2026-09-24T07:47:19.120Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
+      "id": "log_1790236038967_808",
+      "timestamp": "2026-09-24T07:47:18.967Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_DELETED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790236038763",
+      "details": "Deleted product \"Fresh Organic Dragonfruit Super Premium Export\" (prod_1790236038763)"
+    },
+    {
+      "id": "log_1790236038960_211",
+      "timestamp": "2026-09-24T07:47:18.960Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
+      "id": "log_1790236038834_334",
+      "timestamp": "2026-09-24T07:47:18.834Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "CUSTOMER_LOGOUT",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session destroyed"
+    },
+    {
+      "id": "log_1790236038825_63",
+      "timestamp": "2026-09-24T07:47:18.825Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_ACTIVATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790236038763",
+      "details": "Activated \"Fresh Organic Dragonfruit Super Premium Export\""
+    },
+    {
+      "id": "log_1790236038811_770",
+      "timestamp": "2026-09-24T07:47:18.811Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790236038763",
+      "details": "Suspended \"Fresh Organic Dragonfruit Super Premium Export\""
+    },
+    {
+      "id": "log_1790236038801_385",
+      "timestamp": "2026-09-24T07:47:18.801Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790236038763",
+      "details": "Updated product \"Fresh Organic Dragonfruit Super Premium Export\" (TEST-PROD-1790236038763)"
+    },
+    {
+      "id": "log_1790236038787_960",
+      "timestamp": "2026-09-24T07:47:18.787Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790236038763",
+      "details": "Updated product \"Fresh Organic Dragonfruit Super Premium Export\" (TEST-PROD-1790236038763)"
+    },
+    {
+      "id": "log_1790236038772_612",
+      "timestamp": "2026-09-24T07:47:18.772Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_CREATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790236038763",
+      "details": "Created product \"Fresh Organic Dragonfruit Premium\" (SKU: TEST-PROD-1790236038763)"
+    },
+    {
+      "id": "log_1790236038759_844",
+      "timestamp": "2026-09-24T07:47:18.759Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
     {
       "id": "log_1790235904809_237",
       "timestamp": "2026-09-24T07:45:04.809Z",
@@ -27937,6 +28238,46 @@
   },
   "sessions": [
     {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzIyNzc0MzA5LCJpYXQiOjE3OTAyMzYzNzQzMDksInJuZCI6IjUzOTM4YWM5N2FiYWI1ZTYifQ.qW3HABIx1qJiEtTQO3tli2N7fOtP9HzjVEcI2f4xvig",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": false,
+      "createdAt": "2026-09-24T07:52:54.309Z",
+      "expiresAt": "2026-09-25T07:52:54.309Z",
+      "userAgent": "Unknown Device",
+      "ip": "127.0.0.1"
+    },
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzIyNDM5MzczLCJpYXQiOjE3OTAyMzYwMzkzNzMsInJuZCI6ImEzODZiNGI3MjQ5MTBhNmIifQ.fWwm_hahcpO1Duyp4W1POGVKQyoRc3hyekdsRs9Xjtc",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": false,
+      "createdAt": "2026-09-24T07:47:19.373Z",
+      "expiresAt": "2026-09-25T07:47:19.373Z",
+      "userAgent": "Unknown Device",
+      "ip": "127.0.0.1"
+    },
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzIyNDM5MTE2LCJpYXQiOjE3OTAyMzYwMzkxMTYsInJuZCI6ImM0M2Q5Yjg3OTY3OTUxMzcifQ.RwrDzrmrkA3-T1-FngLgS4TQYJc2olYH-mIF2-BOdYc",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": false,
+      "createdAt": "2026-09-24T07:47:19.116Z",
+      "expiresAt": "2026-09-25T07:47:19.116Z",
+      "userAgent": "Unknown Device",
+      "ip": "127.0.0.1"
+    },
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzIyNDM4OTU2LCJpYXQiOjE3OTAyMzYwMzg5NTYsInJuZCI6ImNhYjNmMGY5OTNiOTcxZWUifQ.UDRCAxqwYrftkH0Ux3KdXSql9Jn8WHzp1OVJCIYgaqo",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": false,
+      "createdAt": "2026-09-24T07:47:18.956Z",
+      "expiresAt": "2026-09-25T07:47:18.956Z",
+      "userAgent": "Unknown Device",
+      "ip": "127.0.0.1"
+    },
+    {
       "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzIyMzA0NjgzLCJpYXQiOjE3OTAyMzU5MDQ2ODMsInJuZCI6IjhiM2VmNzRiNzJmZmFiZTcifQ.dqId1psC3qtUNrSVO0K5GfWUsM0R4aWOLNDWhAis5qI",
       "userId": "usr_owner_1789214066481",
       "role": "OWNER",
@@ -30034,6 +30375,292 @@
     }
   ],
   "audit_logs": [
+    {
+      "id": "log_1790236374350_177",
+      "timestamp": "2026-09-24T07:52:54.350Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_ACTIVATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Activated \"Fresh Tomato\""
+    },
+    {
+      "id": "log_1790236374341_780",
+      "timestamp": "2026-09-24T07:52:54.341Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Suspended \"Fresh Tomato\""
+    },
+    {
+      "id": "log_1790236374331_703",
+      "timestamp": "2026-09-24T07:52:54.331Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790236374316_192",
+      "timestamp": "2026-09-24T07:52:54.316Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
+      "id": "log_1790236039410_195",
+      "timestamp": "2026-09-24T07:47:19.410Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_ACTIVATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Activated \"Fresh Tomato\""
+    },
+    {
+      "id": "log_1790236039400_621",
+      "timestamp": "2026-09-24T07:47:19.400Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Suspended \"Fresh Tomato\""
+    },
+    {
+      "id": "log_1790236039391_496",
+      "timestamp": "2026-09-24T07:47:19.391Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790236039377_594",
+      "timestamp": "2026-09-24T07:47:19.377Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
+      "id": "log_1790236039219_751",
+      "timestamp": "2026-09-24T07:47:19.219Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_ACTIVATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Activated \"Organic Golden Farm Fresh Honeycrisp Apple\""
+    },
+    {
+      "id": "log_1790236039210_650",
+      "timestamp": "2026-09-24T07:47:19.210Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Suspended \"Organic Golden Farm Fresh Honeycrisp Apple\""
+    },
+    {
+      "id": "log_1790236039200_704",
+      "timestamp": "2026-09-24T07:47:19.200Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
+    },
+    {
+      "id": "log_1790236039187_390",
+      "timestamp": "2026-09-24T07:47:19.187Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
+    },
+    {
+      "id": "log_1790236039174_364",
+      "timestamp": "2026-09-24T07:47:19.174Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
+    },
+    {
+      "id": "log_1790236039160_595",
+      "timestamp": "2026-09-24T07:47:19.160Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
+    },
+    {
+      "id": "log_1790236039147_839",
+      "timestamp": "2026-09-24T07:47:19.147Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
+    },
+    {
+      "id": "log_1790236039134_80",
+      "timestamp": "2026-09-24T07:47:19.134Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
+    },
+    {
+      "id": "log_1790236039120_700",
+      "timestamp": "2026-09-24T07:47:19.120Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
+      "id": "log_1790236038967_808",
+      "timestamp": "2026-09-24T07:47:18.967Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_DELETED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790236038763",
+      "details": "Deleted product \"Fresh Organic Dragonfruit Super Premium Export\" (prod_1790236038763)"
+    },
+    {
+      "id": "log_1790236038960_211",
+      "timestamp": "2026-09-24T07:47:18.960Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
+      "id": "log_1790236038834_334",
+      "timestamp": "2026-09-24T07:47:18.834Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "CUSTOMER_LOGOUT",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session destroyed"
+    },
+    {
+      "id": "log_1790236038825_63",
+      "timestamp": "2026-09-24T07:47:18.825Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_ACTIVATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790236038763",
+      "details": "Activated \"Fresh Organic Dragonfruit Super Premium Export\""
+    },
+    {
+      "id": "log_1790236038811_770",
+      "timestamp": "2026-09-24T07:47:18.811Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790236038763",
+      "details": "Suspended \"Fresh Organic Dragonfruit Super Premium Export\""
+    },
+    {
+      "id": "log_1790236038801_385",
+      "timestamp": "2026-09-24T07:47:18.801Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790236038763",
+      "details": "Updated product \"Fresh Organic Dragonfruit Super Premium Export\" (TEST-PROD-1790236038763)"
+    },
+    {
+      "id": "log_1790236038787_960",
+      "timestamp": "2026-09-24T07:47:18.787Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790236038763",
+      "details": "Updated product \"Fresh Organic Dragonfruit Super Premium Export\" (TEST-PROD-1790236038763)"
+    },
+    {
+      "id": "log_1790236038772_612",
+      "timestamp": "2026-09-24T07:47:18.772Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_CREATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790236038763",
+      "details": "Created product \"Fresh Organic Dragonfruit Premium\" (SKU: TEST-PROD-1790236038763)"
+    },
+    {
+      "id": "log_1790236038759_844",
+      "timestamp": "2026-09-24T07:47:18.759Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
     {
       "id": "log_1790235904809_237",
       "timestamp": "2026-09-24T07:45:04.809Z",

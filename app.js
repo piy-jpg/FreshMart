@@ -3134,6 +3134,40 @@ function initGlobalOrderSSE() {
             }
           } catch (e) {}
         } else if (data.type === 'PRODUCT_UPDATED' || data.type === 'STOCK_UPDATED' || data.type === 'PRODUCT_DELETED') {
+          const prod = data.payload?.product || data.payload;
+          if (prod && (prod.id || prod.storefrontId)) {
+            const mapped = typeof mapDbProductToStorefront === 'function' ? mapDbProductToStorefront(prod) : null;
+            if (mapped) {
+              const updateInList = (list) => {
+                if (!Array.isArray(list)) return false;
+                const idx = list.findIndex(item => item.id === mapped.id || item.id === prod.id || item.id === prod.storefrontId || item.id === (prod.storefrontId || '').replace(/^prod_/, ''));
+                if (idx !== -1) {
+                  list[idx] = { ...list[idx], ...mapped };
+                  return true;
+                }
+                return false;
+              };
+              let updated = updateInList(allVegetablesData);
+              if (!updated) updated = updateInList(allFruitsData);
+              if (!updated) updateInList(allGroceryData);
+
+              if (window.__suspendedProductIds) {
+                if (prod.status === 'SUSPENDED' || prod.status === 'INACTIVE' || prod.status === 'DELETED') {
+                  window.__suspendedProductIds.add(prod.id);
+                  if (prod.storefrontId) window.__suspendedProductIds.add(prod.storefrontId);
+                } else {
+                  window.__suspendedProductIds.delete(prod.id);
+                  if (prod.storefrontId) window.__suspendedProductIds.delete(prod.storefrontId);
+                }
+              }
+
+              if (typeof applyFiltersAndRender === 'function') applyFiltersAndRender();
+              if (typeof applyVegetableFiltersAndRender === 'function') applyVegetableFiltersAndRender();
+              if (typeof applyFruitFiltersAndRender === 'function') applyFruitFiltersAndRender();
+              if (typeof applyGroceryFiltersAndRender === 'function') applyGroceryFiltersAndRender();
+              if (typeof applyOffersFiltersAndRender === 'function') applyOffersFiltersAndRender();
+            }
+          }
           if (typeof syncStorefrontCatalogWithBackend === 'function') {
             syncStorefrontCatalogWithBackend();
           }
