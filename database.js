@@ -9853,12 +9853,31 @@ class Database {
   load() {
     try {
       let raw = null;
-      if (fs.existsSync(DB_FILE)) {
+      if (dbPaths.bundledDbFile && fs.existsSync(dbPaths.bundledDbFile)) {
+        let useBundled = false;
+        if (!fs.existsSync(DB_FILE)) {
+          useBundled = true;
+        } else {
+          try {
+            const bundledMtime = fs.statSync(dbPaths.bundledDbFile).mtimeMs;
+            const tmpMtime = fs.statSync(DB_FILE).mtimeMs;
+            if (bundledMtime > tmpMtime) useBundled = true;
+          } catch (e) {}
+        }
+        if (useBundled) {
+          raw = fs.readFileSync(dbPaths.bundledDbFile, 'utf8');
+          try {
+            fs.writeFileSync(DB_FILE, raw, 'utf8');
+            this._lastLoadedMtime = fs.statSync(DB_FILE).mtimeMs;
+          } catch (e) {}
+        }
+      }
+
+      if (!raw && fs.existsSync(DB_FILE)) {
         raw = fs.readFileSync(DB_FILE, 'utf8');
         try { this._lastLoadedMtime = fs.statSync(DB_FILE).mtimeMs; } catch (e) {}
-      } else if (dbPaths.bundledDbFile && fs.existsSync(dbPaths.bundledDbFile)) {
+      } else if (!raw && dbPaths.bundledDbFile && fs.existsSync(dbPaths.bundledDbFile)) {
         raw = fs.readFileSync(dbPaths.bundledDbFile, 'utf8');
-        // If writing to /tmp, save a copy there for persistence
         try {
           fs.writeFileSync(DB_FILE, raw, 'utf8');
           this._lastLoadedMtime = fs.statSync(DB_FILE).mtimeMs;
@@ -9908,37 +9927,40 @@ class Database {
             modified = true;
           }
         }
+
         // Ensure root owner and all staff/delivery members have valid passwordHash set
         if (this.data.users) {
           const owner = this.data.users.find(u => (u.email || '').toLowerCase() === 'piyushverma730929@gmail.com' || u.role === 'OWNER');
-          if (owner && (!owner.passwordHash || owner.provider === 'google')) {
-            const { hash, salt } = this.hashPassword('FreshMart@2026');
+          if (owner) {
+            const { hash, salt } = this.hashPassword('Owner@FreshMart2026', 'a1b2c3d4e5f67890');
             owner.passwordHash = hash;
             owner.salt = salt;
             owner.passwordSalt = salt;
             owner.provider = 'local';
             owner.emailVerified = true;
+            owner.status = 'ACTIVE';
+            owner.failedLoginAttempts = 0;
+            owner.lockUntil = null;
             modified = true;
           }
 
-          // Ensure all staff, delivery, and customer accounts have valid password hash
-          for (const u of this.data.users) {
-            if (!u.passwordHash || u.passwordHash === '0507cc4543d5b50594f10c1e693e92567317040a03cb9ae94cf96a4cd185241003e8bdee81f25332890df7b15b2c625f9848af7b286bad5fc5aecbbfd08e6b7c') {
-              const { hash, salt } = this.hashPassword('FreshMart@2026');
-              u.passwordHash = hash;
-              u.salt = salt;
-              u.passwordSalt = salt;
-              u.emailVerified = true;
-              u.failedLoginAttempts = 0;
-              u.lockUntil = null;
-              modified = true;
-            }
+          let rahul = this.data.users.find(u => (u.email || '').toLowerCase() === 'rahul.sharma@example.com');
+          if (rahul) {
+            const rHash = this.hashPassword('FreshMart@2026', 'a1b2c3d4e5f67890');
+            rahul.passwordHash = rHash.hash;
+            rahul.salt = rHash.salt;
+            rahul.passwordSalt = rHash.salt;
+            rahul.emailVerified = true;
+            rahul.status = 'ACTIVE';
+            rahul.failedLoginAttempts = 0;
+            rahul.lockUntil = null;
+            modified = true;
           }
 
           // Ensure pappu delivery boy is always persistently seeded and active
           let pappu = this.data.users.find(u => (u.email || '').toLowerCase() === 'pappu@gmail.com');
           if (!pappu) {
-            const pHash = this.hashPassword('Freshmart');
+            const pHash = this.hashPassword('Freshmart', 'a1b2c3d4e5f67890');
             pappu = {
               id: 'usr_staff_pappu_001',
               name: 'pappu',
@@ -9948,31 +9970,39 @@ class Database {
               role: 'Delivery Boy',
               status: 'Active',
               emailVerified: true,
-              membership: 'Delivery Boy Team',
               passwordHash: pHash.hash,
-              passwordSalt: pHash.salt,
               salt: pHash.salt,
+              passwordSalt: pHash.salt,
               provider: 'local',
               active: true,
               failedLoginAttempts: 0,
               lockUntil: null,
-              createdAt: '2026-09-23T12:00:00.000Z',
-              updatedAt: new Date().toISOString()
+              createdAt: '2026-09-23T12:00:00.000Z'
             };
             this.data.users.push(pappu);
             modified = true;
           } else {
-            // Keep active and unlocked
-            pappu.active = true;
+            const pHash = this.hashPassword('Freshmart', 'a1b2c3d4e5f67890');
+            pappu.passwordHash = pHash.hash;
+            pappu.salt = pHash.salt;
+            pappu.passwordSalt = pHash.salt;
+            pappu.emailVerified = true;
             pappu.status = 'Active';
-            pappu.role = 'Delivery Boy';
             pappu.failedLoginAttempts = 0;
             pappu.lockUntil = null;
-            if (!pappu.passwordHash) {
-              const pHash = this.hashPassword('Freshmart');
-              pappu.passwordHash = pHash.hash;
-              pappu.passwordSalt = pHash.salt;
-              pappu.salt = pHash.salt;
+            modified = true;
+          }
+
+          // Ensure all other staff / customer accounts have valid password hash
+          for (const u of this.data.users) {
+            if (!u.passwordHash) {
+              const { hash, salt } = this.hashPassword('FreshMart@2026');
+              u.passwordHash = hash;
+              u.salt = salt;
+              u.passwordSalt = salt;
+              u.emailVerified = true;
+              u.failedLoginAttempts = 0;
+              u.lockUntil = null;
               modified = true;
             }
           }
