@@ -25,6 +25,7 @@ class AuthService {
 
     const { hash, salt } = hashPassword(password);
     const token = generateRandomToken(24);
+    const isAutoVerified = process.env.REQUIRE_EMAIL_VERIFICATION !== 'true';
     const newUser = {
       id: 'usr_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
       name,
@@ -32,9 +33,9 @@ class AuthService {
       phone,
       passwordHash: hash,
       salt,
-      emailVerified: false,
-      verificationToken: token,
-      verificationTokenExpires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      emailVerified: isAutoVerified,
+      verificationToken: isAutoVerified ? null : token,
+      verificationTokenExpires: isAutoVerified ? null : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       provider: 'local',
       role: 'CUSTOMER',
       membership: 'Gold Farm Club',
