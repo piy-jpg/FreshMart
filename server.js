@@ -2994,7 +2994,7 @@ const server = http.createServer(async (req, res) => {
     if (riderRejectMatch && (method === 'PATCH' || method === 'POST')) {
       const orderId = riderRejectMatch[1];
       const orders = db.getAll('orders') || [];
-      const order = orders.find(o => o.id === orderId || o.orderId === orderId);
+      const order = db.getById('orders', orderId) || orders.find(o => o.id === orderId || o.orderId === orderId);
       if (!order) return sendJson(res, 404, { error: 'Order not found' });
 
       const auth = extractUserSession(req);
@@ -4040,6 +4040,18 @@ const server = http.createServer(async (req, res) => {
             notes: body.notes || (isHandoverAction ? `Physically handed over to ${order.deliveryBoyName || 'Delivery Boy'}` : undefined),
             reason: body.reason || body.cancellationReason
           });
+
+          if (targetStatusKey === 'READY_FOR_HANDOVER') {
+            order.deliveryBoyId = null;
+            order.deliveryBoyName = null;
+            order.deliveryBoyPhone = null;
+            order.deliveryPartnerId = null;
+            order.deliveryPartnerName = null;
+            order.deliveryPartnerPhone = null;
+            order.deliveryPartnerVehicle = null;
+            order.assignedAt = null;
+            order.acceptedAt = null;
+          }
 
           if (targetStatusKey === 'CANCELLED' && oldStatus !== 'CANCELLED') {
             // Restore inventory

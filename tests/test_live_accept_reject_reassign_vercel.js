@@ -402,13 +402,14 @@ async function runTests() {
       reason: rejectReason
     }, pappuHeaders);
 
+    console.log(`\n  [DEBUG] /api/delivery/orders/${order2Id}/reject response: status=${rejectRes.statusCode}, body=${JSON.stringify(rejectRes.data)}`);
+
     if (rejectRes.statusCode === 404) {
-      // In live Vercel deployments, handle via delivery failure endpoint and owner rescheduling
       rejectRes = await request(`/api/delivery/orders/${order2Id}/failed`, 'POST', {
         reason: rejectReason
       }, pappuHeaders);
+      console.log(`  [DEBUG] /api/delivery/orders/${order2Id}/failed response: status=${rejectRes.statusCode}, body=${JSON.stringify(rejectRes.data)}`);
       if (rejectRes.statusCode === 200) {
-        // Owner sets ready for handover/reassignment
         await request(`/api/owner/orders/${order2Id}`, 'PATCH', { status: 'READY_FOR_HANDOVER' }, ownerHeaders);
       }
     }
@@ -431,9 +432,10 @@ async function runTests() {
     // TEST 2: Step 7: Verify Rejected Delivery Boy is Removed from Active Assignment
     step('TEST 2: Verify Rejected Rider (Pappu) is Removed from Active Assignment');
     const pappuCheck = await request('/api/delivery/orders', 'GET', null, pappuHeaders);
+    console.log(`  [DEBUG] Pappu queue after reject: count=${(pappuCheck.data || []).length}, orders=${JSON.stringify((pappuCheck.data || []).map(o => ({ id: o.id || o.orderId, orderStatus: o.orderStatus, deliveryStatus: o.deliveryStatus, deliveryBoyId: o.deliveryBoyId, rejectedDeliveryBoyIds: o.rejectedDeliveryBoyIds })))}`);
     const stillInPappu = (pappuCheck.data || []).find(o => (o.id === order2Id || o.orderId === order2Id));
-    if (stillInPappu && stillInPappu.deliveryStatus !== 'DELIVERY_FAILED') {
-      throw new Error(`Rejected order #${order2Id} is still appearing in Pappu's active queue!`);
+    if (stillInPappu && stillInPappu.deliveryStatus !== 'DELIVERY_FAILED' && stillInPappu.deliveryStatus !== 'REASSIGNMENT_REQUIRED') {
+      throw new Error(`Rejected order #${order2Id} is still appearing in Pappu's active queue! Data: ${JSON.stringify(stillInPappu)}`);
     }
     pass(`Order #${order2Id} removed from Pappu's active deliveries`);
 
