@@ -7,8 +7,24 @@ const path = require('path');
 const crypto = require('crypto');
 
 function resolveDatabasePaths() {
-  const localDataDir = path.join(__dirname, 'data');
-  const localDbFile = path.join(localDataDir, 'db.json');
+  const possibleDirs = [
+    path.join(process.cwd(), 'data'),
+    path.join(__dirname, 'data'),
+    path.join(__dirname, '..', 'data'),
+    path.join('/var/task', 'data')
+  ];
+
+  let bundledDbFile = path.join(__dirname, 'data', 'db.json');
+  for (const dir of possibleDirs) {
+    const candidate = path.join(dir, 'db.json');
+    if (fs.existsSync(candidate)) {
+      bundledDbFile = candidate;
+      break;
+    }
+  }
+
+  const localDataDir = path.dirname(bundledDbFile);
+  const localDbFile = bundledDbFile;
 
   // Check if local directory is writable
   try {
@@ -18,7 +34,7 @@ function resolveDatabasePaths() {
     const testFile = path.join(localDataDir, '.write_test');
     fs.writeFileSync(testFile, '1');
     fs.unlinkSync(testFile);
-    return { dataDir: localDataDir, dbFile: localDbFile, bundledDbFile: localDbFile, isWritableLocal: true };
+    return { dataDir: localDataDir, dbFile: localDbFile, bundledDbFile: bundledDbFile, isWritableLocal: true };
   } catch (err) {
     // Read-only filesystem (e.g. Vercel Serverless / AWS Lambda /var/task)
     const tmpDataDir = path.join('/tmp', 'freshmart_data');
@@ -28,7 +44,7 @@ function resolveDatabasePaths() {
       }
     } catch (e) {}
     const tmpDbFile = path.join(tmpDataDir, 'db.json');
-    return { dataDir: tmpDataDir, dbFile: tmpDbFile, bundledDbFile: localDbFile, isWritableLocal: false };
+    return { dataDir: tmpDataDir, dbFile: tmpDbFile, bundledDbFile: bundledDbFile, isWritableLocal: false };
   }
 }
 
