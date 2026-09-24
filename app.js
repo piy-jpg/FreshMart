@@ -2934,6 +2934,36 @@ window.syncStorefrontCatalogWithBackend = syncStorefrontCatalogWithBackend;
 try { syncStorefrontCatalogWithBackend(); } catch (e) {}
 
 // -------------------------------------------------------------
+// REAL-TIME STOREFRONT & OWNER WEBSITE PREVIEW SYNCHRONIZATION
+// -------------------------------------------------------------
+try {
+  if (typeof BroadcastChannel !== 'undefined') {
+    const syncChannel = new BroadcastChannel('freshmart_catalog_channel');
+    syncChannel.onmessage = (event) => {
+      if (event.data && (event.data.type === 'CATALOG_UPDATED' || event.data.type === 'PRODUCT_UPDATED' || event.data.type === 'STOCK_UPDATED')) {
+        syncStorefrontCatalogWithBackend();
+      }
+    };
+  }
+} catch (e) {}
+
+window.addEventListener('storage', (e) => {
+  if (e.key && (e.key === 'freshmart_catalog_updated' || e.key.startsWith('freshmart_'))) {
+    syncStorefrontCatalogWithBackend();
+  }
+});
+
+window.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    syncStorefrontCatalogWithBackend();
+  }
+});
+
+window.addEventListener('focus', () => {
+  syncStorefrontCatalogWithBackend();
+});
+
+// -------------------------------------------------------------
 // REAL-TIME STOREFRONT SUB-NAVBARS & CATEGORY BADGE SYNCHRONIZATION
 // -------------------------------------------------------------
 function updateGlobalNavBadges() {

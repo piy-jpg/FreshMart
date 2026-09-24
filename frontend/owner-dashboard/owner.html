@@ -2571,6 +2571,19 @@
       if (!isEditing) applyProductsFilter();
     });
 
+    // Real-time catalog broadcast to storefront preview and open browser tabs
+    function broadcastCatalogUpdate(product) {
+      try {
+        localStorage.setItem('freshmart_catalog_updated', Date.now().toString());
+        if (product) localStorage.setItem('freshmart_last_updated_prod', JSON.stringify(product));
+        if (typeof BroadcastChannel !== 'undefined') {
+          const channel = new BroadcastChannel('freshmart_catalog_channel');
+          channel.postMessage({ type: 'CATALOG_UPDATED', product });
+          setTimeout(() => channel.close(), 500);
+        }
+      } catch (e) {}
+    }
+
     // Adapt sidebar, identity card, and tab access according to the logged-in staff/admin role
     function applyRolePermissionsUI(user) {
       if (!user) return;
@@ -4391,6 +4404,7 @@
 
           applyProductsFilter();
           closeEditProductModal();
+          broadcastCatalogUpdate(updatedProduct);
           showToast(`Produce "${updatedProduct.name}" specifications updated successfully! ✏️`, 'success');
         } else {
           showToast(data.error || 'Failed to update product in database', 'error');
@@ -4435,6 +4449,7 @@
             invItem.status = updatedProd.status;
             renderInventoryTable();
           }
+          broadcastCatalogUpdate(updatedProd);
           const toastMsg = updatedProd.status === 'SUSPENDED' 
             ? `Produce "${updatedProd.name}" SUSPENDED from storefront! ⏸️`
             : `Produce "${updatedProd.name}" ACTIVATED for storefront checkout! 🟢`;
@@ -5977,6 +5992,7 @@
           applyProductsFilter();
           closeAddProductModal();
           e.target.reset();
+          broadcastCatalogUpdate(createdProduct);
           showToast(`Product "${name}" saved to database & catalogued! 🥬`, 'success');
           loadInventory();
           loadDashboard();
@@ -6011,6 +6027,7 @@
               state.products[idx] = data.product;
               applyProductsFilter();
             }
+            broadcastCatalogUpdate(data.product);
           }
           showToast(`Stock updated! (${adjustmentQuantity > 0 ? '+' : ''}${adjustmentQuantity} units) 📋`, 'success');
           await Promise.all([loadInventory(), loadDashboard(), loadAuditLogs()]);
@@ -6039,6 +6056,7 @@
           applyProductsFilter();
           renderInventoryTable();
           populateAdjustStockDropdown(state.products);
+          broadcastCatalogUpdate({ id: productId, status: 'DELETED' });
           showToast(`"${prodName}" permanently deleted from database! 🗑️`, 'success');
           loadDashboard();
         } else {
