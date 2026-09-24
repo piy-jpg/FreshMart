@@ -3444,10 +3444,10 @@ const server = http.createServer(async (req, res) => {
         ]
       };
 
-      db.insert('products', newProd);
+      await db.insertAsync('products', newProd);
 
       // Ledger entry
-      db.insert('inventory_movements', {
+      await db.insertAsync('inventory_movements', {
         id: 'mov_' + Date.now(),
         date: new Date().toISOString(),
         productId: newProd.id,
@@ -3463,7 +3463,7 @@ const server = http.createServer(async (req, res) => {
         user: `${admin.name} (${admin.roleLabel})`
       });
 
-      db.logActivity(admin.name, 'PRODUCT_CREATED', 'Product', newProd.sku, `Created product "${newProd.name}" with ${stock} ${newProd.unit} initial stock.`);
+      await db.logActivityAsync(admin.name, 'PRODUCT_CREATED', 'Product', newProd.sku, `Created product "${newProd.name}" with ${stock} ${newProd.unit} initial stock.`);
       broadcastEvent('PRODUCT_UPDATED', newProd);
       return sendJson(res, 201, newProd);
     }
@@ -4190,10 +4190,10 @@ const server = http.createServer(async (req, res) => {
           updatedAt: new Date().toISOString()
         };
 
-        db.insert('products', newProduct);
+        await db.insertAsync('products', newProduct);
 
         // Record initial intake movement in Fresh Stock Register
-        db.insert('inventory_movements', {
+        await db.insertAsync('inventory_movements', {
           id: 'mov_' + Date.now(),
           date: new Date().toISOString(),
           productId: newProduct.id,
@@ -4209,7 +4209,7 @@ const server = http.createServer(async (req, res) => {
           user: `${owner.name} (Owner)`
         });
 
-        db.logActivity(owner.name, 'PRODUCT_CREATED', 'Products', newProduct.id, `Created product "${newProduct.name}" (SKU: ${newProduct.sku})`);
+        await db.logActivityAsync(owner.name, 'PRODUCT_CREATED', 'Products', newProduct.id, `Created product "${newProduct.name}" (SKU: ${newProduct.sku})`);
         broadcastEvent('PRODUCT_UPDATED', newProduct);
         return sendJson(res, 201, { success: true, product: newProduct });
       }
