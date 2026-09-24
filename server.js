@@ -574,6 +574,15 @@ function applyOrderStepTransition(order, targetStatus, user = {}, options = {}) 
       order.readyForHandoverBy = userName;
       order.readyForHandoverById = userId;
       order.deliveryStatus = 'READY_FOR_PICKUP';
+      order.deliveryBoyId = null;
+      order.deliveryBoyName = null;
+      order.deliveryBoyPhone = null;
+      order.deliveryPartnerId = null;
+      order.deliveryPartnerName = null;
+      order.deliveryPartnerPhone = null;
+      order.deliveryPartnerVehicle = null;
+      order.assignedAt = null;
+      order.acceptedAt = null;
       break;
     case 6: // HANDED_TO_DELIVERY_BOY
       order.handedOverAt = nowIso;
