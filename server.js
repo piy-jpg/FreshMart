@@ -1103,7 +1103,7 @@ const server = http.createServer(async (req, res) => {
       const token = crypto.randomBytes(24).toString('hex');
       const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
-      const isAutoVerified = Boolean(!process.env.SMTP_HOST || db.data.settings?.requireEmailVerification === false || process.env.REQUIRE_EMAIL_VERIFICATION !== 'true');
+      const isAutoVerified = process.env.REQUIRE_EMAIL_VERIFICATION !== 'true';
       const newUser = {
         id: 'usr_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
         name,
