@@ -4692,11 +4692,106 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 200, { success: true, customer: sanitizeUser(user) });
       }
 
+      if (pathname.startsWith('/api/owner/customers/') && method === 'DELETE') {
+        const id = pathname.replace('/api/owner/customers/', '');
+        const user = db.getById('users', id);
+        if (!user) return sendJson(res, 404, { error: 'Customer not found' });
+        user.status = 'BLOCKED';
+        user.active = false;
+        db.save();
+        db.logActivity(owner.name, 'CUSTOMER_BLOCKED', 'Users', id, `Blocked customer account`);
+        return sendJson(res, 200, { success: true, message: 'Customer account deactivated.' });
+      }
+
+      // 6.1 Categories Management
+      if (pathname === '/api/owner/categories' && method === 'GET') {
+        const categories = db.getAll('categories') || [];
+        return sendJson(res, 200, categories);
+      }
+
+      if (pathname === '/api/owner/categories' && method === 'POST') {
+        const body = await parseBody(req);
+        const name = body.name || body.title || 'New Category';
+        const newCat = {
+          id: body.id || 'cat_' + Date.now(),
+          name,
+          slug: body.slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          icon: body.icon || '🥬',
+          active: body.active !== undefined ? Boolean(body.active) : true,
+          productCount: 0,
+          createdAt: new Date().toISOString()
+        };
+        db.insert('categories', newCat);
+        db.logActivity(owner.name, 'CATEGORY_CREATED', 'Categories', newCat.id, `Created category "${newCat.name}"`);
+        return sendJson(res, 201, { success: true, category: newCat });
+      }
+
+      if (pathname.startsWith('/api/owner/categories/') && (method === 'PATCH' || method === 'PUT')) {
+        const id = pathname.replace('/api/owner/categories/', '');
+        const cat = db.getById('categories', id);
+        if (!cat) return sendJson(res, 404, { error: 'Category not found' });
+        const body = await parseBody(req);
+        if (body.name) cat.name = body.name;
+        if (body.icon) cat.icon = body.icon;
+        if (body.active !== undefined) cat.active = Boolean(body.active);
+        cat.updatedAt = new Date().toISOString();
+        db.save();
+        db.logActivity(owner.name, 'CATEGORY_UPDATED', 'Categories', id, `Updated category "${cat.name}"`);
+        return sendJson(res, 200, { success: true, category: cat });
+      }
+
+      if (pathname.startsWith('/api/owner/categories/') && method === 'DELETE') {
+        const id = pathname.replace('/api/owner/categories/', '');
+        const deleted = db.delete('categories', id);
+        if (!deleted) return sendJson(res, 404, { error: 'Category not found' });
+        db.logActivity(owner.name, 'CATEGORY_DELETED', 'Categories', id, `Deleted category`);
+        return sendJson(res, 200, { success: true, message: 'Category deleted successfully.' });
+      }
+
       // 7. Farmers & Procurements
       if (pathname === '/api/owner/farmers' && method === 'GET') {
         const farmers = db.getAll('farmers') || [];
         const procurements = db.getAll('procurements') || [];
         return sendJson(res, 200, { farmers, procurements });
+      }
+
+      if (pathname === '/api/owner/farmers' && method === 'POST') {
+        const body = await parseBody(req);
+        const name = body.name || 'Partner Farmer';
+        const newFarmer = {
+          id: body.id || 'frm_' + Date.now(),
+          name,
+          phone: body.phone || '9876543210',
+          location: body.location || body.village || 'Mandya, Karnataka',
+          crops: body.crops || ['Organic Vegetables'],
+          rating: Number(body.rating) || 4.9,
+          totalSuppliedKg: Number(body.totalSuppliedKg) || 0,
+          status: body.status || 'ACTIVE',
+          certifiedOrganic: body.certifiedOrganic !== undefined ? Boolean(body.certifiedOrganic) : true,
+          createdAt: new Date().toISOString()
+        };
+        db.insert('farmers', newFarmer);
+        db.logActivity(owner.name, 'FARMER_CREATED', 'Farmers', newFarmer.id, `Enrolled farmer "${newFarmer.name}"`);
+        return sendJson(res, 201, { success: true, farmer: newFarmer });
+      }
+
+      if (pathname.startsWith('/api/owner/farmers/') && (method === 'PATCH' || method === 'PUT')) {
+        const id = pathname.replace('/api/owner/farmers/', '');
+        const farmer = db.getById('farmers', id);
+        if (!farmer) return sendJson(res, 404, { error: 'Farmer not found' });
+        const body = await parseBody(req);
+        Object.assign(farmer, body, { updatedAt: new Date().toISOString() });
+        db.save();
+        db.logActivity(owner.name, 'FARMER_UPDATED', 'Farmers', id, `Updated farmer "${farmer.name}"`);
+        return sendJson(res, 200, { success: true, farmer });
+      }
+
+      if (pathname.startsWith('/api/owner/farmers/') && method === 'DELETE') {
+        const id = pathname.replace('/api/owner/farmers/', '');
+        const deleted = db.delete('farmers', id);
+        if (!deleted) return sendJson(res, 404, { error: 'Farmer not found' });
+        db.logActivity(owner.name, 'FARMER_DELETED', 'Farmers', id, `Removed farmer`);
+        return sendJson(res, 200, { success: true, message: 'Farmer removed from database.' });
       }
 
       // 8. Hubs & Fleet
@@ -4705,9 +4800,88 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 200, hubs);
       }
 
+      if (pathname === '/api/owner/hubs' && method === 'POST') {
+        const body = await parseBody(req);
+        const name = body.name || 'Dark Store Hub';
+        const newHub = {
+          id: body.id || 'hub_' + Date.now(),
+          name,
+          location: body.location || body.address || 'Bengaluru',
+          latitude: Number(body.latitude || body.lat) || 12.9716,
+          longitude: Number(body.longitude || body.lng || body.lon) || 77.5946,
+          activeOrders: 0,
+          inventoryUnits: Number(body.inventoryUnits) || 0,
+          managerName: body.managerName || 'Operations Lead',
+          managerPhone: body.managerPhone || '9876543210',
+          status: body.status || 'OPERATIONAL',
+          createdAt: new Date().toISOString()
+        };
+        db.insert('hubs', newHub);
+        db.logActivity(owner.name, 'HUB_CREATED', 'Hubs', newHub.id, `Registered dark store hub "${newHub.name}"`);
+        return sendJson(res, 201, { success: true, hub: newHub });
+      }
+
+      if (pathname.startsWith('/api/owner/hubs/') && (method === 'PATCH' || method === 'PUT')) {
+        const id = pathname.replace('/api/owner/hubs/', '');
+        const hub = db.getById('hubs', id);
+        if (!hub) return sendJson(res, 404, { error: 'Hub not found' });
+        const body = await parseBody(req);
+        Object.assign(hub, body, { updatedAt: new Date().toISOString() });
+        db.save();
+        db.logActivity(owner.name, 'HUB_UPDATED', 'Hubs', id, `Updated dark store hub "${hub.name}"`);
+        return sendJson(res, 200, { success: true, hub });
+      }
+
+      if (pathname.startsWith('/api/owner/hubs/') && method === 'DELETE') {
+        const id = pathname.replace('/api/owner/hubs/', '');
+        const deleted = db.delete('hubs', id);
+        if (!deleted) return sendJson(res, 404, { error: 'Hub not found' });
+        db.logActivity(owner.name, 'HUB_DELETED', 'Hubs', id, `Decommissioned hub`);
+        return sendJson(res, 200, { success: true, message: 'Hub deleted successfully.' });
+      }
+
       if (pathname === '/api/owner/delivery' && method === 'GET') {
         const partners = db.getAll('delivery_partners') || [];
         return sendJson(res, 200, partners);
+      }
+
+      if (pathname === '/api/owner/delivery' && method === 'POST') {
+        const body = await parseBody(req);
+        const name = body.name || 'Delivery Partner';
+        const newPartner = {
+          id: body.id || 'usr_staff_' + Date.now(),
+          name,
+          phone: body.phone || '9876543210',
+          email: body.email || `partner_${Date.now()}@freshmart.local`,
+          vehicle: body.vehicle || 'EV Scooter',
+          vehicleNumber: body.vehicleNumber || 'KA-01-FM-0001',
+          status: body.status || 'ACTIVE',
+          rating: Number(body.rating) || 5.0,
+          completedDeliveries: 0,
+          createdAt: new Date().toISOString()
+        };
+        db.insert('delivery_partners', newPartner);
+        db.logActivity(owner.name, 'DELIVERY_PARTNER_ADDED', 'Delivery', newPartner.id, `Enrolled delivery partner "${newPartner.name}"`);
+        return sendJson(res, 201, { success: true, partner: newPartner });
+      }
+
+      if (pathname.startsWith('/api/owner/delivery/') && (method === 'PATCH' || method === 'PUT')) {
+        const id = pathname.replace('/api/owner/delivery/', '');
+        const partner = db.getById('delivery_partners', id);
+        if (!partner) return sendJson(res, 404, { error: 'Delivery partner not found' });
+        const body = await parseBody(req);
+        Object.assign(partner, body, { updatedAt: new Date().toISOString() });
+        db.save();
+        db.logActivity(owner.name, 'DELIVERY_PARTNER_UPDATED', 'Delivery', id, `Updated delivery partner "${partner.name}"`);
+        return sendJson(res, 200, { success: true, partner });
+      }
+
+      if (pathname.startsWith('/api/owner/delivery/') && method === 'DELETE') {
+        const id = pathname.replace('/api/owner/delivery/', '');
+        const deleted = db.delete('delivery_partners', id);
+        if (!deleted) return sendJson(res, 404, { error: 'Delivery partner not found' });
+        db.logActivity(owner.name, 'DELIVERY_PARTNER_DELETED', 'Delivery', id, `Removed delivery partner`);
+        return sendJson(res, 200, { success: true, message: 'Delivery partner removed from fleet.' });
       }
 
       // 9. Payments & Financials

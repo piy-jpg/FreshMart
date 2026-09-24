@@ -6182,9 +6182,13 @@
     // Logout
     async function handleOwnerLogout() {
       try {
+        sessionStorage.clear();
+        localStorage.removeItem('fm_session_token');
+        localStorage.removeItem('freshmart_catalog_updated');
+        localStorage.removeItem('freshmart_last_updated_prod');
         await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
       } catch (e) {}
-      window.location.href = '/';
+      window.location.href = '/?auth=signin';
     }
 
     // Helper: Badge Renderer

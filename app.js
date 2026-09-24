@@ -2932,19 +2932,6 @@ function applyProductArrayToStorefront(products, triggerRerender = true) {
 }
 window.applyProductArrayToStorefront = applyProductArrayToStorefront;
 
-function hydrateCatalogFromStorage() {
-  try {
-    const raw = sessionStorage.getItem('freshmart_synced_catalog') || localStorage.getItem('freshmart_synced_catalog');
-    if (raw) {
-      const prods = JSON.parse(raw);
-      if (Array.isArray(prods) && prods.length > 0) {
-        applyProductArrayToStorefront(prods, false);
-      }
-    }
-  } catch (e) {}
-}
-hydrateCatalogFromStorage();
-
 async function syncStorefrontCatalogWithBackend() {
   try {
     const res = await fetch('/api/products?_t=' + Date.now(), { 
@@ -2959,10 +2946,6 @@ async function syncStorefrontCatalogWithBackend() {
     const products = await res.json();
 
     if (Array.isArray(products) && products.length > 0) {
-      try {
-        sessionStorage.setItem('freshmart_synced_catalog', JSON.stringify(products));
-        localStorage.setItem('freshmart_synced_catalog', JSON.stringify(products));
-      } catch (e) {}
       applyProductArrayToStorefront(products, true);
     }
   } catch (e) {
