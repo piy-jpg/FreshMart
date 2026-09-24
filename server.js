@@ -2340,10 +2340,10 @@ const server = http.createServer(async (req, res) => {
         updatedAt: new Date().toISOString()
       };
 
-      db.insert('products', newProduct);
+      await db.insertAsync('products', newProduct);
 
       // Ledger entry
-      db.insert('inventory_movements', {
+      await db.insertAsync('inventory_movements', {
         id: 'mov_' + Date.now(),
         date: new Date().toISOString(),
         productId: newProduct.id,
@@ -2359,7 +2359,7 @@ const server = http.createServer(async (req, res) => {
         user: currentUser?.name ? `${currentUser.name} (${currentUser.role || 'Staff'})` : 'Store Owner'
       });
 
-      db.logActivity(currentUser?.name || 'Owner', 'PRODUCT_CREATED', 'Products', newProduct.id, `Created product "${newProduct.name}" (SKU: ${newProduct.sku})`);
+      await db.logActivityAsync(currentUser?.name || 'Owner', 'PRODUCT_CREATED', 'Products', newProduct.id, `Created product "${newProduct.name}" (SKU: ${newProduct.sku})`);
       broadcastEvent('PRODUCT_UPDATED', newProduct);
       return sendJson(res, 201, { success: true, product: newProduct, ...newProduct });
     }
@@ -2406,7 +2406,7 @@ const server = http.createServer(async (req, res) => {
           updatedAt: new Date().toISOString()
         };
 
-        const updated = db.update('products', prod.id, updates);
+        const updated = await db.updateAsync('products', prod.id, updates);
         broadcastEvent('PRODUCT_UPDATED', updated);
         return sendJson(res, 200, { success: true, product: updated, ...updated });
       }
@@ -2432,7 +2432,7 @@ const server = http.createServer(async (req, res) => {
           updates.stockCount = Number(body.stock);
           updates.inStock = Number(body.stock) > 0;
         }
-        const updated = db.update('products', prod.id, updates);
+        const updated = await db.updateAsync('products', prod.id, updates);
         broadcastEvent('PRODUCT_UPDATED', updated);
         return sendJson(res, 200, { success: true, product: updated, ...updated });
       }
@@ -2440,7 +2440,7 @@ const server = http.createServer(async (req, res) => {
       if (method === 'DELETE') {
         const prod = db.getById('products', prodId);
         if (!prod) return sendJson(res, 404, { error: 'Product not found' });
-        db.delete('products', prod.id);
+        await db.deleteAsync('products', prod.id);
         broadcastEvent('PRODUCT_DELETED', { id: prod.id, name: prod.name });
         return sendJson(res, 200, { success: true, message: `Product ${prod.name} removed.` });
       }
@@ -3482,9 +3482,9 @@ const server = http.createServer(async (req, res) => {
           : 'SUSPENDED';
       }
 
-      const updated = db.update('products', prod.id, { status: newStatus, updatedAt: new Date().toISOString() });
+      const updated = await db.updateAsync('products', prod.id, { status: newStatus, updatedAt: new Date().toISOString() });
       const actionLabel = newStatus === 'SUSPENDED' ? 'PRODUCT_SUSPENDED' : 'PRODUCT_ACTIVATED';
-      db.logActivity(admin.name, actionLabel, 'Product', prod.sku, `${newStatus === 'SUSPENDED' ? 'Suspended' : 'Activated'} "${prod.name}"`);
+      await db.logActivityAsync(admin.name, actionLabel, 'Product', prod.sku, `${newStatus === 'SUSPENDED' ? 'Suspended' : 'Activated'} "${prod.name}"`);
       broadcastEvent('PRODUCT_UPDATED', updated);
       return sendJson(res, 200, { success: true, product: updated });
     }
@@ -3530,8 +3530,8 @@ const server = http.createServer(async (req, res) => {
         updatedAt: new Date().toISOString()
       };
 
-      const updated = db.update('products', prod.id, updates);
-      db.logActivity(admin.name, 'PRODUCT_UPDATED', 'Product', prod.sku, `Updated details & pricing for "${updated.name}"`);
+      const updated = await db.updateAsync('products', prod.id, updates);
+      await db.logActivityAsync(admin.name, 'PRODUCT_UPDATED', 'Product', prod.sku, `Updated details & pricing for "${updated.name}"`);
       broadcastEvent('PRODUCT_UPDATED', updated);
       return sendJson(res, 200, updated);
     }
@@ -3542,8 +3542,8 @@ const server = http.createServer(async (req, res) => {
       if (!prod) return sendJson(res, 404, { error: 'Product not found' });
 
       prod.status = 'DISCONTINUED';
-      db.update('products', prod.id, prod);
-      db.logActivity(admin.name, 'PRODUCT_DELETED', 'Product', prod.sku, `Product "${prod.name}" discontinued.`);
+      await db.updateAsync('products', prod.id, prod);
+      await db.logActivityAsync(admin.name, 'PRODUCT_DELETED', 'Product', prod.sku, `Product "${prod.name}" discontinued.`);
       broadcastEvent('PRODUCT_UPDATED', prod);
       return sendJson(res, 200, { success: true, message: 'Product marked as discontinued', prod });
     }
@@ -4351,9 +4351,9 @@ const server = http.createServer(async (req, res) => {
           updatedAt: new Date().toISOString()
         };
 
-        const updated = db.update('products', prod.id, updates);
+        const updated = await db.updateAsync('products', prod.id, updates);
         db.save();
-        db.logActivity(owner.name, 'PRODUCT_UPDATED', 'Products', prod.id, `Updated product "${updated.name}" (${updated.sku})`);
+        await db.logActivityAsync(owner.name, 'PRODUCT_UPDATED', 'Products', prod.id, `Updated product "${updated.name}" (${updated.sku})`);
         broadcastEvent('PRODUCT_UPDATED', updated);
         return sendJson(res, 200, { success: true, product: updated });
       }
@@ -4371,9 +4371,9 @@ const server = http.createServer(async (req, res) => {
             : 'SUSPENDED';
         }
 
-        const updated = db.update('products', prod.id, { status: newStatus, updatedAt: new Date().toISOString() });
+        const updated = await db.updateAsync('products', prod.id, { status: newStatus, updatedAt: new Date().toISOString() });
         const actionLabel = newStatus === 'SUSPENDED' ? 'PRODUCT_SUSPENDED' : 'PRODUCT_ACTIVATED';
-        db.logActivity(owner.name, actionLabel, 'Products', prod.id, `${newStatus === 'SUSPENDED' ? 'Suspended' : 'Activated'} "${prod.name}"`);
+        await db.logActivityAsync(owner.name, actionLabel, 'Products', prod.id, `${newStatus === 'SUSPENDED' ? 'Suspended' : 'Activated'} "${prod.name}"`);
         broadcastEvent('PRODUCT_UPDATED', updated);
         return sendJson(res, 200, { success: true, product: updated });
       }

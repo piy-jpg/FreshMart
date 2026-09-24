@@ -385,7 +385,7 @@ class PostgresAdapter {
       if (collection === 'products') {
         await this.query(`
           INSERT INTO freshmart_products (id, storefront_id, name, sku, category, price, selling_price, mrp, stock, status, data)
-          VALUES (, , , , , , , , , , )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
           ON CONFLICT (id) DO UPDATE SET
             name = EXCLUDED.name,
             price = EXCLUDED.price,
@@ -404,7 +404,7 @@ class PostgresAdapter {
       } else if (collection === 'users') {
         await this.query(`
           INSERT INTO freshmart_users (id, email, name, phone, role, status, password_hash, salt, data)
-          VALUES (, , , , , , , , )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
           ON CONFLICT (id) DO UPDATE SET
             name = EXCLUDED.name,
             role = EXCLUDED.role,
@@ -421,7 +421,7 @@ class PostgresAdapter {
       } else if (collection === 'orders') {
         await this.query(`
           INSERT INTO freshmart_orders (id, order_id, user_id, customer_name, customer_phone, status, payment_status, final_total, delivery_boy_id, delivery_boy_name, data)
-          VALUES (, , , , , , , , , , )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
           ON CONFLICT (id) DO UPDATE SET
             status = EXCLUDED.status,
             payment_status = EXCLUDED.payment_status,

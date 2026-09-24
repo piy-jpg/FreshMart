@@ -10220,7 +10220,7 @@ class Database {
         const changeDetails = Object.keys(changes)
           .map(k => `${k}: ${JSON.stringify(changes[k].oldValue)} -> ${JSON.stringify(changes[k].newValue)}`)
           .join(', ');
-        this.logActivity(user, 'UPDATE', collection === 'products' ? 'Products' : collection, updated.id || id, `Updated ${collection} "${updated.name || id}" (${changeDetails})`, changes);
+        await this.logActivityAsync(user, 'UPDATE', collection === 'products' ? 'Products' : collection, updated.id || id, `Updated ${collection} "${updated.name || id}" (${changeDetails})`, changes);
       }
     }
 
@@ -10305,7 +10305,7 @@ class Database {
     if (this.data[collection].length !== initialLen) {
       this.save();
       if (found) {
-        this.logActivity(user, 'DELETE', collection === 'products' ? 'Products' : collection, targetId, `Deleted ${collection} "${found.name || targetId}"`, {
+        await this.logActivityAsync(user, 'DELETE', collection === 'products' ? 'Products' : collection, targetId, `Deleted ${collection} "${found.name || targetId}"`, {
           action: 'DELETE',
           deletedItem: found
         });
@@ -10354,6 +10354,45 @@ class Database {
     this.save();
     if (this.postgres && this.postgres.isAvailable()) {
       this.postgres.insert('audit_logs', logItem).catch(e => console.error('PostgreSQL audit log insert error:', e.message));
+    }
+    return logItem;
+  }
+
+  async logActivityAsync(user, action, entity, entityId, details, changes = null) {
+    const operatorEmail = typeof user === 'string' ? user : (user ? (user.email || user.name || 'Owner') : 'Owner');
+    const logItem = {
+      id: 'log_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+      timestamp: new Date().toISOString(),
+      user: operatorEmail,
+      operatorEmail: operatorEmail,
+      action,
+      entity: entity || 'General',
+      target: entity || 'General',
+      entityId: entityId || 'GLOBAL',
+      details: typeof details === 'string' ? details : JSON.stringify(details),
+      changes: changes || {},
+      data: {
+        operatorEmail,
+        action,
+        entity,
+        entityId,
+        details,
+        changes: changes || {}
+      }
+    };
+    if (!this.data.activity_logs) this.data.activity_logs = [];
+    this.data.activity_logs.unshift(logItem);
+    if (!this.data.audit_logs) this.data.audit_logs = [];
+    this.data.audit_logs.unshift(logItem);
+    if (this.data.activity_logs.length > 500) this.data.activity_logs.length = 500;
+    if (this.data.audit_logs.length > 500) this.data.audit_logs.length = 500;
+    this.save();
+    if (this.postgres && this.postgres.isAvailable()) {
+      try {
+        await this.postgres.insert('audit_logs', logItem);
+      } catch (e) {
+        console.error('PostgreSQL audit log insert error:', e.message);
+      }
     }
     return logItem;
   }
