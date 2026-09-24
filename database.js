@@ -9841,9 +9841,12 @@ class Database {
         const stats = fs.statSync(DB_FILE);
         if (stats.mtimeMs > this._lastLoadedMtime) {
           const raw = fs.readFileSync(DB_FILE, 'utf8');
-          if (raw) {
-            this.data = JSON.parse(raw);
-            this._lastLoadedMtime = stats.mtimeMs;
+          if (raw && raw.trim().startsWith('{')) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object' && parsed.users) {
+              this.data = parsed;
+              this._lastLoadedMtime = stats.mtimeMs;
+            }
           }
         }
       }
@@ -9853,34 +9856,34 @@ class Database {
   load() {
     try {
       let raw = null;
-      if (dbPaths.bundledDbFile && fs.existsSync(dbPaths.bundledDbFile)) {
-        let useBundled = false;
-        if (!fs.existsSync(DB_FILE)) {
-          useBundled = true;
-        } else {
-          try {
-            const bundledMtime = fs.statSync(dbPaths.bundledDbFile).mtimeMs;
-            const tmpMtime = fs.statSync(DB_FILE).mtimeMs;
-            if (bundledMtime > tmpMtime) useBundled = true;
-          } catch (e) {}
-        }
-        if (useBundled) {
-          raw = fs.readFileSync(dbPaths.bundledDbFile, 'utf8');
-          try {
-            fs.writeFileSync(DB_FILE, raw, 'utf8');
-            this._lastLoadedMtime = fs.statSync(DB_FILE).mtimeMs;
-          } catch (e) {}
-        }
+      // 1. Prefer existing DB_FILE if valid
+      if (fs.existsSync(DB_FILE)) {
+        try {
+          const content = fs.readFileSync(DB_FILE, 'utf8');
+          if (content && content.trim().startsWith('{')) {
+            const parsed = JSON.parse(content);
+            if (parsed && typeof parsed === 'object' && parsed.users) {
+              raw = content;
+              this._lastLoadedMtime = fs.statSync(DB_FILE).mtimeMs;
+            }
+          }
+        } catch (e) {}
       }
 
-      if (!raw && fs.existsSync(DB_FILE)) {
-        raw = fs.readFileSync(DB_FILE, 'utf8');
-        try { this._lastLoadedMtime = fs.statSync(DB_FILE).mtimeMs; } catch (e) {}
-      } else if (!raw && dbPaths.bundledDbFile && fs.existsSync(dbPaths.bundledDbFile)) {
-        raw = fs.readFileSync(dbPaths.bundledDbFile, 'utf8');
+      // 2. Fallback to bundled DB file if DB_FILE is absent/empty
+      if (!raw && dbPaths.bundledDbFile && fs.existsSync(dbPaths.bundledDbFile)) {
         try {
-          fs.writeFileSync(DB_FILE, raw, 'utf8');
-          this._lastLoadedMtime = fs.statSync(DB_FILE).mtimeMs;
+          const content = fs.readFileSync(dbPaths.bundledDbFile, 'utf8');
+          if (content && content.trim().startsWith('{')) {
+            raw = content;
+            if (DB_FILE !== dbPaths.bundledDbFile) {
+              try {
+                if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+                fs.writeFileSync(DB_FILE, content, 'utf8');
+                this._lastLoadedMtime = fs.statSync(DB_FILE).mtimeMs;
+              } catch (e) {}
+            }
+          }
         } catch (e) {}
       }
 
