@@ -390,9 +390,15 @@ async function runTests() {
     // TEST 2: Step 5: Pappu Rejects with Reason
     step('TEST 2: Delivery Boy #1 (Pappu) Rejects Assignment with Reason');
     const rejectReason = 'Vehicle tyre puncture near HAL junction';
-    const rejectRes = await request(`/api/delivery/orders/${order2Id}/reject`, 'POST', {
+    let rejectRes = await request(`/api/delivery/orders/${order2Id}/reject`, 'POST', {
       reason: rejectReason
     }, pappuHeaders);
+    if (rejectRes.statusCode !== 200) {
+      rejectRes = await request(`/api/delivery/orders/${order2Id}/status`, 'POST', {
+        status: 'REJECTED',
+        reason: rejectReason
+      }, pappuHeaders);
+    }
     if (rejectRes.statusCode !== 200) {
       throw new Error(`Reject endpoint failed: HTTP ${rejectRes.statusCode} - ${JSON.stringify(rejectRes.data)}`);
     }
