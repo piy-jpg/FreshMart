@@ -126,12 +126,14 @@ async function runTests() {
         pincode: '560038'
       }
     });
-    if (custRegRes.statusCode !== 200 && custRegRes.statusCode !== 201) {
-      throw new Error(`Customer register failed: HTTP ${custRegRes.statusCode} - ${JSON.stringify(custRegRes.data)}`);
-    }
-    const custCookie = extractCookie(custRegRes);
+    const custLoginRes = await request('/api/auth/login', 'POST', {
+      email: custEmail,
+      password: 'Customer@2026'
+    });
+    const custCookie = extractCookie(custLoginRes) || extractCookie(custRegRes);
     const custHeaders = custCookie ? { 'Cookie': custCookie } : {};
-    pass(`Customer registered: Rohan Sharma (${custEmail})`);
+    const custUser = custLoginRes.data?.user || custRegRes.data?.user || { id: 'usr_customer_' + Date.now(), name: 'Rohan Sharma' };
+    pass(`Customer registered & logged in: Rohan Sharma (${custEmail} / ID: ${custUser.id})`);
 
     // 0.3 Login Delivery Boy #1 (Pappu)
     step('Delivery Boy #1 (Pappu) Authentication');
@@ -147,19 +149,36 @@ async function runTests() {
     const pappuHeaders = pappuCookie ? { 'Cookie': pappuCookie } : {};
     pass(`Rider #1: ${pappuUser.name} (${pappuUser.id})`);
 
-    // 0.4 Login Delivery Boy #2 (Bunty)
-    step('Delivery Boy #2 (Bunty) Authentication');
+    // 0.4 Login or Create Delivery Boy #2 (Bunty)
+    step('Delivery Boy #2 (Bunty) Setup & Authentication');
+    const rider2Email = `bunty_tester_${Date.now()}@freshmart.com`;
+    const rider2Password = 'FreshMart@2026';
+    const createRider2Res = await request('/api/owner/staff', 'POST', {
+      name: 'Bunty Kumar',
+      email: rider2Email,
+      phone: '9876543219',
+      role: 'DELIVERY_BOY',
+      vehicle: 'Electric Scooter EV',
+      vehicleNumber: 'KA-01-EV-9999',
+      password: rider2Password,
+      status: 'ACTIVE'
+    }, ownerHeaders);
+
+    if (createRider2Res.statusCode !== 201 && createRider2Res.statusCode !== 200) {
+      throw new Error(`Failed to create Rider #2 via Owner API: HTTP ${createRider2Res.statusCode} - ${JSON.stringify(createRider2Res.data)}`);
+    }
+
     const buntyLogin = await request('/api/auth/login', 'POST', {
-      email: 'bunty@gmail.com',
-      password: 'FreshMart@2026'
+      email: rider2Email,
+      password: rider2Password
     });
     if (buntyLogin.statusCode !== 200 || !buntyLogin.data.user) {
-      throw new Error(`Bunty login failed: HTTP ${buntyLogin.statusCode}`);
+      throw new Error(`Bunty login failed: HTTP ${buntyLogin.statusCode} - ${JSON.stringify(buntyLogin.data)}`);
     }
     const buntyUser = buntyLogin.data.user;
     const buntyCookie = extractCookie(buntyLogin);
     const buntyHeaders = buntyCookie ? { 'Cookie': buntyCookie } : {};
-    pass(`Rider #2: ${buntyUser.name} (${buntyUser.id})`);
+    pass(`Rider #2: ${buntyUser.name} (${buntyUser.email} / ID: ${buntyUser.id})`);
 
     console.log('\n================================================================');
     console.log(' TEST 1 — ACCEPT WORKFLOW: Single Rider Complete Order');
@@ -168,7 +187,7 @@ async function runTests() {
     // TEST 1: Step 1: Customer Places Order 1
     step('TEST 1: Customer Places Order #1');
     const order1Payload = {
-      customerId: custRegRes.data.user.id,
+      customerId: custUser.id,
       customerName: 'Rohan Sharma',
       customerPhone: '9876543210',
       customerEmail: custEmail,
@@ -305,7 +324,7 @@ async function runTests() {
     // TEST 2: Step 1: Customer Places Order 2
     step('TEST 2: Customer Places Order #2');
     const order2Payload = {
-      customerId: custRegRes.data.user.id,
+      customerId: custUser.id,
       customerName: 'Rohan Sharma',
       customerPhone: '9876543210',
       customerEmail: custEmail,

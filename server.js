@@ -1014,7 +1014,7 @@ const server = http.createServer(async (req, res) => {
 
     // 1. Health check
     if (pathname === '/api/health' && method === 'GET') {
-      return sendJson(res, 200, { status: 'OK', uptime: process.uptime(), serverTime: new Date().toISOString() });
+      return sendJson(res, 200, { status: 'OK', version: '2026.09.24.rejection.v1', uptime: process.uptime(), serverTime: new Date().toISOString() });
     }
 
     // Public Settings Endpoint
