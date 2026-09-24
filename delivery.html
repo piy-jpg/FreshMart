@@ -1421,12 +1421,21 @@
       const fullReason = notes ? `${reason} - ${notes}` : reason;
 
       try {
-        const res = await fetch(`/api/delivery/orders/${orderId}/reject`, {
+        let res = await fetch(`/api/delivery/orders/${orderId}/reject`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify({ reason: fullReason })
         });
+
+        if (!res.ok) {
+          res = await fetch(`/api/delivery/orders/${orderId}/status`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ status: 'REJECTED', reason: fullReason })
+          });
+        }
 
         if (!res.ok) {
           const err = await res.json();

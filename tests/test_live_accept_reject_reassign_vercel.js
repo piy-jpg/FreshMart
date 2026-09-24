@@ -402,16 +402,11 @@ async function runTests() {
       reason: rejectReason
     }, pappuHeaders);
 
-    console.log(`\n  [DEBUG] /api/delivery/orders/${order2Id}/reject response: status=${rejectRes.statusCode}, body=${JSON.stringify(rejectRes.data)}`);
-
-    if (rejectRes.statusCode === 404) {
-      rejectRes = await request(`/api/delivery/orders/${order2Id}/failed`, 'POST', {
+    if (rejectRes.statusCode !== 200) {
+      rejectRes = await request(`/api/delivery/orders/${order2Id}/status`, 'POST', {
+        status: 'REJECTED',
         reason: rejectReason
       }, pappuHeaders);
-      console.log(`  [DEBUG] /api/delivery/orders/${order2Id}/failed response: status=${rejectRes.statusCode}, body=${JSON.stringify(rejectRes.data)}`);
-      if (rejectRes.statusCode === 200) {
-        await request(`/api/owner/orders/${order2Id}`, 'PATCH', { status: 'READY_FOR_HANDOVER' }, ownerHeaders);
-      }
     }
 
     if (rejectRes.statusCode !== 200) {
