@@ -1,6 +1,6 @@
 /**
- * FreshMart Production Database Schema Migration Runner
- * Executes all DDL and schema definitions directly on PostgreSQL.
+ * FreshMart Production Database Schema Migration & Catalog Population Runner
+ * Executes all DDL, schema definitions, and catalog migrations directly on PostgreSQL.
  */
 
 const PostgresAdapter = require('./adapters/postgresAdapter');
@@ -13,7 +13,6 @@ async function runMigrations() {
   const dbUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.SUPABASE_DB_URL;
   if (!dbUrl) {
     console.error('❌ Error: DATABASE_URL environment variable is not defined.');
-    console.error('Please set DATABASE_URL (e.g. postgresql://user:pass@host:5432/dbname?sslmode=require)');
     process.exit(1);
   }
 
@@ -26,7 +25,30 @@ async function runMigrations() {
     } catch (e) {}
 
     await adapter.init(seedData);
-    console.log('✅ All PostgreSQL schemas, tables, and indexes created successfully!');
+
+    const tables = [
+      'freshmart_products',
+      'freshmart_users',
+      'freshmart_categories',
+      'freshmart_orders',
+      'freshmart_delivery_partners',
+      'freshmart_farmers',
+      'freshmart_hubs',
+      'freshmart_inventory_movements',
+      'freshmart_settings',
+      'freshmart_audit_logs',
+      'freshmart_kv'
+    ];
+
+    console.log('\n--- PostgreSQL Production Table Row Counts ---');
+    for (const t of tables) {
+      const res = await adapter.query(`SELECT COUNT(*) FROM ${t}`);
+      console.log(`- ${t}: ${res.rows[0].count} rows`);
+    }
+
+    const prodCountRes = await adapter.query('SELECT COUNT(*) FROM freshmart_products');
+    const finalCount = parseInt(prodCountRes.rows[0].count, 10);
+    console.log(`\n✅ Migration Complete! freshmart_products now contains ${finalCount} products in PostgreSQL.`);
     process.exit(0);
   } catch (err) {
     console.error('❌ Migration failed:', err.message);

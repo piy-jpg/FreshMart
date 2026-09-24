@@ -10124,7 +10124,7 @@ class Database {
     return item;
   }
 
-  update(collection, id, updates) {
+  update(collection, id, updates, user = 'Owner') {
     if (!this.data[collection] || !id) return null;
     const sId = String(id);
     const idx = this.data[collection].findIndex(item => 
@@ -10138,6 +10138,8 @@ class Database {
       (item.name && item.name.toLowerCase() === sId.toLowerCase())
     );
     if (idx === -1) return null;
+
+    const oldItem = { ...this.data[collection][idx] };
     this.data[collection][idx] = {
       ...this.data[collection][idx],
       ...updates,
@@ -10145,13 +10147,37 @@ class Database {
     };
     const updated = this.data[collection][idx];
     this.save();
+
+    // Track field-level change history
+    if (collection === 'products' || collection === 'categories' || collection === 'users') {
+      const trackedFields = ['price', 'sellingPrice', 'stock', 'stockCount', 'name', 'category', 'status', 'description', 'image', 'mrp', 'costPrice'];
+      const changes = {};
+      for (const field of trackedFields) {
+        if (updates[field] !== undefined && String(updates[field]) !== String(oldItem[field])) {
+          changes[field] = {
+            field,
+            oldValue: oldItem[field],
+            newValue: updates[field],
+            old_value: oldItem[field],
+            new_value: updates[field]
+          };
+        }
+      }
+      if (Object.keys(changes).length > 0) {
+        const changeDetails = Object.keys(changes)
+          .map(k => `${k}: ${JSON.stringify(changes[k].oldValue)} -> ${JSON.stringify(changes[k].newValue)}`)
+          .join(', ');
+        this.logActivity(user, 'UPDATE', collection === 'products' ? 'Products' : collection, updated.id || id, `Updated ${collection} "${updated.name || id}" (${changeDetails})`, changes);
+      }
+    }
+
     if (this.postgres.isAvailable()) {
       this.postgres.update(collection, updated.id || id, updates).catch(e => console.error('PostgreSQL update error:', e.message));
     }
     return updated;
   }
 
-  async updateAsync(collection, id, updates) {
+  async updateAsync(collection, id, updates, user = 'Owner') {
     if (!this.data[collection] || !id) return null;
     const sId = String(id);
     const idx = this.data[collection].findIndex(item => 
@@ -10165,6 +10191,8 @@ class Database {
       (item.name && item.name.toLowerCase() === sId.toLowerCase())
     );
     if (idx === -1) return null;
+
+    const oldItem = { ...this.data[collection][idx] };
     this.data[collection][idx] = {
       ...this.data[collection][idx],
       ...updates,
@@ -10172,6 +10200,30 @@ class Database {
     };
     const updated = this.data[collection][idx];
     this.save();
+
+    // Track field-level change history
+    if (collection === 'products' || collection === 'categories' || collection === 'users') {
+      const trackedFields = ['price', 'sellingPrice', 'stock', 'stockCount', 'name', 'category', 'status', 'description', 'image', 'mrp', 'costPrice'];
+      const changes = {};
+      for (const field of trackedFields) {
+        if (updates[field] !== undefined && String(updates[field]) !== String(oldItem[field])) {
+          changes[field] = {
+            field,
+            oldValue: oldItem[field],
+            newValue: updates[field],
+            old_value: oldItem[field],
+            new_value: updates[field]
+          };
+        }
+      }
+      if (Object.keys(changes).length > 0) {
+        const changeDetails = Object.keys(changes)
+          .map(k => `${k}: ${JSON.stringify(changes[k].oldValue)} -> ${JSON.stringify(changes[k].newValue)}`)
+          .join(', ');
+        this.logActivity(user, 'UPDATE', collection === 'products' ? 'Products' : collection, updated.id || id, `Updated ${collection} "${updated.name || id}" (${changeDetails})`, changes);
+      }
+    }
+
     if (this.postgres.isAvailable()) {
       try {
         await this.postgres.update(collection, updated.id || id, updates);
@@ -10182,7 +10234,7 @@ class Database {
     return updated;
   }
 
-  delete(collection, id) {
+  delete(collection, id, user = 'Owner') {
     if (!this.data[collection] || !id) return false;
     const sId = String(id);
     const initialLen = this.data[collection].length;
@@ -10210,6 +10262,12 @@ class Database {
     ));
     if (this.data[collection].length !== initialLen) {
       this.save();
+      if (found) {
+        this.logActivity(user, 'DELETE', collection === 'products' ? 'Products' : collection, targetId, `Deleted ${collection} "${found.name || targetId}"`, {
+          action: 'DELETE',
+          deletedItem: found
+        });
+      }
       if (this.postgres.isAvailable()) {
         this.postgres.delete(collection, targetId).catch(e => console.error('PostgreSQL delete error:', e.message));
       }
@@ -10218,7 +10276,7 @@ class Database {
     return false;
   }
 
-  async deleteAsync(collection, id) {
+  async deleteAsync(collection, id, user = 'Owner') {
     if (!this.data[collection] || !id) return false;
     const sId = String(id);
     const initialLen = this.data[collection].length;
@@ -10246,6 +10304,12 @@ class Database {
     ));
     if (this.data[collection].length !== initialLen) {
       this.save();
+      if (found) {
+        this.logActivity(user, 'DELETE', collection === 'products' ? 'Products' : collection, targetId, `Deleted ${collection} "${found.name || targetId}"`, {
+          action: 'DELETE',
+          deletedItem: found
+        });
+      }
       if (this.postgres.isAvailable()) {
         try {
           await this.postgres.delete(collection, targetId);
@@ -10259,8 +10323,8 @@ class Database {
   }
 
   // Audit Log Helper
-  logActivity(user, action, entity, entityId, details) {
-    const operatorEmail = typeof user === 'string' ? user : (user ? (user.email || user.name || 'Owner') : 'System');
+  logActivity(user, action, entity, entityId, details, changes = null) {
+    const operatorEmail = typeof user === 'string' ? user : (user ? (user.email || user.name || 'Owner') : 'Owner');
     const logItem = {
       id: 'log_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
       timestamp: new Date().toISOString(),
@@ -10270,7 +10334,16 @@ class Database {
       entity: entity || 'General',
       target: entity || 'General',
       entityId: entityId || 'GLOBAL',
-      details: typeof details === 'string' ? details : JSON.stringify(details)
+      details: typeof details === 'string' ? details : JSON.stringify(details),
+      changes: changes || {},
+      data: {
+        operatorEmail,
+        action,
+        entity,
+        entityId,
+        details,
+        changes: changes || {}
+      }
     };
     if (!this.data.activity_logs) this.data.activity_logs = [];
     this.data.activity_logs.unshift(logItem);
@@ -10279,6 +10352,9 @@ class Database {
     if (this.data.activity_logs.length > 500) this.data.activity_logs.length = 500;
     if (this.data.audit_logs.length > 500) this.data.audit_logs.length = 500;
     this.save();
+    if (this.postgres && this.postgres.isAvailable()) {
+      this.postgres.insert('audit_logs', logItem).catch(e => console.error('PostgreSQL audit log insert error:', e.message));
+    }
     return logItem;
   }
 
