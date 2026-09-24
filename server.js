@@ -4426,7 +4426,8 @@ const server = http.createServer(async (req, res) => {
         try {
           const staffUser = db.createStaffUser(body);
           db.logActivity(owner.name, 'STAFF_CREATED', 'Staff', staffUser.id, `Created staff member ${staffUser.name} with role ${staffUser.role}`);
-          return sendJson(res, 201, { success: true, staff: sanitizeUser(staffUser) });
+          const sanitized = sanitizeUser(staffUser);
+          return sendJson(res, 201, { success: true, staff: sanitized, user: sanitized });
         } catch (err) {
           return sendJson(res, 400, { error: err.message });
         }

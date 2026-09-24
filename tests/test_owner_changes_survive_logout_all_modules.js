@@ -244,7 +244,7 @@ async function runAudit() {
   if (createStaffRes.statusCode !== 201 && createStaffRes.statusCode !== 200) {
     throw new Error(`Staff creation failed: HTTP ${createStaffRes.statusCode}`);
   }
-  const staffId = createStaffRes.data.user.id;
+  const staffId = createStaffRes.data?.staff?.id || createStaffRes.data?.user?.id;
   pass(`Staff Created: ID=${staffId}, Role="INVENTORY_MANAGER"`);
 
   // 10. Module: Platform Settings
