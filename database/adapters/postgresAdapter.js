@@ -7,7 +7,28 @@ const { Pool } = require('pg');
 
 class PostgresAdapter {
   constructor(connectionString) {
-    this.connectionString = connectionString || process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.SUPABASE_DB_URL || null;
+    const candidateUrls = [
+      connectionString,
+      process.env.STORAGE_URL,
+      process.env.DATABASE_URL,
+      process.env.POSTGRES_URL,
+      process.env.POSTGRES_PRISMA_URL,
+      process.env.NEON_DATABASE_URL,
+      process.env.SUPABASE_DB_URL
+    ].filter(Boolean);
+
+    // Pick the first non-placeholder PostgreSQL connection string
+    let resolved = null;
+    for (const url of candidateUrls) {
+      const str = String(url).trim();
+      const isPh = str.includes('@HOST') || str.includes('@<host>') || str.includes('HOST:') || str.includes('<host>') || str.includes('PLACEHOLDER') || str.includes('example.com');
+      if (!isPh && (str.startsWith('postgres://') || str.startsWith('postgresql://'))) {
+        resolved = str;
+        break;
+      }
+    }
+
+    this.connectionString = resolved || candidateUrls[0] || null;
     this.pool = null;
     this.isInitialized = false;
     this._initPromise = null;
