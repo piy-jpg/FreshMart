@@ -52,7 +52,19 @@ const dbPaths = resolveDatabasePaths();
 const DATA_DIR = dbPaths.dataDir;
 const DB_FILE = dbPaths.dbFile;
 
+let defaultDbJson = null;
+try {
+  defaultDbJson = require('./data/db.json');
+} catch (e) {
+  try {
+    defaultDbJson = require('../data/db.json');
+  } catch (e2) {}
+}
+
 function getInitialSeeds() {
+  if (defaultDbJson) {
+    return JSON.parse(JSON.stringify(defaultDbJson));
+  }
   return {
     admin_users: [
       {
