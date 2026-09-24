@@ -117,6 +117,8 @@ async function runTests() {
       email: custEmail,
       phone: '9876543210',
       password: 'Customer@2026',
+      confirmPassword: 'Customer@2026',
+      termsAccepted: true,
       address: {
         flat: 'Flat 402, Green Glen Towers',
         street: '12th Main Road, HAL 2nd Stage',
