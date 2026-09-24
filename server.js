@@ -2409,13 +2409,17 @@ const server = http.createServer(async (req, res) => {
       // If user is an authenticated Delivery Boy, strictly filter to only their own assigned orders
       if (currentUser && normalizeRole(currentUser.role) === 'DELIVERY_BOY') {
         const myOrders = orders.filter(o => {
+          if (o.rejectedDeliveryBoyIds && (o.rejectedDeliveryBoyIds.includes(currentUser.id) || o.rejectedDeliveryBoyIds.includes(currentUser.employeeId))) return false;
+          if (o.reassignmentNeeded && (!o.deliveryBoyId || o.deliveryBoyId !== currentUser.id)) return false;
+          if ((o.orderStatus === 'READY_FOR_HANDOVER' || o.orderStatus === 'ORDER_PLACED' || o.orderStatus === 'ORDER_CONFIRMED' || o.orderStatus === 'PICKING' || o.orderStatus === 'PACKING') && (!o.deliveryBoyId || o.deliveryBoyId !== currentUser.id)) return false;
+
           const bId = o.deliveryBoyId || o.deliveryPartnerId;
           const bPhone = o.deliveryBoyPhone || o.deliveryPartnerPhone;
           const uPhone = currentUser.phone ? currentUser.phone.replace(/\D/g, '') : '';
           const bPhoneDigits = bPhone ? String(bPhone).replace(/\D/g, '') : '';
 
           if (bId && (bId === currentUser.id || bId === currentUser.employeeId)) return true;
-          if (uPhone && bPhoneDigits && uPhone.length >= 10 && bPhoneDigits.endsWith(uPhone.slice(-10))) return true;
+          if (!bId && uPhone && bPhoneDigits && uPhone.length >= 10 && bPhoneDigits.endsWith(uPhone.slice(-10))) return true;
           return false;
         });
         if (pathname === '/api/delivery/history') {
