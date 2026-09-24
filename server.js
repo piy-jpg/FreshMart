@@ -379,6 +379,11 @@ function validateOrderStepTransition(order, targetStatus, role, options = {}) {
     return { valid: true, targetKey: 'DELIVERY_FAILED' };
   }
 
+  // Delivery Rejection / Declined Assignment
+  if (['REJECTED', 'REJECT', 'DELIVERY_REJECTED', 'DECLINED', 'REASSIGNMENT_REQUIRED'].includes(rawTarget)) {
+    return { valid: true, targetKey: 'REASSIGNMENT_REQUIRED' };
+  }
+
   // Retry / Reschedule from failure
   if (['RESCHEDULED', 'RETRY'].includes(rawTarget) || (order.orderStatus === 'DELIVERY_FAILED' && (rawTarget === 'READY_FOR_HANDOVER' || rawTarget === 'CONFIRMED' || rawTarget === 'READY_FOR_PICKUP'))) {
     return { valid: true, targetKey: 'READY_FOR_HANDOVER' };
@@ -494,6 +499,50 @@ function applyOrderStepTransition(order, targetStatus, user = {}, options = {}) 
       userId,
       userName,
       userRole
+    });
+    return order;
+  }
+
+  if (['REJECTED', 'REJECT', 'DELIVERY_REJECTED', 'DECLINED', 'REASSIGNMENT_REQUIRED'].includes(normTarget)) {
+    const rejectedRiderId = userId || order.deliveryBoyId || 'usr_delivery_boy';
+    const rejectedRiderName = userName || order.deliveryBoyName || 'Delivery Boy';
+
+    order.rejectedDeliveryBoyIds = Array.isArray(order.rejectedDeliveryBoyIds) ? order.rejectedDeliveryBoyIds : [];
+    if (!order.rejectedDeliveryBoyIds.includes(rejectedRiderId)) {
+      order.rejectedDeliveryBoyIds.push(rejectedRiderId);
+    }
+
+    order.orderStatus = 'READY_FOR_HANDOVER';
+    order.status = 'READY_FOR_HANDOVER';
+    order.deliveryStatus = 'REASSIGNMENT_REQUIRED';
+    order.reassignmentNeeded = true;
+    order.assignmentRejected = true;
+    order.rejectionReason = options.reason || options.notes || 'Delivery Partner declined assignment (vehicle issue or out of area)';
+    order.rejectedAt = nowIso;
+    order.rejectedBy = rejectedRiderName;
+    order.rejectedById = rejectedRiderId;
+
+    order.deliveryBoyId = null;
+    order.deliveryBoyName = null;
+    order.deliveryBoyPhone = null;
+    order.deliveryPartnerId = null;
+    order.deliveryPartnerName = null;
+    order.deliveryPartnerPhone = null;
+    order.deliveryPartnerVehicle = null;
+    order.assignedAt = null;
+    order.acceptedAt = null;
+
+    if (!order.timeline) order.timeline = [];
+    order.timeline.push({
+      step: 5,
+      status: 'DELIVERY_ASSIGNMENT_REJECTED',
+      title: 'Delivery Assignment Rejected',
+      desc: `Delivery Partner (${rejectedRiderName}) declined assignment: ${order.rejectionReason}. Order queued for reassignment.`,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: nowIso,
+      userId,
+      userName: rejectedRiderName,
+      userRole: userRole || 'DELIVERY_BOY'
     });
     return order;
   }
