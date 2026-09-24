@@ -2932,7 +2932,13 @@ function applyProductArrayToStorefront(products, triggerRerender = true) {
 }
 window.applyProductArrayToStorefront = applyProductArrayToStorefront;
 
+let _lastSyncedCatalogHash = '';
+let _syncDebounceTimer = null;
+let _isSyncingCatalog = false;
+
 async function syncStorefrontCatalogWithBackend() {
+  if (_isSyncingCatalog) return;
+  _isSyncingCatalog = true;
   try {
     const res = await fetch('/api/products?_t=' + Date.now(), { 
       cache: 'no-store', 
@@ -2946,14 +2952,30 @@ async function syncStorefrontCatalogWithBackend() {
     const products = await res.json();
 
     if (Array.isArray(products) && products.length > 0) {
-      applyProductArrayToStorefront(products, true);
+      const newHash = JSON.stringify(products.map(p => ({ id: p.id, price: p.price, stock: p.stock, name: p.name, status: p.status })));
+      if (newHash !== _lastSyncedCatalogHash) {
+        _lastSyncedCatalogHash = newHash;
+        try {
+          sessionStorage.setItem('freshmart_synced_catalog', JSON.stringify(products));
+        } catch (e) {}
+        applyProductArrayToStorefront(products, true);
+      }
     }
   } catch (e) {
-    console.warn('Storefront catalog sync error:', e);
+    console.warn('Storefront catalog sync notice:', e);
+  } finally {
+    _isSyncingCatalog = false;
   }
 }
 window.syncStorefrontCatalogWithBackend = syncStorefrontCatalogWithBackend;
-try { syncStorefrontCatalogWithBackend(); } catch (e) {}
+
+function debouncedSyncStorefront() {
+  if (_syncDebounceTimer) clearTimeout(_syncDebounceTimer);
+  _syncDebounceTimer = setTimeout(syncStorefrontCatalogWithBackend, 300);
+}
+window.debouncedSyncStorefront = debouncedSyncStorefront;
+
+try { debouncedSyncStorefront(); } catch (e) {}
 
 // -------------------------------------------------------------
 // REAL-TIME STOREFRONT & OWNER WEBSITE PREVIEW SYNCHRONIZATION
@@ -2963,26 +2985,16 @@ try {
     const syncChannel = new BroadcastChannel('freshmart_catalog_channel');
     syncChannel.onmessage = (event) => {
       if (event.data && (event.data.type === 'CATALOG_UPDATED' || event.data.type === 'PRODUCT_UPDATED' || event.data.type === 'STOCK_UPDATED')) {
-        syncStorefrontCatalogWithBackend();
+        debouncedSyncStorefront();
       }
     };
   }
 } catch (e) {}
 
 window.addEventListener('storage', (e) => {
-  if (e.key && (e.key === 'freshmart_catalog_updated' || e.key.startsWith('freshmart_'))) {
-    syncStorefrontCatalogWithBackend();
+  if (e.key === 'freshmart_catalog_updated') {
+    debouncedSyncStorefront();
   }
-});
-
-window.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') {
-    syncStorefrontCatalogWithBackend();
-  }
-});
-
-window.addEventListener('focus', () => {
-  syncStorefrontCatalogWithBackend();
 });
 
 // -------------------------------------------------------------

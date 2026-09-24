@@ -2557,7 +2557,7 @@
     }
 
     window.addEventListener('storage', (e) => {
-      if (e.key && e.key.startsWith('freshmart_')) {
+      if (e.key === 'freshmart_catalog_updated') {
         const editModal = document.getElementById('modal-edit-product');
         const isEditing = editModal && !editModal.classList.contains('hidden');
         if (!isEditing) loadProducts();
