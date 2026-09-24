@@ -1,8 +1,22 @@
 function sendJson(res, statusCode, data, headers = {}) {
   const json = JSON.stringify(data);
-  res.writeHead(statusCode, {
+  const reqOrigin = res.req?.headers?.origin;
+  const defaultHeaders = {
     'Content-Type': 'application/json; charset=utf-8',
-    'Content-Length': Buffer.byteLength(json),
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+    'Surrogate-Control': 'no-store',
+    'Access-Control-Allow-Origin': reqOrigin || '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Role, X-Requested-With, Accept',
+    'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+    'Content-Length': Buffer.byteLength(json)
+  };
+  if (reqOrigin) {
+    defaultHeaders['Access-Control-Allow-Credentials'] = 'true';
+  }
+  res.writeHead(statusCode, {
+    ...defaultHeaders,
     ...headers
   });
   res.end(json);

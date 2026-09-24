@@ -227,7 +227,7 @@
         </div>
 
         <button onclick="refreshCurrentTab()" class="px-3 py-1.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-semibold shadow-xs flex items-center gap-1.5 transition">
-          <span>🔄</span> <span>Sync</span>
+          <span>🔄</span> <span>Refresh</span>
         </button>
 
       </div>
@@ -1477,21 +1477,42 @@
     }
 
     // SSE Real-Time Sync
+    let adminSseInstance = null;
+    let adminSseReconnectTimeout = null;
+
     function initSSE() {
       try {
+        if (adminSseReconnectTimeout) {
+          clearTimeout(adminSseReconnectTimeout);
+          adminSseReconnectTimeout = null;
+        }
+        if (adminSseInstance) {
+          try { adminSseInstance.close(); } catch(e) {}
+          adminSseInstance = null;
+        }
         const evtSource = new EventSource('/api/events');
+        adminSseInstance = evtSource;
+
         evtSource.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
-            if (['ORDER_CREATED', 'ORDER_STATUS_UPDATED', 'STOCK_ADJUSTED', 'PROCUREMENT_CREATED'].includes(data.type)) {
+            if (['ORDER_CREATED', 'ORDER_STATUS_UPDATED', 'STOCK_ADJUSTED', 'PROCUREMENT_CREATED', 'PRODUCT_UPDATED'].includes(data.type)) {
               if (activeTab === 'dashboard') loadDashboard();
               if (activeTab === 'orders') loadOrders();
               if (activeTab === 'inventory') loadInventory();
             }
           } catch(e) {}
         };
+
+        evtSource.onerror = () => {
+          try { evtSource.close(); } catch(e) {}
+          adminSseInstance = null;
+          if (adminSseReconnectTimeout) clearTimeout(adminSseReconnectTimeout);
+          adminSseReconnectTimeout = setTimeout(initSSE, 12000);
+        };
       } catch(err) {
-        console.warn('SSE not supported or failed', err);
+        if (adminSseReconnectTimeout) clearTimeout(adminSseReconnectTimeout);
+        adminSseReconnectTimeout = setTimeout(initSSE, 15000);
       }
     }
 
@@ -2224,21 +2245,21 @@
     }
 
     function editProduct(id) {
-      const prod = cachedProducts.find(p => p.id === id);
+      const prod = cachedProducts.find(p => p.id === id || p.storefrontId === id);
       if (!prod) return;
 
       document.getElementById('prod-id').value = prod.id;
-      document.getElementById('prod-title').value = prod.title || '';
+      document.getElementById('prod-title').value = prod.title || prod.name || '';
       document.getElementById('prod-category').value = prod.category || 'vegetables';
-      document.getElementById('prod-price').value = prod.price || 0;
-      document.getElementById('prod-mrp').value = prod.mrp || 0;
+      document.getElementById('prod-price').value = prod.price !== undefined ? prod.price : (prod.sellingPrice || 0);
+      document.getElementById('prod-mrp').value = prod.mrp !== undefined ? prod.mrp : (prod.originalPrice || 0);
       document.getElementById('prod-cost').value = prod.costPrice || 0;
-      document.getElementById('prod-stock').value = prod.stock || 0;
-      document.getElementById('prod-alert').value = prod.minStockAlert || 15;
+      document.getElementById('prod-stock').value = prod.stock !== undefined ? prod.stock : 0;
+      document.getElementById('prod-alert').value = prod.minStockAlert || prod.lowStockLimit || 15;
       document.getElementById('prod-unit').value = prod.unit || '500 g';
       document.getElementById('prod-sku').value = prod.sku || '';
       document.getElementById('prod-farmer').value = prod.farmer || '';
-      document.getElementById('prod-image').value = prod.image || '';
+      document.getElementById('prod-image').value = prod.image || prod.imageUrl || '';
       document.getElementById('prod-desc').value = prod.description || '';
 
       document.getElementById('product-modal-title').textContent = 'Edit Produce Item';
@@ -2248,18 +2269,24 @@
     async function saveProduct(e) {
       e.preventDefault();
       const id = document.getElementById('prod-id').value;
+      const titleVal = document.getElementById('prod-title').value;
       const data = {
-        title: document.getElementById('prod-title').value,
+        title: titleVal,
+        name: titleVal,
         category: document.getElementById('prod-category').value,
         price: parseFloat(document.getElementById('prod-price').value),
+        sellingPrice: parseFloat(document.getElementById('prod-price').value),
         mrp: parseFloat(document.getElementById('prod-mrp').value) || undefined,
+        originalPrice: parseFloat(document.getElementById('prod-mrp').value) || undefined,
         costPrice: parseFloat(document.getElementById('prod-cost').value) || undefined,
         stock: parseInt(document.getElementById('prod-stock').value),
         minStockAlert: parseInt(document.getElementById('prod-alert').value),
+        lowStockLimit: parseInt(document.getElementById('prod-alert').value),
         unit: document.getElementById('prod-unit').value,
         sku: document.getElementById('prod-sku').value,
         farmer: document.getElementById('prod-farmer').value,
         image: document.getElementById('prod-image').value || 'assets/images/produce.jpg',
+        imageUrl: document.getElementById('prod-image').value || 'assets/images/produce.jpg',
         description: document.getElementById('prod-desc').value
       };
 

@@ -2846,9 +2846,13 @@ window.mapDbProductToStorefront = mapDbProductToStorefront;
 
 async function syncStorefrontCatalogWithBackend() {
   try {
-    const res = await fetch('/api/products');
+    const res = await fetch('/api/products?_t=' + Date.now(), { 
+      cache: 'no-store', 
+      credentials: 'include' 
+    });
     if (!res.ok) return;
     const products = await res.json();
+
     if (Array.isArray(products) && products.length > 0) {
       window.__suspendedProductIds.clear();
 
@@ -2858,7 +2862,7 @@ async function syncStorefrontCatalogWithBackend() {
 
       products.forEach(p => {
         const cleanId = (p.storefrontId || p.id || '').replace(/^prod_/, '');
-        const isSuspended = p.status === 'SUSPENDED' || p.status === 'INACTIVE' || p.status === 'DRAFT' || p.status === 'DELETED' || p.status === 'OUT_OF_STOCK' || Number(p.stock || 0) <= 0;
+        const isSuspended = p.status === 'SUSPENDED' || p.status === 'INACTIVE' || p.status === 'DRAFT' || p.status === 'DELETED';
         
         if (isSuspended) {
           window.__suspendedProductIds.add(p.id);
@@ -2870,7 +2874,7 @@ async function syncStorefrontCatalogWithBackend() {
         const cat = (p.category || '').toLowerCase();
         if (cat.includes('fruit')) {
           newFruits.push(mapped);
-        } else if (cat.includes('groc') || cat.includes('pant') || cat.includes('staple') || cat.includes('oil') || cat.includes('dal') || cat.includes('atta') || cat.includes('rice')) {
+        } else if (cat.includes('groc') || cat.includes('pant') || cat.includes('staple') || cat.includes('oil') || cat.includes('dal') || cat.includes('atta') || cat.includes('rice') || cat.includes('flour') || cat.includes('spice')) {
           newGrocery.push(mapped);
         } else {
           newVeg.push(mapped);
@@ -3079,9 +3083,22 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Global Server-Sent Events Listener for Live Tracking & Catalog Updates
+let globalOrderSseInstance = null;
+let globalOrderSseTimeout = null;
+
 function initGlobalOrderSSE() {
   try {
+    if (globalOrderSseTimeout) {
+      clearTimeout(globalOrderSseTimeout);
+      globalOrderSseTimeout = null;
+    }
+    if (globalOrderSseInstance) {
+      try { globalOrderSseInstance.close(); } catch(e) {}
+      globalOrderSseInstance = null;
+    }
     const sse = new EventSource('/api/events');
+    globalOrderSseInstance = sse;
+
     sse.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
@@ -3125,20 +3142,19 @@ function initGlobalOrderSSE() {
     };
 
     sse.onerror = () => {
-      sse.close();
-      setTimeout(initGlobalOrderSSE, 5000);
+      try { sse.close(); } catch(e) {}
+      globalOrderSseInstance = null;
+      if (globalOrderSseTimeout) clearTimeout(globalOrderSseTimeout);
+      globalOrderSseTimeout = setTimeout(initGlobalOrderSSE, 12000);
     };
   } catch (e) {
-    setTimeout(initGlobalOrderSSE, 8000);
+    if (globalOrderSseTimeout) clearTimeout(globalOrderSseTimeout);
+    globalOrderSseTimeout = setTimeout(initGlobalOrderSSE, 15000);
   }
 }
 
-// Background auto-refresh to keep storefront catalog 100% live
-setInterval(() => {
-  if (!document.hidden && typeof syncStorefrontCatalogWithBackend === 'function') {
-    syncStorefrontCatalogWithBackend();
-  }
-}, 25000);
+// Zero-polling catalog synchronization - updates occur on event broadcasts or direct navigation
+
 
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && typeof syncStorefrontCatalogWithBackend === 'function') {

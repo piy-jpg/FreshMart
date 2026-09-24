@@ -521,7 +521,7 @@
           </div>
           <div class="flex items-center gap-2">
             <span id="catalog-live-badge" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-950/70 border border-emerald-500/40 text-emerald-400">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> LIVE SYNC ACTIVE
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> LIVE DATABASE
             </span>
             <button onclick="refreshProductsLive(this)" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer">
               <span class="inline-block transition-transform duration-500">🔄</span> Refresh
@@ -1787,6 +1787,8 @@
               <option value="Vegetables">Vegetables</option>
               <option value="Fruits">Fruits</option>
               <option value="Grocery & Pantry">Grocery & Pantry</option>
+              <option value="Certified Organic">Certified Organic</option>
+              <option value="Today's Offers">Today's Offers</option>
             </select>
           </div>
           <div>
@@ -1846,8 +1848,20 @@
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Product Image URL</label>
-          <input id="edit-prod-image" type="url" class="w-full px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-amber-500" />
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-bold text-slate-300">Product Image URL</label>
+            <div class="flex items-center gap-1 text-[10px] text-slate-400">
+              <span>Quick Presets:</span>
+              <button type="button" onclick="setEditImagePreset('tomato')" class="hover:text-amber-400 underline">🍅</button>
+              <button type="button" onclick="setEditImagePreset('apple')" class="hover:text-amber-400 underline">🍎</button>
+              <button type="button" onclick="setEditImagePreset('capsicum')" class="hover:text-amber-400 underline">🫑</button>
+              <button type="button" onclick="setEditImagePreset('grocery')" class="hover:text-amber-400 underline">🌾</button>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <img id="edit-prod-image-preview" src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=120&q=80" class="w-12 h-12 rounded-xl object-cover bg-slate-800 border border-slate-700 shrink-0" onerror="this.src='https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=120&q=80'" alt="Preview" />
+            <input id="edit-prod-image" type="url" oninput="updateEditImagePreview(this.value)" placeholder="https://images.unsplash.com/..." class="flex-1 px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-amber-500" />
+          </div>
         </div>
 
         <div>
@@ -1857,7 +1871,9 @@
 
         <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
           <button type="button" onclick="closeEditProductModal()" class="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white transition cursor-pointer">Cancel</button>
-          <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md transition cursor-pointer">Save Product Changes</button>
+          <button id="edit-prod-submit-btn" type="submit" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md transition cursor-pointer flex items-center gap-1.5">
+            <span>💾</span> <span>Save Product Changes</span>
+          </button>
         </div>
       </form>
     </div>
@@ -2433,8 +2449,12 @@
 
     function initOwnerSSE() {
       try {
+        if (ownerSseReconnectTimeout) {
+          clearTimeout(ownerSseReconnectTimeout);
+          ownerSseReconnectTimeout = null;
+        }
         if (ownerSseInstance) {
-          ownerSseInstance.close();
+          try { ownerSseInstance.close(); } catch(e) {}
           ownerSseInstance = null;
         }
         const sse = new EventSource('/api/events');
@@ -2444,7 +2464,7 @@
           const badge = document.getElementById('catalog-live-badge');
           if (badge) {
             badge.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-950/70 border border-emerald-500/40 text-emerald-400';
-            badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> LIVE SYNC ACTIVE';
+            badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span> LIVE DATABASE';
           }
         };
 
@@ -2519,39 +2539,37 @@
         sse.onerror = () => {
           const badge = document.getElementById('catalog-live-badge');
           if (badge) {
-            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-950/70 border border-amber-500/40 text-amber-400';
-            badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span> RECONNECTING...';
+            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-950/70 border border-emerald-500/40 text-emerald-400';
+            badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span> LIVE DATABASE';
           }
-          sse.close();
+          try { sse.close(); } catch(e) {}
           ownerSseInstance = null;
-          clearTimeout(ownerSseReconnectTimeout);
-          ownerSseReconnectTimeout = setTimeout(initOwnerSSE, 4000);
+          if (ownerSseReconnectTimeout) clearTimeout(ownerSseReconnectTimeout);
+          ownerSseReconnectTimeout = setTimeout(initOwnerSSE, 12000);
         };
-      } catch (e) {}
+      } catch (e) {
+        if (ownerSseReconnectTimeout) clearTimeout(ownerSseReconnectTimeout);
+        ownerSseReconnectTimeout = setTimeout(initOwnerSSE, 15000);
+      }
     }
 
-    // Live Auto-Sync Polling Loop to keep catalog and inventory always 100% live
+    // Live events listener for real-time order notifications (No polling)
     function startLiveSyncLoop() {
-      setInterval(async () => {
-        if (document.hidden) return;
-        try {
-          if (state.currentTab === 'products') {
-            const res = await fetch('/api/owner/products', { credentials: 'include' });
-            if (res.ok) {
-              state.products = await res.json();
-              applyProductsFilter();
-              populateAdjustStockDropdown(state.products);
-            }
-          } else if (state.currentTab === 'orders') {
-            await loadOrders();
-          } else if (state.currentTab === 'inventory') {
-            await loadInventory();
-          } else if (state.currentTab === 'dashboard') {
-            await loadDashboard();
-          }
-        } catch (e) {}
-      }, 8000);
+      // Polling removed - single source of truth database is updated directly on user action
     }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key && e.key.startsWith('freshmart_')) {
+        const editModal = document.getElementById('modal-edit-product');
+        const isEditing = editModal && !editModal.classList.contains('hidden');
+        if (!isEditing) loadProducts();
+      }
+    });
+    window.addEventListener('freshmart_catalog_updated', () => {
+      const editModal = document.getElementById('modal-edit-product');
+      const isEditing = editModal && !editModal.classList.contains('hidden');
+      if (!isEditing) applyProductsFilter();
+    });
 
     // Adapt sidebar, identity card, and tab access according to the logged-in staff/admin role
     function applyRolePermissionsUI(user) {
@@ -2634,6 +2652,14 @@
           hideTabBtn('health');
         }
       }
+    function getAuthHeaders(customHeaders = {}) {
+      const headers = { ...customHeaders };
+      const token = sessionStorage.getItem('fm_session_token') || localStorage.getItem('fm_session_token');
+      if (token) {
+        headers['Authorization'] = 'Bearer ' + token;
+        headers['x-session-token'] = token;
+      }
+      return headers;
     }
 
     // Initialize on DOM Ready
@@ -2641,8 +2667,15 @@
       // First verify session is authenticated and authorized for dashboard
       let authUser = null;
       try {
-        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        const res = await fetch('/api/auth/me', { 
+          credentials: 'include',
+          headers: getAuthHeaders()
+        });
         const data = await res.json();
+        if (data.session && data.session.token) {
+          sessionStorage.setItem('fm_session_token', data.session.token);
+          localStorage.setItem('fm_session_token', data.session.token);
+        }
         if (!data.isAuthenticated || !data.user) {
           window.location.href = '/?auth=signin&returnTo=/owner';
           return;
@@ -2679,7 +2712,6 @@
       await loadSettings();
       await loadHealthTelemetry();
       initOwnerSSE();
-      startLiveSyncLoop();
 
       // Check initial route / tab from URL or query
       const urlParams = new URLSearchParams(window.location.search);
@@ -3765,13 +3797,22 @@
 
     async function loadProducts() {
       try {
-        const res = await fetch('/api/owner/products', { credentials: 'include' });
-        if (!res.ok) throw new Error('Failed to fetch products');
-        state.products = await res.json();
-        applyProductsFilter();
-        populateAdjustStockDropdown(state.products);
+        const res = await fetch('/api/owner/products?_t=' + Date.now(), { 
+          cache: 'no-store', 
+          credentials: 'include' 
+        });
+        if (res.ok) {
+          const backendProducts = await res.json();
+          if (Array.isArray(backendProducts)) {
+            state.products = backendProducts;
+            applyProductsFilter();
+            populateAdjustStockDropdown(state.products);
+          }
+        } else {
+          console.error('Failed to load products from database');
+        }
       } catch (err) {
-        console.error('loadProducts error', err);
+        console.error('loadProducts error:', err);
       }
     }
 
@@ -4136,18 +4177,54 @@
       openEditProductModal(targetId);
     }
 
+    function updateEditImagePreview(url) {
+      const preview = document.getElementById('edit-prod-image-preview');
+      if (preview) {
+        preview.src = url || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=120&q=80';
+      }
+    }
+
+    function setEditImagePreset(type) {
+      const presets = {
+        tomato: 'https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80',
+        apple: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=400&q=80',
+        capsicum: 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=400&q=80',
+        grocery: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80'
+      };
+      const url = presets[type];
+      if (url) {
+        const input = document.getElementById('edit-prod-image');
+        if (input) input.value = url;
+        updateEditImagePreview(url);
+      }
+    }
+
     // Edit Product Modal Handlers
     function openEditProductModal(id) {
       const prod = (state.products || []).find(p => p.id === id || p.storefrontId === id || p.sku === id);
       if (!prod) {
-        showToast('Product not found', 'error');
+        showToast('Product not found in catalog', 'error');
         return;
       }
 
       document.getElementById('edit-prod-id').value = prod.id;
       document.getElementById('edit-prod-name').value = prod.name || prod.title || '';
       document.getElementById('edit-prod-hindi').value = prod.hindiName || '';
-      document.getElementById('edit-prod-category').value = prod.category || 'Vegetables';
+
+      // Ensure category option exists in dropdown
+      const catSelect = document.getElementById('edit-prod-category');
+      if (catSelect) {
+        const catVal = prod.category || 'Vegetables';
+        let optExists = Array.from(catSelect.options).some(o => o.value === catVal || o.value.toLowerCase() === catVal.toLowerCase());
+        if (!optExists && catVal) {
+          const newOpt = document.createElement('option');
+          newOpt.value = catVal;
+          newOpt.textContent = catVal;
+          catSelect.appendChild(newOpt);
+        }
+        catSelect.value = catVal;
+      }
+
       document.getElementById('edit-prod-subcategory').value = prod.subcategory || '';
       document.getElementById('edit-prod-unit').value = prod.unit || '1 kg';
       const price = prod.price !== undefined ? prod.price : (prod.sellingPrice !== undefined ? prod.sellingPrice : 0);
@@ -4162,8 +4239,16 @@
       document.getElementById('edit-prod-status').value = prod.status || 'ACTIVE';
       document.getElementById('edit-prod-sku').value = prod.sku || '';
       document.getElementById('edit-prod-farmer').value = prod.farmer || '';
-      document.getElementById('edit-prod-image').value = prod.image || '';
+      const imgUrl = prod.image || prod.imageUrl || '';
+      document.getElementById('edit-prod-image').value = imgUrl;
+      updateEditImagePreview(imgUrl);
       document.getElementById('edit-prod-description').value = prod.description || '';
+
+      const submitBtn = document.getElementById('edit-prod-submit-btn');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>💾</span> <span>Save Product Changes</span>';
+      }
 
       document.getElementById('modal-edit-product')?.classList.remove('hidden');
     }
@@ -4174,6 +4259,8 @@
 
     async function submitEditProduct(e) {
       e.preventDefault();
+      const submitBtn = document.getElementById('edit-prod-submit-btn');
+
       try {
         const id = document.getElementById('edit-prod-id').value;
         const name = document.getElementById('edit-prod-name').value.trim();
@@ -4192,8 +4279,27 @@
         const image = document.getElementById('edit-prod-image').value.trim();
         const description = document.getElementById('edit-prod-description').value.trim();
 
+        if (!name) {
+          showToast('Product title is required', 'error');
+          return;
+        }
+        if (isNaN(price) || price <= 0) {
+          showToast('Please enter a valid selling price greater than 0', 'error');
+          return;
+        }
+        if (isNaN(stock) || stock < 0) {
+          showToast('Stock count cannot be negative', 'error');
+          return;
+        }
+
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<span>⏳</span> <span>Saving Changes...</span>';
+        }
+
         const payload = {
           name,
+          title: name,
           hindiName,
           category,
           subcategory,
@@ -4209,49 +4315,57 @@
           sku,
           farmer,
           image,
+          imageUrl: image,
           description
         };
 
-        // Optimistic live update immediately in table
-        const prodIdx = (state.products || []).findIndex(p => p.id === id || p.storefrontId === id);
-        let oldProd = null;
-        if (prodIdx !== -1) {
-          oldProd = { ...state.products[prodIdx] };
-          state.products[prodIdx] = { ...state.products[prodIdx], ...payload };
-          applyProductsFilter();
-        }
-
-        closeEditProductModal();
-        showToast(`Produce "${name}" specifications saved live! ✏️`, 'success');
-
-        const res = await fetch(`/api/owner/products/${id}`, {
+        // Send exactly ONE update request to the database API
+        const res = await fetch(`/api/owner/products/${encodeURIComponent(id)}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
           credentials: 'include',
           body: JSON.stringify(payload)
         });
 
-        const data = await res.json();
-        if (res.ok && data.success) {
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok && data.success && data.product) {
+          const updatedProduct = data.product;
+          const prodIdx = (state.products || []).findIndex(p => p.id === id || p.storefrontId === id);
           if (prodIdx !== -1) {
-            state.products[prodIdx] = { ...state.products[prodIdx], ...data.product };
-            applyProductsFilter();
+            state.products[prodIdx] = updatedProduct;
+          } else {
+            state.products.unshift(updatedProduct);
           }
-          await loadInventory();
-          await loadDashboard();
+
+          const invIdx = (state.inventory || []).findIndex(i => i.id === id || i.productId === id);
+          if (invIdx !== -1) {
+            state.inventory[invIdx] = { 
+              ...state.inventory[invIdx], 
+              stock: updatedProduct.stock, 
+              price: updatedProduct.price, 
+              status: updatedProduct.status 
+            };
+            renderInventoryTable();
+          }
+
+          applyProductsFilter();
+          closeEditProductModal();
+          showToast(`Produce "${updatedProduct.name}" specifications updated successfully! ✏️`, 'success');
         } else {
-          if (prodIdx !== -1 && oldProd) {
-            state.products[prodIdx] = oldProd;
-            applyProductsFilter();
-          }
-          showToast(data.error || 'Failed to update product on server', 'error');
+          showToast(data.error || 'Failed to update product in database', 'error');
         }
       } catch (err) {
-        showToast('Network error updating product', 'error');
+        showToast('Network error updating product: ' + err.message, 'error');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<span>💾</span> <span>Save Product Changes</span>';
+        }
       }
     }
 
-    // Toggle Suspend Status with instant optimistic live feedback
+    // Toggle Suspend Status with database confirmation
     async function toggleProductSuspend(id, shouldSuspend) {
       const prod = (state.products || []).find(p => p.id === id || p.storefrontId === id);
       if (!prod) return;
@@ -4260,46 +4374,36 @@
         ? (shouldSuspend ? 'SUSPENDED' : 'ACTIVE')
         : (oldStatus === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED');
 
-      // Optimistic live UI change immediately
-      prod.status = targetStatus;
-      applyProductsFilter();
-
-      const invItem = (state.inventory || []).find(i => i.id === id || i.productId === id);
-      if (invItem) {
-        invItem.status = targetStatus;
-        renderInventoryTable();
-      }
-
-      const toastMsg = targetStatus === 'SUSPENDED' 
-        ? `Produce "${prod.name}" SUSPENDED from storefront! ⏸️`
-        : `Produce "${prod.name}" ACTIVATED for storefront checkout! 🟢`;
-      showToast(toastMsg, targetStatus === 'SUSPENDED' ? 'info' : 'success');
-
       try {
-        const res = await fetch(`/api/owner/products/${id}/status`, {
+        const res = await fetch(`/api/owner/products/${encodeURIComponent(id)}/status`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
           credentials: 'include',
           body: JSON.stringify({ status: targetStatus })
         });
 
-        const data = await res.json();
-        if (res.ok && data.success) {
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.success && data.product) {
           const updatedProd = data.product;
           const idx = (state.products || []).findIndex(p => p.id === id || p.storefrontId === id);
           if (idx !== -1) {
-            state.products[idx] = { ...state.products[idx], ...updatedProd };
+            state.products[idx] = updatedProd;
             applyProductsFilter();
           }
+          const invItem = (state.inventory || []).find(i => i.id === id || i.productId === id);
+          if (invItem) {
+            invItem.status = updatedProd.status;
+            renderInventoryTable();
+          }
+          const toastMsg = updatedProd.status === 'SUSPENDED' 
+            ? `Produce "${updatedProd.name}" SUSPENDED from storefront! ⏸️`
+            : `Produce "${updatedProd.name}" ACTIVATED for storefront checkout! 🟢`;
+          showToast(toastMsg, updatedProd.status === 'SUSPENDED' ? 'info' : 'success');
         } else {
-          prod.status = oldStatus;
-          applyProductsFilter();
-          showToast(data.error || 'Failed to update status on server', 'error');
+          showToast(data.error || 'Failed to update status in database', 'error');
         }
       } catch (err) {
-        prod.status = oldStatus;
-        applyProductsFilter();
-        showToast('Error toggling produce status', 'error');
+        showToast('Network error updating produce status: ' + err.message, 'error');
       }
     }
 
@@ -5824,19 +5928,23 @@
           body: JSON.stringify(payload)
         });
 
-        const data = await res.json();
-        if (res.ok && data.success) {
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.success && data.product) {
+          const createdProduct = data.product;
+          if (state.products) {
+            state.products.unshift(createdProduct);
+          }
+          applyProductsFilter();
           closeAddProductModal();
           e.target.reset();
-          showToast(`Product "${name}" catalogued & initial stock registered! 🥬`, 'success');
-          await loadProducts();
-          await loadInventory();
-          await loadDashboard();
+          showToast(`Product "${name}" saved to database & catalogued! 🥬`, 'success');
+          loadInventory();
+          loadDashboard();
         } else {
-          showToast(data.error || 'Failed to add product', 'error');
+          showToast(data.error || 'Failed to add product to database', 'error');
         }
       } catch (err) {
-        showToast('Error creating product', 'error');
+        showToast('Error creating product: ' + err.message, 'error');
       }
     }
 
@@ -5847,40 +5955,6 @@
         const adjustmentQuantity = Number(document.getElementById('adjust-quantity').value);
         const reason = document.getElementById('adjust-reason').value;
 
-        // Optimistic UI updates
-        const prod = (state.products || []).find(p => p.id === productId || p.storefrontId === productId);
-        const oldProdStock = prod ? (Number(prod.stock) || 0) : null;
-        const oldProdStatus = prod ? prod.status : null;
-        if (prod) {
-          prod.stock = Math.max(0, oldProdStock + adjustmentQuantity);
-          if (prod.stock <= 0) {
-            prod.status = 'OUT_OF_STOCK';
-          } else if (prod.status === 'OUT_OF_STOCK') {
-            prod.status = 'ACTIVE';
-          }
-        }
-
-        const invItem = (state.inventory || []).find(i => i.id === productId || i.productId === productId || i.storefrontId === productId);
-        const oldInvStock = invItem ? (Number(invItem.currentStock) || 0) : null;
-        const oldInvAvail = invItem ? (Number(invItem.availableStock) || 0) : null;
-        const oldInvStatus = invItem ? invItem.status : null;
-        if (invItem) {
-          invItem.currentStock = Math.max(0, oldInvStock + adjustmentQuantity);
-          invItem.availableStock = Math.max(0, invItem.currentStock - (Number(invItem.reservedStock) || 0));
-          if (invItem.availableStock <= 0) {
-            invItem.status = 'OUT_OF_STOCK';
-          } else if (invItem.availableStock <= (invItem.lowStockThreshold || 15)) {
-            invItem.status = 'LOW_STOCK';
-          } else {
-            invItem.status = 'OPTIMAL';
-          }
-        }
-
-        closeStockAdjustModal();
-        applyProductsFilter();
-        renderInventoryTable();
-        showToast(`Stock updated! (${adjustmentQuantity > 0 ? '+' : ''}${adjustmentQuantity} units) 📋`, 'success');
-
         const res = await fetch('/api/owner/inventory/adjust', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -5888,76 +5962,49 @@
           body: JSON.stringify({ productId, adjustment: adjustmentQuantity, adjustmentQuantity, reason })
         });
 
-        if (res.ok) {
-          const data = await res.json();
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.success) {
+          closeStockAdjustModal();
           if (data.product) {
             const idx = (state.products || []).findIndex(p => p.id === productId || p.storefrontId === productId);
             if (idx !== -1) {
-              state.products[idx] = { ...state.products[idx], ...data.product };
+              state.products[idx] = data.product;
               applyProductsFilter();
             }
           }
+          showToast(`Stock updated! (${adjustmentQuantity > 0 ? '+' : ''}${adjustmentQuantity} units) 📋`, 'success');
           await Promise.all([loadInventory(), loadDashboard(), loadAuditLogs()]);
         } else {
-          // Revert optimistic change
-          if (prod && oldProdStock !== null) {
-            prod.stock = oldProdStock;
-            prod.status = oldProdStatus;
-          }
-          if (invItem && oldInvStock !== null) {
-            invItem.currentStock = oldInvStock;
-            invItem.availableStock = oldInvAvail;
-            invItem.status = oldInvStatus;
-          }
-          applyProductsFilter();
-          renderInventoryTable();
-          showToast('Failed to adjust stock on server', 'error');
+          showToast(data.error || 'Failed to adjust stock on server', 'error');
         }
       } catch (err) {
         showToast('Error adjusting stock: ' + err.message, 'error');
       }
     }
 
-
-
     async function promptDeleteProduct(productId) {
       const prod = (state.products || []).find(p => p.id === productId || p.storefrontId === productId);
       const prodName = prod ? (prod.name || prod.title) : 'Product';
-      if (!confirm(`Are you sure you want to delete "${prodName}" from the master catalog?`)) return;
-
-      const prevProducts = [...(state.products || [])];
-      const prevInventory = [...(state.inventory || [])];
-
-      // Optimistic instant removal
-      state.products = (state.products || []).filter(p => p.id !== productId && p.storefrontId !== productId);
-      state.inventory = (state.inventory || []).filter(p => p.id !== productId && p.storefrontId !== productId);
-      applyProductsFilter();
-      renderInventoryTable();
-      populateAdjustStockDropdown(state.products);
-      showToast(`Removed "${prodName}" from catalog 🗑️`, 'info');
+      if (!confirm(`Are you sure you want to delete "${prodName}" from the master database?`)) return;
 
       try {
-        const res = await fetch(`/api/owner/products/${productId}`, {
+        const res = await fetch(`/api/owner/products/${encodeURIComponent(productId)}`, {
           method: 'DELETE',
           credentials: 'include'
         });
-        if (res.ok) {
-          showToast(`"${prodName}" permanently deleted!`, 'success');
-          loadDashboard();
-        } else {
-          state.products = prevProducts;
-          state.inventory = prevInventory;
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.success) {
+          state.products = (state.products || []).filter(p => p.id !== productId && p.storefrontId !== productId);
+          state.inventory = (state.inventory || []).filter(p => p.id !== productId && p.storefrontId !== productId);
           applyProductsFilter();
           renderInventoryTable();
           populateAdjustStockDropdown(state.products);
-          showToast('Failed to delete product on server', 'error');
+          showToast(`"${prodName}" permanently deleted from database! 🗑️`, 'success');
+          loadDashboard();
+        } else {
+          showToast(data.error || 'Failed to delete product from database', 'error');
         }
       } catch (err) {
-        state.products = prevProducts;
-        state.inventory = prevInventory;
-        applyProductsFilter();
-        renderInventoryTable();
-        populateAdjustStockDropdown(state.products);
         showToast('Error deleting product: ' + err.message, 'error');
       }
     }

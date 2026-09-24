@@ -622,17 +622,28 @@ const MIME_TYPES = {
 
 // Helper to parse JSON request bodies
 function parseBody(req) {
+  if (req && req.body !== undefined && req.body !== null) {
+    if (typeof req.body === 'object') return Promise.resolve(req.body);
+    if (typeof req.body === 'string') {
+      try {
+        return Promise.resolve(JSON.parse(req.body));
+      } catch (e) {
+        return Promise.resolve({});
+      }
+    }
+  }
   return new Promise((resolve) => {
     let body = '';
     req.on('data', chunk => body += chunk);
     req.on('end', () => {
-      if (!body.trim()) return resolve({});
+      if (!body || !body.trim()) return resolve({});
       try {
         resolve(JSON.parse(body));
       } catch (e) {
         resolve({});
       }
     });
+    req.on('error', () => resolve({}));
   });
 }
 
@@ -642,12 +653,17 @@ function sendJson(res, statusCode, data, extraHeaders = {}) {
   const reqOrigin = res.req?.headers?.origin;
   const headers = {
     'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+    'Pragma': 'no-cache',
+    'Expires': '0',
     'Access-Control-Allow-Origin': reqOrigin || '*',
-    'Access-Control-Allow-Credentials': 'true',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Role',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Role, X-Requested-With, Accept',
     'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
     ...extraHeaders
   };
+  if (reqOrigin) {
+    headers['Access-Control-Allow-Credentials'] = 'true';
+  }
   if (existingSetCookie) {
     headers['Set-Cookie'] = existingSetCookie;
   }
@@ -658,14 +674,18 @@ function sendJson(res, statusCode, data, extraHeaders = {}) {
 // Cookie Helpers
 function parseCookies(req) {
   const list = {};
-  const cookieHeader = req?.headers?.cookie;
+  const cookieHeader = req?.headers?.cookie || req?.headers?.Cookie;
   if (!cookieHeader) return list;
   cookieHeader.split(';').forEach(cookie => {
     let [name, ...rest] = cookie.split('=');
     name = name?.trim();
     if (!name) return;
     const value = rest.join('=').trim();
-    list[name] = decodeURIComponent(value);
+    try {
+      list[name] = decodeURIComponent(value);
+    } catch (e) {
+      list[name] = value;
+    }
   });
   return list;
 }
@@ -683,7 +703,19 @@ function clearAuthCookie(res) {
 
 function extractUserSession(req) {
   const cookies = parseCookies(req);
-  const token = cookies.sjh_session;
+  let token = cookies.sjh_session || cookies.sabjihub_session || cookies.freshmart_session;
+  
+  if (!token && req?.headers) {
+    const authHeader = req.headers['authorization'] || req.headers['Authorization'];
+    if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7).trim();
+    } else if (req.headers['x-session-token']) {
+      token = req.headers['x-session-token'];
+    } else if (req.headers['x-auth-token']) {
+      token = req.headers['x-auth-token'];
+    }
+  }
+
   if (!token) return null;
   return db.validateSession(token);
 }
@@ -719,7 +751,11 @@ function getAuthenticatedUser(req) {
   if (!sessionData || !sessionData.user) return null;
   const user = sessionData.user;
   const freshUser = user.id ? db.getById('users', user.id) : null;
-  return freshUser || user;
+  const effectiveUser = freshUser || user;
+  if (effectiveUser && isOwnerEmail(effectiveUser.email)) {
+    effectiveUser.role = 'OWNER';
+  }
+  return effectiveUser;
 }
 
 function requireOwner(req, res) {
@@ -892,17 +928,23 @@ function calculateEligibility(pincode) {
 
 // Server Request Handler
 const server = http.createServer(async (req, res) => {
+  res.req = req;
   const parsedUrl = url.parse(req.url, true);
   let pathname = parsedUrl.pathname;
   const method = req.method;
+  const reqOrigin = req.headers?.origin;
 
   // Handle CORS Preflight
   if (method === 'OPTIONS') {
-    res.writeHead(204, {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Role',
+    const corsHeaders = {
+      'Access-Control-Allow-Origin': reqOrigin || '*',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Role, X-Requested-With, Accept',
       'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS'
-    });
+    };
+    if (reqOrigin) {
+      corsHeaders['Access-Control-Allow-Credentials'] = 'true';
+    }
+    res.writeHead(204, corsHeaders);
     return res.end();
   }
 
@@ -912,14 +954,39 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/api/events' && method === 'GET') {
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache, no-transform',
+      'Cache-Control': 'no-cache, no-transform, no-store',
       'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*'
+      'Access-Control-Allow-Origin': '*',
+      'X-Accel-Buffering': 'no'
     });
+    res.write('retry: 15000\n\n');
     res.write(`data: ${JSON.stringify({ type: 'CONNECTED', message: 'FreshMart Live Stream Connected' })}\n\n`);
     sseClients.add(res);
 
+    const pingInterval = setInterval(() => {
+      try {
+        res.write(': keepalive\n\n');
+      } catch (err) {
+        clearInterval(pingInterval);
+        sseClients.delete(res);
+      }
+    }, 5000);
+
+    let vercelCloseTimer = null;
+    if (process.env.VERCEL || process.env.NOW_REGION) {
+      vercelCloseTimer = setTimeout(() => {
+        clearInterval(pingInterval);
+        sseClients.delete(res);
+        try {
+          res.write(': refresh\n\n');
+          res.end();
+        } catch (e) {}
+      }, 10000);
+    }
+
     req.on('close', () => {
+      clearInterval(pingInterval);
+      if (vercelCloseTimer) clearTimeout(vercelCloseTimer);
       sseClients.delete(res);
     });
     return;
@@ -1167,7 +1234,7 @@ const server = http.createServer(async (req, res) => {
         user: sanitizeUser(user),
         role: user.role,
         redirectUrl,
-        session: { expiresAt: session.expiresAt }
+        session: { id: session.id, token: session.id, expiresAt: session.expiresAt }
       });
     }
 
@@ -1188,11 +1255,16 @@ const server = http.createServer(async (req, res) => {
       if (!auth || !auth.user) {
         return sendJson(res, 200, { isAuthenticated: false, user: null });
       }
+      // If session exists, ensure fresh cookie is preserved
+      if (auth.session && auth.session.id) {
+        setAuthCookie(res, auth.session.id, auth.session.rememberMe);
+      }
       return sendJson(res, 200, {
         isAuthenticated: true,
         user: sanitizeUser(auth.user),
         emailVerified: Boolean(auth.user.emailVerified),
-        role: auth.user.role
+        role: auth.user.role,
+        session: { id: auth.session?.id, token: auth.session?.id, expiresAt: auth.session?.expiresAt }
       });
     }
 
@@ -2048,9 +2120,197 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // 6. Public Product List
+    // 6. Public Categories & Products CRUD API
+    if (pathname === '/api/categories' && method === 'GET') {
+      return sendJson(res, 200, db.getAll('categories') || []);
+    }
+
     if (pathname === '/api/products' && method === 'GET') {
-      return sendJson(res, 200, db.getAll('products'));
+      const products = db.getAll('products') || [];
+      const { category, status, search } = parsedUrl.query;
+      let filtered = products;
+      if (category && category !== 'ALL' && category !== 'all') {
+        const catLower = category.toLowerCase();
+        filtered = filtered.filter(p => (p.category || '').toLowerCase() === catLower || (p.categories || []).includes(catLower));
+      }
+      if (status && status !== 'ALL') {
+        filtered = filtered.filter(p => (p.status || 'ACTIVE') === status);
+      }
+      if (search) {
+        const q = search.toLowerCase();
+        filtered = filtered.filter(p => (p.name || '').toLowerCase().includes(q) || (p.sku || '').toLowerCase().includes(q) || (p.hindiName || '').toLowerCase().includes(q));
+      }
+      return sendJson(res, 200, filtered);
+    }
+
+    if (pathname === '/api/products' && method === 'POST') {
+      const auth = extractUserSession(req);
+      const currentUser = auth?.user ? (db.getById('users', auth.user.id) || auth.user) : null;
+      const body = await parseBody(req);
+      const name = body.name || body.title;
+      const price = Number(body.price !== undefined ? body.price : (body.sellingPrice || 0));
+      if (!name || price <= 0) {
+        return sendJson(res, 400, { error: 'Product name and a valid selling price are required' });
+      }
+
+      const mrp = Number(body.mrp || body.originalPrice) || Math.round(price * 1.25);
+      const costPrice = Number(body.costPrice) || Math.round(price * 0.65);
+      const stock = Number(body.stock || 0);
+      const lowStockLimit = Number(body.lowStockLimit || body.minStockAlert || 15);
+      const initialStatus = body.status || (stock > 0 ? (stock <= lowStockLimit ? 'LOW_STOCK' : 'ACTIVE') : 'OUT_OF_STOCK');
+      const sku = body.sku || `SJH-${(body.category || 'VEG').substring(0, 3).toUpperCase()}-${name.substring(0, 3).toUpperCase()}-${Math.floor(10 + Math.random() * 90)}`;
+
+      const newProduct = {
+        id: 'prod_' + Date.now(),
+        storefrontId: (body.storefrontId || name.toLowerCase().replace(/[^a-z0-9]/g, '_')),
+        name,
+        hindiName: body.hindiName || '',
+        sku,
+        barcode: body.barcode || ('8901234' + String(Date.now()).slice(-5)),
+        category: body.category || 'Vegetables',
+        subcategory: body.subcategory || 'Daily Fresh',
+        price,
+        sellingPrice: price,
+        mrp,
+        originalPrice: mrp,
+        discountPercent: mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0,
+        costPrice,
+        stock,
+        unit: body.unit || '1 kg',
+        lowStockLimit,
+        reorderLevel: Number(body.reorderLevel) || (lowStockLimit * 2),
+        status: initialStatus,
+        farmer: body.farmer || body.farmSource || 'Karnataka Organic Kisan Network',
+        hubId: body.hubId || 'hub_blr_indiranagar',
+        expressEligible: body.expressEligible !== false,
+        harvestDate: body.harvestDate || new Date().toISOString().slice(0, 10),
+        freshnessDays: Number(body.freshnessDays) || 5,
+        image: body.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80',
+        description: body.description || `${name} - farm-fresh certified harvest.`,
+        variants: body.variants || [
+          { sku: `${sku}-1KG`, weightLabel: body.unit || '1 kg', price, mrp, costPrice, stock }
+        ],
+        weights: body.weights || (body.variants && body.variants.length > 0 ? body.variants.map(v => ({
+          label: v.weightLabel || v.label || body.unit || '1 kg',
+          price: Number(v.price || price),
+          originalPrice: Number(v.mrp || mrp),
+          discount: (v.mrp && v.mrp > v.price) ? `${Math.round(((v.mrp - v.price) / v.mrp) * 100)}% OFF` : 'Best Value'
+        })) : [
+          {
+            label: body.unit || '1 kg',
+            price,
+            originalPrice: mrp,
+            discount: mrp > price ? `${Math.round(((mrp - price) / mrp) * 100)}% OFF` : 'Best Value'
+          }
+        ]),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      db.insert('products', newProduct);
+
+      // Ledger entry
+      db.insert('inventory_movements', {
+        id: 'mov_' + Date.now(),
+        date: new Date().toISOString(),
+        productId: newProduct.id,
+        productName: newProduct.name,
+        sku: newProduct.sku,
+        hubId: newProduct.hubId,
+        hubName: 'Indiranagar Central Hub',
+        type: newProduct.category === 'Grocery & Pantry' ? 'PROCUREMENT' : 'HARVEST',
+        quantity: stock,
+        before: 0,
+        after: stock,
+        reason: `Initial catalog intake from ${newProduct.farmer} (QC Passed)`,
+        user: currentUser?.name ? `${currentUser.name} (${currentUser.role || 'Staff'})` : 'Store Owner'
+      });
+
+      db.logActivity(currentUser?.name || 'Owner', 'PRODUCT_CREATED', 'Products', newProduct.id, `Created product "${newProduct.name}" (SKU: ${newProduct.sku})`);
+      broadcastEvent('PRODUCT_UPDATED', newProduct);
+      return sendJson(res, 201, { success: true, product: newProduct, ...newProduct });
+    }
+
+    const singleProdMatch = pathname.match(/^\/api\/products\/([A-Za-z0-9_-]+)(?:\/(status|suspend))?$/);
+    if (singleProdMatch) {
+      const prodId = singleProdMatch[1];
+      const isStatusSubpath = Boolean(singleProdMatch[2]);
+
+      if (method === 'GET') {
+        const prod = db.getById('products', prodId);
+        if (!prod) return sendJson(res, 404, { error: 'Product not found' });
+        return sendJson(res, 200, prod);
+      }
+
+      if (method === 'PUT') {
+        const prod = db.getById('products', prodId);
+        if (!prod) return sendJson(res, 404, { error: 'Product not found' });
+        const body = await parseBody(req);
+        const price = body.price !== undefined ? Number(body.price) : (body.sellingPrice !== undefined ? Number(body.sellingPrice) : prod.price);
+        const mrp = body.mrp !== undefined ? Number(body.mrp) : (body.originalPrice !== undefined ? Number(body.originalPrice) : prod.mrp);
+        const costPrice = body.costPrice !== undefined ? Number(body.costPrice) : prod.costPrice;
+        const stock = body.stock !== undefined ? Number(body.stock) : prod.stock;
+        const lowLimit = body.lowStockLimit !== undefined ? Number(body.lowStockLimit) : prod.lowStockLimit;
+
+        let status = body.status || prod.status;
+        if (!body.status && status !== 'SUSPENDED') {
+          if (stock <= 0) status = 'OUT_OF_STOCK';
+          else if (stock <= lowLimit) status = 'LOW_STOCK';
+          else status = 'ACTIVE';
+        }
+
+        const updates = {
+          ...body,
+          price,
+          sellingPrice: price,
+          mrp,
+          originalPrice: mrp,
+          discountPercent: mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0,
+          costPrice,
+          stock,
+          lowStockLimit: lowLimit,
+          status,
+          updatedAt: new Date().toISOString()
+        };
+
+        const updated = db.update('products', prod.id, updates);
+        broadcastEvent('PRODUCT_UPDATED', updated);
+        return sendJson(res, 200, { success: true, product: updated, ...updated });
+      }
+
+      if (method === 'PATCH' || (isStatusSubpath && method === 'POST')) {
+        const prod = db.getById('products', prodId);
+        if (!prod) return sendJson(res, 404, { error: 'Product not found' });
+        const body = await parseBody(req);
+        let newStatus = body.status;
+        if (!newStatus) {
+          newStatus = prod.status === 'SUSPENDED'
+            ? ((prod.stock || 0) > 0 ? ((prod.stock || 0) <= (prod.lowStockLimit || 15) ? 'LOW_STOCK' : 'ACTIVE') : 'OUT_OF_STOCK')
+            : 'SUSPENDED';
+        }
+
+        const updates = {
+          ...body,
+          status: newStatus,
+          updatedAt: new Date().toISOString()
+        };
+        if (body.stock !== undefined) {
+          updates.stock = Number(body.stock);
+          updates.stockCount = Number(body.stock);
+          updates.inStock = Number(body.stock) > 0;
+        }
+        const updated = db.update('products', prod.id, updates);
+        broadcastEvent('PRODUCT_UPDATED', updated);
+        return sendJson(res, 200, { success: true, product: updated, ...updated });
+      }
+
+      if (method === 'DELETE') {
+        const prod = db.getById('products', prodId);
+        if (!prod) return sendJson(res, 404, { error: 'Product not found' });
+        db.delete('products', prod.id);
+        broadcastEvent('PRODUCT_DELETED', { id: prod.id, name: prod.name });
+        return sendJson(res, 200, { success: true, message: `Product ${prod.name} removed.` });
+      }
     }
 
     // 7. Orders: List and Create

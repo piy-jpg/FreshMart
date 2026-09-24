@@ -16,7 +16,17 @@ class SessionManager {
 
   extract(req) {
     const cookies = parseCookies(req);
-    const token = cookies.sjh_session || cookies.sabjihub_session || cookies.freshmart_session;
+    let token = cookies.sjh_session || cookies.sabjihub_session || cookies.freshmart_session;
+    if (!token && req?.headers) {
+      const authHeader = req.headers['authorization'] || req.headers['Authorization'];
+      if (authHeader && typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7).trim();
+      } else if (req.headers['x-session-token']) {
+        token = req.headers['x-session-token'];
+      } else if (req.headers['x-auth-token']) {
+        token = req.headers['x-auth-token'];
+      }
+    }
     if (!token) return null;
     return this.validate(token);
   }

@@ -1355,9 +1355,22 @@
       window.location.href = '/?auth=signin';
     }
 
+    let deliverySseInstance = null;
+    let deliverySseReconnectTimeout = null;
+
     function initEventSource() {
       try {
+        if (deliverySseReconnectTimeout) {
+          clearTimeout(deliverySseReconnectTimeout);
+          deliverySseReconnectTimeout = null;
+        }
+        if (deliverySseInstance) {
+          try { deliverySseInstance.close(); } catch(e) {}
+          deliverySseInstance = null;
+        }
         const evt = new EventSource('/api/events');
+        deliverySseInstance = evt;
+
         evt.onmessage = (e) => {
           try {
             const data = JSON.parse(e.data);
@@ -1368,8 +1381,16 @@
           } catch (err) {}
           fetchDeliveryData();
         };
+
+        evt.onerror = () => {
+          try { evt.close(); } catch(e) {}
+          deliverySseInstance = null;
+          if (deliverySseReconnectTimeout) clearTimeout(deliverySseReconnectTimeout);
+          deliverySseReconnectTimeout = setTimeout(initEventSource, 12000);
+        };
       } catch (err) {
-        setInterval(fetchDeliveryData, 8000);
+        if (deliverySseReconnectTimeout) clearTimeout(deliverySseReconnectTimeout);
+        deliverySseReconnectTimeout = setTimeout(initEventSource, 15000);
       }
     }
 

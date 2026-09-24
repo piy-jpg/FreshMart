@@ -142,19 +142,41 @@
     });
 
     // Real-Time EventSource
+    let hubSseInstance = null;
+    let hubSseReconnectTimeout = null;
+
     function initEventSource() {
       try {
+        if (hubSseReconnectTimeout) {
+          clearTimeout(hubSseReconnectTimeout);
+          hubSseReconnectTimeout = null;
+        }
+        if (hubSseInstance) {
+          try { hubSseInstance.close(); } catch(e) {}
+          hubSseInstance = null;
+        }
         const evtSource = new EventSource('/api/events');
+        hubSseInstance = evtSource;
+
         evtSource.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          if (data.type === 'ORDER_CREATED' || data.type === 'ORDER_UPDATED') {
-            showToast(`⚡ Order #${data.payload.orderId || data.payload.id} updated: ${data.payload.orderStatus}`, 'info');
-            fetchHubOrders();
-          }
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'ORDER_CREATED' || data.type === 'ORDER_UPDATED') {
+              showToast(`⚡ Order #${data.payload.orderId || data.payload.id} updated: ${data.payload.orderStatus}`, 'info');
+              fetchHubOrders();
+            }
+          } catch(e) {}
+        };
+
+        evtSource.onerror = () => {
+          try { evtSource.close(); } catch(e) {}
+          hubSseInstance = null;
+          if (hubSseReconnectTimeout) clearTimeout(hubSseReconnectTimeout);
+          hubSseReconnectTimeout = setTimeout(initEventSource, 12000);
         };
       } catch (e) {
-        console.warn('SSE not available, falling back to polling');
-        setInterval(fetchHubOrders, 8000);
+        if (hubSseReconnectTimeout) clearTimeout(hubSseReconnectTimeout);
+        hubSseReconnectTimeout = setTimeout(initEventSource, 15000);
       }
     }
 
