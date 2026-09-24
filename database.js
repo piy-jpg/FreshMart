@@ -5,6 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const PostgresAdapter = require('./database/adapters/postgresAdapter');
 
 function resolveDatabasePaths() {
   const possibleDirs = [
@@ -9832,7 +9833,38 @@ class Database {
   constructor() {
     this.data = null;
     this._lastLoadedMtime = 0;
+    this.postgres = new PostgresAdapter();
     this.load();
+    if (this.postgres.isAvailable()) {
+      this.initPostgres().catch(e => console.warn('PostgreSQL connection notice:', e.message));
+    }
+  }
+
+  async initPostgres() {
+    if (!this.postgres.isAvailable()) return false;
+    const initialSeed = this.data || getInitialSeeds();
+    await this.postgres.init(initialSeed);
+    await this.syncFromPostgres();
+    return true;
+  }
+
+  async syncFromPostgres() {
+    if (!this.postgres.isAvailable() || !this.postgres.isInitialized) return;
+    try {
+      const collections = ['users', 'products', 'categories', 'orders', 'delivery_partners', 'farmers', 'hubs', 'inventory_movements', 'audit_logs'];
+      for (const coll of collections) {
+        const rows = await this.postgres.getAll(coll);
+        if (rows && rows.length > 0) {
+          this.data[coll] = rows;
+        }
+      }
+      const settingsRes = await this.postgres.query("SELECT value FROM freshmart_settings WHERE key = 'global_settings' LIMIT 1");
+      if (settingsRes.rows.length > 0) {
+        this.data.settings = settingsRes.rows[0].value;
+      }
+    } catch (e) {
+      console.warn('Sync from PostgreSQL notice:', e.message);
+    }
   }
 
   reloadIfModified() {
@@ -10030,7 +10062,10 @@ class Database {
       fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf8');
       try { this._lastLoadedMtime = fs.statSync(DB_FILE).mtimeMs; } catch (e) {}
     } catch (err) {
-      console.error('Error writing database file (' + DB_FILE + '):', err.message);
+      // Ignored in read-only environments
+    }
+    if (this.postgres.isAvailable() && this.postgres.isInitialized) {
+      this.postgres.query("INSERT INTO freshmart_settings (key, value) VALUES ('global_settings', $1) ON CONFLICT (key) DO UPDATE SET value = $1, updated_at = NOW()", [JSON.stringify(this.data.settings || {})]).catch(() => {});
     }
   }
 
@@ -10062,6 +10097,9 @@ class Database {
     }
     this.data[collection].unshift(item);
     this.save();
+    if (this.postgres.isAvailable()) {
+      this.postgres.insert(collection, item).catch(e => console.error('PostgreSQL insert error:', e.message));
+    }
     return item;
   }
 
@@ -10084,14 +10122,30 @@ class Database {
       ...updates,
       updatedAt: new Date().toISOString()
     };
+    const updated = this.data[collection][idx];
     this.save();
-    return this.data[collection][idx];
+    if (this.postgres.isAvailable()) {
+      this.postgres.update(collection, updated.id || id, updates).catch(e => console.error('PostgreSQL update error:', e.message));
+    }
+    return updated;
   }
 
   delete(collection, id) {
     if (!this.data[collection] || !id) return false;
     const sId = String(id);
     const initialLen = this.data[collection].length;
+    let targetId = id;
+    const found = this.data[collection].find(item => 
+      item.id === id || 
+      item.orderId === id || 
+      item.sku === id ||
+      item.storefrontId === id ||
+      (item.storefrontId && ('prod_' + item.storefrontId.replace(/-/g, '_')) === id) ||
+      ('prod_' + sId.replace(/-/g, '_')) === item.id ||
+      (typeof item.id === 'string' && item.id.startsWith('prod_') && item.id.slice(5) === id) ||
+      (item.name && item.name.toLowerCase() === sId.toLowerCase())
+    );
+    if (found && found.id) targetId = found.id;
     this.data[collection] = this.data[collection].filter(item => !(
       item.id === id || 
       item.orderId === id || 
@@ -10104,6 +10158,9 @@ class Database {
     ));
     if (this.data[collection].length !== initialLen) {
       this.save();
+      if (this.postgres.isAvailable()) {
+        this.postgres.delete(collection, targetId).catch(e => console.error('PostgreSQL delete error:', e.message));
+      }
       return true;
     }
     return false;

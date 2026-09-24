@@ -1,8 +1,16 @@
 // Vercel Serverless Function entrypoint
 const url = require("url");
 const { server } = require("../server");
+const db = require("../database");
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
+  if (db.postgres && db.postgres.isAvailable()) {
+    try {
+      await db.initPostgres();
+    } catch (e) {
+      console.warn('Postgres connection in serverless function:', e.message);
+    }
+  }
   // Attach request to response for origin and header inspection in helpers
   res.req = req;
 

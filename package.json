@@ -27,6 +27,8 @@
     "delivery"
   ],
   "author": "FreshMart Team",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "pg": "^8.23.0"
+  }
 }
-
