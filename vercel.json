@@ -36,7 +36,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/index.js",
+      "dest": "/api/index.js?subpath=$1",
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",

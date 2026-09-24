@@ -102,11 +102,22 @@ async function runTests() {
       email: 'piyushverma730929@gmail.com',
       password: 'Owner@FreshMart2026'
     });
+    function makeHeaders(res, extra = {}) {
+      const cookie = extractCookie(res);
+      const token = res.data?.token || res.data?.sessionToken || res.data?.session?.id || (res.data?.user && res.data.user.token);
+      const headers = { ...extra };
+      if (cookie) headers['Cookie'] = cookie;
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        headers['x-session-token'] = token;
+      }
+      return headers;
+    }
+
     if (ownerRes.statusCode !== 200 || !ownerRes.data.user) {
       throw new Error(`Owner login failed: HTTP ${ownerRes.statusCode} - ${JSON.stringify(ownerRes.data)}`);
     }
-    const ownerCookie = extractCookie(ownerRes);
-    const ownerHeaders = ownerCookie ? { 'Cookie': ownerCookie } : {};
+    const ownerHeaders = makeHeaders(ownerRes);
     pass(`Logged in as ${ownerRes.data.user.name} (${ownerRes.data.user.role})`);
 
     // 0.2 Login Customer
@@ -130,8 +141,7 @@ async function runTests() {
       email: custEmail,
       password: 'Customer@2026'
     });
-    const custCookie = extractCookie(custLoginRes) || extractCookie(custRegRes);
-    const custHeaders = custCookie ? { 'Cookie': custCookie } : {};
+    const custHeaders = makeHeaders(custLoginRes.statusCode === 200 ? custLoginRes : custRegRes);
     const custUser = custLoginRes.data?.user || custRegRes.data?.user || { id: 'usr_customer_' + Date.now(), name: 'Rohan Sharma' };
     pass(`Customer registered & logged in: Rohan Sharma (${custEmail} / ID: ${custUser.id})`);
 
@@ -145,8 +155,7 @@ async function runTests() {
       throw new Error(`Pappu login failed: HTTP ${pappuLogin.statusCode}`);
     }
     const pappuUser = pappuLogin.data.user;
-    const pappuCookie = extractCookie(pappuLogin);
-    const pappuHeaders = pappuCookie ? { 'Cookie': pappuCookie } : {};
+    const pappuHeaders = makeHeaders(pappuLogin);
     pass(`Rider #1: ${pappuUser.name} (${pappuUser.id})`);
 
     // 0.4 Login or Create Delivery Boy #2 (Bunty)
@@ -176,8 +185,7 @@ async function runTests() {
       throw new Error(`Bunty login failed: HTTP ${buntyLogin.statusCode} - ${JSON.stringify(buntyLogin.data)}`);
     }
     const buntyUser = buntyLogin.data.user;
-    const buntyCookie = extractCookie(buntyLogin);
-    const buntyHeaders = buntyCookie ? { 'Cookie': buntyCookie } : {};
+    const buntyHeaders = makeHeaders(buntyLogin);
     pass(`Rider #2: ${buntyUser.name} (${buntyUser.email} / ID: ${buntyUser.id})`);
 
     console.log('\n================================================================');

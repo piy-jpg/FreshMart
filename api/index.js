@@ -15,8 +15,8 @@ module.exports = (req, res) => {
     const queryParts = (req.url || '').split('?');
     const query = queryParts.length > 1 ? '?' + queryParts.slice(1).join('?') : '';
     resolvedPath = req.headers['x-matched-path'] + query;
-  } else if (req.query && (req.query.match || req.query['0'] || req.query['1'])) {
-    const subpath = req.query.match || req.query['0'] || req.query['1'];
+  } else if (req.query && (req.query.subpath || req.query.match || req.query['0'] || req.query['1'])) {
+    const subpath = req.query.subpath || req.query.match || req.query['0'] || req.query['1'];
     const queryParts = (req.url || '').split('?');
     const query = queryParts.length > 1 ? '?' + queryParts.slice(1).join('?') : '';
     resolvedPath = '/api/' + String(subpath).replace(/^\//, '') + query;

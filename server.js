@@ -2406,26 +2406,40 @@ const server = http.createServer(async (req, res) => {
       const currentUser = auth?.user ? (db.getById('users', auth.user.id) || auth.user) : null;
       const { status, hubId, riderId } = parsedUrl.query;
 
-      // If user is an authenticated Delivery Boy, strictly filter to only their own assigned orders
-      if (currentUser && normalizeRole(currentUser.role) === 'DELIVERY_BOY') {
-        const myOrders = orders.filter(o => {
-          if (o.rejectedDeliveryBoyIds && (o.rejectedDeliveryBoyIds.includes(currentUser.id) || o.rejectedDeliveryBoyIds.includes(currentUser.employeeId))) return false;
-          if (o.reassignmentNeeded && (!o.deliveryBoyId || o.deliveryBoyId !== currentUser.id)) return false;
-          if ((o.orderStatus === 'READY_FOR_HANDOVER' || o.orderStatus === 'ORDER_PLACED' || o.orderStatus === 'ORDER_CONFIRMED' || o.orderStatus === 'PICKING' || o.orderStatus === 'PACKING') && (!o.deliveryBoyId || o.deliveryBoyId !== currentUser.id)) return false;
+      const userRole = currentUser ? normalizeRole(currentUser.role) : '';
+      const isDeliveryRole = ['DELIVERY_BOY', 'DELIVERY_PARTNER', 'DELIVERY', 'RIDER'].includes(userRole);
+      const isOwnerAdmin = ['OWNER', 'ADMIN', 'SUB_ADMIN', 'HUB_MANAGER'].includes(userRole);
 
-          const bId = o.deliveryBoyId || o.deliveryPartnerId;
-          const bPhone = o.deliveryBoyPhone || o.deliveryPartnerPhone;
-          const uPhone = currentUser.phone ? currentUser.phone.replace(/\D/g, '') : '';
-          const bPhoneDigits = bPhone ? String(bPhone).replace(/\D/g, '') : '';
+      // Handle delivery app endpoints
+      if (pathname === '/api/delivery/orders' || pathname === '/api/delivery/history') {
+        if (isDeliveryRole) {
+          const myOrders = orders.filter(o => {
+            if (o.rejectedDeliveryBoyIds && (o.rejectedDeliveryBoyIds.includes(currentUser.id) || o.rejectedDeliveryBoyIds.includes(currentUser.employeeId))) return false;
+            if (o.reassignmentNeeded && (!o.deliveryBoyId || (o.deliveryBoyId !== currentUser.id && o.deliveryBoyId !== currentUser.employeeId))) return false;
+            if ((o.orderStatus === 'READY_FOR_HANDOVER' || o.orderStatus === 'ORDER_PLACED' || o.orderStatus === 'ORDER_CONFIRMED' || o.orderStatus === 'PICKING' || o.orderStatus === 'PACKING') && (!o.deliveryBoyId || (o.deliveryBoyId !== currentUser.id && o.deliveryBoyId !== currentUser.employeeId))) return false;
 
-          if (bId && (bId === currentUser.id || bId === currentUser.employeeId)) return true;
-          if (!bId && uPhone && bPhoneDigits && uPhone.length >= 10 && bPhoneDigits.endsWith(uPhone.slice(-10))) return true;
-          return false;
-        });
-        if (pathname === '/api/delivery/history') {
-          return sendJson(res, 200, myOrders.filter(o => ['DELIVERED', 'DELIVERY_FAILED', 'CANCELLED'].includes((o.orderStatus || o.status || '').toUpperCase())));
+            const bId = o.deliveryBoyId || o.deliveryPartnerId;
+            const bPhone = o.deliveryBoyPhone || o.deliveryPartnerPhone;
+            const uPhone = currentUser.phone ? currentUser.phone.replace(/\D/g, '') : '';
+            const bPhoneDigits = bPhone ? String(bPhone).replace(/\D/g, '') : '';
+
+            if (bId && (bId === currentUser.id || bId === currentUser.employeeId)) return true;
+            if (!bId && uPhone && bPhoneDigits && uPhone.length >= 10 && bPhoneDigits.endsWith(uPhone.slice(-10))) return true;
+            return false;
+          });
+          if (pathname === '/api/delivery/history') {
+            return sendJson(res, 200, myOrders.filter(o => ['DELIVERED', 'DELIVERY_FAILED', 'CANCELLED'].includes((o.orderStatus || o.status || '').toUpperCase())));
+          }
+          return sendJson(res, 200, myOrders);
+        } else if (isOwnerAdmin) {
+          let filtered = orders;
+          if (status) filtered = filtered.filter(o => o.orderStatus === status || o.deliveryStatus === status);
+          if (hubId) filtered = filtered.filter(o => o.hubId === hubId);
+          if (riderId) filtered = filtered.filter(o => o.deliveryPartnerId === riderId || o.deliveryBoyId === riderId);
+          return sendJson(res, 200, filtered);
+        } else {
+          return sendJson(res, 200, []);
         }
-        return sendJson(res, 200, myOrders);
       }
 
       let filtered = orders;
