@@ -1539,8 +1539,8 @@
       "walletBalance": 10000,
       "provider": "local",
       "createdAt": "2026-09-12T11:54:26.481Z",
-      "updatedAt": "2026-09-24T12:56:07.717Z",
-      "lastLoginAt": "2026-09-24T12:56:07.717Z",
+      "updatedAt": "2026-09-24T13:04:24.140Z",
+      "lastLoginAt": "2026-09-24T13:04:24.132Z",
       "googleSub": "google_sub_owner_730929",
       "profileImage": "https://lh3.googleusercontent.com/a/owner-pic",
       "active": true,
@@ -13261,8 +13261,8 @@
       "hindiName": "",
       "sku": "SJH-FRU-JJ-12",
       "barcode": "890123470872",
-      "category": "Certified Organic",
-      "subcategory": "Organic Premium",
+      "category": "Fruits",
+      "subcategory": "Fresh Apples & Pears",
       "price": 135,
       "sellingPrice": 135,
       "mrp": 199,
@@ -13304,7 +13304,15 @@
       "updatedAt": "2026-09-24T12:37:11.090Z",
       "stockCount": 545,
       "inStock": true,
-      "title": "Organic Golden Farm Fresh Honeycrisp Apple"
+      "title": "Organic Golden Farm Fresh Honeycrisp Apple",
+      "badge": "Certified Organic",
+      "badgeType": "organic",
+      "categories": [
+        "all",
+        "fruits",
+        "organic",
+        "seasonal"
+      ]
     },
     {
       "id": "prod_1789281578598",
@@ -13540,7 +13548,7 @@
           "stock": 28
         }
       ],
-      "updatedAt": "2026-09-24T12:37:07.072Z"
+      "updatedAt": "2026-09-24T13:04:24.165Z"
     },
     {
       "id": "prod_potato",
@@ -26058,6 +26066,39 @@
   ],
   "activity_logs": [
     {
+      "id": "log_1790255064171_896",
+      "timestamp": "2026-09-24T13:04:24.171Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790255064160_906",
+      "timestamp": "2026-09-24T13:04:24.160Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790255064148_279",
+      "timestamp": "2026-09-24T13:04:24.148Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
       "id": "log_1790254567729_305",
       "timestamp": "2026-09-24T12:56:07.729Z",
       "user": "Piyush Verma",
@@ -27558,6 +27599,16 @@
     "updatedAt": "2026-09-24T11:56:49.783Z"
   },
   "sessions": [
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzQxNDY0MTQ0LCJpYXQiOjE3OTAyNTUwNjQxNDQsInJuZCI6IjI2NDFiMDY1M2IxNjQ4ZWEifQ.z1Zejqd2XeyNCTl1SNTr2CO9jjlbWqrzCkriU-1hleo",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": false,
+      "createdAt": "2026-09-24T13:04:24.144Z",
+      "expiresAt": "2026-09-25T13:04:24.144Z",
+      "userAgent": "Unknown Device",
+      "ip": "127.0.0.1"
+    },
     {
       "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzQwOTY3NzIwLCJpYXQiOjE3OTAyNTQ1Njc3MjAsInJuZCI6ImQzOTZhYzNkY2FlOWNhOGYifQ.zqjLKR97djbvhf1zpCAygBcIJ_uaHutlBbJ8bkfpywk",
       "userId": "usr_owner_1789214066481",
@@ -30211,6 +30262,39 @@
     }
   ],
   "audit_logs": [
+    {
+      "id": "log_1790255064171_896",
+      "timestamp": "2026-09-24T13:04:24.171Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790255064160_906",
+      "timestamp": "2026-09-24T13:04:24.160Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790255064148_279",
+      "timestamp": "2026-09-24T13:04:24.148Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
     {
       "id": "log_1790254567729_305",
       "timestamp": "2026-09-24T12:56:07.729Z",
