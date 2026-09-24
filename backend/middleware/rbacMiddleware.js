@@ -11,18 +11,23 @@ function isOwnerEmail(email) {
   return clean === OWNER_EMAIL || clean === 'owner@freshmart.local' || clean === 'owner@freshmart.in' || clean === 'owner@sabjihub.local';
 }
 
+function isAuthorizedAdminOrOwner(user) {
+  if (!user) return false;
+  const role = normalizeRole(user.role);
+  return ['OWNER', 'ADMIN', 'SUPER_ADMIN'].includes(role) || isOwnerEmail(user.email);
+}
+
 function requireOwner(req, res, next) {
   const auth = extractUserSession(req);
   if (!auth || !auth.user) {
-    return sendJson(res, 401, { error: 'Authentication required. Please sign in as store owner.' });
+    return sendJson(res, 401, { error: 'Authentication required. Please sign in as store owner or administrator.' });
   }
 
   const freshUser = db.getById('users', auth.user.id) || auth.user;
-  const role = normalizeRole(freshUser.role);
-  const isOwner = role === 'OWNER' || isOwnerEmail(freshUser.email);
+  const isAuthorized = isAuthorizedAdminOrOwner(freshUser);
 
-  if (!isOwner) {
-    return sendJson(res, 403, { error: 'Forbidden: Owner privileges required.' });
+  if (!isAuthorized) {
+    return sendJson(res, 403, { error: 'Forbidden: Owner or Admin privileges required.' });
   }
 
   req.auth = auth;
@@ -39,10 +44,10 @@ function requireStaffOrOwner(req, res, next) {
 
   const freshUser = db.getById('users', auth.user.id) || auth.user;
   const role = normalizeRole(freshUser.role);
-  const allowed = role === 'OWNER' || role === 'SUB_ADMIN' || isOwnerEmail(freshUser.email);
+  const allowed = isAuthorizedAdminOrOwner(freshUser) || role === 'SUB_ADMIN' || role === 'INVENTORY_MANAGER' || role === 'HUB_MANAGER';
 
   if (!allowed) {
-    return sendJson(res, 403, { error: 'Forbidden: Staff or Owner privileges required.' });
+    return sendJson(res, 403, { error: 'Forbidden: Staff, Admin, or Owner privileges required.' });
   }
 
   req.auth = auth;
@@ -59,7 +64,7 @@ function requireDeliveryBoy(req, res, next) {
 
   const freshUser = db.getById('users', auth.user.id) || auth.user;
   const role = normalizeRole(freshUser.role);
-  const allowed = role === 'DELIVERY_BOY' || role === 'OWNER' || isOwnerEmail(freshUser.email);
+  const allowed = role === 'DELIVERY_BOY' || isAuthorizedAdminOrOwner(freshUser);
 
   if (!allowed) {
     return sendJson(res, 403, { error: 'Forbidden: Delivery Boy access required.' });

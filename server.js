@@ -770,17 +770,21 @@ function getAuthenticatedUser(req) {
   return effectiveUser;
 }
 
+function isAuthorizedAdminOrOwner(user) {
+  if (!user) return false;
+  const role = normalizeRole(user.role);
+  const email = (user.email || '').toLowerCase().trim();
+  return ['OWNER', 'ADMIN', 'SUPER_ADMIN'].includes(role) || isOwnerEmail(email);
+}
+
 function requireOwner(req, res) {
   const user = getAuthenticatedUser(req);
   if (!user) {
     sendJson(res, 401, { success: false, error: 'Authentication required. Please sign in.', message: 'Authentication required. Please sign in.' });
     return null;
   }
-  const role = user.role;
-  const email = user.email;
-
-  if (role !== 'OWNER' && !isOwnerEmail(email)) {
-    sendJson(res, 403, { success: false, error: 'Access denied: Owner privileges required.', message: 'Access denied: Owner privileges required.' });
+  if (!isAuthorizedAdminOrOwner(user)) {
+    sendJson(res, 403, { success: false, error: 'Access denied: Owner / Admin privileges required.', message: 'Access denied: Owner / Admin privileges required.' });
     return null;
   }
   return user;
@@ -794,15 +798,11 @@ function requireStaffOrOwner(req, res, allowedRoles = null) {
   }
 
   if (user.active === false || String(user.status).toUpperCase() === 'INACTIVE' || String(user.status).toUpperCase() === 'BLOCKED') {
-    sendJson(res, 403, { success: false, error: 'Account is deactivated. Please contact the store owner.', message: 'Account is deactivated.' });
+    sendJson(res, 403, { success: false, error: 'Account is deactivated. Please contact the store administrator.', message: 'Account is deactivated.' });
     return null;
   }
 
-  const role = user.role;
-  const email = user.email;
-  const isOwner = role === 'OWNER' || isOwnerEmail(email);
-
-  if (isOwner) return user;
+  if (isAuthorizedAdminOrOwner(user)) return user;
 
   const normRole = normalizeRole(role);
   if (normRole === 'CUSTOMER') {
@@ -878,9 +878,10 @@ function getActiveAdmin() {
 
 // Check RBAC Permissions
 function checkPermission(req, requiredScope) {
-  const user = getActiveAdmin();
+  const user = getAuthenticatedUser(req) || getActiveAdmin();
   if (!user) return true;
-  if (user.role === 'SUPER_ADMIN' || (user.permissions && user.permissions.includes('*'))) {
+  const role = normalizeRole(user.role);
+  if (['OWNER', 'ADMIN', 'SUPER_ADMIN'].includes(role) || isOwnerEmail(user.email) || (user.permissions && user.permissions.includes('*'))) {
     return true;
   }
   return user.permissions && user.permissions.includes(requiredScope);
@@ -4578,8 +4579,8 @@ const server = http.createServer(async (req, res) => {
       }
 
       if (pathname === '/api/owner/audit-logs/prune' && method === 'POST') {
-        if (owner.role !== 'OWNER' && !isOwnerEmail(owner.email)) {
-          return sendJson(res, 403, { error: 'Access denied: Root Owner privileges required to prune audit logs.' });
+        if (!isAuthorizedAdminOrOwner(owner)) {
+          return sendJson(res, 403, { error: 'Access denied: Root Owner / Admin privileges required to prune audit logs.' });
         }
         const body = await parseBody(req);
         const keepCount = Number(body.keepCount) || 50;
@@ -4635,8 +4636,8 @@ const server = http.createServer(async (req, res) => {
       }
 
       if (pathname === '/api/owner/settings' && method === 'POST') {
-        if (owner.role !== 'OWNER' && !isOwnerEmail(owner.email)) {
-          return sendJson(res, 403, { error: 'Access denied: Root Owner privileges required to modify platform settings.' });
+        if (!isAuthorizedAdminOrOwner(owner)) {
+          return sendJson(res, 403, { error: 'Access denied: Root Owner / Admin privileges required to modify platform settings.' });
         }
         const body = await parseBody(req);
         const fee = Number(body.standardDeliveryFee ?? body.deliveryFee ?? 25);
@@ -4712,8 +4713,8 @@ const server = http.createServer(async (req, res) => {
       }
 
       if (pathname === '/api/owner/database/export' && method === 'GET') {
-        if (owner.role !== 'OWNER' && !isOwnerEmail(owner.email)) {
-          return sendJson(res, 403, { error: 'Access denied: Root Owner privileges required to export database.' });
+        if (!isAuthorizedAdminOrOwner(owner)) {
+          return sendJson(res, 403, { error: 'Access denied: Root Owner / Admin privileges required to export database.' });
         }
         const dbPath = path.join(__dirname, 'data', 'db.json');
         if (fs.existsSync(dbPath)) {
@@ -4730,8 +4731,8 @@ const server = http.createServer(async (req, res) => {
       }
 
       if (pathname === '/api/owner/database/integrity-check' && method === 'POST') {
-        if (owner.role !== 'OWNER' && !isOwnerEmail(owner.email)) {
-          return sendJson(res, 403, { error: 'Access denied: Root Owner privileges required to perform integrity diagnostics.' });
+        if (!isAuthorizedAdminOrOwner(owner)) {
+          return sendJson(res, 403, { error: 'Access denied: Root Owner / Admin privileges required to perform integrity diagnostics.' });
         }
         const report = db.checkDatabaseIntegrity();
         db.logActivity(owner.name, 'DATABASE_INTEGRITY_CHECK', 'Database', 'INTEGRITY', `Integrity check executed: ${report.healthy ? 'HEALTHY' : 'ISSUES DETECTED'}`);
