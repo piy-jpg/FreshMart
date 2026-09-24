@@ -1,6 +1,70 @@
 {
   "users": [
     {
+      "email": "shared_1790251010612@example.com",
+      "name": "Vikram Seth",
+      "passwordHash": "2e8bc5781002c4a79078c26735ec9629b1ed2488334384b4d8059f0741000eec85fde8f2fad8bd9803b7fa6e3ee9630af79b745134e5a27d3bbb093c8132a0ce",
+      "passwordSalt": "fe408fc17001f44984a923cad4b0e771",
+      "authProvider": "BOTH",
+      "emailVerified": true,
+      "role": "CUSTOMER",
+      "id": "user_1790251010637_323",
+      "googleSub": "goog_sub_987654321",
+      "updatedAt": "2026-09-24T11:56:50.665Z"
+    },
+    {
+      "email": "googler_1790251010608@gmail.com",
+      "name": "Google Farm Fan",
+      "profileImage": "https://lh3.googleusercontent.com/a/photo",
+      "googleSub": "goog_1790251010608",
+      "authProvider": "GOOGLE",
+      "emailVerified": true,
+      "role": "CUSTOMER",
+      "createdAt": "2026-09-24T11:56:50.608Z",
+      "id": "user_1790251010608_397"
+    },
+    {
+      "email": "pwreset_1790251010513@example.com",
+      "name": "Kavita Patel",
+      "role": "CUSTOMER",
+      "passwordHash": "a5e29e11afb2f82fb49cece1441228c64d104e9c64b544d435904c3311f3fba44c11bf2f4303b2d9de5c50f4081c0023d6d14e8f0eb1147c799d79123107d2a2",
+      "passwordSalt": "e6033708e7cdd7165809bf42a6b95698",
+      "id": "user_1790251010539_618",
+      "updatedAt": "2026-09-24T11:56:50.574Z",
+      "sessionsInvalidatedAt": 1790251010577
+    },
+    {
+      "email": "sess_1790251010503@example.com",
+      "name": "Session Tester",
+      "role": "CUSTOMER",
+      "emailVerified": true,
+      "id": "user_1790251010503_548"
+    },
+    {
+      "email": "verify_1790251010497@example.com",
+      "name": "Anand Kumar",
+      "role": "CUSTOMER",
+      "emailVerified": true,
+      "verificationToken": null,
+      "verificationTokenExpires": null,
+      "id": "user_1790251010497_108",
+      "updatedAt": "2026-09-24T11:56:50.500Z"
+    },
+    {
+      "email": "tester_1790251010468@example.com",
+      "name": "Priya Sharma",
+      "phone": "+91 98451 99999",
+      "role": "CUSTOMER",
+      "authProvider": "LOCAL",
+      "passwordHash": "8edb9401faa8bbbe475ae4165aebf47f2aff038899b809101cc79e2b6ec3adbb8a5cab2d62d6503e8a6e724c03b77138d1ad80d2328919fb73c635f0a6daa65b",
+      "passwordSalt": "2d147c4072f9983aae7a8404c3d86471",
+      "emailVerified": false,
+      "verificationToken": "c775d8cc04050f0e77965b72eb046f54ca46650ee8d05265a415edce5a17dc53",
+      "verificationTokenExpires": 1790337410493,
+      "createdAt": "2026-09-24T11:56:50.493Z",
+      "id": "user_1790251010493_973"
+    },
+    {
       "email": "shared_1790238699772@example.com",
       "name": "Vikram Seth",
       "passwordHash": "e11c73c25b97b24cd8b2024fb002c6e2028db19ff46d40d020ead9f5aa01a33864cbe434206289c756878f143fc8f7ca5a2cf29b3499e563730239989e02184d",
@@ -1475,14 +1539,14 @@
       "walletBalance": 10000,
       "provider": "local",
       "createdAt": "2026-09-12T11:54:26.481Z",
-      "updatedAt": "2026-09-24T08:31:39.373Z",
-      "lastLoginAt": "2026-09-24T08:31:39.373Z",
+      "updatedAt": "2026-09-24T11:56:50.198Z",
+      "lastLoginAt": "2026-09-24T11:56:50.198Z",
       "googleSub": "google_sub_owner_730929",
       "profileImage": "https://lh3.googleusercontent.com/a/owner-pic",
       "active": true,
-      "passwordHash": "1c8a4d7b6be033bc58b6297ca9cb2b891f12f93a6d1158c438f253c8fe655aa3fa2ed4a1b5c1f4f06c421e8fbcf7b694fb3b3005bf069c35d0b51edc2a2e1686",
-      "salt": "9b5b21634590d2a8480a6b824fe640d3",
-      "passwordSalt": "9b5b21634590d2a8480a6b824fe640d3",
+      "passwordHash": "4d0272f5171298583cc07c300f9778483d36ee3ab4ffce05e18655965384c7a3fdf34026b1732c8fdd249e0ab8e339accfbf9eb2c5b5d5e713ff5cda4cc202ba",
+      "salt": "0291b2c2f09c72b73b198e62b1e172ff",
+      "passwordSalt": "0291b2c2f09c72b73b198e62b1e172ff",
       "failedLoginAttempts": 0,
       "lockUntil": null,
       "totalOrdersCount": 7,
@@ -2388,6 +2452,39 @@
       "createdAt": "2026-09-24T08:31:38.877Z",
       "updatedAt": "2026-09-24T08:31:38.890Z",
       "sessionsInvalidatedAt": 1790238698883
+    },
+    {
+      "id": "usr_1790251009670_39",
+      "name": "Sneaky User",
+      "email": "hack_1790251009643@test.com",
+      "phone": "",
+      "passwordHash": "e42b53342c6b128f09f7a588f7ec2fa879971a3867de3ec18923cbbab594d449bdc6f3a01771aefeb677b5bf2d8cfaae1874f77a1754638c7dcdc4fa9764d9ce",
+      "salt": "db771535ccc48bb17d9cfd4af1590fc2",
+      "emailVerified": false,
+      "provider": "local",
+      "role": "CUSTOMER",
+      "status": "ACTIVE",
+      "createdAt": "2026-09-24T11:56:49.670Z",
+      "updatedAt": "2026-09-24T11:56:49.670Z"
+    },
+    {
+      "id": "usr_staff_1790251009702_136",
+      "name": "Hub Operator Rajesh",
+      "phone": "",
+      "email": "staff_op_1790251009676@sabjihub.com",
+      "employeeId": "EMP-9702",
+      "role": "INVENTORY_MANAGER",
+      "status": "ACTIVE",
+      "emailVerified": true,
+      "membership": "HUB_MANAGER Team",
+      "passwordHash": "a074853f79a7d9f8093e8dba579f4e46a8ebe338c31695ce6ae348913fd547ad81ff9205c6534d1a9aabaea4bed6e7b062bc31ee6e76bb10f402a34a88179240",
+      "salt": "2f3651867e1c28c7c6973ff49b33bdd2",
+      "passwordSalt": "2f3651867e1c28c7c6973ff49b33bdd2",
+      "provider": "local",
+      "active": true,
+      "createdAt": "2026-09-24T11:56:49.702Z",
+      "updatedAt": "2026-09-24T11:56:49.714Z",
+      "sessionsInvalidatedAt": 1790251009708
     }
   ],
   "hubs": [
@@ -2556,6 +2653,364 @@
     }
   ],
   "orders": [
+    {
+      "id": "SJH32285",
+      "orderId": "SJH32285",
+      "customerId": "usr_cust_live_test_2",
+      "userId": "usr_cust_live_test_2",
+      "customerName": "Rohit Verma",
+      "customerPhone": "",
+      "customerEmail": "",
+      "customer": {
+        "id": "usr_cust_live_test_2",
+        "name": "Rohit Verma",
+        "phone": "",
+        "email": ""
+      },
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "deliveryBoyId": null,
+      "deliveryBoyName": null,
+      "deliveryBoyPhone": null,
+      "deliveryPartnerId": null,
+      "deliveryPartnerName": null,
+      "deliveryPartnerPhone": null,
+      "deliveryPartnerVehicle": null,
+      "deliveryPartnerRating": null,
+      "deliveryAddress": {
+        "tag": "Home",
+        "fullName": "Rohit Verma",
+        "phone": "",
+        "flat": "Flat 402, Green Glen Towers",
+        "street": "12th Main Road, HAL 2nd Stage",
+        "city": "Indiranagar, Bengaluru",
+        "pincode": "560038"
+      },
+      "deliveryLatitude": 12.9784,
+      "deliveryLongitude": 77.6408,
+      "deliveryInstructions": "",
+      "deliveryOption": "EXPRESS_90_MIN",
+      "deliverySlot": "Express Delivery (30–90 Mins)",
+      "items": [
+        {
+          "id": "prod_tomato",
+          "name": "Fresh Country Tomato",
+          "price": 30,
+          "quantity": 3,
+          "unit": "1 kg",
+          "status": "AVAILABLE"
+        }
+      ],
+      "subtotal": 30,
+      "discount": 0,
+      "couponCode": null,
+      "deliveryFee": 30,
+      "totalAmount": 60,
+      "paymentMethod": "UPI (Google Pay)",
+      "paymentStatus": "PAID",
+      "orderStatus": "CANCELLED",
+      "status": "CANCELLED",
+      "deliveryStatus": "CANCELLED",
+      "qualityCheck": {
+        "passed": false,
+        "checklist": []
+      },
+      "packaging": {
+        "type": "Plastic-Free / Biodegradable Bag",
+        "status": "PENDING"
+      },
+      "deliveryOtp": "7147",
+      "deliveryOtpVerified": false,
+      "assignedAt": null,
+      "acceptedAt": null,
+      "pickedUpAt": null,
+      "outForDeliveryAt": null,
+      "arrivedAt": null,
+      "deliveredAt": null,
+      "deliveredBy": null,
+      "failedAt": null,
+      "failedBy": null,
+      "failureReason": null,
+      "cancelledAt": "2026-09-24T11:56:49.936Z",
+      "cancelledBy": "Piyush Verma",
+      "cancellationReason": "Cancelled and refunded",
+      "timeline": [
+        {
+          "status": "ORDER_PLACED",
+          "title": "Order Placed",
+          "desc": "Order received successfully via UPI. Routing to Indiranagar Central Hub.",
+          "time": "2026-09-24T11:56:49.926Z"
+        },
+        {
+          "step": null,
+          "status": "CANCELLED",
+          "title": "Order Cancelled",
+          "desc": "Order cancelled. Reserved inventory restored.",
+          "time": "05:26 PM",
+          "timestamp": "2026-09-24T11:56:49.936Z",
+          "userId": "usr_owner_1789214066481",
+          "userName": "Piyush Verma",
+          "userRole": "OWNER"
+        }
+      ],
+      "estimatedDeliveryTime": "90 Minutes",
+      "createdAt": "2026-09-24T11:56:49.926Z",
+      "updatedAt": "2026-09-24T11:56:49.938Z",
+      "reviews": null,
+      "cancelledById": "usr_owner_1789214066481"
+    },
+    {
+      "id": "SJH11053",
+      "orderId": "SJH11053",
+      "customerId": "usr_cust_live_test",
+      "userId": "usr_cust_live_test",
+      "customerName": "Ananya Sharma",
+      "customerPhone": "+91 99887 76655",
+      "customerEmail": "",
+      "customer": {
+        "id": "usr_cust_live_test",
+        "name": "Ananya Sharma",
+        "phone": "+91 99887 76655",
+        "email": ""
+      },
+      "hubId": "hub_blr_koramangala",
+      "hubName": "Koramangala Fresh Hub",
+      "deliveryBoyId": "rider_2",
+      "deliveryBoyName": "Rider 2",
+      "deliveryBoyPhone": "",
+      "deliveryPartnerId": "rider_2",
+      "deliveryPartnerName": "Rider 2",
+      "deliveryPartnerPhone": "",
+      "deliveryPartnerVehicle": null,
+      "deliveryPartnerRating": null,
+      "deliveryAddress": {
+        "fullName": "Ananya Sharma",
+        "phone": "+91 99887 76655",
+        "flat": "Villa 14, Palm Meadows",
+        "street": "Whitefield Main Road",
+        "city": "Bengaluru",
+        "pincode": "560066"
+      },
+      "deliveryLatitude": 12.9784,
+      "deliveryLongitude": 77.6408,
+      "deliveryInstructions": "",
+      "deliveryOption": "EXPRESS_90_MIN",
+      "deliverySlot": "Express Delivery (30–90 Mins)",
+      "items": [
+        {
+          "id": "prod_tomato",
+          "name": "Fresh Country Tomato",
+          "price": 30,
+          "quantity": 2,
+          "unit": "1 kg",
+          "status": "AVAILABLE"
+        },
+        {
+          "id": "prod_spinach",
+          "name": "Spinach",
+          "price": 25,
+          "quantity": 1,
+          "unit": "1 bunch",
+          "status": "AVAILABLE"
+        }
+      ],
+      "subtotal": 55,
+      "discount": 0,
+      "couponCode": null,
+      "deliveryFee": 30,
+      "totalAmount": 85,
+      "paymentMethod": "UPI (Paytm)",
+      "paymentStatus": "PAID",
+      "orderStatus": "DELIVERED",
+      "status": "DELIVERED",
+      "deliveryStatus": "DELIVERED",
+      "qualityCheck": {
+        "passed": false,
+        "checklist": []
+      },
+      "packaging": {
+        "type": "Plastic-Free / Biodegradable Bag",
+        "status": "PENDING"
+      },
+      "deliveryOtp": "4655",
+      "deliveryOtpVerified": true,
+      "assignedAt": "2026-09-24T11:56:49.883Z",
+      "acceptedAt": "2026-09-24T11:56:49.897Z",
+      "pickedUpAt": "2026-09-24T11:56:49.900Z",
+      "outForDeliveryAt": "2026-09-24T11:56:49.904Z",
+      "arrivedAt": "2026-09-24T11:56:49.907Z",
+      "deliveredAt": "2026-09-24T11:56:49.914Z",
+      "deliveredBy": "rider_2",
+      "failedAt": null,
+      "failedBy": null,
+      "failureReason": null,
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "cancellationReason": null,
+      "timeline": [
+        {
+          "status": "ORDER_PLACED",
+          "title": "Order Placed",
+          "desc": "Order received successfully via UPI (Paytm). Routing to Indiranagar Central Hub.",
+          "time": "2026-09-24T11:56:49.810Z"
+        },
+        {
+          "step": 2,
+          "status": "ORDER_CONFIRMED",
+          "title": "Order Confirmed",
+          "desc": "Order confirmed",
+          "time": "05:26 PM",
+          "timestamp": "2026-09-24T11:56:49.824Z",
+          "userId": "usr_owner_1789214066481",
+          "userName": "Piyush Verma",
+          "userRole": "OWNER"
+        },
+        {
+          "step": 3,
+          "status": "PICKING",
+          "title": "Picking",
+          "desc": "Items being picked",
+          "time": "05:26 PM",
+          "timestamp": "2026-09-24T11:56:49.866Z",
+          "userId": "usr_owner_1789214066481",
+          "userName": "Piyush Verma",
+          "userRole": "OWNER"
+        },
+        {
+          "step": 4,
+          "status": "PACKING",
+          "title": "Packing",
+          "desc": "Items packed",
+          "time": "05:26 PM",
+          "timestamp": "2026-09-24T11:56:49.872Z",
+          "userId": "usr_owner_1789214066481",
+          "userName": "Piyush Verma",
+          "userRole": "OWNER"
+        },
+        {
+          "step": 5,
+          "status": "READY_FOR_HANDOVER",
+          "title": "Ready for Handover",
+          "desc": "Ready for handover",
+          "time": "05:26 PM",
+          "timestamp": "2026-09-24T11:56:49.878Z",
+          "userId": "usr_owner_1789214066481",
+          "userName": "Piyush Verma",
+          "userRole": "OWNER"
+        },
+        {
+          "step": 6,
+          "status": "HANDED_TO_DELIVERY_BOY",
+          "title": "Handed to Delivery Boy",
+          "desc": "Physically handed over to Rider 2",
+          "time": "05:26 PM",
+          "timestamp": "2026-09-24T11:56:49.883Z",
+          "userId": "usr_owner_1789214066481",
+          "userName": "Piyush Verma",
+          "userRole": "OWNER"
+        },
+        {
+          "step": 7,
+          "status": "DELIVERY_BOY_ACCEPTED",
+          "title": "Delivery Boy Accepted",
+          "desc": "Rider 2 accepted order handover.",
+          "time": "05:26 PM",
+          "timestamp": "2026-09-24T11:56:49.897Z",
+          "userId": "rider_2",
+          "userName": "Rider 2",
+          "userRole": "DELIVERY_BOY"
+        },
+        {
+          "step": 8,
+          "status": "PICKED_UP",
+          "title": "Picked Up",
+          "desc": "Order picked up and package secured from hub by Rider 2.",
+          "time": "05:26 PM",
+          "timestamp": "2026-09-24T11:56:49.900Z",
+          "userId": "rider_2",
+          "userName": "Rider 2",
+          "userRole": "DELIVERY_BOY"
+        },
+        {
+          "step": 9,
+          "status": "OUT_FOR_DELIVERY",
+          "title": "Out for Delivery",
+          "desc": "Rider 2 is en route to customer destination.",
+          "time": "05:26 PM",
+          "timestamp": "2026-09-24T11:56:49.904Z",
+          "userId": "rider_2",
+          "userName": "Rider 2",
+          "userRole": "DELIVERY_BOY"
+        },
+        {
+          "step": 10,
+          "status": "ARRIVED",
+          "title": "Arrived at Location",
+          "desc": "Rider 2 arrived at customer delivery location.",
+          "time": "05:26 PM",
+          "timestamp": "2026-09-24T11:56:49.907Z",
+          "userId": "rider_2",
+          "userName": "Rider 2",
+          "userRole": "DELIVERY_BOY"
+        },
+        {
+          "step": 11,
+          "status": "CUSTOMER_VERIFIED",
+          "title": "Customer Verified",
+          "desc": "4-digit delivery security code successfully verified with customer.",
+          "time": "05:26 PM",
+          "timestamp": "2026-09-24T11:56:49.911Z",
+          "userId": "rider_2",
+          "userName": "Rider 2",
+          "userRole": "DELIVERY_BOY"
+        },
+        {
+          "step": 12,
+          "status": "DELIVERED",
+          "title": "Delivered",
+          "desc": "Order handed over and verified by Rider 2.",
+          "time": "05:26 PM",
+          "timestamp": "2026-09-24T11:56:49.914Z",
+          "userId": "rider_2",
+          "userName": "Rider 2",
+          "userRole": "DELIVERY_BOY"
+        }
+      ],
+      "estimatedDeliveryTime": "At Doorstep",
+      "createdAt": "2026-09-24T11:56:49.810Z",
+      "updatedAt": "2026-09-24T11:56:49.914Z",
+      "reviews": null,
+      "confirmedAt": "2026-09-24T11:56:49.824Z",
+      "confirmedBy": "Piyush Verma",
+      "confirmedById": "usr_owner_1789214066481",
+      "pickingStartedAt": "2026-09-24T11:56:49.866Z",
+      "pickingStartedBy": "Piyush Verma",
+      "pickingStartedById": "usr_owner_1789214066481",
+      "packingAt": "2026-09-24T11:56:49.872Z",
+      "packedBy": "Piyush Verma",
+      "packedById": "usr_owner_1789214066481",
+      "readyForHandoverAt": "2026-09-24T11:56:49.878Z",
+      "readyForHandoverBy": "Piyush Verma",
+      "readyForHandoverById": "usr_owner_1789214066481",
+      "handedOverAt": "2026-09-24T11:56:49.883Z",
+      "handedOverBy": "Piyush Verma",
+      "handedOverById": "usr_owner_1789214066481",
+      "acceptedBy": "Rider 2",
+      "acceptedById": "rider_2",
+      "pickedUpBy": "Rider 2",
+      "pickedUpById": "rider_2",
+      "outForDeliveryBy": "Rider 2",
+      "outForDeliveryById": "rider_2",
+      "arrivedBy": "Rider 2",
+      "arrivedById": "rider_2",
+      "customerVerifiedAt": "2026-09-24T11:56:49.911Z",
+      "customerVerifiedBy": "Rider 2",
+      "customerVerifiedById": "rider_2",
+      "otpVerified": true,
+      "otpVerifiedAt": "2026-09-24T11:56:49.911Z",
+      "deliveredById": "rider_2",
+      "deliveredByName": "Rider 2"
+    },
     {
       "id": "SJH33896",
       "orderId": "SJH33896",
@@ -12104,6 +12559,24 @@
   ],
   "notifications": [
     {
+      "id": "notif_1790251009930",
+      "userId": "usr_cust_live_test_2",
+      "title": "Order #SJH32285 Confirmed!",
+      "message": "Your farm produce is queued for picking at Indiranagar Central Hub. Delivery in ~90 mins.",
+      "type": "ORDER",
+      "read": false,
+      "createdAt": "2026-09-24T11:56:49.930Z"
+    },
+    {
+      "id": "notif_1790251009815",
+      "userId": "usr_cust_live_test",
+      "title": "Order #SJH11053 Confirmed!",
+      "message": "Your farm produce is queued for picking at Indiranagar Central Hub. Delivery in ~90 mins.",
+      "type": "ORDER",
+      "read": false,
+      "createdAt": "2026-09-24T11:56:49.815Z"
+    },
+    {
       "id": "notif_1790238699094",
       "userId": "usr_cust_live_test_2",
       "title": "Order #SJH33896 Confirmed!",
@@ -12777,7 +13250,7 @@
         }
       ],
       "createdAt": "2026-09-23T11:17:50.872Z",
-      "updatedAt": "2026-09-24T08:31:39.314Z",
+      "updatedAt": "2026-09-24T11:56:50.140Z",
       "stockCount": 545,
       "inStock": true,
       "title": "Organic Golden Farm Fresh Honeycrisp Apple"
@@ -12884,7 +13357,7 @@
     {
       "id": "prod_tomato",
       "storefrontId": "tomato",
-      "name": "Fresh Tomato",
+      "name": "Fresh Organic Desi Tomato",
       "hindiName": "देसी टमाटर",
       "sku": "SJH-VEG-TOM-01",
       "barcode": "890123400001",
@@ -12896,13 +13369,13 @@
         "seasonal"
       ],
       "unit": "1 kg",
-      "price": 65,
-      "sellingPrice": 65,
-      "mrp": 50,
-      "originalPrice": 50,
-      "discountPercent": 0,
+      "price": 250,
+      "sellingPrice": 250,
+      "mrp": 299,
+      "originalPrice": 299,
+      "discountPercent": 16,
       "costPrice": 20,
-      "stock": 448,
+      "stock": 278,
       "lowStockLimit": 25,
       "reorderLevel": 50,
       "farmer": "Kolar Organic Farms, Karnataka",
@@ -12916,8 +13389,8 @@
       "badge": "Farm Fresh",
       "badgeType": "bestseller",
       "inStock": true,
-      "stockCount": 448,
-      "image": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=900&q=85",
+      "stockCount": 278,
+      "image": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
       "gallery": [
         {
           "url": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=1200&q=85",
@@ -12936,87 +13409,87 @@
           "title": "Packed in breathable eco-kraft box"
         }
       ],
-      "description": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+      "description": "Farm-fresh organic tomato directly harvested from Mysore belt.",
       "weights": [
         {
           "label": "250 g",
-          "price": 20,
-          "originalPrice": 16,
-          "discount": "Best Value",
-          "savings": 0
+          "price": 75,
+          "originalPrice": 96,
+          "discount": "22% OFF",
+          "savings": 21
         },
         {
           "label": "500 g",
-          "price": 38,
-          "originalPrice": 28,
-          "discount": "Best Value",
-          "savings": 0
+          "price": 145,
+          "originalPrice": 167,
+          "discount": "13% OFF",
+          "savings": 22
         },
         {
           "label": "1 kg",
-          "price": 65,
-          "originalPrice": 50,
-          "discount": "Best Value",
-          "savings": 0
+          "price": 250,
+          "originalPrice": 299,
+          "discount": "16% OFF",
+          "savings": 49
         },
         {
           "label": "2 kg",
-          "price": 124,
-          "originalPrice": 100,
-          "discount": "Best Value",
-          "savings": 0
+          "price": 475,
+          "originalPrice": 598,
+          "discount": "21% OFF",
+          "savings": 123
         },
         {
           "label": "5 kg",
-          "price": 293,
-          "originalPrice": 240,
-          "discount": "Best Value",
-          "savings": 0
+          "price": 1125,
+          "originalPrice": 1435,
+          "discount": "22% OFF",
+          "savings": 310
         }
       ],
       "variants": [
         {
           "sku": "SJH-VEG-TOM-01-1",
           "weightLabel": "250 g",
-          "price": 20,
-          "mrp": 16,
+          "price": 75,
+          "mrp": 96,
           "costPrice": 6,
           "stock": 28
         },
         {
           "sku": "SJH-VEG-TOM-01-2",
           "weightLabel": "500 g",
-          "price": 38,
-          "mrp": 28,
+          "price": 145,
+          "mrp": 167,
           "costPrice": 12,
           "stock": 28
         },
         {
           "sku": "SJH-VEG-TOM-01-3",
           "weightLabel": "1 kg",
-          "price": 65,
-          "mrp": 50,
+          "price": 250,
+          "mrp": 299,
           "costPrice": 20,
           "stock": 28
         },
         {
           "sku": "SJH-VEG-TOM-01-4",
           "weightLabel": "2 kg",
-          "price": 124,
-          "mrp": 100,
+          "price": 475,
+          "mrp": 598,
           "costPrice": 38,
           "stock": 28
         },
         {
           "sku": "SJH-VEG-TOM-01-5",
           "weightLabel": "5 kg",
-          "price": 293,
-          "mrp": 240,
+          "price": 1125,
+          "mrp": 1435,
           "costPrice": 90,
           "stock": 28
         }
       ],
-      "updatedAt": "2026-09-24T08:31:39.100Z"
+      "updatedAt": "2026-09-24T11:56:49.936Z"
     },
     {
       "id": "prod_potato",
@@ -13687,7 +14160,7 @@
           "stock": 6
         }
       ],
-      "updatedAt": "2026-09-24T08:31:38.973Z"
+      "updatedAt": "2026-09-24T11:56:49.804Z"
     },
     {
       "id": "prod_greenpeas",
@@ -21003,6 +21476,66 @@
   ],
   "inventory_movements": [
     {
+      "id": "mov_1790251010212",
+      "date": "2026-09-24T11:56:50.212Z",
+      "productId": "prod_1790251010209",
+      "productName": "Organic Shimla Apple",
+      "sku": "SJH-FRU-ORG-63",
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "type": "HARVEST",
+      "quantity": 75,
+      "before": 0,
+      "after": 75,
+      "reason": "Initial catalog intake from Kinnaur Highlands Apple Orchards, HP (QC Passed)",
+      "user": "Piyush Verma (Owner)"
+    },
+    {
+      "id": "mov_1790251009923_15",
+      "date": "2026-09-24T11:56:49.923Z",
+      "productId": "prod_tomato",
+      "productName": "Fresh Organic Desi Tomato",
+      "sku": "SJH-VEG-TOM-01",
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "type": "SALE",
+      "quantity": -3,
+      "before": 278,
+      "after": 275,
+      "reason": "Reserved for Customer Order #SJH32285",
+      "user": "System Order Engine"
+    },
+    {
+      "id": "mov_1790251009806_63",
+      "date": "2026-09-24T11:56:49.806Z",
+      "productId": "prod_spinach",
+      "productName": "Spinach",
+      "sku": "SJH-VEG-SPI-04",
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "type": "SALE",
+      "quantity": -1,
+      "before": 0,
+      "after": 0,
+      "reason": "Reserved for Customer Order #SJH11053",
+      "user": "System Order Engine"
+    },
+    {
+      "id": "mov_1790251009801_897",
+      "date": "2026-09-24T11:56:49.801Z",
+      "productId": "prod_tomato",
+      "productName": "Fresh Organic Desi Tomato",
+      "sku": "SJH-VEG-TOM-01",
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "type": "SALE",
+      "quantity": -2,
+      "before": 280,
+      "after": 278,
+      "reason": "Reserved for Customer Order #SJH11053",
+      "user": "System Order Engine"
+    },
+    {
       "id": "mov_1790238699389",
       "date": "2026-09-24T08:31:39.389Z",
       "productId": "prod_1790238699385",
@@ -24691,6 +25224,26 @@
       "reason": "Order #SJH33896 cancelled by Owner - Stock Restored",
       "operator": "piyushverma730929@gmail.com",
       "timestamp": "2026-09-24T08:31:39.100Z"
+    },
+    {
+      "id": "mov_1790251009720",
+      "productId": "prod_1790162270871",
+      "delta": 25,
+      "oldStock": 520,
+      "newStock": 545,
+      "reason": "Farm shipment received",
+      "operator": "piyushverma730929@gmail.com",
+      "timestamp": "2026-09-24T11:56:49.720Z"
+    },
+    {
+      "id": "mov_1790251009936",
+      "productId": "prod_tomato",
+      "delta": 3,
+      "oldStock": 275,
+      "newStock": 278,
+      "reason": "Order #SJH32285 cancelled by Owner - Stock Restored",
+      "operator": "piyushverma730929@gmail.com",
+      "timestamp": "2026-09-24T11:56:49.936Z"
     }
   ],
   "stock_transfers": [
@@ -24835,6 +25388,28 @@
     }
   ],
   "payments": [
+    {
+      "id": "pay_1790251009928",
+      "transactionId": "TXN_1790251009928",
+      "orderId": "SJH32285",
+      "customerId": "usr_cust_live_test_2",
+      "customerName": "Rohit Verma",
+      "amount": 60,
+      "paymentMethod": "UPI (Google Pay)",
+      "status": "SUCCESS",
+      "date": "2026-09-24T11:56:49.928Z"
+    },
+    {
+      "id": "pay_1790251009813",
+      "transactionId": "TXN_1790251009813",
+      "orderId": "SJH11053",
+      "customerId": "usr_cust_live_test",
+      "customerName": "Ananya Sharma",
+      "amount": 85,
+      "paymentMethod": "UPI (Paytm)",
+      "status": "SUCCESS",
+      "date": "2026-09-24T11:56:49.813Z"
+    },
     {
       "id": "pay_1790238699092",
       "transactionId": "TXN_1790238699092",
@@ -25416,6 +25991,325 @@
     }
   ],
   "activity_logs": [
+    {
+      "id": "log_1790251010257_842",
+      "timestamp": "2026-09-24T11:56:50.257Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_DELETED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790251010209",
+      "details": "Deleted product \"Organic Shimla Apple (Royal Delicious)\" (prod_1790251010209)"
+    },
+    {
+      "id": "log_1790251010251_446",
+      "timestamp": "2026-09-24T11:56:50.251Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_ACTIVATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790251010209",
+      "details": "Activated \"Organic Shimla Apple (Royal Delicious)\""
+    },
+    {
+      "id": "log_1790251010242_305",
+      "timestamp": "2026-09-24T11:56:50.242Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790251010209",
+      "details": "Suspended \"Organic Shimla Apple (Royal Delicious)\""
+    },
+    {
+      "id": "log_1790251010225_871",
+      "timestamp": "2026-09-24T11:56:50.225Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790251010209",
+      "details": "Updated product \"Organic Shimla Apple (Royal Delicious)\" (SJH-FRU-ORG-63)"
+    },
+    {
+      "id": "log_1790251010215_705",
+      "timestamp": "2026-09-24T11:56:50.215Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_CREATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790251010209",
+      "details": "Created product \"Organic Shimla Apple\" (SKU: SJH-FRU-ORG-63)"
+    },
+    {
+      "id": "log_1790251010143_404",
+      "timestamp": "2026-09-24T11:56:50.143Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_ACTIVATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Activated \"Organic Golden Farm Fresh Honeycrisp Apple\""
+    },
+    {
+      "id": "log_1790251010136_261",
+      "timestamp": "2026-09-24T11:56:50.136Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Suspended \"Organic Golden Farm Fresh Honeycrisp Apple\""
+    },
+    {
+      "id": "log_1790251010125_758",
+      "timestamp": "2026-09-24T11:56:50.125Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
+    },
+    {
+      "id": "log_1790251010114_247",
+      "timestamp": "2026-09-24T11:56:50.114Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
+      "id": "log_1790251009941_515",
+      "timestamp": "2026-09-24T11:56:49.941Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "ORDER_UPDATED",
+      "entity": "Orders",
+      "target": "Orders",
+      "entityId": "SJH32285",
+      "details": "Status set to CANCELLED"
+    },
+    {
+      "id": "log_1790251009933_44",
+      "timestamp": "2026-09-24T11:56:49.933Z",
+      "user": "System Order Engine",
+      "operatorEmail": "System Order Engine",
+      "action": "ORDER_CREATED",
+      "entity": "Order",
+      "target": "Order",
+      "entityId": "SJH32285",
+      "details": "New order created for ₹60 by Rohit Verma"
+    },
+    {
+      "id": "log_1790251009918_994",
+      "timestamp": "2026-09-24T11:56:49.918Z",
+      "user": "Rider 2",
+      "operatorEmail": "Rider 2",
+      "action": "ORDER_DELIVERED",
+      "entity": "Order",
+      "target": "Order",
+      "entityId": "SJH11053",
+      "details": "Order #SJH11053 delivered successfully."
+    },
+    {
+      "id": "log_1790251009886_136",
+      "timestamp": "2026-09-24T11:56:49.886Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "ORDER_UPDATED",
+      "entity": "Orders",
+      "target": "Orders",
+      "entityId": "SJH11053",
+      "details": "Status set to HANDED_TO_DELIVERY_BOY"
+    },
+    {
+      "id": "log_1790251009880_540",
+      "timestamp": "2026-09-24T11:56:49.880Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "ORDER_UPDATED",
+      "entity": "Orders",
+      "target": "Orders",
+      "entityId": "SJH11053",
+      "details": "Status set to READY_FOR_HANDOVER"
+    },
+    {
+      "id": "log_1790251009874_114",
+      "timestamp": "2026-09-24T11:56:49.874Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "ORDER_UPDATED",
+      "entity": "Orders",
+      "target": "Orders",
+      "entityId": "SJH11053",
+      "details": "Status set to PACKING"
+    },
+    {
+      "id": "log_1790251009869_579",
+      "timestamp": "2026-09-24T11:56:49.869Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "ORDER_UPDATED",
+      "entity": "Orders",
+      "target": "Orders",
+      "entityId": "SJH11053",
+      "details": "Status set to PICKING"
+    },
+    {
+      "id": "log_1790251009863_330",
+      "timestamp": "2026-09-24T11:56:49.863Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "ORDER_UPDATED",
+      "entity": "Orders",
+      "target": "Orders",
+      "entityId": "SJH11053",
+      "details": "Status set to ORDER_CONFIRMED"
+    },
+    {
+      "id": "log_1790251009818_90",
+      "timestamp": "2026-09-24T11:56:49.818Z",
+      "user": "System Order Engine",
+      "operatorEmail": "System Order Engine",
+      "action": "ORDER_CREATED",
+      "entity": "Order",
+      "target": "Order",
+      "entityId": "SJH11053",
+      "details": "New order created for ₹85 by Ananya Sharma"
+    },
+    {
+      "id": "log_1790251009773_277",
+      "timestamp": "2026-09-24T11:56:49.773Z",
+      "user": "system",
+      "operatorEmail": "system",
+      "action": "SYSTEM_ALERT",
+      "entity": "Integrity",
+      "target": "Integrity",
+      "entityId": "GLOBAL",
+      "details": "{\"status\":\"healthy\",\"note\":\"diagnostic check\"}"
+    },
+    {
+      "id": "log_1790251009770_855",
+      "timestamp": "2026-09-24T11:56:49.770Z",
+      "user": "piyushverma730929@gmail.com",
+      "operatorEmail": "piyushverma730929@gmail.com",
+      "action": "STAFF_PROMOTED",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "test_user_123",
+      "details": "{\"role\":\"ADMIN\"}"
+    },
+    {
+      "id": "log_1790251009585_82",
+      "timestamp": "2026-09-24T11:56:49.585Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790251009574_299",
+      "timestamp": "2026-09-24T11:56:49.574Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790251009564_421",
+      "timestamp": "2026-09-24T11:56:49.564Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
+      "id": "log_1790251003238_901",
+      "timestamp": "2026-09-24T11:56:43.238Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790251003228_486",
+      "timestamp": "2026-09-24T11:56:43.228Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790251003218_973",
+      "timestamp": "2026-09-24T11:56:43.218Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
+      "id": "log_1790250992441_198",
+      "timestamp": "2026-09-24T11:56:32.441Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790250992429_983",
+      "timestamp": "2026-09-24T11:56:32.429Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790250992417_918",
+      "timestamp": "2026-09-24T11:56:32.417Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
     {
       "id": "log_1790238699425_706",
       "timestamp": "2026-09-24T08:31:39.425Z",
@@ -26394,325 +27288,6 @@
       "target": "Orders",
       "entityId": "SJH97176",
       "details": "Status set to ORDER_CONFIRMED"
-    },
-    {
-      "id": "log_1790238128734_754",
-      "timestamp": "2026-09-24T08:22:08.734Z",
-      "user": "System Order Engine",
-      "operatorEmail": "System Order Engine",
-      "action": "ORDER_CREATED",
-      "entity": "Order",
-      "target": "Order",
-      "entityId": "SJH97176",
-      "details": "New order created for ₹85 by Ananya Sharma"
-    },
-    {
-      "id": "log_1790238128685_369",
-      "timestamp": "2026-09-24T08:22:08.685Z",
-      "user": "system",
-      "operatorEmail": "system",
-      "action": "SYSTEM_ALERT",
-      "entity": "Integrity",
-      "target": "Integrity",
-      "entityId": "GLOBAL",
-      "details": "{\"status\":\"healthy\",\"note\":\"diagnostic check\"}"
-    },
-    {
-      "id": "log_1790238128682_727",
-      "timestamp": "2026-09-24T08:22:08.682Z",
-      "user": "piyushverma730929@gmail.com",
-      "operatorEmail": "piyushverma730929@gmail.com",
-      "action": "STAFF_PROMOTED",
-      "entity": "Users",
-      "target": "Users",
-      "entityId": "test_user_123",
-      "details": "{\"role\":\"ADMIN\"}"
-    },
-    {
-      "id": "log_1790237825052_458",
-      "timestamp": "2026-09-24T08:17:05.052Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_DELETED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237825006",
-      "details": "Deleted product \"Organic Shimla Apple (Royal Delicious)\" (prod_1790237825006)"
-    },
-    {
-      "id": "log_1790237825041_542",
-      "timestamp": "2026-09-24T08:17:05.041Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_ACTIVATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237825006",
-      "details": "Activated \"Organic Shimla Apple (Royal Delicious)\""
-    },
-    {
-      "id": "log_1790237825031_631",
-      "timestamp": "2026-09-24T08:17:05.031Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_SUSPENDED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237825006",
-      "details": "Suspended \"Organic Shimla Apple (Royal Delicious)\""
-    },
-    {
-      "id": "log_1790237825023_546",
-      "timestamp": "2026-09-24T08:17:05.023Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_UPDATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237825006",
-      "details": "Updated product \"Organic Shimla Apple (Royal Delicious)\" (SJH-FRU-ORG-61)"
-    },
-    {
-      "id": "log_1790237825014_871",
-      "timestamp": "2026-09-24T08:17:05.014Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_CREATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237825006",
-      "details": "Created product \"Organic Shimla Apple\" (SKU: SJH-FRU-ORG-61)"
-    },
-    {
-      "id": "log_1790237329172_947",
-      "timestamp": "2026-09-24T08:08:49.172Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_ACTIVATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790162270871",
-      "details": "Activated \"Organic Golden Farm Fresh Honeycrisp Apple\""
-    },
-    {
-      "id": "log_1790237329164_543",
-      "timestamp": "2026-09-24T08:08:49.164Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_SUSPENDED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790162270871",
-      "details": "Suspended \"Organic Golden Farm Fresh Honeycrisp Apple\""
-    },
-    {
-      "id": "log_1790237329150_553",
-      "timestamp": "2026-09-24T08:08:49.150Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_UPDATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790162270871",
-      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
-    },
-    {
-      "id": "log_1790237329140_278",
-      "timestamp": "2026-09-24T08:08:49.140Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "OWNER_LOGIN",
-      "entity": "Users",
-      "target": "Users",
-      "entityId": "usr_owner_1789214066481",
-      "details": "Session created for role OWNER"
-    },
-    {
-      "id": "log_1790237328988_633",
-      "timestamp": "2026-09-24T08:08:48.988Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_DELETED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237328947",
-      "details": "Deleted product \"Organic Shimla Apple (Royal Delicious)\" (prod_1790237328947)"
-    },
-    {
-      "id": "log_1790237328980_505",
-      "timestamp": "2026-09-24T08:08:48.980Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_ACTIVATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237328947",
-      "details": "Activated \"Organic Shimla Apple (Royal Delicious)\""
-    },
-    {
-      "id": "log_1790237328972_406",
-      "timestamp": "2026-09-24T08:08:48.972Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_SUSPENDED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237328947",
-      "details": "Suspended \"Organic Shimla Apple (Royal Delicious)\""
-    },
-    {
-      "id": "log_1790237328964_113",
-      "timestamp": "2026-09-24T08:08:48.964Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_UPDATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237328947",
-      "details": "Updated product \"Organic Shimla Apple (Royal Delicious)\" (SJH-FRU-ORG-22)"
-    },
-    {
-      "id": "log_1790237328955_803",
-      "timestamp": "2026-09-24T08:08:48.955Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_CREATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237328947",
-      "details": "Created product \"Organic Shimla Apple\" (SKU: SJH-FRU-ORG-22)"
-    },
-    {
-      "id": "log_1790237245907_809",
-      "timestamp": "2026-09-24T08:07:25.907Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_ACTIVATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790162270871",
-      "details": "Activated \"Organic Golden Farm Fresh Honeycrisp Apple\""
-    },
-    {
-      "id": "log_1790237245899_50",
-      "timestamp": "2026-09-24T08:07:25.899Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_SUSPENDED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790162270871",
-      "details": "Suspended \"Organic Golden Farm Fresh Honeycrisp Apple\""
-    },
-    {
-      "id": "log_1790237245885_559",
-      "timestamp": "2026-09-24T08:07:25.885Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_UPDATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790162270871",
-      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
-    },
-    {
-      "id": "log_1790237245873_254",
-      "timestamp": "2026-09-24T08:07:25.873Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "OWNER_LOGIN",
-      "entity": "Users",
-      "target": "Users",
-      "entityId": "usr_owner_1789214066481",
-      "details": "Session created for role OWNER"
-    },
-    {
-      "id": "log_1790237201386_686",
-      "timestamp": "2026-09-24T08:06:41.386Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_DELETED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237201320",
-      "details": "Deleted product \"Organic Shimla Apple (Royal Delicious)\" (prod_1790237201320)"
-    },
-    {
-      "id": "log_1790237201377_609",
-      "timestamp": "2026-09-24T08:06:41.377Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_ACTIVATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237201320",
-      "details": "Activated \"Organic Shimla Apple (Royal Delicious)\""
-    },
-    {
-      "id": "log_1790237201368_993",
-      "timestamp": "2026-09-24T08:06:41.368Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_SUSPENDED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237201320",
-      "details": "Suspended \"Organic Shimla Apple (Royal Delicious)\""
-    },
-    {
-      "id": "log_1790237201349_94",
-      "timestamp": "2026-09-24T08:06:41.349Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_UPDATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237201320",
-      "details": "Updated product \"Organic Shimla Apple (Royal Delicious)\" (SJH-FRU-ORG-29)"
-    },
-    {
-      "id": "log_1790237201335_21",
-      "timestamp": "2026-09-24T08:06:41.335Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_CREATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237201320",
-      "details": "Created product \"Organic Shimla Apple\" (SKU: SJH-FRU-ORG-29)"
-    },
-    {
-      "id": "log_1790237135959_658",
-      "timestamp": "2026-09-24T08:05:35.959Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_DELETED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237135876",
-      "details": "Deleted product \"Organic Shimla Apple (Royal Delicious)\" (prod_1790237135876)"
-    },
-    {
-      "id": "log_1790237135948_863",
-      "timestamp": "2026-09-24T08:05:35.948Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_ACTIVATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237135876",
-      "details": "Activated \"Organic Shimla Apple (Royal Delicious)\""
-    },
-    {
-      "id": "log_1790237135940_7",
-      "timestamp": "2026-09-24T08:05:35.940Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_SUSPENDED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237135876",
-      "details": "Suspended \"Organic Shimla Apple (Royal Delicious)\""
     }
   ],
   "settings": {
@@ -26738,9 +27313,89 @@
     "supportEmail": "support@freshmart.in",
     "supportPhone": "+91 80 4000 9000",
     "deliverySLA": "10-15 mins",
-    "updatedAt": "2026-09-24T08:31:38.954Z"
+    "updatedAt": "2026-09-24T11:56:49.783Z"
   },
   "sessions": [
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkyODQzMDEwMjAxLCJpYXQiOjE3OTAyNTEwMTAyMDEsInJuZCI6IjJiN2E3NWI2NzFkMzQ3YTMifQ.jksGSBZyJkTtDitFj1wiOkDnBlkyJmAVz1URMh-GRDw",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": true,
+      "createdAt": "2026-09-24T11:56:50.201Z",
+      "expiresAt": "2026-10-24T11:56:50.201Z",
+      "userAgent": "Unknown Device",
+      "ip": "127.0.0.1"
+    },
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzM3NDEwMTEwLCJpYXQiOjE3OTAyNTEwMTAxMTAsInJuZCI6ImM2MDE2NGNkNTE3ZDY4ZjAifQ.f_uqe0oZjj9sfxrX3Feh27DVz2P5ARdZs0lg-_agD7s",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": false,
+      "createdAt": "2026-09-24T11:56:50.110Z",
+      "expiresAt": "2026-09-25T11:56:50.110Z",
+      "userAgent": "Unknown Device",
+      "ip": "127.0.0.1"
+    },
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3JfY3VzdF9saXZlX3Rlc3QiLCJlbWFpbCI6ImFuYW55YUBleGFtcGxlLmNvbSIsInIiOiJDVVNUT01FUiIsImV4cCI6MTc5Mjg0MzAwOTk0MywiaWF0IjoxNzkwMjUxMDA5OTQzLCJybmQiOiIzNzA2YWU3Y2ZiZmJiNDg2In0.uYniYv6g-IoQC3ExdFpm4w3lssEEONLazClq5QW48JE",
+      "userId": "usr_cust_live_test",
+      "role": "CUSTOMER",
+      "rememberMe": true,
+      "createdAt": "2026-09-24T11:56:49.943Z",
+      "expiresAt": "2026-10-24T11:56:49.943Z",
+      "userAgent": "Unknown Device",
+      "ip": "127.0.0.1"
+    },
+    {
+      "id": "fms.eyJ1aWQiOiJyaWRlcl8yIiwiZW1haWwiOiIiLCJyIjoiREVMSVZFUllfQk9ZIiwiZXhwIjoxNzkyODQzMDA5ODkwLCJpYXQiOjE3OTAyNTEwMDk4OTAsInJuZCI6IjY0ZTAwOTY5ZDFiZTcxOWYifQ.PPD5QNTXlgPsaZkJbidKoHw-51Tppen2dJSkkIcJ1HA",
+      "userId": "rider_2",
+      "role": "DELIVERY_BOY",
+      "rememberMe": true,
+      "createdAt": "2026-09-24T11:56:49.890Z",
+      "expiresAt": "2026-10-24T11:56:49.890Z",
+      "userAgent": "Unknown Device",
+      "ip": "127.0.0.1"
+    },
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkyODQzMDA5NzkwLCJpYXQiOjE3OTAyNTEwMDk3OTAsInJuZCI6IjNlYjljNmE1NzJkOGNiNGQifQ.PBsDCjSSxH-tjwFD6y2vRRkiX9zYBdInXpP7GfmUgxQ",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": true,
+      "createdAt": "2026-09-24T11:56:49.790Z",
+      "expiresAt": "2026-10-24T11:56:49.790Z",
+      "userAgent": "Unknown Device",
+      "ip": "127.0.0.1"
+    },
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzM3NDA5NTU3LCJpYXQiOjE3OTAyNTEwMDk1NTcsInJuZCI6ImE0NTA2ZjQ5ODhmODgwZDMifQ.HUjvodL13HkjPxJxqxfW-AtmcAW3Yr9_nV_zmO7Rwcc",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": false,
+      "createdAt": "2026-09-24T11:56:49.557Z",
+      "expiresAt": "2026-09-25T11:56:49.557Z",
+      "userAgent": "Unknown Device",
+      "ip": "127.0.0.1"
+    },
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzM3NDAzMjEwLCJpYXQiOjE3OTAyNTEwMDMyMTAsInJuZCI6ImNkMzhhZWZmYzlhMWYxZGEifQ.3jzRQcyKGTWdpldv616OJ9Hz-OPx1vshewhgA8ikStQ",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": false,
+      "createdAt": "2026-09-24T11:56:43.210Z",
+      "expiresAt": "2026-09-25T11:56:43.210Z",
+      "userAgent": "Unknown Device",
+      "ip": "127.0.0.1"
+    },
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzM3MzkyNDEzLCJpYXQiOjE3OTAyNTA5OTI0MTMsInJuZCI6IjNjZWViOTAzOTI0NjBmNDgifQ.aJUJ40OBANaVWm5Q4vpFjbakihEVTlWpG76EzGJxVEk",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": false,
+      "createdAt": "2026-09-24T11:56:32.413Z",
+      "expiresAt": "2026-09-25T11:56:32.413Z",
+      "userAgent": "Unknown Device",
+      "ip": "127.0.0.1"
+    },
     {
       "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkyODMwNjk5Mzc3LCJpYXQiOjE3OTAyMzg2OTkzNzcsInJuZCI6IjFmN2Q4YjY5ZmJkNjU1OTkifQ.80i3ItQ1oJUprO5TLLWgifEJfidvtoPot-bl2K7tG14",
       "userId": "usr_owner_1789214066481",
@@ -29262,9 +29917,347 @@
         }
       },
       "updatedAt": "2026-09-24T08:31:39.836Z"
+    },
+    {
+      "id": "cart_usr_cart_1790251010668",
+      "userId": "usr_cart_1790251010668",
+      "items": {
+        "veg-potato": {
+          "id": "veg-potato",
+          "title": "Pahadi Potato",
+          "price": 1,
+          "qty": 3
+        },
+        "veg-tomato": {
+          "id": "veg-tomato",
+          "title": "Fresh Tomato",
+          "price": 40,
+          "qty": 1
+        }
+      },
+      "updatedAt": "2026-09-24T11:56:50.671Z"
     }
   ],
   "audit_logs": [
+    {
+      "id": "log_1790251010257_842",
+      "timestamp": "2026-09-24T11:56:50.257Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_DELETED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790251010209",
+      "details": "Deleted product \"Organic Shimla Apple (Royal Delicious)\" (prod_1790251010209)"
+    },
+    {
+      "id": "log_1790251010251_446",
+      "timestamp": "2026-09-24T11:56:50.251Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_ACTIVATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790251010209",
+      "details": "Activated \"Organic Shimla Apple (Royal Delicious)\""
+    },
+    {
+      "id": "log_1790251010242_305",
+      "timestamp": "2026-09-24T11:56:50.242Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790251010209",
+      "details": "Suspended \"Organic Shimla Apple (Royal Delicious)\""
+    },
+    {
+      "id": "log_1790251010225_871",
+      "timestamp": "2026-09-24T11:56:50.225Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790251010209",
+      "details": "Updated product \"Organic Shimla Apple (Royal Delicious)\" (SJH-FRU-ORG-63)"
+    },
+    {
+      "id": "log_1790251010215_705",
+      "timestamp": "2026-09-24T11:56:50.215Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_CREATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790251010209",
+      "details": "Created product \"Organic Shimla Apple\" (SKU: SJH-FRU-ORG-63)"
+    },
+    {
+      "id": "log_1790251010143_404",
+      "timestamp": "2026-09-24T11:56:50.143Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_ACTIVATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Activated \"Organic Golden Farm Fresh Honeycrisp Apple\""
+    },
+    {
+      "id": "log_1790251010136_261",
+      "timestamp": "2026-09-24T11:56:50.136Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Suspended \"Organic Golden Farm Fresh Honeycrisp Apple\""
+    },
+    {
+      "id": "log_1790251010125_758",
+      "timestamp": "2026-09-24T11:56:50.125Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790162270871",
+      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
+    },
+    {
+      "id": "log_1790251010114_247",
+      "timestamp": "2026-09-24T11:56:50.114Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
+      "id": "log_1790251009941_515",
+      "timestamp": "2026-09-24T11:56:49.941Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "ORDER_UPDATED",
+      "entity": "Orders",
+      "target": "Orders",
+      "entityId": "SJH32285",
+      "details": "Status set to CANCELLED"
+    },
+    {
+      "id": "log_1790251009933_44",
+      "timestamp": "2026-09-24T11:56:49.933Z",
+      "user": "System Order Engine",
+      "operatorEmail": "System Order Engine",
+      "action": "ORDER_CREATED",
+      "entity": "Order",
+      "target": "Order",
+      "entityId": "SJH32285",
+      "details": "New order created for ₹60 by Rohit Verma"
+    },
+    {
+      "id": "log_1790251009918_994",
+      "timestamp": "2026-09-24T11:56:49.918Z",
+      "user": "Rider 2",
+      "operatorEmail": "Rider 2",
+      "action": "ORDER_DELIVERED",
+      "entity": "Order",
+      "target": "Order",
+      "entityId": "SJH11053",
+      "details": "Order #SJH11053 delivered successfully."
+    },
+    {
+      "id": "log_1790251009886_136",
+      "timestamp": "2026-09-24T11:56:49.886Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "ORDER_UPDATED",
+      "entity": "Orders",
+      "target": "Orders",
+      "entityId": "SJH11053",
+      "details": "Status set to HANDED_TO_DELIVERY_BOY"
+    },
+    {
+      "id": "log_1790251009880_540",
+      "timestamp": "2026-09-24T11:56:49.880Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "ORDER_UPDATED",
+      "entity": "Orders",
+      "target": "Orders",
+      "entityId": "SJH11053",
+      "details": "Status set to READY_FOR_HANDOVER"
+    },
+    {
+      "id": "log_1790251009874_114",
+      "timestamp": "2026-09-24T11:56:49.874Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "ORDER_UPDATED",
+      "entity": "Orders",
+      "target": "Orders",
+      "entityId": "SJH11053",
+      "details": "Status set to PACKING"
+    },
+    {
+      "id": "log_1790251009869_579",
+      "timestamp": "2026-09-24T11:56:49.869Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "ORDER_UPDATED",
+      "entity": "Orders",
+      "target": "Orders",
+      "entityId": "SJH11053",
+      "details": "Status set to PICKING"
+    },
+    {
+      "id": "log_1790251009863_330",
+      "timestamp": "2026-09-24T11:56:49.863Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "ORDER_UPDATED",
+      "entity": "Orders",
+      "target": "Orders",
+      "entityId": "SJH11053",
+      "details": "Status set to ORDER_CONFIRMED"
+    },
+    {
+      "id": "log_1790251009818_90",
+      "timestamp": "2026-09-24T11:56:49.818Z",
+      "user": "System Order Engine",
+      "operatorEmail": "System Order Engine",
+      "action": "ORDER_CREATED",
+      "entity": "Order",
+      "target": "Order",
+      "entityId": "SJH11053",
+      "details": "New order created for ₹85 by Ananya Sharma"
+    },
+    {
+      "id": "log_1790251009773_277",
+      "timestamp": "2026-09-24T11:56:49.773Z",
+      "user": "system",
+      "operatorEmail": "system",
+      "action": "SYSTEM_ALERT",
+      "entity": "Integrity",
+      "target": "Integrity",
+      "entityId": "GLOBAL",
+      "details": "{\"status\":\"healthy\",\"note\":\"diagnostic check\"}"
+    },
+    {
+      "id": "log_1790251009770_855",
+      "timestamp": "2026-09-24T11:56:49.770Z",
+      "user": "piyushverma730929@gmail.com",
+      "operatorEmail": "piyushverma730929@gmail.com",
+      "action": "STAFF_PROMOTED",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "test_user_123",
+      "details": "{\"role\":\"ADMIN\"}"
+    },
+    {
+      "id": "log_1790251009585_82",
+      "timestamp": "2026-09-24T11:56:49.585Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790251009574_299",
+      "timestamp": "2026-09-24T11:56:49.574Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790251009564_421",
+      "timestamp": "2026-09-24T11:56:49.564Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
+      "id": "log_1790251003238_901",
+      "timestamp": "2026-09-24T11:56:43.238Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790251003228_486",
+      "timestamp": "2026-09-24T11:56:43.228Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790251003218_973",
+      "timestamp": "2026-09-24T11:56:43.218Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
+    {
+      "id": "log_1790250992441_198",
+      "timestamp": "2026-09-24T11:56:32.441Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790250992429_983",
+      "timestamp": "2026-09-24T11:56:32.429Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)"
+    },
+    {
+      "id": "log_1790250992417_918",
+      "timestamp": "2026-09-24T11:56:32.417Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER"
+    },
     {
       "id": "log_1790238699425_706",
       "timestamp": "2026-09-24T08:31:39.425Z",
@@ -30243,325 +31236,6 @@
       "target": "Orders",
       "entityId": "SJH97176",
       "details": "Status set to ORDER_CONFIRMED"
-    },
-    {
-      "id": "log_1790238128734_754",
-      "timestamp": "2026-09-24T08:22:08.734Z",
-      "user": "System Order Engine",
-      "operatorEmail": "System Order Engine",
-      "action": "ORDER_CREATED",
-      "entity": "Order",
-      "target": "Order",
-      "entityId": "SJH97176",
-      "details": "New order created for ₹85 by Ananya Sharma"
-    },
-    {
-      "id": "log_1790238128685_369",
-      "timestamp": "2026-09-24T08:22:08.685Z",
-      "user": "system",
-      "operatorEmail": "system",
-      "action": "SYSTEM_ALERT",
-      "entity": "Integrity",
-      "target": "Integrity",
-      "entityId": "GLOBAL",
-      "details": "{\"status\":\"healthy\",\"note\":\"diagnostic check\"}"
-    },
-    {
-      "id": "log_1790238128682_727",
-      "timestamp": "2026-09-24T08:22:08.682Z",
-      "user": "piyushverma730929@gmail.com",
-      "operatorEmail": "piyushverma730929@gmail.com",
-      "action": "STAFF_PROMOTED",
-      "entity": "Users",
-      "target": "Users",
-      "entityId": "test_user_123",
-      "details": "{\"role\":\"ADMIN\"}"
-    },
-    {
-      "id": "log_1790237825052_458",
-      "timestamp": "2026-09-24T08:17:05.052Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_DELETED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237825006",
-      "details": "Deleted product \"Organic Shimla Apple (Royal Delicious)\" (prod_1790237825006)"
-    },
-    {
-      "id": "log_1790237825041_542",
-      "timestamp": "2026-09-24T08:17:05.041Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_ACTIVATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237825006",
-      "details": "Activated \"Organic Shimla Apple (Royal Delicious)\""
-    },
-    {
-      "id": "log_1790237825031_631",
-      "timestamp": "2026-09-24T08:17:05.031Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_SUSPENDED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237825006",
-      "details": "Suspended \"Organic Shimla Apple (Royal Delicious)\""
-    },
-    {
-      "id": "log_1790237825023_546",
-      "timestamp": "2026-09-24T08:17:05.023Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_UPDATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237825006",
-      "details": "Updated product \"Organic Shimla Apple (Royal Delicious)\" (SJH-FRU-ORG-61)"
-    },
-    {
-      "id": "log_1790237825014_871",
-      "timestamp": "2026-09-24T08:17:05.014Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_CREATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237825006",
-      "details": "Created product \"Organic Shimla Apple\" (SKU: SJH-FRU-ORG-61)"
-    },
-    {
-      "id": "log_1790237329172_947",
-      "timestamp": "2026-09-24T08:08:49.172Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_ACTIVATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790162270871",
-      "details": "Activated \"Organic Golden Farm Fresh Honeycrisp Apple\""
-    },
-    {
-      "id": "log_1790237329164_543",
-      "timestamp": "2026-09-24T08:08:49.164Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_SUSPENDED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790162270871",
-      "details": "Suspended \"Organic Golden Farm Fresh Honeycrisp Apple\""
-    },
-    {
-      "id": "log_1790237329150_553",
-      "timestamp": "2026-09-24T08:08:49.150Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_UPDATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790162270871",
-      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
-    },
-    {
-      "id": "log_1790237329140_278",
-      "timestamp": "2026-09-24T08:08:49.140Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "OWNER_LOGIN",
-      "entity": "Users",
-      "target": "Users",
-      "entityId": "usr_owner_1789214066481",
-      "details": "Session created for role OWNER"
-    },
-    {
-      "id": "log_1790237328988_633",
-      "timestamp": "2026-09-24T08:08:48.988Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_DELETED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237328947",
-      "details": "Deleted product \"Organic Shimla Apple (Royal Delicious)\" (prod_1790237328947)"
-    },
-    {
-      "id": "log_1790237328980_505",
-      "timestamp": "2026-09-24T08:08:48.980Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_ACTIVATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237328947",
-      "details": "Activated \"Organic Shimla Apple (Royal Delicious)\""
-    },
-    {
-      "id": "log_1790237328972_406",
-      "timestamp": "2026-09-24T08:08:48.972Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_SUSPENDED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237328947",
-      "details": "Suspended \"Organic Shimla Apple (Royal Delicious)\""
-    },
-    {
-      "id": "log_1790237328964_113",
-      "timestamp": "2026-09-24T08:08:48.964Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_UPDATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237328947",
-      "details": "Updated product \"Organic Shimla Apple (Royal Delicious)\" (SJH-FRU-ORG-22)"
-    },
-    {
-      "id": "log_1790237328955_803",
-      "timestamp": "2026-09-24T08:08:48.955Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_CREATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237328947",
-      "details": "Created product \"Organic Shimla Apple\" (SKU: SJH-FRU-ORG-22)"
-    },
-    {
-      "id": "log_1790237245907_809",
-      "timestamp": "2026-09-24T08:07:25.907Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_ACTIVATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790162270871",
-      "details": "Activated \"Organic Golden Farm Fresh Honeycrisp Apple\""
-    },
-    {
-      "id": "log_1790237245899_50",
-      "timestamp": "2026-09-24T08:07:25.899Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_SUSPENDED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790162270871",
-      "details": "Suspended \"Organic Golden Farm Fresh Honeycrisp Apple\""
-    },
-    {
-      "id": "log_1790237245885_559",
-      "timestamp": "2026-09-24T08:07:25.885Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_UPDATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790162270871",
-      "details": "Updated product \"Organic Golden Farm Fresh Honeycrisp Apple\" (SJH-FRU-JJ-12)"
-    },
-    {
-      "id": "log_1790237245873_254",
-      "timestamp": "2026-09-24T08:07:25.873Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "OWNER_LOGIN",
-      "entity": "Users",
-      "target": "Users",
-      "entityId": "usr_owner_1789214066481",
-      "details": "Session created for role OWNER"
-    },
-    {
-      "id": "log_1790237201386_686",
-      "timestamp": "2026-09-24T08:06:41.386Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_DELETED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237201320",
-      "details": "Deleted product \"Organic Shimla Apple (Royal Delicious)\" (prod_1790237201320)"
-    },
-    {
-      "id": "log_1790237201377_609",
-      "timestamp": "2026-09-24T08:06:41.377Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_ACTIVATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237201320",
-      "details": "Activated \"Organic Shimla Apple (Royal Delicious)\""
-    },
-    {
-      "id": "log_1790237201368_993",
-      "timestamp": "2026-09-24T08:06:41.368Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_SUSPENDED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237201320",
-      "details": "Suspended \"Organic Shimla Apple (Royal Delicious)\""
-    },
-    {
-      "id": "log_1790237201349_94",
-      "timestamp": "2026-09-24T08:06:41.349Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_UPDATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237201320",
-      "details": "Updated product \"Organic Shimla Apple (Royal Delicious)\" (SJH-FRU-ORG-29)"
-    },
-    {
-      "id": "log_1790237201335_21",
-      "timestamp": "2026-09-24T08:06:41.335Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_CREATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237201320",
-      "details": "Created product \"Organic Shimla Apple\" (SKU: SJH-FRU-ORG-29)"
-    },
-    {
-      "id": "log_1790237135959_658",
-      "timestamp": "2026-09-24T08:05:35.959Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_DELETED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237135876",
-      "details": "Deleted product \"Organic Shimla Apple (Royal Delicious)\" (prod_1790237135876)"
-    },
-    {
-      "id": "log_1790237135948_863",
-      "timestamp": "2026-09-24T08:05:35.948Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_ACTIVATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237135876",
-      "details": "Activated \"Organic Shimla Apple (Royal Delicious)\""
-    },
-    {
-      "id": "log_1790237135940_7",
-      "timestamp": "2026-09-24T08:05:35.940Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_SUSPENDED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790237135876",
-      "details": "Suspended \"Organic Shimla Apple (Royal Delicious)\""
     }
   ],
   "applied_migrations": [
@@ -30583,6 +31257,9 @@
     "fms.eyJ1aWQiOiJ1c2VyXzE3OTAyMzgzNzEzNzhfNDUwIiwiZW1haWwiOiJwd3Jlc2V0XzE3OTAyMzgzNzEzNTJAZXhhbXBsZS5jb20iLCJyIjoiQ1VTVE9NRVIiLCJleHAiOjE3OTAzMjQ3NzEzODEsImlhdCI6MTc5MDIzODM3MTM4MSwicm5kIjoiOWFhZWYyOGJjM2U4MWM4YSJ9.xTq2RMyY8z48zvflHa9NQI9iUPScdiVpkxCicnV4SmI",
     "fms.eyJ1aWQiOiJ1c2VyXzE3OTAyMzg2OTk2NjlfNDI0IiwiZW1haWwiOiJzZXNzXzE3OTAyMzg2OTk2NjlAZXhhbXBsZS5jb20iLCJyIjoiQ1VTVE9NRVIiLCJleHAiOjE3OTI4MzA2OTk2NzIsImlhdCI6MTc5MDIzODY5OTY3Miwicm5kIjoiMmEyZGU5OWRjZDEzNGJhYSJ9.ucdIAE-xltMvQLlQ9Cp2QIvbVkOL7qoLQurqrRkkuXA",
     "fms.eyJ1aWQiOiJ1c2VyXzE3OTAyMzg2OTk3MDRfMzA1IiwiZW1haWwiOiJwd3Jlc2V0XzE3OTAyMzg2OTk2NzlAZXhhbXBsZS5jb20iLCJyIjoiQ1VTVE9NRVIiLCJleHAiOjE3OTAzMjUwOTk3MTAsImlhdCI6MTc5MDIzODY5OTcxMCwicm5kIjoiZWQ1NGNjNWFhYTRjY2QwYSJ9.8deSIOsa9f64ot081flC0LXLwbGFzbl7YespS5ypzJA",
-    "fms.eyJ1aWQiOiJ1c2VyXzE3OTAyMzg2OTk3MDRfMzA1IiwiZW1haWwiOiJwd3Jlc2V0XzE3OTAyMzg2OTk2NzlAZXhhbXBsZS5jb20iLCJyIjoiQ1VTVE9NRVIiLCJleHAiOjE3OTAzMjUwOTk3MDcsImlhdCI6MTc5MDIzODY5OTcwNywicm5kIjoiNjhkYTQ2N2UwYjE1NDc4YyJ9.I-zi7qyttHoeySyrheukbza-hg75RwjGQR0imfO6y_8"
+    "fms.eyJ1aWQiOiJ1c2VyXzE3OTAyMzg2OTk3MDRfMzA1IiwiZW1haWwiOiJwd3Jlc2V0XzE3OTAyMzg2OTk2NzlAZXhhbXBsZS5jb20iLCJyIjoiQ1VTVE9NRVIiLCJleHAiOjE3OTAzMjUwOTk3MDcsImlhdCI6MTc5MDIzODY5OTcwNywicm5kIjoiNjhkYTQ2N2UwYjE1NDc4YyJ9.I-zi7qyttHoeySyrheukbza-hg75RwjGQR0imfO6y_8",
+    "fms.eyJ1aWQiOiJ1c2VyXzE3OTAyNTEwMTA1MDNfNTQ4IiwiZW1haWwiOiJzZXNzXzE3OTAyNTEwMTA1MDNAZXhhbXBsZS5jb20iLCJyIjoiQ1VTVE9NRVIiLCJleHAiOjE3OTI4NDMwMTA1MDYsImlhdCI6MTc5MDI1MTAxMDUwNiwicm5kIjoiNmNlYTBkMTQxYmVkMjVmYiJ9.TlhXDiiKNtWSx6x_ymL7RrlbnhfG3OdFfLs7mruzPbk",
+    "fms.eyJ1aWQiOiJ1c2VyXzE3OTAyNTEwMTA1MzlfNjE4IiwiZW1haWwiOiJwd3Jlc2V0XzE3OTAyNTEwMTA1MTNAZXhhbXBsZS5jb20iLCJyIjoiQ1VTVE9NRVIiLCJleHAiOjE3OTAzMzc0MTA1NDUsImlhdCI6MTc5MDI1MTAxMDU0NSwicm5kIjoiOWY0MTE2YjhkNDM0OTdhZCJ9.QnKSKsYGSQptlC7YUtFDfjmN8rJMudd21uyBdIVNfX0",
+    "fms.eyJ1aWQiOiJ1c2VyXzE3OTAyNTEwMTA1MzlfNjE4IiwiZW1haWwiOiJwd3Jlc2V0XzE3OTAyNTEwMTA1MTNAZXhhbXBsZS5jb20iLCJyIjoiQ1VTVE9NRVIiLCJleHAiOjE3OTAzMzc0MTA1NDIsImlhdCI6MTc5MDI1MTAxMDU0Miwicm5kIjoiZGNkODZmOGRkNjI0MDcxZSJ9.almqhAUzlRaJ4_fiSinjxSxerxca1DAsHaII6fXdcnU"
   ]
 }
