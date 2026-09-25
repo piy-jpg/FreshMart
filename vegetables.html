@@ -605,8 +605,26 @@
   </header>
 
   <!-- ================= DASHBOARD MAIN WRAPPER (SIDEBAR + CATALOG CONTENT) ================= -->
-  <div class="max-w-[1480px] mx-auto px-3 sm:px-6 lg:px-8 py-6">
-    <div class="flex items-start gap-6 xl:gap-8">
+  <div class="max-w-[1480px] mx-auto px-3 sm:px-6 lg:px-8 py-6 relative">
+    
+    <!-- Floating Ambient Organic Leaves (Matching Design) -->
+    <div class="hidden 2xl:block absolute -left-6 top-16 pointer-events-none z-0 opacity-85 floating-leaf-1">
+      <svg class="w-8 h-8 text-emerald-600/70 transform -rotate-45" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z"/>
+      </svg>
+    </div>
+    <div class="hidden 2xl:block absolute -left-4 top-96 pointer-events-none z-0 opacity-75 floating-leaf-2">
+      <svg class="w-6 h-6 text-emerald-500/70 transform rotate-12" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z"/>
+      </svg>
+    </div>
+    <div class="hidden 2xl:block absolute -left-8 bottom-32 pointer-events-none z-0 opacity-80 floating-leaf-3">
+      <svg class="w-7 h-7 text-emerald-700/60 transform rotate-45" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z"/>
+      </svg>
+    </div>
+
+    <div class="flex items-start gap-6 xl:gap-8 relative z-10">
       
       <!-- ================= LEFT VERTICAL NAVIGATION SIDEBAR (Desktop Sticky - Same as index.html) ================= -->
       <aside class="hidden xl:block w-64 shrink-0 sticky top-24 space-y-4">
@@ -754,92 +772,63 @@
               <span class="text-emerald-800 font-bold">Vegetables</span>
             </nav>
 
-      <!-- Wide Visual Hero Banner with 6-Image Vertical Autoscroll -->
-      <div class="relative rounded-[2rem] overflow-hidden bg-gradient-to-r from-emerald-950 via-emerald-900 to-teal-950 text-white p-6 sm:p-10 shadow-soft-lg">
+      <!-- Wide Visual Hero Banner (Lush Cinematic Farm Harvest matching User Design) -->
+      <div class="relative rounded-[2rem] overflow-hidden bg-[#042416] text-white p-6 sm:p-10 lg:p-12 shadow-2xl border border-emerald-800/40 min-h-[340px] sm:min-h-[400px] lg:min-h-[430px] flex flex-col justify-between group">
         
-        <!-- 6-Image Dual-Track Vertical Autoscroll (Bottom to Top) -->
-        <div class="veg-hero-scroll-container">
-          <!-- Column Track 1 (Images 1, 2, 3 - Loop) -->
-          <div class="veg-hero-scroll-track veg-hero-scroll-track-1">
-            <!-- Image 1: Vibrant Bell Peppers & Produce -->
-            <div class="veg-hero-scroll-card">
-              <img src="https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=600&q=80" alt="Fresh Bell Peppers and Tomatoes" loading="lazy" />
-            </div>
-            <!-- Image 2: Crisp Greens & Broccoli -->
-            <div class="veg-hero-scroll-card">
-              <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80" alt="Crisp Garden Greens & Broccoli" loading="lazy" />
-            </div>
-            <!-- Image 3: Organic Carrots & Root Veggies -->
-            <div class="veg-hero-scroll-card">
-              <img src="https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?auto=format&fit=crop&w=600&q=80" alt="Farm Fresh Carrots & Roots" loading="lazy" />
-            </div>
-            <!-- Duplicate Set for Seamless Loop -->
-            <div class="veg-hero-scroll-card">
-              <img src="https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=600&q=80" alt="Fresh Bell Peppers and Tomatoes" loading="lazy" />
-            </div>
-            <div class="veg-hero-scroll-card">
-              <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80" alt="Crisp Garden Greens & Broccoli" loading="lazy" />
-            </div>
-            <div class="veg-hero-scroll-card">
-              <img src="https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?auto=format&fit=crop&w=600&q=80" alt="Farm Fresh Carrots & Roots" loading="lazy" />
-            </div>
-          </div>
+        <!-- Ultra-Realistic High-Res Background Image -->
+        <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <img 
+            src="images/veg_hero_harvest.jpg" 
+            alt="Farm Fresh Harvest Vegetables" 
+            class="w-full h-full object-cover object-right sm:object-right-center scale-100 group-hover:scale-105 transition-transform duration-1000 ease-out"
+          />
+          <!-- Seamless Gradient Overlay (Deep Emerald on Left, Soft Sunlight Vignette) -->
+          <div class="absolute inset-0 bg-gradient-to-r from-[#032314] via-[#04331d]/90 sm:via-[#04331d]/75 md:via-[#04331d]/40 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-[#02180d]/70 via-transparent to-transparent sm:hidden"></div>
+          
+          <!-- Ambient Morning Sunlight & Particle Glow -->
+          <div class="absolute top-0 right-1/4 w-96 h-96 bg-amber-300/15 rounded-full filter blur-3xl pointer-events-none"></div>
+          <div class="absolute -bottom-10 left-10 w-72 h-72 bg-emerald-500/20 rounded-full filter blur-3xl pointer-events-none"></div>
+        </div>
 
-          <!-- Column Track 2 (Images 4, 5, 6 - Loop) -->
-          <div class="veg-hero-scroll-track veg-hero-scroll-track-2">
-            <!-- Image 4: Ripe Farm Tomatoes -->
-            <div class="veg-hero-scroll-card">
-              <img src="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80" alt="Sun-Ripened Farm Tomatoes" loading="lazy" />
-            </div>
-            <!-- Image 5: Organic Spinach & Leafy Greens -->
-            <div class="veg-hero-scroll-card">
-              <img src="https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=600&q=80" alt="Fresh Organic Spinach" loading="lazy" />
-            </div>
-            <!-- Image 6: Assorted Harvest Basket -->
-            <div class="veg-hero-scroll-card">
-              <img src="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=600&q=80" alt="Harvest Basket of Organic Vegetables" loading="lazy" />
-            </div>
-            <!-- Duplicate Set for Seamless Loop -->
-            <div class="veg-hero-scroll-card">
-              <img src="https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80" alt="Sun-Ripened Farm Tomatoes" loading="lazy" />
-            </div>
-            <div class="veg-hero-scroll-card">
-              <img src="https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=600&q=80" alt="Fresh Organic Spinach" loading="lazy" />
-            </div>
-            <div class="veg-hero-scroll-card">
-              <img src="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=600&q=80" alt="Harvest Basket of Organic Vegetables" loading="lazy" />
-            </div>
+        <!-- Floating 100% Farm Plucked Glass Badge (Top Right) -->
+        <div class="absolute top-4 sm:top-6 right-4 sm:right-8 z-10">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/40 hover:bg-black/50 backdrop-blur-md border border-white/20 text-white text-xs font-bold shadow-lg transition-all duration-300 hover:scale-105 cursor-default">
+            <span class="w-6 h-6 rounded-full bg-emerald-500/90 border border-emerald-300/40 flex items-center justify-center text-white text-xs shadow-inner">🍃</span>
+            <span class="tracking-wide">100% Farm Plucked</span>
           </div>
         </div>
 
-        <!-- Ambient Glow & Left Gradient Overlay for Crystal-Clear Text Contrast -->
-        <div class="absolute inset-0 bg-gradient-to-r from-[#032314] via-[#04331d]/90 to-transparent pointer-events-none z-5"></div>
-        <div class="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-emerald-500/15 filter blur-3xl pointer-events-none z-5"></div>
-
+        <!-- Left Content Area -->
         <div class="relative z-10 max-w-xl">
           <!-- Freshly Stocked Badge -->
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-800/80 border border-emerald-600/60 text-emerald-200 text-xs font-bold mb-3 backdrop-blur-md">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Freshly Stocked Today • 4:00 AM Harvest</span>
+          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-900/80 border border-emerald-500/50 text-emerald-200 text-xs font-bold mb-3.5 backdrop-blur-md shadow-xs">
+            <span class="text-sm">🌱</span>
+            <span>Freshly Stocked Today at 4:00 AM Harvest</span>
           </div>
 
-          <h1 class="font-heading font-black text-3xl sm:text-4xl md:text-5xl tracking-tight leading-tight mb-2">
-            Fresh Vegetables
+          <!-- Main Dual-Line Headline -->
+          <h1 class="font-heading font-black text-3xl sm:text-4xl lg:text-[46px] tracking-tight leading-[1.12] mb-3 text-white">
+            Fresh Vegetables<br>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-200 to-green-300 drop-shadow-sm inline-flex items-center gap-2">
+              Fresh Life. <span class="text-2xl sm:text-3xl">🌱</span>
+            </span>
           </h1>
 
-          <p class="text-xs sm:text-base text-emerald-100/90 leading-relaxed font-normal mb-4">
+          <!-- Description Paragraph -->
+          <p class="text-xs sm:text-sm lg:text-base text-emerald-100/90 leading-relaxed font-normal mb-5 max-w-lg">
             Handpicked, fresh and quality-checked vegetables delivered to your doorstep in 90 minutes. 100% ozone sanitized, root-trimmed, and chemical-free.
           </p>
 
-          <!-- Quick Metrics Chips -->
-          <div class="flex flex-wrap items-center gap-3 text-xs font-semibold text-emerald-200">
-            <span class="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3 py-1 rounded-xl">
+          <!-- 3 Quick Feature Badges -->
+          <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 text-xs font-semibold text-emerald-100">
+            <span class="flex items-center gap-1.5 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 shadow-xs">
               🥬 49 Morning Varieties & Combos
             </span>
-            <span class="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3 py-1 rounded-xl">
+            <span class="flex items-center gap-1.5 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 shadow-xs">
               ⚡ 90-Min Quick Delivery
             </span>
-            <span class="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3 py-1 rounded-xl">
+            <span class="flex items-center gap-1.5 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 shadow-xs">
               📦 Biodegradable Boxes
             </span>
           </div>

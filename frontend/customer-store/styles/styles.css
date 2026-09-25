@@ -1591,5 +1591,37 @@ button[onclick="openWishlistDrawer()"]:active {
   pointer-events: none;
 }
 
+/* Floating Organic Leaves & Sunlight Radiance */
+@keyframes floatLeafDrift1 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(-8px, -14px) rotate(14deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes floatLeafDrift2 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(12px, -18px) rotate(-18deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes floatLeafDrift3 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(-10px, 12px) rotate(8deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.floating-leaf-1 {
+  animation: floatLeafDrift1 6s ease-in-out infinite;
+}
+
+.floating-leaf-2 {
+  animation: floatLeafDrift2 8s ease-in-out infinite;
+}
+
+.floating-leaf-3 {
+  animation: floatLeafDrift3 7s ease-in-out infinite;
+}
+
+
 
 
