@@ -4078,6 +4078,9 @@ window.submitOrderRating = async function(orderId) {
   const commentInput = document.getElementById('order-rating-comment');
   const comment = commentInput ? commentInput.value.trim() : '';
 
+  const submittedStoreRating = activeOrderStoreRating || 5;
+  const submittedRiderRating = activeOrderRiderRating || 5;
+
   if (submitBtn) {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '⏳ Submitting review to database...';
@@ -4089,8 +4092,8 @@ window.submitOrderRating = async function(orderId) {
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify({
-        storeRating: activeOrderStoreRating,
-        riderRating: activeOrderRiderRating,
+        storeRating: submittedStoreRating,
+        riderRating: submittedRiderRating,
         comment
       })
     });
@@ -4100,9 +4103,16 @@ window.submitOrderRating = async function(orderId) {
       throw new Error(data.error || 'Failed to submit review');
     }
 
-    showToast('🌟 Review saved permanently in Neon PostgreSQL database!', 'success');
-    if (window.FreshMartSound) window.FreshMartSound.play('success');
+    // 1. Re-render background order modal with permanent submitted review state
     await renderTrackOrderModalContent(orderId);
+
+    // 2. Launch full-screen celebratory animation
+    window.triggerRatingCelebration({
+      storeRating: submittedStoreRating,
+      riderRating: submittedRiderRating,
+      orderId
+    });
+
   } catch (err) {
     showToast(err.message || 'Error submitting review', 'error');
     if (submitBtn) {
@@ -4110,6 +4120,243 @@ window.submitOrderRating = async function(orderId) {
       submitBtn.textContent = '✓ Submit Rating & Feedback';
     }
   }
+};
+
+window.triggerRatingCelebration = function({ storeRating = 5, riderRating = 5, orderId } = {}) {
+  const existing = document.getElementById('freshmart-rating-celebration-overlay');
+  if (existing) existing.remove();
+
+  const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'freshmart-rating-celebration-overlay';
+  overlay.className = 'celebration-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', 'Thank you for your rating');
+
+  const renderStarsHtml = (stars) => {
+    const s = Math.max(1, Math.min(5, Number(stars) || 5));
+    let html = '';
+    for (let i = 1; i <= 5; i++) {
+      const isFilled = i <= s;
+      const delay = prefersReducedMotion ? '0s' : `${(i * 0.08) + 0.15}s`;
+      html += `<span class="star-pop-item text-amber-400 text-2xl sm:text-3xl drop-shadow-sm" style="animation-delay: ${delay}">${isFilled ? '★' : '☆'}</span>`;
+    }
+    return html;
+  };
+
+  overlay.innerHTML = `
+    <canvas id="celebration-confetti-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
+    
+    <div class="celebration-card-3d rounded-3xl p-6 sm:p-8 text-center max-w-sm sm:max-w-md w-full relative z-10 mx-auto select-none">
+      <!-- Decorative Floating Sparkles -->
+      <div class="celebration-sparkle top-3 left-4 text-amber-400 text-xl">✨</div>
+      <div class="celebration-sparkle top-4 right-5 text-emerald-400 text-lg" style="animation-delay: 0.8s;">✨</div>
+      <div class="celebration-sparkle bottom-5 left-6 text-emerald-500 text-base" style="animation-delay: 1.4s;">✨</div>
+      <div class="celebration-sparkle bottom-6 right-6 text-amber-400 text-xl" style="animation-delay: 0.4s;">✨</div>
+
+      <!-- Header with animated Emoji -->
+      <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-br from-emerald-100 via-emerald-50 to-amber-100 border border-emerald-200/80 shadow-inner mb-3.5 mx-auto">
+        <span class="text-3xl sm:text-4xl animate-bounce">🎉</span>
+      </div>
+
+      <h2 class="font-heading font-black text-2xl sm:text-3xl text-emerald-950 tracking-tight mb-1">
+        🎉 Thank You!
+      </h2>
+      
+      <p class="font-bold text-sm sm:text-base text-emerald-800 mb-1">
+        Thank you for your feedback! ❤️
+      </p>
+      <p class="text-xs sm:text-sm text-stone-600 mb-4 font-medium">
+        We hope you enjoyed your FreshMart experience.
+      </p>
+
+      <!-- Rating Confirmation Badge -->
+      <div class="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 mb-4 space-y-2">
+        <div class="flex items-center justify-between text-xs font-bold text-stone-700">
+          <span class="flex items-center gap-1.5"><span class="text-emerald-700">⭐</span> <span>Rating submitted successfully</span></span>
+          <span class="text-[10px] font-mono font-bold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-full">VERIFIED</span>
+        </div>
+        
+        <div class="pt-1.5 flex items-center justify-center gap-1.5">
+          ${renderStarsHtml(storeRating)}
+        </div>
+      </div>
+
+      <!-- Small animated experience message -->
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 text-emerald-900 border border-emerald-200/90 text-xs font-bold mb-5 shadow-xs">
+        <span class="bag-bounce text-base">🛍️</span>
+        <span>Enjoy your FreshMart experience!</span>
+      </div>
+
+      <!-- Continue Action -->
+      <div>
+        <button id="btn-close-celebration" class="w-full py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 active:scale-[0.98] text-white font-bold text-xs sm:text-sm transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2">
+          <span>✓</span> <span>Back to Order Details</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  requestAnimationFrame(() => {
+    overlay.classList.add('active');
+  });
+
+  if (window.FreshMartSound) {
+    try { window.FreshMartSound.play('success'); } catch (e) {}
+  }
+
+  let animationFrameId = null;
+  let isCleanedUp = false;
+
+  const cleanup = () => {
+    if (isCleanedUp) return;
+    isCleanedUp = true;
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    overlay.classList.remove('active');
+    setTimeout(() => {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 450);
+  };
+
+  const closeBtn = overlay.querySelector('#btn-close-celebration');
+  if (closeBtn) closeBtn.addEventListener('click', cleanup);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) cleanup();
+  });
+
+  // Auto-dismiss smoothly after 3.8s
+  setTimeout(() => {
+    cleanup();
+  }, 3800);
+
+  if (prefersReducedMotion) {
+    return;
+  }
+
+  const canvas = overlay.querySelector('#celebration-confetti-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const resizeCanvas = () => {
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+  };
+  resizeCanvas();
+
+  const colors = [
+    '#10b981', '#059669', '#34d399', '#047857',
+    '#f59e0b', '#fbbf24', '#d97706',
+    '#f43f5e', '#ec4899', '#fb7185',
+    '#8b5cf6', '#a855f7',
+    '#06b6d4', '#38bdf8', '#3b82f6',
+    '#ffffff'
+  ];
+
+  const particles = [];
+  const totalParticles = window.innerWidth < 640 ? 110 : 180;
+
+  for (let i = 0; i < totalParticles; i++) {
+    let originX, originY, angleRad, velocity;
+    const rand = Math.random();
+
+    if (rand < 0.38) {
+      originX = 0;
+      originY = canvas.height * (0.75 + Math.random() * 0.2);
+      angleRad = (Math.PI / 180) * (30 + Math.random() * 35);
+      velocity = (14 + Math.random() * 18) * dpr;
+    } else if (rand < 0.76) {
+      originX = canvas.width;
+      originY = canvas.height * (0.75 + Math.random() * 0.2);
+      angleRad = (Math.PI / 180) * (115 + Math.random() * 35);
+      velocity = (14 + Math.random() * 18) * dpr;
+    } else {
+      originX = canvas.width * (0.4 + Math.random() * 0.2);
+      originY = canvas.height;
+      angleRad = (Math.PI / 180) * (70 + Math.random() * 40);
+      velocity = (16 + Math.random() * 20) * dpr;
+    }
+
+    const typeRand = Math.random();
+    const type = typeRand < 0.55 ? 'rect' : (typeRand < 0.85 ? 'circle' : 'ribbon');
+
+    particles.push({
+      x: originX,
+      y: originY,
+      vx: Math.cos(angleRad) * velocity,
+      vy: -Math.sin(angleRad) * velocity,
+      size: (type === 'ribbon' ? 4 + Math.random() * 4 : 5 + Math.random() * 6) * dpr,
+      length: (type === 'ribbon' ? 14 + Math.random() * 16 : 8 + Math.random() * 8) * dpr,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      type,
+      rotation: Math.random() * 360,
+      rotationSpeed: (Math.random() - 0.5) * 14,
+      wobble: Math.random() * Math.PI * 2,
+      wobbleSpeed: 0.08 + Math.random() * 0.12,
+      gravity: (0.28 + Math.random() * 0.14) * dpr,
+      drag: 0.978,
+      alpha: 1,
+      decay: 0.004 + Math.random() * 0.005
+    });
+  }
+
+  const renderConfetti = () => {
+    if (isCleanedUp) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    let activeCount = 0;
+
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vx *= p.drag;
+      p.vy *= p.drag;
+      p.vy += p.gravity;
+
+      p.wobble += p.wobbleSpeed;
+      p.rotation += p.rotationSpeed;
+      p.alpha -= p.decay;
+
+      if (p.alpha <= 0 || p.y > canvas.height + 40) continue;
+      activeCount++;
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.alpha);
+      ctx.translate(p.x, p.y);
+      ctx.rotate((p.rotation * Math.PI) / 180);
+      ctx.scale(Math.cos(p.wobble), 1);
+
+      ctx.fillStyle = p.color;
+
+      if (p.type === 'rect') {
+        ctx.fillRect(-p.size / 2, -p.length / 2, p.size, p.length);
+      } else if (p.type === 'ribbon') {
+        ctx.fillRect(-p.size / 2, -p.length / 2, p.size, p.length);
+        ctx.fillStyle = '#ffffff';
+        ctx.globalAlpha = Math.max(0, p.alpha * 0.4);
+        ctx.fillRect(-p.size / 2, -p.length / 2, p.size / 2, p.length);
+      } else {
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    if (activeCount > 0 && !isCleanedUp) {
+      animationFrameId = requestAnimationFrame(renderConfetti);
+    }
+  };
+
+  animationFrameId = requestAnimationFrame(renderConfetti);
 };
 
 window.reorderItems = function(orderId) {
