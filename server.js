@@ -2349,6 +2349,19 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, logs);
     }
 
+    if (pathname === '/api/categories/diagnostics' && method === 'GET') {
+      const pg = db.postgres || db.pgAdapter;
+      if (pg && pg.isAvailable()) {
+        try {
+          const diag = await pg.getCategoryDiagnosticsAsync();
+          return sendJson(res, 200, diag);
+        } catch (e) {
+          return sendJson(res, 500, { success: false, error: e.message });
+        }
+      }
+      return sendJson(res, 200, { success: false, message: 'Database not connected' });
+    }
+
     if (pathname === '/api/categories' && method === 'GET') {
       const pg = db.postgres || db.pgAdapter;
       if (pg && pg.isAvailable()) {
