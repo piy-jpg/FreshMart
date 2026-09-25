@@ -1528,6 +1528,8 @@ class PostgresAdapter {
         p.name,
         p.sku,
         p.category,
+        p.category_id,
+        p.category_slug,
         p.subcategory,
         p.price,
         p.selling_price,
@@ -1596,6 +1598,8 @@ class PostgresAdapter {
           name: r.name,
           hindiName: dataObj.hindiName || '',
           sku: r.sku || dataObj.sku || `SKU-${r.id.toUpperCase()}`,
+          categoryId: r.category_id || dataObj.categoryId || null,
+          categorySlug: r.category_slug || dataObj.categorySlug || null,
           category: r.category || dataObj.category || 'Fresh Produce',
           subcategory: r.subcategory || dataObj.subcategory || '',
           hub: dataObj.hubName || dataObj.hub || 'Indiranagar Central Hub',
@@ -2554,17 +2558,16 @@ class PostgresAdapter {
           SET category = $1,
               category_id = $2,
               category_slug = $3,
-              data = jsonb_set(
-                jsonb_set(
-                  jsonb_set(data, '{category}', to_jsonb($1::text)),
-                  '{categoryId}', to_jsonb($2::text)
-                ),
-                '{categorySlug}', to_jsonb($3::text)
+              data = data || jsonb_build_object(
+                'category', $1::text,
+                'categoryId', $2::text,
+                'categorySlug', $3::text
               )
           WHERE category_id = $2
              OR data->>'categoryId' = $2
-             OR LOWER(TRIM(category)) = LOWER(TRIM($4));
-        `, [name, String(categoryId), slug, row.name]);
+             OR LOWER(TRIM(category)) = LOWER(TRIM($4))
+             OR LOWER(TRIM(category)) = LOWER(TRIM($5));
+        `, [name, String(categoryId), slug, row.name, row.slug]);
       } catch (cascadeErr) {
         console.warn('Cascade update products on category rename warning:', cascadeErr.message);
       }
