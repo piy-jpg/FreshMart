@@ -2635,12 +2635,35 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (pathname === '/api/products' && method === 'GET') {
-      const products = db.getAll('products') || [];
       const { category, status, search } = parsedUrl.query;
+      const pg = db.postgres || db.pgAdapter;
+      if (pg && pg.isAvailable()) {
+        const products = await pg.getAllProductsAsync({
+          category,
+          status,
+          search,
+          onlyActive: !status || status === 'ACTIVE'
+        });
+        return sendJson(res, 200, products);
+      }
+      const products = db.getAll('products') || [];
       let filtered = products;
       if (category && category !== 'ALL' && category !== 'all') {
         const catLower = category.toLowerCase();
-        filtered = filtered.filter(p => (p.category || '').toLowerCase() === catLower || (p.categories || []).includes(catLower));
+        filtered = filtered.filter(p => {
+          const pCat = (p.category || '').toLowerCase();
+          const pSlug = (p.categorySlug || p.category_slug || '').toLowerCase();
+          const pId = (p.categoryId || p.category_id || '').toLowerCase();
+          const pNormalized = pCat.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+          const pSpaceSlug = pCat.replace(/\s+/g, '-');
+          const pCatArray = (p.categories || []).map(c => String(c).toLowerCase());
+          return pCat === catLower ||
+                 pSlug === catLower ||
+                 pId === catLower ||
+                 pNormalized === catLower ||
+                 pSpaceSlug === catLower ||
+                 pCatArray.includes(catLower);
+        });
       }
       if (status && status !== 'ALL') {
         filtered = filtered.filter(p => (p.status || 'ACTIVE') === status);
@@ -3949,9 +3972,41 @@ const server = http.createServer(async (req, res) => {
     }
 
     // 4. Products CRUD
+    if (pathname === '/api/admin/products/diagnostics' && method === 'GET') {
+      const pg = db.postgres || db.pgAdapter;
+      if (pg && pg.isAvailable()) {
+        const diag = await pg.getProductsDiagnosticsAsync();
+        return sendJson(res, 200, diag);
+      }
+      const products = db.getAll('products') || [];
+      return sendJson(res, 200, {
+        success: true,
+        sourceOfTruth: 'Local Memory/JSON',
+        totalProductsInDb: products.length,
+        uniqueProductIds: new Set(products.map(p => p.id)).size,
+        uniqueSkus: new Set(products.map(p => p.sku)).size,
+        statusBreakdown: {
+          active: products.filter(p => p.status === 'ACTIVE').length,
+          suspended: products.filter(p => p.status === 'SUSPENDED').length,
+          lowStock: products.filter(p => p.status === 'LOW_STOCK').length,
+          outOfStock: products.filter(p => p.status === 'OUT_OF_STOCK').length
+        }
+      });
+    }
+
     if (pathname === '/api/admin/products' && method === 'GET') {
-      const products = db.getAll('products');
       const { category, status, search } = parsedUrl.query;
+      const pg = db.postgres || db.pgAdapter;
+      if (pg && pg.isAvailable()) {
+        const products = await pg.getAllProductsAsync({
+          category,
+          status,
+          search,
+          includeSuspended: true
+        });
+        return sendJson(res, 200, products);
+      }
+      const products = db.getAll('products');
       let filtered = products;
       if (category && category !== 'ALL') filtered = filtered.filter(p => p.category === category);
       if (status && status !== 'ALL') filtered = filtered.filter(p => p.status === status);
@@ -4120,7 +4175,21 @@ const server = http.createServer(async (req, res) => {
     }
 
     // 5. Category Management
+    if (pathname === '/api/admin/categories/diagnostics' && method === 'GET') {
+      const pg = db.postgres || db.pgAdapter;
+      if (pg && pg.isAvailable()) {
+        const diag = await pg.getCategoryDiagnosticsAsync();
+        return sendJson(res, 200, diag);
+      }
+      return sendJson(res, 200, { success: true, message: 'Postgres not active' });
+    }
+
     if (pathname === '/api/admin/categories' && method === 'GET') {
+      const pg = db.postgres || db.pgAdapter;
+      if (pg && pg.isAvailable()) {
+        const categories = await pg.getAllCategoriesWithCountsAsync(false);
+        return sendJson(res, 200, categories);
+      }
       return sendJson(res, 200, db.getAll('categories'));
     }
 
@@ -4778,7 +4847,32 @@ const server = http.createServer(async (req, res) => {
       }
 
       // 3. Products & SKUs
+      if (pathname === '/api/owner/products/diagnostics' && method === 'GET') {
+        const pg = db.postgres || db.pgAdapter;
+        if (pg && pg.isAvailable()) {
+          const diag = await pg.getProductsDiagnosticsAsync();
+          return sendJson(res, 200, diag);
+        }
+        const products = db.getAll('products') || [];
+        return sendJson(res, 200, {
+          success: true,
+          sourceOfTruth: 'Local Memory/JSON',
+          totalProductsInDb: products.length,
+          uniqueProductIds: new Set(products.map(p => p.id)).size,
+          uniqueSkus: new Set(products.map(p => p.sku)).size,
+          statusBreakdown: {
+            active: products.filter(p => p.status === 'ACTIVE').length,
+            suspended: products.filter(p => p.status === 'SUSPENDED').length
+          }
+        });
+      }
+
       if (pathname === '/api/owner/products' && method === 'GET') {
+        const pg = db.postgres || db.pgAdapter;
+        if (pg && pg.isAvailable()) {
+          const products = await pg.getAllProductsAsync({ includeSuspended: true });
+          return sendJson(res, 200, products);
+        }
         const products = db.getAll('products') || [];
         return sendJson(res, 200, products);
       }
@@ -4802,6 +4896,8 @@ const server = http.createServer(async (req, res) => {
           sku,
           barcode: body.barcode || ('8901234' + String(Date.now()).slice(-5)),
           category: body.category || 'Vegetables',
+          categoryId: body.categoryId || body.category_id || undefined,
+          categorySlug: body.categorySlug || body.category_slug || (body.category ? body.category.toLowerCase().replace(/[^a-z0-9]+/g, '-') : undefined),
           subcategory: body.subcategory || 'Daily Fresh',
           price,
           sellingPrice: price,
@@ -4862,6 +4958,7 @@ const server = http.createServer(async (req, res) => {
 
         await db.logActivityAsync(owner.name, 'PRODUCT_CREATED', 'Products', newProduct.id, `Created product "${newProduct.name}" (SKU: ${newProduct.sku})`);
         broadcastEvent('PRODUCT_UPDATED', newProduct);
+        broadcastEvent('CATEGORY_UPDATED', { action: 'PRODUCT_CREATED', category: newProduct.category, product: newProduct });
         return sendJson(res, 201, { success: true, product: newProduct });
       }
 
@@ -4980,6 +5077,8 @@ const server = http.createServer(async (req, res) => {
           name: body.name || body.title || prod.name,
           hindiName: body.hindiName !== undefined ? body.hindiName : prod.hindiName,
           category: body.category || prod.category,
+          categoryId: body.categoryId !== undefined ? body.categoryId : (body.category_id !== undefined ? body.category_id : prod.categoryId),
+          categorySlug: body.categorySlug !== undefined ? body.categorySlug : (body.category_slug !== undefined ? body.category_slug : (body.category ? body.category.toLowerCase().replace(/[^a-z0-9]+/g, '-') : prod.categorySlug)),
           subcategory: body.subcategory || prod.subcategory,
           unit: body.unit || prod.unit,
           price,
@@ -5030,6 +5129,7 @@ const server = http.createServer(async (req, res) => {
 
         await db.logActivityAsync(owner.name, 'PRODUCT_UPDATED', 'Products', prod.id, `Updated product "${updated.name}" (${updated.sku})`);
         broadcastEvent('PRODUCT_UPDATED', updated);
+        broadcastEvent('CATEGORY_UPDATED', { action: 'PRODUCT_UPDATED', product: updated });
         broadcastEvent('STOCK_UPDATED', { product: updated, delta: (Number(body.stock || prod.stock) - Number(prod.stock)), currentStock: updated.stock });
         return sendJson(res, 200, { success: true, product: updated });
       }
@@ -5051,6 +5151,7 @@ const server = http.createServer(async (req, res) => {
         const actionLabel = newStatus === 'SUSPENDED' ? 'PRODUCT_SUSPENDED' : 'PRODUCT_ACTIVATED';
         await db.logActivityAsync(owner.name, actionLabel, 'Products', prod.id, `${newStatus === 'SUSPENDED' ? 'Suspended' : 'Activated'} "${prod.name}"`);
         broadcastEvent('PRODUCT_UPDATED', updated);
+        broadcastEvent('CATEGORY_UPDATED', { action: 'PRODUCT_STATUS_CHANGED', product: updated, status: newStatus });
         return sendJson(res, 200, { success: true, product: updated });
       }
 
@@ -5066,6 +5167,7 @@ const server = http.createServer(async (req, res) => {
         await db.deleteAsync('products', id, owner.name);
         await db.logActivityAsync(owner.name, 'PRODUCT_DELETED', 'Products', id, `Deleted product "${prodName}" (${id})`);
         broadcastEvent('PRODUCT_DELETED', { id, storefrontId });
+        broadcastEvent('CATEGORY_UPDATED', { action: 'PRODUCT_DELETED', id, storefrontId });
         return sendJson(res, 200, { success: true, message: 'Product deleted', id, storefrontId });
       }
 
@@ -5577,6 +5679,15 @@ const server = http.createServer(async (req, res) => {
       }
 
       // 6.1 Categories Management (Neon PostgreSQL as Single Source of Truth)
+      if (pathname === '/api/owner/categories/diagnostics' && method === 'GET') {
+        const pg = db.postgres || db.pgAdapter;
+        if (pg && pg.isAvailable()) {
+          const diag = await pg.getCategoryDiagnosticsAsync();
+          return sendJson(res, 200, diag);
+        }
+        return sendJson(res, 200, { success: false, message: 'Database not connected' });
+      }
+
       if (pathname === '/api/owner/categories' && method === 'GET') {
         const pg = db.postgres || db.pgAdapter;
         if (pg && pg.isAvailable()) {
@@ -6092,6 +6203,15 @@ const server = http.createServer(async (req, res) => {
     if (auth && auth.user && auth.user.role === 'CUSTOMER') {
       res.writeHead(403, { 'Content-Type': 'text/html; charset=utf-8' });
       return res.end('<!DOCTYPE html><html><body style="font-family:sans-serif;text-align:center;padding:60px 20px;background:#fafaf9;color:#1c1917;"><h1 style="color:#991b1b;font-size:28px;">403 Forbidden</h1><p style="font-size:16px;color:#44403c;">Access Denied: You do not have administrator permissions to access the operations console.</p><div style="margin-top:24px;"><a href="/" style="display:inline-block;padding:12px 24px;background:#047857;color:#fff;text-decoration:none;border-radius:12px;font-weight:bold;">← Return to FreshMart Storefront</a></div></body></html>');
+    }
+  }
+
+  // Dynamic Category Page Resolver
+  if (pathname.startsWith('/category/') || pathname === '/category' || pathname === '/category.html') {
+    const catHtml = path.join(__dirname, 'category.html');
+    if (fs.existsSync(catHtml)) {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      return fs.createReadStream(catHtml).pipe(res);
     }
   }
 

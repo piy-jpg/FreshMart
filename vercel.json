@@ -96,6 +96,14 @@
       "dest": "/vegetables.html"
     },
     {
+      "src": "/category/(.*)",
+      "dest": "/category.html"
+    },
+    {
+      "src": "/category",
+      "dest": "/category.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/$1"
     }

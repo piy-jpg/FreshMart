@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="page-title">Category | FreshMart - Farm-Fresh Delivery</title>
+  <meta name="description" content="Shop 100% farm-fresh items handpicked from local certified farms. Delivered in 90 minutes in eco-friendly packaging." />
+  <link rel="icon" type="image/jpeg" href="/images/freshmart_logo.jpg" />
+  <link rel="apple-touch-icon" href="/images/freshmart_logo.jpg" />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+              dark: '#072714'
+            },
+            accent: {
+              amber: '#f59e0b',
+              orange: '#ff6b35'
+            },
+            cream: '#fafbf6'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="bg-[#fafbf6] text-[#0f291e] antialiased selection:bg-emerald-200 selection:text-emerald-900 pb-16 md:pb-0">
+
+  <!-- ================= TOP ANNOUNCEMENT BAR ================= -->
+  <div class="relative z-50 bg-gradient-to-r from-[#072413] via-[#0d3f23] to-[#082a17] text-white border-b border-emerald-500/20 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between text-xs">
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 font-extrabold uppercase text-[10px]">
+          🌱 Farm-Direct Single Source of Truth
+        </span>
+        <span class="text-stone-300 hidden sm:inline">• Free delivery on orders over ₹299</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="/" class="hover:text-emerald-300 transition font-medium">← Back to Storefront</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= HEADER & DYNAMIC NAVBAR ================= -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-emerald-900/10 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <a href="/" class="flex items-center gap-2">
+          <span class="text-2xl font-heading font-black text-emerald-900 flex items-center gap-1.5">
+            <span class="w-8 h-8 rounded-xl bg-emerald-700 text-white flex items-center justify-center text-base">🌱</span>
+            Fresh<span class="text-amber-500">Mart</span>
+          </span>
+        </a>
+      </div>
+
+      <!-- Dynamic Customer Navbar Links (Loaded from Neon /api/categories) -->
+      <nav id="customer-navbar-categories" class="hidden md:flex items-center gap-1.5 overflow-x-auto text-xs font-bold text-stone-600">
+        <a href="/" class="px-3 py-1.5 rounded-xl text-stone-600 hover:bg-stone-100 transition">Home</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <a href="/checkout.html" class="relative p-2 rounded-xl bg-emerald-50 text-emerald-800 hover:bg-emerald-100 transition flex items-center gap-1.5 font-bold text-xs">
+          <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+          <span>Cart</span>
+          <span id="header-cart-count" class="px-1.5 py-0.2 bg-emerald-700 text-white rounded-full text-[10px] font-mono">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= CATEGORY HERO BANNER ================= -->
+  <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+    <div class="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 text-white shadow-lg relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div class="relative z-10 space-y-2">
+        <div class="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-wider">
+          <a href="/" class="hover:underline">Store</a>
+          <span>/</span>
+          <span id="cat-breadcrumb-name">Category</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span id="cat-hero-icon" class="text-4xl sm:text-5xl">🏷️</span>
+          <h1 id="cat-hero-title" class="font-heading font-black text-2xl sm:text-4xl tracking-tight text-white">Loading Category...</h1>
+        </div>
+        <p id="cat-hero-desc" class="text-xs sm:text-sm text-emerald-100/90 max-w-xl leading-relaxed">
+          Sourced daily from verified organic farms. Graded, sanitized, and packed fresh for express delivery.
+        </p>
+        <div class="pt-2 flex items-center gap-2 flex-wrap">
+          <span id="cat-items-badge" class="px-3 py-1 rounded-full bg-emerald-700/80 border border-emerald-500/30 text-emerald-200 text-xs font-bold">
+            ... Items Available
+          </span>
+          <span class="px-3 py-1 rounded-full bg-emerald-950/50 border border-emerald-600/30 text-emerald-300 text-xs font-medium">
+            ⚡ 90-Min Hub Dispatch
+          </span>
+        </div>
+      </div>
+      <div id="cat-hero-img-container" class="w-full md:w-64 h-36 rounded-2xl overflow-hidden bg-emerald-950/40 border border-emerald-600/30 shrink-0 hidden sm:block">
+        <img id="cat-hero-img" src="" alt="Category" class="w-full h-full object-cover" />
+      </div>
+    </div>
+
+    <!-- ================= CONTROLS & SUBCATEGORIES ================= -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-emerald-900/10 shadow-xs">
+      <!-- Subcategory Filter Pills -->
+      <div id="subcat-filters" class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none text-xs font-semibold">
+        <button onclick="filterBySubcategory('ALL')" class="subcat-pill active px-3 py-1.5 rounded-xl bg-emerald-700 text-white font-bold transition">All Items</button>
+      </div>
+
+      <!-- Search & Sort -->
+      <div class="flex items-center gap-2 shrink-0">
+        <input 
+          id="cat-search-input" 
+          type="text" 
+          placeholder="Search items in this category..." 
+          oninput="handleCategorySearch(this.value)"
+          class="px-3 py-1.5 rounded-xl bg-stone-50 border border-stone-200 text-xs focus:outline-none focus:border-emerald-600 w-48 sm:w-56"
+        />
+        <select id="cat-sort-select" onchange="handleSortChange(this.value)" class="px-3 py-1.5 rounded-xl bg-stone-50 border border-stone-200 text-xs font-semibold focus:outline-none focus:border-emerald-600">
+          <option value="featured">✨ Featured</option>
+          <option value="price-asc">₹ Price: Low to High</option>
+          <option value="price-desc">₹ Price: High to Low</option>
+          <option value="stock-desc">📦 In Stock First</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ================= DYNAMIC PRODUCT GRID ================= -->
+    <div id="category-products-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div class="col-span-full py-16 text-center text-stone-400 font-medium">
+        <div class="w-8 h-8 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+        Loading farm-fresh products from database...
+      </div>
+    </div>
+  </main>
+
+  <script src="/app.js"></script>
+  <script>
+    let currentCategory = null;
+    let allProducts = [];
+    let currentSubcategory = 'ALL';
+    let searchQuery = '';
+    let sortOption = 'featured';
+
+    function getCategorySlug() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('cat')) return params.get('cat');
+      if (params.get('category')) return params.get('category');
+      
+      const pathname = window.location.pathname;
+      if (pathname.includes('/category/')) {
+        return pathname.replace('/category/', '').replace('.html', '').replace('/', '');
+      }
+      return 'vegetables';
+    }
+
+    async function initCategoryPage() {
+      const slug = getCategorySlug();
+      try {
+        const [catsRes, prodsRes] = await Promise.all([
+          fetch('/api/categories?_t=' + Date.now()),
+          fetch('/api/products?category=' + encodeURIComponent(slug) + '&_t=' + Date.now())
+        ]);
+
+        if (catsRes.ok) {
+          const categories = await catsRes.json();
+          renderCustomerNavbar(categories, slug);
+          currentCategory = categories.find(c => (c.slug || '').toLowerCase() === slug.toLowerCase() || (c.name || '').toLowerCase() === slug.toLowerCase());
+        }
+
+        if (currentCategory) {
+          document.getElementById('page-title').textContent = currentCategory.name + ' | FreshMart';
+          document.getElementById('cat-breadcrumb-name').textContent = currentCategory.name;
+          document.getElementById('cat-hero-title').textContent = currentCategory.name;
+          document.getElementById('cat-hero-icon').textContent = currentCategory.icon || '🏷️';
+          if (currentCategory.description) {
+            document.getElementById('cat-hero-desc').textContent = currentCategory.description;
+          }
+          if (currentCategory.image) {
+            document.getElementById('cat-hero-img').src = currentCategory.image;
+          } else {
+            document.getElementById('cat-hero-img-container').style.display = 'none';
+          }
+        } else {
+          document.getElementById('cat-hero-title').textContent = slug.charAt(0).toUpperCase() + slug.slice(1);
+        }
+
+        if (prodsRes.ok) {
+          allProducts = await prodsRes.json();
+          document.getElementById('cat-items-badge').textContent = allProducts.length + ' Items Available';
+          renderSubcategoryPills();
+          applyProductFilters();
+        }
+      } catch (err) {
+        console.error('initCategoryPage error:', err);
+      }
+    }
+
+    function renderCustomerNavbar(categories, activeSlug) {
+      const nav = document.getElementById('customer-navbar-categories');
+      if (!nav) return;
+      const activeCats = (categories || []).filter(c => (c.status || 'ACTIVE') === 'ACTIVE');
+      nav.innerHTML = `
+        <a href="/" class="px-3 py-1.5 rounded-xl text-stone-600 hover:bg-stone-100 transition">Home</a>
+        ${activeCats.map(c => {
+          const isCurrent = (c.slug || '').toLowerCase() === activeSlug.toLowerCase();
+          return `
+            <a href="/category/${c.slug || c.name.toLowerCase()}" class="px-3 py-1.5 rounded-xl whitespace-nowrap transition flex items-center gap-1.5 ${isCurrent ? 'bg-emerald-700 text-white font-bold shadow-xs' : 'text-stone-600 hover:bg-stone-100'}">
+              <span>${c.icon || '📁'}</span>
+              <span>${c.name}</span>
+            </a>
+          `;
+        }).join('')}
+      `;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderSubcategoryPills() {
+      const subcats = new Set();
+      allProducts.forEach(p => {
+        if (p.subcategory && p.subcategory.trim()) subcats.add(p.subcategory.trim());
+      });
+
+      const container = document.getElementById('subcat-filters');
+      if (!container) return;
+
+      container.innerHTML = `
+        <button onclick="filterBySubcategory('ALL')" class="subcat-pill ${currentSubcategory === 'ALL' ? 'bg-emerald-700 text-white font-bold' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'} px-3 py-1.5 rounded-xl transition">
+          All Items (${allProducts.length})
+        </button>
+        ${Array.from(subcats).map(s => {
+          const count = allProducts.filter(p => p.subcategory === s).length;
+          const isCur = currentSubcategory === s;
+          return `
+            <button onclick="filterBySubcategory('${s}')" class="subcat-pill ${isCur ? 'bg-emerald-700 text-white font-bold' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'} px-3 py-1.5 rounded-xl whitespace-nowrap transition">
+              ${s} (${count})
+            </button>
+          `;
+        }).join('')}
+      `;
+    }
+
+    function filterBySubcategory(subcat) {
+      currentSubcategory = subcat;
+      renderSubcategoryPills();
+      applyProductFilters();
+    }
+
+    function handleCategorySearch(val) {
+      searchQuery = (val || '').toLowerCase().trim();
+      applyProductFilters();
+    }
+
+    function handleSortChange(val) {
+      sortOption = val;
+      applyProductFilters();
+    }
+
+    function applyProductFilters() {
+      let list = [...allProducts];
+
+      if (currentSubcategory !== 'ALL') {
+        list = list.filter(p => p.subcategory === currentSubcategory);
+      }
+
+      if (searchQuery) {
+        list = list.filter(p => 
+          (p.name && p.name.toLowerCase().includes(searchQuery)) ||
+          (p.sku && p.sku.toLowerCase().includes(searchQuery)) ||
+          (p.hindiName && p.hindiName.toLowerCase().includes(searchQuery))
+        );
+      }
+
+      if (sortOption === 'price-asc') {
+        list.sort((a, b) => (a.price || a.sellingPrice || 0) - (b.price || b.sellingPrice || 0));
+      } else if (sortOption === 'price-desc') {
+        list.sort((a, b) => (b.price || b.sellingPrice || 0) - (a.price || a.sellingPrice || 0));
+      } else if (sortOption === 'stock-desc') {
+        list.sort((a, b) => (b.stock || b.availableStock || 0) - (a.stock || a.availableStock || 0));
+      }
+
+      renderProductsGrid(list);
+    }
+
+    function renderProductsGrid(products) {
+      const grid = document.getElementById('category-products-grid');
+      if (!grid) return;
+
+      if (products.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-16 text-center text-stone-400 bg-white rounded-3xl border border-emerald-900/10">
+            <span class="text-4xl block mb-2">🧺</span>
+            <p class="font-bold text-stone-600">No products found in this category.</p>
+            <p class="text-xs text-stone-400 mt-1">Try clearing your filters or search query.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = products.map(p => {
+        const avail = Number(p.availableStock !== undefined ? p.availableStock : (p.stock || 0));
+        const price = Number(p.price || p.sellingPrice || 0);
+        const mrp = Number(p.mrp || p.originalPrice || price);
+        const discount = mrp > price ? Math.round(((mrp - price) / mrp) * 100) + '% OFF' : null;
+        const isOutOfStock = avail <= 0;
+
+        return `
+          <div class="rounded-3xl bg-white border border-emerald-900/10 hover:border-emerald-700/30 p-4 flex flex-col justify-between shadow-xs hover:shadow-md transition group">
+            <div>
+              <div class="w-full h-36 rounded-2xl overflow-hidden bg-stone-50 relative mb-3">
+                <img src="${p.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80'}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                ${discount ? `<span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-amber-500 text-white font-black text-[10px] shadow-xs">${discount}</span>` : ''}
+                ${isOutOfStock ? `<span class="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-rose-600 text-white font-black text-[10px]">Out of Stock</span>` : ''}
+              </div>
+
+              <div class="space-y-1">
+                <div class="flex items-center justify-between text-[10px] text-stone-400">
+                  <span>${p.unit || '1 unit'}</span>
+                  <span class="font-mono">${p.farmer || 'Karnataka Organic'}</span>
+                </div>
+                <h3 class="font-heading font-bold text-sm text-emerald-950 line-clamp-1 group-hover:text-emerald-700 transition-colors">${p.name}</h3>
+                ${p.hindiName ? `<p class="text-[11px] text-stone-500">${p.hindiName}</p>` : ''}
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
+              <div>
+                <span class="font-heading font-black text-base text-emerald-950">₹${price}</span>
+                ${mrp > price ? `<span class="text-xs text-stone-400 line-through ml-1 font-mono">₹${mrp}</span>` : ''}
+              </div>
+              <button 
+                onclick="window.FreshMartCart ? FreshMartCart.addItem('${p.id}', 1) : (window.addToCart ? addToCart('${p.id}') : alert('Added to cart'))" 
+                ${isOutOfStock ? 'disabled' : ''}
+                class="px-3.5 py-1.5 rounded-xl ${isOutOfStock ? 'bg-stone-200 text-stone-400 cursor-not-allowed' : 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs hover:shadow-emerald-700/20 active:scale-95'} font-bold text-xs transition flex items-center gap-1 cursor-pointer"
+              >
+                <span>Add</span>
+                <span class="text-sm">+</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initCategoryPage();
+      if (window.lucide) lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

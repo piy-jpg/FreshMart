@@ -2976,11 +2976,89 @@ async function syncStorefrontCatalogWithBackend() {
     }
   } catch (e) {
     console.warn('Storefront catalog sync notice:', e);
-  } finally {
+    } finally {
     _isSyncingCatalog = false;
+    syncStorefrontCategoriesWithBackend();
   }
 }
 window.syncStorefrontCatalogWithBackend = syncStorefrontCatalogWithBackend;
+
+async function syncStorefrontCategoriesWithBackend() {
+  try {
+    const res = await fetch('/api/categories?_t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const categories = await res.json();
+    if (!Array.isArray(categories)) return;
+
+    const activeCats = categories.filter(c => (c.status || 'ACTIVE') === 'ACTIVE');
+
+    // 1. Update Mobile Header Category Pills
+    const mobilePillsContainer = document.querySelector('.md\\:hidden .flex.items-center.gap-2.overflow-x-auto');
+    if (mobilePillsContainer) {
+      mobilePillsContainer.innerHTML = activeCats.map(c => `
+        <a href="/category/${c.slug || c.name.toLowerCase()}" class="px-3 py-1 rounded-full text-stone-600 hover:bg-stone-50 whitespace-nowrap flex items-center gap-1 font-semibold">
+          <span>${c.icon || '📁'}</span>
+          <span>${c.name}</span>
+        </a>
+      `).join('');
+    }
+
+    // 2. Update Desktop Sidebar Navigation
+    const sidebarNav = document.querySelector('.sidebar-nav-card nav');
+    if (sidebarNav) {
+      const homeLink = '<a href="/" class="sidebar-link active group"><div class="sidebar-icon-wrapper icon-emerald"><i data-lucide="home" class="w-4 h-4"></i></div><span class="flex-1">Home</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i></a>';
+      const catLinks = activeCats.map(c => {
+        const count = c.productCount || c.activeProductCount || 0;
+        return `
+          <a href="/category/${c.slug || c.name.toLowerCase()}" class="sidebar-link group">
+            <div class="sidebar-icon-wrapper icon-emerald"><span class="text-sm">${c.icon || '📁'}</span></div>
+            <span class="flex-1 font-medium">${c.name}</span>
+            <span class="text-[9.5px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">${count} Fresh</span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i>
+          </a>
+        `;
+      }).join('');
+      sidebarNav.innerHTML = homeLink + catLinks;
+    }
+
+    // 3. Update "Shop by Category" Grid
+    const catGrid = document.querySelector('#categories .grid');
+    if (catGrid) {
+      catGrid.innerHTML = activeCats.map(c => {
+        const count = c.productCount || c.activeProductCount || 0;
+        const imgUrl = c.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80';
+        return `
+          <div onclick="window.location.href='/category/${c.slug || c.name.toLowerCase()}'" class="category-card card-3d-tilt group relative rounded-3xl bg-white border border-emerald-900/10 shadow-soft hover:shadow-hover transition-all duration-300 overflow-hidden cursor-pointer flex flex-col justify-between p-5">
+            <div class="relative z-10">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">${count} Active Items</span>
+                <div class="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-800 group-hover:bg-emerald-700 group-hover:text-white transition-colors">
+                  <span>→</span>
+                </div>
+              </div>
+              <h3 class="font-heading font-bold text-lg text-emerald-950 group-hover:text-emerald-700 transition-colors flex items-center gap-2">
+                <span>${c.icon || '🏷️'}</span>
+                <span>${c.name}</span>
+              </h3>
+              <p class="text-xs text-stone-500 mt-1 leading-relaxed">${c.description || 'Farm-fresh certified produce.'}</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
+              <div class="h-24 w-full rounded-2xl overflow-hidden bg-emerald-50 relative">
+                <img src="${imgUrl}" alt="${c.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" />
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    if (window.lucide) lucide.createIcons();
+  } catch (e) {
+    console.warn('syncStorefrontCategoriesWithBackend error:', e);
+  }
+}
+window.syncStorefrontCategoriesWithBackend = syncStorefrontCategoriesWithBackend;
+
 
 function debouncedSyncStorefront() {
   if (_syncDebounceTimer) clearTimeout(_syncDebounceTimer);
@@ -3684,7 +3762,7 @@ window.closeUserProfilePopover = function() {
 };
 
 // Order Tracking Modal Controls & Live Dynamic Renderer
-let activeTrackingOrderId = 'SJH10248';
+let activeTrackingOrderId = 'FM-OD-00001';
 
 window.openTrackOrderModal = async function(orderId) {
   const modal = document.getElementById('track-order-modal');
@@ -3693,7 +3771,7 @@ window.openTrackOrderModal = async function(orderId) {
   if (orderId) {
     activeTrackingOrderId = orderId;
   } else {
-    activeTrackingOrderId = localStorage.getItem('sabjihub_active_order_id') || 'SJH10248';
+    activeTrackingOrderId = localStorage.getItem('freshmart_active_order_id') || localStorage.getItem('sabjihub_active_order_id') || 'FM-OD-00001';
   }
 
   modal.classList.add('open', 'active');
@@ -3727,7 +3805,7 @@ window.renderTrackOrderModalContent = async function(orderId) {
   // Fallback seed order if offline
   if (!order) {
     order = {
-      orderId: orderId || 'SJH10248',
+      orderId: orderId || 'FM-OD-00001',
       orderStatus: 'OUT_FOR_DELIVERY',
       estimatedDeliveryTime: '28 Mins',
       deliveryOtp: '4821',
@@ -3749,6 +3827,18 @@ window.renderTrackOrderModalContent = async function(orderId) {
   const riderName = order.deliveryBoyName || order.deliveryPartnerName || 'EV Delivery Pilot';
   const riderPhone = order.deliveryBoyPhone || order.deliveryPartnerPhone || '+91 98765 43210';
   const hasRider = !!(order.deliveryBoyName || order.deliveryPartnerName);
+
+  // Fetch existing review if order is DELIVERED
+  let existingReview = order.reviews || null;
+  if (isDelivered && !existingReview) {
+    try {
+      const revRes = await fetch(`/api/orders/${orderId}/review`);
+      if (revRes.ok) {
+        const revData = await revRes.json();
+        if (revData.review) existingReview = revData.review;
+      }
+    } catch (e) {}
+  }
 
   modalBox.innerHTML = `
     <!-- Modal Header -->
@@ -3780,35 +3870,88 @@ window.renderTrackOrderModalContent = async function(orderId) {
         </div>
         <div>
           <h4 class="font-heading font-black text-lg text-emerald-950">Delivered Successfully!</h4>
-          <p class="text-xs text-stone-600 mt-0.5">Handed over at ${order.deliveryAddress?.city || 'Indiranagar'} • Verified via OTP</p>
+          <p class="text-xs text-stone-600 mt-0.5">Handed over at ${order.deliveryAddress?.city || 'Doorstep'} • Verified via OTP</p>
         </div>
 
-        <!-- 5-Star Rating Widget -->
-        <div class="bg-white p-4 rounded-2xl border border-emerald-200/80 text-left space-y-3">
-          <div>
-            <span class="text-xs font-bold text-emerald-950 block">Rate Delivery Partner (${riderName})</span>
-            <div class="flex gap-1 mt-1 text-xl text-amber-400 cursor-pointer" id="delivery-star-rating">
-              <span onclick="setRating('delivery', 1)">★</span>
-              <span onclick="setRating('delivery', 2)">★</span>
-              <span onclick="setRating('delivery', 3)">★</span>
-              <span onclick="setRating('delivery', 4)">★</span>
-              <span onclick="setRating('delivery', 5)">★</span>
+        ${existingReview ? `
+          <!-- Submitted Review Card -->
+          <div class="bg-white p-5 rounded-2xl border border-emerald-300 text-left space-y-3 shadow-xs">
+            <div class="flex items-center justify-between pb-2 border-b border-stone-100">
+              <span class="text-xs font-black text-emerald-950 uppercase tracking-wider">Your Submitted Review</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                ✓ Verified Customer Review
+              </span>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3">
+              <div class="p-3 rounded-xl bg-stone-50 border border-stone-200/80">
+                <span class="text-[10px] font-bold text-stone-500 uppercase block">Store Produce</span>
+                <div class="text-amber-400 text-base font-black flex items-center gap-1 mt-0.5">
+                  <span>${'★'.repeat(existingReview.storeRating || 5)}${'☆'.repeat(5 - (existingReview.storeRating || 5))}</span>
+                  <span class="text-xs font-bold text-stone-700">(${existingReview.storeRating || 5}/5)</span>
+                </div>
+              </div>
+
+              <div class="p-3 rounded-xl bg-stone-50 border border-stone-200/80">
+                <span class="text-[10px] font-bold text-stone-500 uppercase block">EV Delivery Partner</span>
+                <div class="text-amber-400 text-base font-black flex items-center gap-1 mt-0.5">
+                  <span>${'★'.repeat(existingReview.riderRating || 5)}${'☆'.repeat(5 - (existingReview.riderRating || 5))}</span>
+                  <span class="text-xs font-bold text-stone-700">(${existingReview.riderRating || 5}/5)</span>
+                </div>
+              </div>
+            </div>
+
+            ${existingReview.comment ? `
+              <div class="p-3 rounded-xl bg-stone-50 border border-stone-200/80 text-xs text-stone-700 italic">
+                "${existingReview.comment}"
+              </div>
+            ` : ''}
+
+            <div class="text-[10px] text-stone-400 font-medium text-right">
+              Submitted on ${new Date(existingReview.createdAt || Date.now()).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
             </div>
           </div>
-          <div>
-            <span class="text-xs font-bold text-emerald-950 block">Rate Produce Freshness</span>
-            <div class="flex gap-1 mt-1 text-xl text-amber-400 cursor-pointer" id="produce-star-rating">
-              <span onclick="setRating('produce', 1)">★</span>
-              <span onclick="setRating('produce', 2)">★</span>
-              <span onclick="setRating('produce', 3)">★</span>
-              <span onclick="setRating('produce', 4)">★</span>
-              <span onclick="setRating('produce', 5)">★</span>
+        ` : `
+          <!-- Interactive 5-Star Rating Form -->
+          <div class="bg-white p-5 rounded-2xl border border-emerald-200/80 text-left space-y-4 shadow-xs">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-emerald-950 block">Rate FreshMart Produce & Store</span>
+                <span id="store-rating-label" class="text-[11px] font-bold text-emerald-700">5 / 5 • Exceptional Quality</span>
+              </div>
+              <div class="flex gap-2 mt-1.5 text-2xl cursor-pointer select-none" id="store-star-rating">
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setStoreRating(1)">★</span>
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setStoreRating(2)">★</span>
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setStoreRating(3)">★</span>
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setStoreRating(4)">★</span>
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setStoreRating(5)">★</span>
+              </div>
             </div>
+
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-emerald-950 block">Rate Delivery Partner (${riderName})</span>
+                <span id="rider-rating-label" class="text-[11px] font-bold text-emerald-700">5 / 5 • Fast & Polite</span>
+              </div>
+              <div class="flex gap-2 mt-1.5 text-2xl cursor-pointer select-none" id="rider-star-rating">
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setRiderRating(1)">★</span>
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setRiderRating(2)">★</span>
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setRiderRating(3)">★</span>
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setRiderRating(4)">★</span>
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setRiderRating(5)">★</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-emerald-950 mb-1">Written Feedback (Optional)</label>
+              <textarea id="order-rating-comment" rows="2" placeholder="Share your experience with produce freshness, ozone wash, or delivery speed..." class="w-full p-2.5 rounded-xl bg-stone-50 border border-stone-200 text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 resize-none"></textarea>
+            </div>
+
+            <button id="btn-submit-order-rating" onclick="submitOrderRating('${order.id || order.orderId}')" class="w-full py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs transition-all shadow-xs cursor-pointer">
+              ✓ Submit Rating & Feedback
+            </button>
           </div>
-          <button onclick="submitOrderRating('${order.id || order.orderId}')" class="w-full py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs transition-colors">
-            Submit Rating & Feedback
-          </button>
-        </div>
+        `}
 
         <button onclick="reorderItems('${order.id || order.orderId}')" class="w-full py-3 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2">
           <span>🔄 Reorder These Items</span>
@@ -3965,23 +4108,333 @@ function getProgressWidth(status) {
   }
 }
 
-window.setRating = function(type, stars) {
-  showToast(`Rated ${type} ${stars} Stars!`, 'success');
+let activeOrderStoreRating = 5;
+let activeOrderRiderRating = 5;
+
+window.setStoreRating = function(stars) {
+  activeOrderStoreRating = stars;
+  const container = document.getElementById('store-star-rating');
+  if (container) {
+    const starSpans = container.querySelectorAll('.star-btn');
+    starSpans.forEach((span, idx) => {
+      if (idx < stars) {
+        span.className = 'star-btn text-amber-400 transition cursor-pointer';
+      } else {
+        span.className = 'star-btn text-stone-300 hover:text-amber-200 transition cursor-pointer';
+      }
+    });
+  }
+  const label = document.getElementById('store-rating-label');
+  if (label) {
+    const labels = ['', '1 / 5 • Poor Quality', '2 / 5 • Fair Freshness', '3 / 5 • Good Quality', '4 / 5 • Very Fresh', '5 / 5 • Exceptional Quality'];
+    label.textContent = labels[stars] || `${stars} / 5`;
+  }
+};
+
+window.setRiderRating = function(stars) {
+  activeOrderRiderRating = stars;
+  const container = document.getElementById('rider-star-rating');
+  if (container) {
+    const starSpans = container.querySelectorAll('.star-btn');
+    starSpans.forEach((span, idx) => {
+      if (idx < stars) {
+        span.className = 'star-btn text-amber-400 transition cursor-pointer';
+      } else {
+        span.className = 'star-btn text-stone-300 hover:text-amber-200 transition cursor-pointer';
+      }
+    });
+  }
+  const label = document.getElementById('rider-rating-label');
+  if (label) {
+    const labels = ['', '1 / 5 • Delayed / Issues', '2 / 5 • Below Average', '3 / 5 • Satisfactory', '4 / 5 • Fast & Polite', '5 / 5 • Lightning Fast & Polite'];
+    label.textContent = labels[stars] || `${stars} / 5`;
+  }
 };
 
 window.submitOrderRating = async function(orderId) {
+  const submitBtn = document.getElementById('btn-submit-order-rating');
+  const commentInput = document.getElementById('order-rating-comment');
+  const comment = commentInput ? commentInput.value.trim() : '';
+
+  const submittedStoreRating = activeOrderStoreRating || 5;
+  const submittedRiderRating = activeOrderRiderRating || 5;
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '⏳ Submitting review to database...';
+  }
+
   try {
-    await fetch(`/api/orders/${orderId}/review`, {
+    const res = await fetch(`/api/orders/${orderId}/review`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ deliveryRating: 5, productRating: 5, feedback: 'Great fresh produce!' })
+      credentials: 'include',
+      body: JSON.stringify({
+        storeRating: submittedStoreRating,
+        riderRating: submittedRiderRating,
+        comment
+      })
     });
-    showToast('Thank you for your rating! ₹20 FreshMart Cash added to your wallet.', 'success');
-    closeTrackOrderModal();
-  } catch (e) {
-    showToast('Rating submitted!', 'success');
-    closeTrackOrderModal();
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to submit review');
+    }
+
+    // 1. Re-render background order modal with permanent submitted review state
+    await renderTrackOrderModalContent(orderId);
+
+    // 2. Launch full-screen celebratory animation
+    window.triggerRatingCelebration({
+      storeRating: submittedStoreRating,
+      riderRating: submittedRiderRating,
+      orderId
+    });
+
+  } catch (err) {
+    showToast(err.message || 'Error submitting review', 'error');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '✓ Submit Rating & Feedback';
+    }
   }
+};
+
+window.triggerRatingCelebration = function({ storeRating = 5, riderRating = 5, orderId } = {}) {
+  const existing = document.getElementById('freshmart-rating-celebration-overlay');
+  if (existing) existing.remove();
+
+  const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'freshmart-rating-celebration-overlay';
+  overlay.className = 'celebration-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', 'Thank you for your rating');
+
+  const renderStarsHtml = (stars) => {
+    const s = Math.max(1, Math.min(5, Number(stars) || 5));
+    let html = '';
+    for (let i = 1; i <= 5; i++) {
+      const isFilled = i <= s;
+      const delay = prefersReducedMotion ? '0s' : `${(i * 0.08) + 0.15}s`;
+      html += `<span class="star-pop-item text-amber-400 text-2xl sm:text-3xl drop-shadow-sm" style="animation-delay: ${delay}">${isFilled ? '★' : '☆'}</span>`;
+    }
+    return html;
+  };
+
+  overlay.innerHTML = `
+    <canvas id="celebration-confetti-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
+    
+    <div class="celebration-card-3d rounded-3xl p-6 sm:p-8 text-center max-w-sm sm:max-w-md w-full relative z-10 mx-auto select-none">
+      <!-- Decorative Floating Sparkles -->
+      <div class="celebration-sparkle top-3 left-4 text-amber-400 text-xl">✨</div>
+      <div class="celebration-sparkle top-4 right-5 text-emerald-400 text-lg" style="animation-delay: 0.8s;">✨</div>
+      <div class="celebration-sparkle bottom-5 left-6 text-emerald-500 text-base" style="animation-delay: 1.4s;">✨</div>
+      <div class="celebration-sparkle bottom-6 right-6 text-amber-400 text-xl" style="animation-delay: 0.4s;">✨</div>
+
+      <!-- Header with animated Emoji -->
+      <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-br from-emerald-100 via-emerald-50 to-amber-100 border border-emerald-200/80 shadow-inner mb-3.5 mx-auto">
+        <span class="text-3xl sm:text-4xl animate-bounce">🎉</span>
+      </div>
+
+      <h2 class="font-heading font-black text-2xl sm:text-3xl text-emerald-950 tracking-tight mb-1">
+        🎉 Thank You!
+      </h2>
+      
+      <p class="font-bold text-sm sm:text-base text-emerald-800 mb-1">
+        Thank you for your feedback! ❤️
+      </p>
+      <p class="text-xs sm:text-sm text-stone-600 mb-4 font-medium">
+        We hope you enjoyed your FreshMart experience.
+      </p>
+
+      <!-- Rating Confirmation Badge -->
+      <div class="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 mb-4 space-y-2">
+        <div class="flex items-center justify-between text-xs font-bold text-stone-700">
+          <span class="flex items-center gap-1.5"><span class="text-emerald-700">⭐</span> <span>Rating submitted successfully</span></span>
+          <span class="text-[10px] font-mono font-bold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-full">VERIFIED</span>
+        </div>
+        
+        <div class="pt-1.5 flex items-center justify-center gap-1.5">
+          ${renderStarsHtml(storeRating)}
+        </div>
+      </div>
+
+      <!-- Small animated experience message -->
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 text-emerald-900 border border-emerald-200/90 text-xs font-bold mb-5 shadow-xs">
+        <span class="bag-bounce text-base">🛍️</span>
+        <span>Enjoy your FreshMart experience!</span>
+      </div>
+
+      <!-- Continue Action -->
+      <div>
+        <button id="btn-close-celebration" class="w-full py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 active:scale-[0.98] text-white font-bold text-xs sm:text-sm transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2">
+          <span>✓</span> <span>Back to Order Details</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  requestAnimationFrame(() => {
+    overlay.classList.add('active');
+  });
+
+  if (window.FreshMartSound) {
+    try { window.FreshMartSound.play('success'); } catch (e) {}
+  }
+
+  let animationFrameId = null;
+  let isCleanedUp = false;
+
+  const cleanup = () => {
+    if (isCleanedUp) return;
+    isCleanedUp = true;
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    overlay.classList.remove('active');
+    setTimeout(() => {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 450);
+  };
+
+  const closeBtn = overlay.querySelector('#btn-close-celebration');
+  if (closeBtn) closeBtn.addEventListener('click', cleanup);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) cleanup();
+  });
+
+  // Auto-dismiss smoothly after 3.8s
+  setTimeout(() => {
+    cleanup();
+  }, 3800);
+
+  if (prefersReducedMotion) {
+    return;
+  }
+
+  const canvas = overlay.querySelector('#celebration-confetti-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const resizeCanvas = () => {
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+  };
+  resizeCanvas();
+
+  const colors = [
+    '#10b981', '#059669', '#34d399', '#047857',
+    '#f59e0b', '#fbbf24', '#d97706',
+    '#f43f5e', '#ec4899', '#fb7185',
+    '#8b5cf6', '#a855f7',
+    '#06b6d4', '#38bdf8', '#3b82f6',
+    '#ffffff'
+  ];
+
+  const particles = [];
+  const totalParticles = window.innerWidth < 640 ? 110 : 180;
+
+  for (let i = 0; i < totalParticles; i++) {
+    let originX, originY, angleRad, velocity;
+    const rand = Math.random();
+
+    if (rand < 0.38) {
+      originX = 0;
+      originY = canvas.height * (0.75 + Math.random() * 0.2);
+      angleRad = (Math.PI / 180) * (30 + Math.random() * 35);
+      velocity = (14 + Math.random() * 18) * dpr;
+    } else if (rand < 0.76) {
+      originX = canvas.width;
+      originY = canvas.height * (0.75 + Math.random() * 0.2);
+      angleRad = (Math.PI / 180) * (115 + Math.random() * 35);
+      velocity = (14 + Math.random() * 18) * dpr;
+    } else {
+      originX = canvas.width * (0.4 + Math.random() * 0.2);
+      originY = canvas.height;
+      angleRad = (Math.PI / 180) * (70 + Math.random() * 40);
+      velocity = (16 + Math.random() * 20) * dpr;
+    }
+
+    const typeRand = Math.random();
+    const type = typeRand < 0.55 ? 'rect' : (typeRand < 0.85 ? 'circle' : 'ribbon');
+
+    particles.push({
+      x: originX,
+      y: originY,
+      vx: Math.cos(angleRad) * velocity,
+      vy: -Math.sin(angleRad) * velocity,
+      size: (type === 'ribbon' ? 4 + Math.random() * 4 : 5 + Math.random() * 6) * dpr,
+      length: (type === 'ribbon' ? 14 + Math.random() * 16 : 8 + Math.random() * 8) * dpr,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      type,
+      rotation: Math.random() * 360,
+      rotationSpeed: (Math.random() - 0.5) * 14,
+      wobble: Math.random() * Math.PI * 2,
+      wobbleSpeed: 0.08 + Math.random() * 0.12,
+      gravity: (0.28 + Math.random() * 0.14) * dpr,
+      drag: 0.978,
+      alpha: 1,
+      decay: 0.004 + Math.random() * 0.005
+    });
+  }
+
+  const renderConfetti = () => {
+    if (isCleanedUp) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    let activeCount = 0;
+
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vx *= p.drag;
+      p.vy *= p.drag;
+      p.vy += p.gravity;
+
+      p.wobble += p.wobbleSpeed;
+      p.rotation += p.rotationSpeed;
+      p.alpha -= p.decay;
+
+      if (p.alpha <= 0 || p.y > canvas.height + 40) continue;
+      activeCount++;
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.alpha);
+      ctx.translate(p.x, p.y);
+      ctx.rotate((p.rotation * Math.PI) / 180);
+      ctx.scale(Math.cos(p.wobble), 1);
+
+      ctx.fillStyle = p.color;
+
+      if (p.type === 'rect') {
+        ctx.fillRect(-p.size / 2, -p.length / 2, p.size, p.length);
+      } else if (p.type === 'ribbon') {
+        ctx.fillRect(-p.size / 2, -p.length / 2, p.size, p.length);
+        ctx.fillStyle = '#ffffff';
+        ctx.globalAlpha = Math.max(0, p.alpha * 0.4);
+        ctx.fillRect(-p.size / 2, -p.length / 2, p.size / 2, p.length);
+      } else {
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    if (activeCount > 0 && !isCleanedUp) {
+      animationFrameId = requestAnimationFrame(renderConfetti);
+    }
+  };
+
+  animationFrameId = requestAnimationFrame(renderConfetti);
 };
 
 window.reorderItems = function(orderId) {

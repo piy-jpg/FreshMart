@@ -753,7 +753,7 @@
       <section id="tab-products" class="tab-pane space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 class="font-heading font-black text-xl text-white">Farm Harvest Catalog (<span id="products-catalog-count">87</span> Live Items)</h2>
+            <h2 class="font-heading font-black text-xl text-white">Farm Harvest Catalog (<span id="products-catalog-count">...</span> Live Items)</h2>
             <p class="text-xs text-slate-400">Master product database, pricing, farm source, margins, and operational controls.</p>
           </div>
           <div class="flex items-center gap-2">
@@ -3461,6 +3461,12 @@
                 loadProducts();
               }
               loadInventory();
+              loadCategories();
+              loadDashboard();
+            } else if (data.type === 'PRODUCT_UPDATED' || data.type === 'PRODUCT_DELETED') {
+              loadProducts();
+              loadInventory();
+              loadCategories();
               loadDashboard();
             } else if (data.type === 'ORDER_CREATED') {
               const newOrder = data.payload;
@@ -5143,24 +5149,33 @@
       const countEl = document.getElementById('products-catalog-count');
       if (countEl) countEl.textContent = total;
 
-      // 2. Catalog Category Filter Subnav Dropdown
+      // 2. Catalog Category Filter Subnav Dropdown (Dynamic from state.categories)
       const catSelect = document.getElementById('prod-cat-filter');
       if (catSelect) {
         const selVal = catSelect.value || 'ALL';
-        catSelect.innerHTML = `
-          <option value="ALL">All Categories (${total})</option>
-          <option value="vegetables">🥬 Vegetables & Combos (${vegCount})</option>
-          <option value="fruits">🍎 Fruits & Combos (${fruitCount})</option>
-          <option value="grocery">🌾 Grocery & Pantry (${grocCount})</option>
+        let optionsHtml = `<option value="ALL">All Categories (${total})</option>`;
+        if (state.categories && state.categories.length > 0) {
+          state.categories.forEach(c => {
+            const cSlug = (c.slug || c.name || '').toLowerCase();
+            const cName = c.name || c.slug;
+            const cCount = prods.filter(p => {
+              const pCat = (p.category || '').toLowerCase();
+              return pCat === cName.toLowerCase() || pCat === cSlug || pCat.includes(cSlug);
+            }).length;
+            optionsHtml += `<option value="${cSlug}">${c.icon || '📁'} ${cName} (${cCount})</option>`;
+          });
+        }
+        optionsHtml += `
           <option value="ACTIVE">🟢 Active Only (${activeCount})</option>
           <option value="SUSPENDED">⏸️ Suspended Only (${suspendedCount})</option>
           <option value="LOW_STOCK">⚠️ Low Stock Only (${lowCount})</option>
           <option value="OUT_OF_STOCK">🔴 Out of Stock Only (${outCount})</option>
         `;
+        catSelect.innerHTML = optionsHtml;
         catSelect.value = selVal;
       }
 
-      // 3. Inventory Subnav & Filter Chips
+      // 3. Inventory Subnav & Filter Chips (Dynamic from state.categories)
       const invSkusEl = document.getElementById('owner-inv-total-skus');
       if (invSkusEl) invSkusEl.textContent = `${total} Products`;
 
@@ -5172,20 +5187,52 @@
       const invSelect = document.getElementById('inv-cat-filter');
       if (invSelect) {
         const invVal = invSelect.value || 'all';
-        invSelect.innerHTML = `
-          <option value="all">All Categories (${total})</option>
-          <option value="vegetables">🥬 Vegetables (${vegCount})</option>
-          <option value="fruits">🍎 Fruits (${fruitCount})</option>
-          <option value="grocery">🌾 Grocery (${grocCount})</option>
+        let invOptions = `<option value="all">All Categories (${total})</option>`;
+        if (state.categories && state.categories.length > 0) {
+          state.categories.forEach(c => {
+            const cSlug = (c.slug || c.name || '').toLowerCase();
+            const cName = c.name || c.slug;
+            const cCount = (state.inventory || prods).filter(i => {
+              const iCat = (i.category || '').toLowerCase();
+              return iCat === cName.toLowerCase() || iCat === cSlug || iCat.includes(cSlug);
+            }).length;
+            invOptions += `<option value="${cSlug}">${c.icon || '📁'} ${cName} (${cCount})</option>`;
+          });
+        }
+        invOptions += `
           <option value="low_stock">⚠️ Low Stock (${lowCount})</option>
           <option value="out_of_stock">🔴 Out of Stock (${outCount})</option>
         `;
+        invSelect.innerHTML = invOptions;
         invSelect.value = invVal;
       }
 
       // 4. Sidebar Low Stock Badge
       const badgeLow = document.getElementById('badge-low-stock');
       if (badgeLow) badgeLow.textContent = lowCount;
+
+      // 5. Populate Product Form Category Selectors
+      populateCategoryDropdowns();
+    }
+
+    function populateCategoryDropdowns() {
+      const cats = state.categories || [];
+      const newCatSelect = document.getElementById('new-prod-category');
+      const editCatSelect = document.getElementById('edit-prod-category');
+
+      if (newCatSelect && cats.length > 0) {
+        const cur = newCatSelect.value;
+        const activeCats = cats.filter(c => (c.status || 'ACTIVE') === 'ACTIVE');
+        newCatSelect.innerHTML = activeCats.map(c => `<option value="${c.name}">${c.icon || '📦'} ${c.name}</option>`).join('');
+        if (cur && activeCats.some(c => c.name === cur)) newCatSelect.value = cur;
+      }
+
+      if (editCatSelect && cats.length > 0) {
+        const cur = editCatSelect.value;
+        editCatSelect.innerHTML = cats.map(c => `<option value="${c.name}">${c.icon || '📦'} ${c.name}${c.status === 'SUSPENDED' ? ' (Suspended)' : ''}</option>`).join('');
+        if (cur) editCatSelect.value = cur;
+      }
+    }
     }
 
     function renderProductsTable(productsList) {
@@ -6282,7 +6329,7 @@
         const total = state.categories.length;
         const active = state.categories.filter(c => (c.status || 'ACTIVE') === 'ACTIVE' && c.active !== false).length;
         const suspended = state.categories.filter(c => (c.status || '').toUpperCase() === 'SUSPENDED' || c.active === false).length;
-        const assignedProds = state.categories.reduce((sum, c) => sum + (Number(c.productCount || c.activeProductCount) || 0), 0);
+        const assignedProds = state.categories.reduce((sum, c) => sum + (Number(c.totalProductCount !== undefined ? c.totalProductCount : (c.productCount || c.activeProductCount)) || 0), 0);
 
         const totalEl = document.getElementById('owner-cat-total');
         const activeEl = document.getElementById('owner-cat-active');
@@ -6349,8 +6396,8 @@
           ? '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">🔴 SUSPENDED</span>'
           : '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">🟢 ACTIVE</span>';
 
-        const prodCount = Number(cat.productCount || cat.activeProductCount || 0);
-        const totalCount = Number(cat.totalProductCount || prodCount);
+        const prodCount = Number(cat.activeProductCount !== undefined ? cat.activeProductCount : (cat.productCount || 0));
+        const totalCount = Number(cat.totalProductCount !== undefined ? cat.totalProductCount : prodCount);
 
         const imgHtml = cat.image 
           ? `<img src="${cat.image}" alt="${cat.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80'" />`
@@ -6382,8 +6429,12 @@
 
               <!-- Live Product Count Bar -->
               <div class="mt-4 p-3 rounded-2xl bg-slate-800/70 border border-slate-700/60 flex items-center justify-between text-xs">
-                <span class="text-slate-400 font-semibold">Active Products:</span>
-                <span class="font-mono font-black text-emerald-400">${prodCount} SKUs</span>
+                <span class="text-slate-400 font-semibold">Storefront Active:</span>
+                <span class="font-mono font-black text-emerald-400">${prodCount} Active</span>
+              </div>
+              <div class="mt-1.5 px-3 py-1.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                <span>Total in Catalog:</span>
+                <span class="font-mono font-bold text-slate-300">${totalCount} Items</span>
               </div>
             </div>
 

@@ -753,7 +753,7 @@
       <section id="tab-products" class="tab-pane space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 class="font-heading font-black text-xl text-white">Farm Harvest Catalog (<span id="products-catalog-count">87</span> Live Items)</h2>
+            <h2 class="font-heading font-black text-xl text-white">Farm Harvest Catalog (<span id="products-catalog-count">...</span> Live Items)</h2>
             <p class="text-xs text-slate-400">Master product database, pricing, farm source, margins, and operational controls.</p>
           </div>
           <div class="flex items-center gap-2">
@@ -3461,6 +3461,12 @@
                 loadProducts();
               }
               loadInventory();
+              loadCategories();
+              loadDashboard();
+            } else if (data.type === 'PRODUCT_UPDATED' || data.type === 'PRODUCT_DELETED') {
+              loadProducts();
+              loadInventory();
+              loadCategories();
               loadDashboard();
             } else if (data.type === 'ORDER_CREATED') {
               const newOrder = data.payload;
@@ -6282,7 +6288,7 @@
         const total = state.categories.length;
         const active = state.categories.filter(c => (c.status || 'ACTIVE') === 'ACTIVE' && c.active !== false).length;
         const suspended = state.categories.filter(c => (c.status || '').toUpperCase() === 'SUSPENDED' || c.active === false).length;
-        const assignedProds = state.categories.reduce((sum, c) => sum + (Number(c.productCount || c.activeProductCount) || 0), 0);
+        const assignedProds = state.categories.reduce((sum, c) => sum + (Number(c.totalProductCount !== undefined ? c.totalProductCount : (c.productCount || c.activeProductCount)) || 0), 0);
 
         const totalEl = document.getElementById('owner-cat-total');
         const activeEl = document.getElementById('owner-cat-active');
@@ -6349,8 +6355,8 @@
           ? '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">🔴 SUSPENDED</span>'
           : '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">🟢 ACTIVE</span>';
 
-        const prodCount = Number(cat.productCount || cat.activeProductCount || 0);
-        const totalCount = Number(cat.totalProductCount || prodCount);
+        const prodCount = Number(cat.activeProductCount !== undefined ? cat.activeProductCount : (cat.productCount || 0));
+        const totalCount = Number(cat.totalProductCount !== undefined ? cat.totalProductCount : prodCount);
 
         const imgHtml = cat.image 
           ? `<img src="${cat.image}" alt="${cat.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80'" />`
@@ -6382,8 +6388,12 @@
 
               <!-- Live Product Count Bar -->
               <div class="mt-4 p-3 rounded-2xl bg-slate-800/70 border border-slate-700/60 flex items-center justify-between text-xs">
-                <span class="text-slate-400 font-semibold">Active Products:</span>
-                <span class="font-mono font-black text-emerald-400">${prodCount} SKUs</span>
+                <span class="text-slate-400 font-semibold">Storefront Active:</span>
+                <span class="font-mono font-black text-emerald-400">${prodCount} Active</span>
+              </div>
+              <div class="mt-1.5 px-3 py-1.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                <span>Total in Catalog:</span>
+                <span class="font-mono font-bold text-slate-300">${totalCount} Items</span>
               </div>
             </div>
 

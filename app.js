@@ -2990,22 +2990,69 @@ async function syncStorefrontCategoriesWithBackend() {
     const categories = await res.json();
     if (!Array.isArray(categories)) return;
 
-    const vegCat = categories.find(c => (c.slug || '').includes('veg'));
-    const fruitCat = categories.find(c => (c.slug || '').includes('fruit'));
-    const grocCat = categories.find(c => (c.slug || '').includes('groc') || (c.slug || '').includes('staple'));
+    const activeCats = categories.filter(c => (c.status || 'ACTIVE') === 'ACTIVE');
 
-    document.querySelectorAll('.category-card').forEach(card => {
-      const text = card.textContent || '';
-      const badge = card.querySelector('span.text-xs.font-black.uppercase');
-      if (!badge) return;
-      if (text.includes('Vegetables') && vegCat) {
-        badge.textContent = `${vegCat.productCount || vegCat.activeProductCount || 0} Varieties & Combos`;
-      } else if (text.includes('Fruits') && fruitCat) {
-        badge.textContent = `${fruitCat.productCount || fruitCat.activeProductCount || 0} Varieties`;
-      } else if (text.includes('Groceries') && grocCat) {
-        badge.textContent = `${grocCat.productCount || grocCat.activeProductCount || 0} Pantry Staples`;
-      }
-    });
+    // 1. Update Mobile Header Category Pills
+    const mobilePillsContainer = document.querySelector('.md\\:hidden .flex.items-center.gap-2.overflow-x-auto');
+    if (mobilePillsContainer) {
+      mobilePillsContainer.innerHTML = activeCats.map(c => `
+        <a href="/category/${c.slug || c.name.toLowerCase()}" class="px-3 py-1 rounded-full text-stone-600 hover:bg-stone-50 whitespace-nowrap flex items-center gap-1 font-semibold">
+          <span>${c.icon || '📁'}</span>
+          <span>${c.name}</span>
+        </a>
+      `).join('');
+    }
+
+    // 2. Update Desktop Sidebar Navigation
+    const sidebarNav = document.querySelector('.sidebar-nav-card nav');
+    if (sidebarNav) {
+      const homeLink = '<a href="/" class="sidebar-link active group"><div class="sidebar-icon-wrapper icon-emerald"><i data-lucide="home" class="w-4 h-4"></i></div><span class="flex-1">Home</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i></a>';
+      const catLinks = activeCats.map(c => {
+        const count = c.productCount || c.activeProductCount || 0;
+        return `
+          <a href="/category/${c.slug || c.name.toLowerCase()}" class="sidebar-link group">
+            <div class="sidebar-icon-wrapper icon-emerald"><span class="text-sm">${c.icon || '📁'}</span></div>
+            <span class="flex-1 font-medium">${c.name}</span>
+            <span class="text-[9.5px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">${count} Fresh</span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i>
+          </a>
+        `;
+      }).join('');
+      sidebarNav.innerHTML = homeLink + catLinks;
+    }
+
+    // 3. Update "Shop by Category" Grid
+    const catGrid = document.querySelector('#categories .grid');
+    if (catGrid) {
+      catGrid.innerHTML = activeCats.map(c => {
+        const count = c.productCount || c.activeProductCount || 0;
+        const imgUrl = c.image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80';
+        return `
+          <div onclick="window.location.href='/category/${c.slug || c.name.toLowerCase()}'" class="category-card card-3d-tilt group relative rounded-3xl bg-white border border-emerald-900/10 shadow-soft hover:shadow-hover transition-all duration-300 overflow-hidden cursor-pointer flex flex-col justify-between p-5">
+            <div class="relative z-10">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">${count} Active Items</span>
+                <div class="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-800 group-hover:bg-emerald-700 group-hover:text-white transition-colors">
+                  <span>→</span>
+                </div>
+              </div>
+              <h3 class="font-heading font-bold text-lg text-emerald-950 group-hover:text-emerald-700 transition-colors flex items-center gap-2">
+                <span>${c.icon || '🏷️'}</span>
+                <span>${c.name}</span>
+              </h3>
+              <p class="text-xs text-stone-500 mt-1 leading-relaxed">${c.description || 'Farm-fresh certified produce.'}</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
+              <div class="h-24 w-full rounded-2xl overflow-hidden bg-emerald-50 relative">
+                <img src="${imgUrl}" alt="${c.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" />
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    if (window.lucide) lucide.createIcons();
   } catch (e) {
     console.warn('syncStorefrontCategoriesWithBackend error:', e);
   }

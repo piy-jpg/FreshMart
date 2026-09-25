@@ -624,6 +624,41 @@ class PostgresAdapter {
     if (!id) return null;
     const table = this.getTableName(collection);
     if (table) {
+      if (collection === 'products') {
+        const res = await this.query(`
+          SELECT * FROM freshmart_products 
+          WHERE id = $1 
+             OR storefront_id = $1 
+             OR sku = $1 
+             OR LOWER(name) = LOWER($1)
+          LIMIT 1
+        `, [String(id)]);
+        if (res.rows.length > 0) {
+          const r = res.rows[0];
+          const dataObj = typeof r.data === 'object' ? (r.data || {}) : JSON.parse(r.data || '{}');
+          return {
+            ...dataObj,
+            id: r.id,
+            storefrontId: r.storefront_id || dataObj.storefrontId || r.id,
+            name: r.name,
+            sku: r.sku || dataObj.sku,
+            category: r.category || dataObj.category,
+            subcategory: r.subcategory || dataObj.subcategory,
+            price: Number(r.price || dataObj.price || 0),
+            sellingPrice: Number(r.selling_price || dataObj.sellingPrice || r.price || 0),
+            mrp: Number(r.mrp || dataObj.mrp || 0),
+            costPrice: Number(r.cost_price || dataObj.costPrice || 0),
+            stock: Number(r.stock !== null ? r.stock : dataObj.stock || 0),
+            physicalStock: Number(r.stock !== null ? r.stock : dataObj.physicalStock || 0),
+            manualReservedStock: Number(r.manual_reserved_stock || 0),
+            status: r.status || dataObj.status || 'ACTIVE',
+            image: r.image || dataObj.image,
+            description: r.description || dataObj.description,
+            unit: r.unit || dataObj.unit || '1 kg'
+          };
+        }
+        return null;
+      }
       const res = await this.query(`SELECT data FROM ${table} WHERE id = $1 LIMIT 1`, [String(id)]);
       if (res.rows.length > 0) return res.rows[0].data;
 
@@ -1440,6 +1475,241 @@ class PostgresAdapter {
       averageRiderRating: avgRider
     };
   }
+  async getAllProductsAsync(options = {}) {
+    await this.init();
+    const pool = this.getPool();
+    if (!pool) return [];
+
+    const {
+      category,
+      status,
+      search,
+      includeSuspended = false,
+      onlyActive = false
+    } = options;
+
+    const queryStr = `
+      SELECT 
+        p.id,
+        p.storefront_id,
+        p.name,
+        p.sku,
+        p.category,
+        p.subcategory,
+        p.price,
+        p.selling_price,
+        p.mrp,
+        p.cost_price,
+        COALESCE(p.stock, 0) AS physical_stock,
+        COALESCE(p.damaged_stock, 0) AS damaged_stock,
+        COALESCE(p.expired_stock, 0) AS expired_stock,
+        COALESCE(p.manual_reserved_stock, 0) AS manual_reserved_stock,
+        COALESCE(p.low_stock_limit, 15) AS low_stock_limit,
+        p.unit,
+        p.status,
+        p.image,
+        p.description,
+        p.farmer,
+        p.created_at,
+        p.updated_at,
+        p.data,
+        COALESCE((
+          SELECT SUM(COALESCE((item->>'quantity')::numeric, (item->>'qty')::numeric, 1))
+          FROM freshmart_orders o,
+               jsonb_array_elements(
+                 CASE 
+                   WHEN jsonb_typeof(o.items::jsonb) = 'array' THEN o.items::jsonb 
+                   ELSE '[]'::jsonb 
+                 END
+               ) AS item
+          WHERE UPPER(COALESCE(o.order_status, o.status, '')) NOT IN ('DELIVERED', 'CANCELLED', 'DELIVERY_FAILED', 'COMPLETED')
+            AND (
+              item->>'id' = p.id OR 
+              item->>'productId' = p.id OR 
+              (p.storefront_id IS NOT NULL AND (item->>'id' = p.storefront_id OR item->>'productId' = p.storefront_id)) OR 
+              (p.sku IS NOT NULL AND item->>'sku' = p.sku)
+            )
+        ), 0) AS customer_reserved_stock
+      FROM freshmart_products p
+      WHERE p.status != 'DELETED'
+      ORDER BY p.name ASC;
+    `;
+
+    try {
+      const res = await this.query(queryStr);
+      let list = res.rows.map(r => {
+        const physicalStock = Number(r.physical_stock) || 0;
+        const customerReserved = Number(r.customer_reserved_stock) || 0;
+        const manualReserved = Number(r.manual_reserved_stock) || 0;
+        const totalReserved = customerReserved + manualReserved;
+        const availableStock = Math.max(0, physicalStock - totalReserved);
+        const lowLimit = Number(r.low_stock_limit) || 15;
+
+        let computedStatus = r.status;
+        if (computedStatus !== 'SUSPENDED') {
+          if (availableStock === 0) computedStatus = 'OUT_OF_STOCK';
+          else if (availableStock <= lowLimit) computedStatus = 'LOW_STOCK';
+          else computedStatus = 'ACTIVE';
+        }
+
+        const dataObj = typeof r.data === 'object' ? (r.data || {}) : JSON.parse(r.data || '{}');
+        const price = Number(r.price || r.selling_price || dataObj.price) || 0;
+        const mrp = Number(r.mrp || dataObj.mrp || dataObj.originalPrice) || price;
+
+        return {
+          ...dataObj,
+          id: r.id,
+          storefrontId: r.storefront_id || dataObj.storefrontId || r.id,
+          name: r.name,
+          hindiName: dataObj.hindiName || '',
+          sku: r.sku || dataObj.sku || `SKU-${r.id.toUpperCase()}`,
+          category: r.category || dataObj.category || 'Fresh Produce',
+          subcategory: r.subcategory || dataObj.subcategory || '',
+          hub: dataObj.hubName || dataObj.hub || 'Indiranagar Central Hub',
+          farmer: r.farmer || dataObj.farmer || '',
+          harvestDate: dataObj.harvestDate || '',
+          freshnessDays: dataObj.freshnessDays || 5,
+          unit: r.unit || dataObj.unit || '1 unit',
+          price: price,
+          sellingPrice: Number(r.selling_price || price),
+          costPrice: Number(r.cost_price || dataObj.costPrice) || Math.round(price * 0.65),
+          mrp: mrp,
+          originalPrice: mrp,
+          discountPercent: mrp > price ? Math.round(((mrp - price) / mrp) * 100) : (dataObj.discountPercent || 0),
+          stock: availableStock,
+          physicalStock,
+          currentStock: physicalStock,
+          customerReserved,
+          customerReservedStock: customerReserved,
+          manualReserved,
+          manualReservedStock: manualReserved,
+          reservedStock: totalReserved,
+          availableStock,
+          lowStockLimit: lowLimit,
+          lowStockThreshold: lowLimit,
+          damagedStock: Number(r.damaged_stock) || 0,
+          expiredStock: Number(r.expired_stock) || 0,
+          status: computedStatus,
+          rawStatus: r.status,
+          image: r.image || dataObj.image || '',
+          description: r.description || dataObj.description || '',
+          createdAt: r.created_at ? new Date(r.created_at).toISOString() : (dataObj.createdAt || new Date().toISOString()),
+          updatedAt: r.updated_at ? new Date(r.updated_at).toISOString() : (dataObj.updatedAt || new Date().toISOString())
+        };
+      });
+
+      if (onlyActive) {
+        list = list.filter(p => p.rawStatus === 'ACTIVE' || (p.rawStatus !== 'SUSPENDED' && p.status !== 'SUSPENDED'));
+      } else if (!includeSuspended && status) {
+        if (status === 'ACTIVE') {
+          list = list.filter(p => p.rawStatus === 'ACTIVE' || (p.rawStatus !== 'SUSPENDED' && p.status !== 'SUSPENDED'));
+        } else if (status !== 'ALL') {
+          list = list.filter(p => p.status === status || p.rawStatus === status);
+        }
+      }
+
+      if (category && category !== 'ALL' && category !== 'all') {
+        const catLower = category.toLowerCase();
+        const matchedAliases = [catLower];
+        try {
+          const catRes = await this.query(`SELECT id, name, slug FROM freshmart_categories WHERE LOWER(slug) = $1 OR LOWER(name) = $1 OR LOWER(id) = $1`, [catLower]);
+          if (catRes && catRes.rows.length > 0) {
+            catRes.rows.forEach(r => {
+              if (r.name) matchedAliases.push(r.name.toLowerCase());
+              if (r.slug) matchedAliases.push(r.slug.toLowerCase());
+              if (r.id) matchedAliases.push(r.id.toLowerCase());
+            });
+          }
+        } catch (e) {}
+
+        list = list.filter(p => {
+          const pCat = (p.category || '').toLowerCase();
+          const pSlug = (p.categorySlug || p.category_slug || (p.data && (p.data.categorySlug || p.data.category_slug)) || '').toLowerCase();
+          const pId = (p.categoryId || p.category_id || (p.data && (p.data.categoryId || p.data.category_id)) || '').toLowerCase();
+          const pNormalized = pCat.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+          const pSpaceSlug = pCat.replace(/\s+/g, '-');
+          const pCatArray = (p.categories || []).map(c => String(c).toLowerCase());
+          
+          return matchedAliases.includes(pCat) ||
+                 matchedAliases.includes(pSlug) ||
+                 matchedAliases.includes(pId) ||
+                 matchedAliases.includes(pNormalized) ||
+                 matchedAliases.includes(pSpaceSlug) ||
+                 pCatArray.some(c => matchedAliases.includes(c) || matchedAliases.includes(c.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')));
+        });
+      }
+
+      if (search) {
+        const q = search.toLowerCase();
+        list = list.filter(p => 
+          (p.name || '').toLowerCase().includes(q) || 
+          (p.sku || '').toLowerCase().includes(q) || 
+          (p.hindiName || '').toLowerCase().includes(q) ||
+          (p.category || '').toLowerCase().includes(q)
+        );
+      }
+
+      return list;
+    } catch (err) {
+      console.warn('getAllProductsAsync error:', err.message);
+      return [];
+    }
+  }
+
+  async getProductsDiagnosticsAsync() {
+    await this.init();
+    const pool = this.getPool();
+    if (!pool) return { success: false, error: 'Database not connected' };
+
+    const queryStr = `
+      SELECT 
+        COUNT(*) AS total_rows,
+        COUNT(DISTINCT id) AS unique_ids,
+        COUNT(DISTINCT sku) AS unique_skus,
+        COUNT(*) FILTER (WHERE status = 'ACTIVE') AS active_count,
+        COUNT(*) FILTER (WHERE status = 'SUSPENDED') AS suspended_count,
+        COUNT(*) FILTER (WHERE status = 'LOW_STOCK') AS low_stock_count,
+        COUNT(*) FILTER (WHERE status = 'OUT_OF_STOCK') AS out_of_stock_count,
+        COUNT(*) FILTER (WHERE status = 'DELETED') AS deleted_count
+      FROM freshmart_products;
+    `;
+
+    const dupSkuStr = `
+      SELECT sku, COUNT(*) as count, array_agg(id) as ids, array_agg(name) as names
+      FROM freshmart_products
+      WHERE sku IS NOT NULL AND sku != '' AND status != 'DELETED'
+      GROUP BY sku
+      HAVING COUNT(*) > 1;
+    `;
+
+    try {
+      const [statsRes, dupRes] = await Promise.all([
+        this.query(queryStr),
+        this.query(dupSkuStr)
+      ]);
+
+      const stats = statsRes.rows[0] || {};
+      return {
+        success: true,
+        sourceOfTruth: 'Neon PostgreSQL (freshmart_products)',
+        totalProductsInDb: Number(stats.total_rows || 0),
+        uniqueProductIds: Number(stats.unique_ids || 0),
+        uniqueSkus: Number(stats.unique_skus || 0),
+        statusBreakdown: {
+          active: Number(stats.active_count || 0),
+          suspended: Number(stats.suspended_count || 0),
+          lowStock: Number(stats.low_stock_count || 0),
+          outOfStock: Number(stats.out_of_stock_count || 0),
+          deleted: Number(stats.deleted_count || 0)
+        },
+        duplicateSkus: dupRes.rows || [],
+        timestamp: new Date().toISOString()
+      };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }
+
   async getInventoryLedgerAsync() {
     await this.init();
     const pool = this.getPool();
@@ -1470,29 +1740,25 @@ class PostgresAdapter {
         p.created_at,
         p.updated_at,
         p.data,
-        COALESCE(r.reserved_qty, 0) AS customer_reserved_stock
+        COALESCE((
+          SELECT SUM(COALESCE((item->>'quantity')::numeric, (item->>'qty')::numeric, 1))
+          FROM freshmart_orders o,
+               jsonb_array_elements(
+                 CASE 
+                   WHEN jsonb_typeof(o.items::jsonb) = 'array' THEN o.items::jsonb 
+                   ELSE '[]'::jsonb 
+                 END
+               ) AS item
+          WHERE UPPER(COALESCE(o.order_status, o.status, '')) NOT IN ('DELIVERED', 'CANCELLED', 'DELIVERY_FAILED', 'COMPLETED')
+            AND (
+              item->>'id' = p.id OR 
+              item->>'productId' = p.id OR 
+              (p.storefront_id IS NOT NULL AND (item->>'id' = p.storefront_id OR item->>'productId' = p.storefront_id)) OR 
+              (p.sku IS NOT NULL AND item->>'sku' = p.sku)
+            )
+        ), 0) AS customer_reserved_stock
       FROM freshmart_products p
-      LEFT JOIN (
-        SELECT 
-          COALESCE(item->>'id', item->>'productId') AS product_id,
-          item->>'name' AS product_name,
-          item->>'sku' AS product_sku,
-          SUM(COALESCE((item->>'quantity')::numeric, (item->>'qty')::numeric, 1)) AS reserved_qty
-        FROM freshmart_orders o,
-             jsonb_array_elements(
-               CASE 
-                 WHEN jsonb_typeof(o.items::jsonb) = 'array' THEN o.items::jsonb 
-                 ELSE '[]'::jsonb 
-               END
-             ) AS item
-        WHERE UPPER(COALESCE(o.order_status, o.status, '')) NOT IN ('DELIVERED', 'CANCELLED', 'DELIVERY_FAILED', 'COMPLETED')
-        GROUP BY COALESCE(item->>'id', item->>'productId'), item->>'name', item->>'sku'
-      ) r ON (
-        r.product_id = p.id OR 
-        r.product_id = p.storefront_id OR 
-        (r.product_sku IS NOT NULL AND r.product_sku = p.sku) OR 
-        (r.product_name IS NOT NULL AND LOWER(r.product_name) = LOWER(p.name))
-      )
+      WHERE p.status != 'DELETED'
       ORDER BY p.name ASC;
     `;
 
@@ -1963,6 +2229,7 @@ class PostgresAdapter {
           c.data,
           COUNT(p.id) FILTER (WHERE p.status != 'DELETED' AND p.status != 'ARCHIVED') as total_product_count,
           COUNT(p.id) FILTER (WHERE p.status = 'ACTIVE') as active_product_count,
+          COUNT(p.id) FILTER (WHERE p.status = 'SUSPENDED') as suspended_product_count,
           COUNT(p.id) FILTER (WHERE p.status = 'ACTIVE' AND p.stock > 0) as in_stock_active_count,
           COUNT(p.id) FILTER (WHERE p.status = 'ACTIVE' AND p.stock <= 0) as out_of_stock_count
         FROM freshmart_categories c
@@ -1986,6 +2253,7 @@ class PostgresAdapter {
         const dataObj = typeof r.data === 'object' ? (r.data || {}) : JSON.parse(r.data || '{}');
         const activeCount = parseInt(r.active_product_count || 0, 10);
         const totalCount = parseInt(r.total_product_count || 0, 10);
+        const suspendedCount = parseInt(r.suspended_product_count || 0, 10);
         return {
           ...dataObj,
           id: r.id,
@@ -1998,9 +2266,10 @@ class PostgresAdapter {
           display_order: Number(r.display_order) || 0,
           status: r.status || 'ACTIVE',
           active: (r.status || 'ACTIVE') === 'ACTIVE',
-          productCount: activeCount,
+          productCount: onlyActive ? activeCount : totalCount,
           activeProductCount: activeCount,
           totalProductCount: totalCount,
+          suspendedProductCount: suspendedCount,
           inStockActiveCount: parseInt(r.in_stock_active_count || 0, 10),
           outOfStockCount: parseInt(r.out_of_stock_count || 0, 10),
           createdAt: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString(),
@@ -2010,6 +2279,125 @@ class PostgresAdapter {
     } catch (err) {
       console.error('getAllCategoriesWithCountsAsync error:', err.message);
       return [];
+    }
+  }
+
+  async getCategoryDiagnosticsAsync() {
+    await this.init();
+    const pool = this.getPool();
+    if (!pool) return { success: false, error: 'Database not connected' };
+
+    try {
+      const [catsRes, prodsRes] = await Promise.all([
+        this.query("SELECT * FROM freshmart_categories ORDER BY display_order ASC, name ASC"),
+        this.query("SELECT id, name, sku, category, subcategory, status, stock, data FROM freshmart_products WHERE status != 'DELETED'")
+      ]);
+
+      const categories = catsRes.rows;
+      const products = prodsRes.rows;
+
+      const categoryMap = new Map();
+      categories.forEach(c => {
+        categoryMap.set(c.id, {
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          status: c.status || 'ACTIVE',
+          activeProducts: [],
+          suspendedProducts: [],
+          totalProducts: []
+        });
+      });
+
+      const orphanProducts = [];
+      const multiAssignedProducts = [];
+      const duplicateProductIds = [];
+      const seenIds = new Set();
+
+      products.forEach(p => {
+        if (!p.id) return;
+        if (seenIds.has(p.id)) {
+          duplicateProductIds.push(p.id);
+        }
+        seenIds.add(p.id);
+
+        const dataObj = typeof p.data === 'object' ? (p.data || {}) : JSON.parse(p.data || '{}');
+        const catId = dataObj.categoryId;
+        const pCat = (p.category || '').toLowerCase().trim();
+        const pSub = (p.subcategory || '').toLowerCase().trim();
+
+        const matchingCats = categories.filter(c => {
+          if (catId && c.id === catId) return true;
+          const cName = (c.name || '').toLowerCase().trim();
+          const cSlug = (c.slug || '').toLowerCase().trim();
+          if (pCat && (pCat === cName || pCat === cSlug)) return true;
+          if (cSlug === 'vegetables' && (pCat.includes('veg') || pSub.includes('veg'))) return true;
+          if (cSlug === 'fruits' && (pCat.includes('fruit') || pSub.includes('fruit'))) return true;
+          if (cSlug === 'grocery' && (pCat.includes('groc') || pCat.includes('pant') || pCat.includes('staple'))) return true;
+          if (cSlug === 'leafy-herbs' && (pCat.includes('herb') || pCat.includes('leaf'))) return true;
+          if (cSlug === 'dairy' && (pCat.includes('dairy') || (p.name || '').toLowerCase().includes('ghee'))) return true;
+          if (cSlug === 'sweeteners' && (pCat.includes('sweet') || (p.name || '').toLowerCase().includes('honey'))) return true;
+          return false;
+        });
+
+        if (matchingCats.length === 0) {
+          orphanProducts.push({ id: p.id, name: p.name, sku: p.sku, category: p.category, subcategory: p.subcategory });
+        } else {
+          const primaryCat = matchingCats[0];
+          const entry = categoryMap.get(primaryCat.id);
+          if (entry) {
+            entry.totalProducts.push(p.id);
+            if (p.status === 'ACTIVE') {
+              entry.activeProducts.push(p.id);
+            } else if (p.status === 'SUSPENDED') {
+              entry.suspendedProducts.push(p.id);
+            }
+          }
+          if (matchingCats.length > 1) {
+            multiAssignedProducts.push({
+              id: p.id,
+              name: p.name,
+              sku: p.sku,
+              category: p.category,
+              matchedCategoryIds: matchingCats.map(c => c.id),
+              matchedCategoryNames: matchingCats.map(c => c.name)
+            });
+          }
+        }
+      });
+
+      const categoriesBreakdown = categories.map(c => {
+        const entry = categoryMap.get(c.id) || { activeProducts: [], suspendedProducts: [], totalProducts: [] };
+        return {
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          status: c.status || 'ACTIVE',
+          activeProductCount: entry.activeProducts.length,
+          suspendedProductCount: entry.suspendedProducts.length,
+          totalProductCount: entry.totalProducts.length
+        };
+      });
+
+      const sumCategoryAssignments = categoriesBreakdown.reduce((sum, c) => sum + c.totalProductCount, 0);
+
+      return {
+        success: true,
+        sourceOfTruth: 'Neon PostgreSQL (freshmart_products & freshmart_categories)',
+        totalProductsInDb: products.length,
+        sumCategoryAssignments,
+        categorySumMatchesTotalProducts: sumCategoryAssignments === products.length && orphanProducts.length === 0,
+        totalCategories: categories.length,
+        activeCategories: categories.filter(c => (c.status || 'ACTIVE') === 'ACTIVE').length,
+        categoriesBreakdown,
+        orphanProducts,
+        duplicateAssignedProducts: multiAssignedProducts,
+        duplicateProductIds,
+        missingProductIds: products.filter(p => !p.id).map(p => p.name),
+        timestamp: new Date().toISOString()
+      };
+    } catch (err) {
+      return { success: false, error: err.message };
     }
   }
 
