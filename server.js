@@ -4867,6 +4867,20 @@ const server = http.createServer(async (req, res) => {
         });
       }
 
+      if (pathname.startsWith('/api/owner/products/') && method === 'GET') {
+        const id = pathname.replace('/api/owner/products/', '');
+        const pg = db.postgres || db.pgAdapter;
+        if (pg && pg.isAvailable()) {
+          const products = await pg.getAllProductsAsync({ includeSuspended: true });
+          const prod = products.find(p => p.id === id || p.storefrontId === id || p.sku === id);
+          if (prod) return sendJson(res, 200, { success: true, product: prod });
+          return sendJson(res, 404, { error: 'Product not found' });
+        }
+        const prod = db.getById('products', id);
+        if (prod) return sendJson(res, 200, { success: true, product: prod });
+        return sendJson(res, 404, { error: 'Product not found' });
+      }
+
       if (pathname === '/api/owner/products' && method === 'GET') {
         const pg = db.postgres || db.pgAdapter;
         if (pg && pg.isAvailable()) {
