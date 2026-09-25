@@ -4522,10 +4522,16 @@ const server = http.createServer(async (req, res) => {
         }
 
         if (requestedStatus) {
+          const isOtpVerified = body.otpVerified || Boolean(body.otp && String(body.otp).trim() === String(order.deliveryOtp).trim()) || owner.role === 'OWNER';
+          const isCashCollected = body.cashCollected || (order.paymentStatus || '').toUpperCase() === 'PAID';
+
           const validation = validateOrderStepTransition(order, requestedStatus, owner.role, {
             deliveryBoyId: order.deliveryBoyId || (assignedRider && assignedRider.id),
             deliveryBoyName: order.deliveryBoyName || (assignedRider && assignedRider.name),
-            deliveryBoyPhone: order.deliveryBoyPhone || (assignedRider && assignedRider.phone)
+            deliveryBoyPhone: order.deliveryBoyPhone || (assignedRider && assignedRider.phone),
+            otp: body.otp,
+            otpVerified: isOtpVerified,
+            cashCollected: isCashCollected
           });
 
           if (!validation.valid) {
@@ -4539,6 +4545,9 @@ const server = http.createServer(async (req, res) => {
             deliveryBoyId: order.deliveryBoyId,
             deliveryBoyName: order.deliveryBoyName,
             deliveryBoyPhone: order.deliveryBoyPhone,
+            otp: body.otp,
+            otpVerified: isOtpVerified,
+            cashCollected: isCashCollected,
             notes: body.notes || (isHandoverAction ? `Physically handed over to ${order.deliveryBoyName || 'Delivery Boy'}` : undefined),
             reason: body.reason || body.cancellationReason
           });

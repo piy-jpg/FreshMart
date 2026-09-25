@@ -245,10 +245,18 @@ class PostgresAdapter {
           confirmed_at = COALESCE(confirmed_at, NULLIF(data->>'confirmedAt', '')::timestamptz),
           packed_at = COALESCE(packed_at, NULLIF(data->>'packedAt', '')::timestamptz, NULLIF(data->>'packingAt', '')::timestamptz),
           out_for_delivery_at = COALESCE(out_for_delivery_at, NULLIF(data->>'outForDeliveryAt', '')::timestamptz),
-          delivered_at = COALESCE(delivered_at, NULLIF(data->>'deliveredAt', '')::timestamptz),
-          cancelled_at = COALESCE(cancelled_at, NULLIF(data->>'cancelledAt', '')::timestamptz)
         WHERE data IS NOT NULL;
       `);
+
+      // 4. Clean up any legacy seed/demo orders so only real orders exist
+      try {
+        await pool.query(`
+          DELETE FROM freshmart_orders 
+          WHERE id IN ('SJH10248', 'SJH10249', 'SJH10250', 'SJH10251')
+             OR order_id IN ('SJH10248', 'SJH10249', 'SJH10250', 'SJH10251')
+             OR customer_name = 'Rahul Sharma' AND (data->>'hubId' = 'hub_blr_indiranagar');
+        `);
+      } catch (e) {}
     } catch (err) {
       console.warn('ensureOrdersSchema warning:', err.message);
     }
