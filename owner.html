@@ -230,6 +230,8 @@
         </div>
       </div>
 
+      <!-- Right-side Actions & Status Controls -->
+      <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
         <!-- Store Live / Offline Switch Control -->
         <div class="flex items-center gap-2">
           <div id="owner-store-status-badge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/50 text-emerald-400 text-xs font-black shadow-xs">
@@ -249,13 +251,13 @@
         </div>
 
         <!-- Quick Action Dropdown / Buttons -->
-        <button onclick="openAddProductModal()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition">
+        <button onclick="openAddProductModal()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition cursor-pointer">
           <span>+</span> Product
         </button>
-        <button onclick="openStockAdjustModal()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs transition">
+        <button onclick="openStockAdjustModal()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs transition cursor-pointer">
           <span>📦</span> Adjust Stock
         </button>
-        <button onclick="openAddStaffModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs shadow-md transition">
+        <button onclick="openAddStaffModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs shadow-md transition cursor-pointer">
           <span>👑</span> Add Staff
         </button>
 
@@ -6718,6 +6720,9 @@
     }
 
     function openStockAdjustModal() {
+      if (state.products && state.products.length) {
+        populateAdjustStockDropdown(state.products);
+      }
       document.getElementById('modal-adjust-stock')?.classList.remove('hidden');
     }
     function closeStockAdjustModal() {
@@ -7006,6 +7011,18 @@
           return '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-slate-700/50 text-slate-300 border border-slate-600">' + s + '</span>';
       }
     }
+
+    // Top navbar global window exports
+    window.toggleSidebar = toggleSidebar;
+    window.handleGlobalSearch = handleGlobalSearch;
+    window.openAddProductModal = openAddProductModal;
+    window.closeAddProductModal = closeAddProductModal;
+    window.openStockAdjustModal = openStockAdjustModal;
+    window.closeStockAdjustModal = closeStockAdjustModal;
+    window.openAddStaffModal = openAddStaffModal;
+    window.closeAddStaffModal = closeAddStaffModal;
+    window.toggleOwnerSound = toggleOwnerSound;
+    window.refreshCurrentTab = refreshCurrentTab;
   </script>
 </body>
 </html>
