@@ -258,6 +258,30 @@ class PostgresAdapter {
              OR (customer_name = 'Rahul Sharma' AND (data->>'hubId' = 'hub_blr_indiranagar'));
         `);
       } catch (e) {}
+
+      // 5. Ensure database-backed atomic sequence for customer-facing sequential Order IDs: FM-OD-00001, FM-OD-00002...
+      try {
+        await pool.query(`
+          DO $$
+          DECLARE
+            max_num integer;
+          BEGIN
+            CREATE SEQUENCE IF NOT EXISTS freshmart_order_id_seq START WITH 1 INCREMENT BY 1;
+            
+            -- Find highest existing FM-OD-xxxxx sequence number if any exists
+            SELECT COALESCE(MAX(SUBSTRING(order_id FROM 'FM-OD-([0-9]+)')::integer), 0)
+            INTO max_num
+            FROM freshmart_orders
+            WHERE order_id ~ '^FM-OD-[0-9]+$';
+            
+            IF max_num > 0 THEN
+              PERFORM setval('freshmart_order_id_seq', max_num, true);
+            END IF;
+          END $$;
+        `);
+      } catch (seqInitErr) {
+        console.warn('PostgreSQL order sequence setup warning:', seqInitErr.message);
+      }
     } catch (err) {
       console.warn('ensureOrdersSchema warning:', err.message);
     }
@@ -783,6 +807,24 @@ class PostgresAdapter {
     }
   }
 
+  async generateNextOrderId() {
+    const pool = this.getPool();
+    if (!pool) throw new Error('PostgreSQL Pool is not configured');
+    try {
+      const res = await pool.query(`SELECT nextval('freshmart_order_id_seq') AS seq;`);
+      const seq = parseInt(res.rows[0].seq, 10);
+      return `FM-OD-${String(seq).padStart(5, '0')}`;
+    } catch (e) {
+      if (e.message && e.message.includes('does not exist')) {
+        await this.ensureOrdersSchema();
+        const res = await pool.query(`SELECT nextval('freshmart_order_id_seq') AS seq;`);
+        const seq = parseInt(res.rows[0].seq, 10);
+        return `FM-OD-${String(seq).padStart(5, '0')}`;
+      }
+      throw e;
+    }
+  }
+
   // Atomic transactional inventory deduction and order placement
   async placeOrderWithInventoryAtomic(order, items, hubInfo = {}, operatorEmail = 'System Order Engine') {
     const pool = this.getPool();
@@ -790,6 +832,16 @@ class PostgresAdapter {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
+
+      // Ensure customer-facing sequential Order ID (FM-OD-00001)
+      let orderId = order.orderId || order.id;
+      if (!orderId || !orderId.startsWith('FM-OD-')) {
+        const seqRes = await client.query(`SELECT nextval('freshmart_order_id_seq') AS seq;`);
+        const seq = parseInt(seqRes.rows[0].seq, 10);
+        orderId = `FM-OD-${String(seq).padStart(5, '0')}`;
+        order.id = orderId;
+        order.orderId = orderId;
+      }
 
       const deductedItems = [];
       for (const item of items) {

@@ -3684,7 +3684,7 @@ window.closeUserProfilePopover = function() {
 };
 
 // Order Tracking Modal Controls & Live Dynamic Renderer
-let activeTrackingOrderId = 'SJH10248';
+let activeTrackingOrderId = 'FM-OD-00001';
 
 window.openTrackOrderModal = async function(orderId) {
   const modal = document.getElementById('track-order-modal');
@@ -3693,7 +3693,7 @@ window.openTrackOrderModal = async function(orderId) {
   if (orderId) {
     activeTrackingOrderId = orderId;
   } else {
-    activeTrackingOrderId = localStorage.getItem('sabjihub_active_order_id') || 'SJH10248';
+    activeTrackingOrderId = localStorage.getItem('freshmart_active_order_id') || localStorage.getItem('sabjihub_active_order_id') || 'FM-OD-00001';
   }
 
   modal.classList.add('open', 'active');
@@ -3727,7 +3727,7 @@ window.renderTrackOrderModalContent = async function(orderId) {
   // Fallback seed order if offline
   if (!order) {
     order = {
-      orderId: orderId || 'SJH10248',
+      orderId: orderId || 'FM-OD-00001',
       orderStatus: 'OUT_FOR_DELIVERY',
       estimatedDeliveryTime: '28 Mins',
       deliveryOtp: '4821',

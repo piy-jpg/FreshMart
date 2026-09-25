@@ -2914,8 +2914,20 @@ const server = http.createServer(async (req, res) => {
       const deliveryFee = subtotal >= freeThreshold ? 0 : standardFee;
       const totalAmount = Math.max(0, subtotal - discount + deliveryFee);
 
-      const randomId = Math.floor(10000 + Math.random() * 90000);
-      const orderId = `SJH${randomId}`;
+      // Generate atomic customer-facing sequential Order ID from Neon PostgreSQL sequence (FM-OD-00001)
+      let orderId = null;
+      if (db.postgres && db.postgres.isAvailable()) {
+        try {
+          orderId = await db.postgres.generateNextOrderId();
+        } catch (seqErr) {
+          console.error('Error generating Order ID from Neon PostgreSQL sequence:', seqErr);
+          throw seqErr;
+        }
+      } else {
+        const seq = (db.data.orders ? db.data.orders.length : 0) + 1;
+        orderId = `FM-OD-${String(seq).padStart(5, '0')}`;
+      }
+
       const deliveryOtp = String(Math.floor(1000 + Math.random() * 9000));
 
       const hubs = db.getAll('hubs');
