@@ -369,6 +369,7 @@ class PostgresAdapter {
         'cost_price NUMERIC DEFAULT 0',
         'damaged_stock NUMERIC DEFAULT 0',
         'expired_stock NUMERIC DEFAULT 0',
+        'manual_reserved_stock NUMERIC DEFAULT 0',
         'low_stock_limit NUMERIC DEFAULT 15',
         'unit VARCHAR(50) DEFAULT \'1 kg\'',
         'image TEXT',
@@ -394,10 +395,15 @@ class PostgresAdapter {
           new_stock NUMERIC DEFAULT 0,
           reason TEXT,
           operator VARCHAR(255),
+          reference_id VARCHAR(255),
           created_at TIMESTAMPTZ DEFAULT NOW(),
           data JSONB NOT NULL DEFAULT '{}'::jsonb
         );
       `);
+
+      try {
+        await pool.query(`ALTER TABLE freshmart_inventory_movements ADD COLUMN IF NOT EXISTS reference_id VARCHAR(255);`);
+      } catch (e) {}
 
       try {
         await pool.query(`CREATE INDEX IF NOT EXISTS idx_freshmart_products_cat ON freshmart_products (category);`);
@@ -1382,6 +1388,7 @@ class PostgresAdapter {
         COALESCE(p.stock, 0) AS physical_stock,
         COALESCE(p.damaged_stock, 0) AS damaged_stock,
         COALESCE(p.expired_stock, 0) AS expired_stock,
+        COALESCE(p.manual_reserved_stock, 0) AS manual_reserved_stock,
         COALESCE(p.low_stock_limit, 15) AS low_stock_limit,
         p.unit,
         p.status,
@@ -1391,7 +1398,7 @@ class PostgresAdapter {
         p.created_at,
         p.updated_at,
         p.data,
-        COALESCE(r.reserved_qty, 0) AS reserved_stock
+        COALESCE(r.reserved_qty, 0) AS customer_reserved_stock
       FROM freshmart_products p
       LEFT JOIN (
         SELECT 
@@ -1421,8 +1428,10 @@ class PostgresAdapter {
       const res = await this.query(queryStr);
       return res.rows.map(r => {
         const physicalStock = Number(r.physical_stock) || 0;
-        const reservedStock = Number(r.reserved_stock) || 0;
-        const availableStock = Math.max(0, physicalStock - reservedStock);
+        const customerReserved = Number(r.customer_reserved_stock) || 0;
+        const manualReserved = Number(r.manual_reserved_stock) || 0;
+        const totalReserved = customerReserved + manualReserved;
+        const availableStock = Math.max(0, physicalStock - totalReserved);
         const lowLimit = Number(r.low_stock_limit) || 15;
 
         let computedStatus = r.status;
@@ -1455,7 +1464,11 @@ class PostgresAdapter {
           currentStock: physicalStock,
           physicalStock,
           stock: availableStock,
-          reservedStock,
+          customerReserved,
+          customerReservedStock: customerReserved,
+          manualReserved,
+          manualReservedStock: manualReserved,
+          reservedStock: totalReserved,
           availableStock,
           lowStockThreshold: lowLimit,
           lowStockLimit: lowLimit,
@@ -1471,12 +1484,262 @@ class PostgresAdapter {
     }
   }
 
+  async manualReserveStockAtomic(productId, quantity, reason = 'Manual Reservation', operatorEmail = 'Store Owner') {
+    const pool = this.getPool();
+    if (!pool) throw new Error('PostgreSQL Pool is not configured');
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      const qty = Number(quantity);
+      if (isNaN(qty) || qty <= 0) {
+        await client.query('ROLLBACK');
+        return { success: false, error: 'Reserve quantity must be a positive number greater than 0.' };
+      }
+
+      // 1. Lock product row and calculate current available
+      const prodRes = await client.query(`
+        SELECT p.id, p.name, p.sku, COALESCE(p.stock, 0) as physical_stock,
+               COALESCE(p.manual_reserved_stock, 0) as manual_reserved_stock,
+               COALESCE(p.low_stock_limit, 15) as low_stock_limit,
+               COALESCE(r.cust_res, 0) as customer_reserved_stock
+        FROM freshmart_products p
+        LEFT JOIN (
+          SELECT 
+            COALESCE(item->>'id', item->>'productId') as pid,
+            SUM(COALESCE((item->>'quantity')::numeric, (item->>'qty')::numeric, 1)) as cust_res
+          FROM freshmart_orders o,
+               jsonb_array_elements(CASE WHEN jsonb_typeof(o.items::jsonb) = 'array' THEN o.items::jsonb ELSE '[]'::jsonb END) as item
+          WHERE UPPER(COALESCE(o.order_status, o.status, '')) NOT IN ('DELIVERED', 'CANCELLED', 'DELIVERY_FAILED', 'COMPLETED')
+          GROUP BY COALESCE(item->>'id', item->>'productId')
+        ) r ON r.pid = p.id OR r.pid = p.storefront_id
+        WHERE p.id = $1 OR p.storefront_id = $1 OR p.sku = $1
+        LIMIT 1 FOR UPDATE OF p;
+      `, [String(productId)]);
+
+      if (prodRes.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return { success: false, error: 'Product not found' };
+      }
+
+      const row = prodRes.rows[0];
+      const physicalStock = Number(row.physical_stock) || 0;
+      const customerReserved = Number(row.customer_reserved_stock) || 0;
+      const currentManualReserved = Number(row.manual_reserved_stock) || 0;
+      const currentAvailable = Math.max(0, physicalStock - customerReserved - currentManualReserved);
+
+      // 2. Validate: Cannot reserve more than available stock
+      if (qty > currentAvailable) {
+        await client.query('ROLLBACK');
+        return {
+          success: false,
+          error: `Cannot reserve ${qty} units. Maximum available stock to reserve is ${currentAvailable} units.`,
+          availableStock: currentAvailable,
+          requestedQuantity: qty
+        };
+      }
+
+      const newManualReserved = currentManualReserved + qty;
+      const newAvailable = Math.max(0, physicalStock - customerReserved - newManualReserved);
+      const lowLimit = Number(row.low_stock_limit) || 15;
+      const newStatus = newAvailable === 0 ? 'OUT_OF_STOCK' : (newAvailable <= lowLimit ? 'LOW_STOCK' : 'ACTIVE');
+
+      // 3. Update manual_reserved_stock in freshmart_products (Physical stock NOT reduced!)
+      await client.query(`
+        UPDATE freshmart_products
+        SET manual_reserved_stock = $1,
+            status = $2,
+            updated_at = NOW()
+        WHERE id = $3;
+      `, [newManualReserved, newStatus, row.id]);
+
+      // 4. Log in freshmart_inventory_movements
+      const movId = 'mov_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+      const refId = 'RES-' + Date.now();
+      await client.query(`
+        INSERT INTO freshmart_inventory_movements (
+          id, product_id, sku, type, quantity, previous_stock, new_stock, reason, operator, reference_id, created_at, data
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), $11);
+      `, [
+        movId, row.id, row.sku, 'RESERVE', qty,
+        currentAvailable, newAvailable,
+        reason || `Manual reservation of ${qty} units`,
+        operatorEmail, refId,
+        JSON.stringify({
+          id: movId,
+          productId: row.id,
+          productName: row.name,
+          sku: row.sku,
+          type: 'RESERVE',
+          action: 'RESERVE',
+          quantity: qty,
+          physicalStock,
+          customerReserved,
+          manualReserved: newManualReserved,
+          previousAvailable: currentAvailable,
+          newAvailable,
+          reason,
+          operator: operatorEmail,
+          user: operatorEmail,
+          referenceId: refId,
+          date: new Date().toISOString()
+        })
+      ]);
+
+      await client.query('COMMIT');
+      return {
+        success: true,
+        action: 'RESERVE',
+        productId: row.id,
+        productName: row.name,
+        sku: row.sku,
+        physicalStock,
+        customerReserved,
+        manualReserved: newManualReserved,
+        availableStock: newAvailable,
+        status: newStatus,
+        referenceId: refId
+      };
+    } catch (err) {
+      await client.query('ROLLBACK');
+      console.error('manualReserveStockAtomic error:', err.message);
+      return { success: false, error: err.message };
+    } finally {
+      client.release();
+    }
+  }
+
+  async manualUnreserveStockAtomic(productId, quantity, reason = 'Manual Unreserve / Release', operatorEmail = 'Store Owner') {
+    const pool = this.getPool();
+    if (!pool) throw new Error('PostgreSQL Pool is not configured');
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      const qty = Number(quantity);
+      if (isNaN(qty) || qty <= 0) {
+        await client.query('ROLLBACK');
+        return { success: false, error: 'Release quantity must be a positive number greater than 0.' };
+      }
+
+      // 1. Lock product row
+      const prodRes = await client.query(`
+        SELECT p.id, p.name, p.sku, COALESCE(p.stock, 0) as physical_stock,
+               COALESCE(p.manual_reserved_stock, 0) as manual_reserved_stock,
+               COALESCE(p.low_stock_limit, 15) as low_stock_limit,
+               COALESCE(r.cust_res, 0) as customer_reserved_stock
+        FROM freshmart_products p
+        LEFT JOIN (
+          SELECT 
+            COALESCE(item->>'id', item->>'productId') as pid,
+            SUM(COALESCE((item->>'quantity')::numeric, (item->>'qty')::numeric, 1)) as cust_res
+          FROM freshmart_orders o,
+               jsonb_array_elements(CASE WHEN jsonb_typeof(o.items::jsonb) = 'array' THEN o.items::jsonb ELSE '[]'::jsonb END) as item
+          WHERE UPPER(COALESCE(o.order_status, o.status, '')) NOT IN ('DELIVERED', 'CANCELLED', 'DELIVERY_FAILED', 'COMPLETED')
+          GROUP BY COALESCE(item->>'id', item->>'productId')
+        ) r ON r.pid = p.id OR r.pid = p.storefront_id
+        WHERE p.id = $1 OR p.storefront_id = $1 OR p.sku = $1
+        LIMIT 1 FOR UPDATE OF p;
+      `, [String(productId)]);
+
+      if (prodRes.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return { success: false, error: 'Product not found' };
+      }
+
+      const row = prodRes.rows[0];
+      const physicalStock = Number(row.physical_stock) || 0;
+      const customerReserved = Number(row.customer_reserved_stock) || 0;
+      const currentManualReserved = Number(row.manual_reserved_stock) || 0;
+      const currentAvailable = Math.max(0, physicalStock - customerReserved - currentManualReserved);
+
+      // 2. Validate: Cannot release more than currently manual reserved
+      if (qty > currentManualReserved) {
+        await client.query('ROLLBACK');
+        return {
+          success: false,
+          error: `Cannot release ${qty} units. Current manual reserved stock is only ${currentManualReserved} units.`,
+          manualReserved: currentManualReserved,
+          requestedQuantity: qty
+        };
+      }
+
+      const newManualReserved = currentManualReserved - qty;
+      const newAvailable = Math.max(0, physicalStock - customerReserved - newManualReserved);
+      const lowLimit = Number(row.low_stock_limit) || 15;
+      const newStatus = newAvailable === 0 ? 'OUT_OF_STOCK' : (newAvailable <= lowLimit ? 'LOW_STOCK' : 'ACTIVE');
+
+      // 3. Update manual_reserved_stock in freshmart_products
+      await client.query(`
+        UPDATE freshmart_products
+        SET manual_reserved_stock = $1,
+            status = $2,
+            updated_at = NOW()
+        WHERE id = $3;
+      `, [newManualReserved, newStatus, row.id]);
+
+      // 4. Log in freshmart_inventory_movements
+      const movId = 'mov_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+      const refId = 'UNRES-' + Date.now();
+      await client.query(`
+        INSERT INTO freshmart_inventory_movements (
+          id, product_id, sku, type, quantity, previous_stock, new_stock, reason, operator, reference_id, created_at, data
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), $11);
+      `, [
+        movId, row.id, row.sku, 'UNRESERVE', qty,
+        currentAvailable, newAvailable,
+        reason || `Manual release of ${qty} reserved units`,
+        operatorEmail, refId,
+        JSON.stringify({
+          id: movId,
+          productId: row.id,
+          productName: row.name,
+          sku: row.sku,
+          type: 'UNRESERVE',
+          action: 'UNRESERVE',
+          quantity: qty,
+          physicalStock,
+          customerReserved,
+          manualReserved: newManualReserved,
+          previousAvailable: currentAvailable,
+          newAvailable,
+          reason,
+          operator: operatorEmail,
+          user: operatorEmail,
+          referenceId: refId,
+          date: new Date().toISOString()
+        })
+      ]);
+
+      await client.query('COMMIT');
+      return {
+        success: true,
+        action: 'UNRESERVE',
+        productId: row.id,
+        productName: row.name,
+        sku: row.sku,
+        physicalStock,
+        customerReserved,
+        manualReserved: newManualReserved,
+        availableStock: newAvailable,
+        status: newStatus,
+        referenceId: refId
+      };
+    } catch (err) {
+      await client.query('ROLLBACK');
+      console.error('manualUnreserveStockAtomic error:', err.message);
+      return { success: false, error: err.message };
+    } finally {
+      client.release();
+    }
+  }
+
   async getInventoryMovementsAsync(limit = 100) {
     await this.init();
     try {
       const res = await this.query(`
         SELECT 
-          id, product_id, sku, type, quantity, previous_stock, new_stock, reason, operator, created_at, data
+          id, product_id, sku, type, quantity, previous_stock, new_stock, reason, operator, reference_id, created_at, data
         FROM freshmart_inventory_movements
         ORDER BY created_at DESC
         LIMIT $1;
@@ -1495,6 +1758,7 @@ class PostgresAdapter {
           newStock: Number(r.new_stock),
           reason: r.reason,
           operator: r.operator,
+          referenceId: r.reference_id || dataObj.referenceId,
           user: r.operator || dataObj.user || 'Store Owner',
           date: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString()
         };
@@ -1556,14 +1820,15 @@ class PostgresAdapter {
           const prevStock = Number(row.previous_stock);
 
           const movId = 'mov_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+          const refId = 'FULFILL-' + orderId;
           await client.query(`
-            INSERT INTO freshmart_inventory_movements (id, product_id, sku, type, quantity, previous_stock, new_stock, reason, operator, data)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            INSERT INTO freshmart_inventory_movements (id, product_id, sku, type, quantity, previous_stock, new_stock, reason, operator, reference_id, data)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
           `, [
             movId, row.id, row.sku || null, 'SALE', -qty,
             prevStock, currentNewStock,
             `Order #${orderId} delivered and fulfilled`,
-            operatorEmail,
+            operatorEmail, refId,
             JSON.stringify({
               id: movId,
               productId: row.id,
@@ -1575,6 +1840,7 @@ class PostgresAdapter {
               after: currentNewStock,
               reason: `Order #${orderId} delivered and fulfilled`,
               user: operatorEmail,
+              referenceId: refId,
               date: new Date().toISOString()
             })
           ]);
@@ -1605,7 +1871,5 @@ class PostgresAdapter {
       client.release();
     }
   }
-}
-
 module.exports = PostgresAdapter;
 

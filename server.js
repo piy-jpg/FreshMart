@@ -5074,10 +5074,102 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 200, ledger);
       }
 
+      // Manual Reserve Endpoint
+      if ((pathname === '/api/owner/inventory/reserve' || (pathname === '/api/owner/inventory/adjust' && req.headers['content-type']?.includes('json'))) && method === 'POST') {
+        // We handle in adjust route below or route directly
+      }
+
+      if (pathname === '/api/owner/inventory/reserve' && method === 'POST') {
+        const body = await parseBody(req);
+        const { productId, quantity, reason } = body;
+        const targetId = String(productId || '');
+        const qty = Number(quantity || body.reserveQuantity || 0);
+
+        if (db.pgAdapter && db.pgAdapter.isAvailable()) {
+          const resRes = await db.pgAdapter.manualReserveStockAtomic(targetId, qty, reason, owner.email || owner.name);
+          if (!resRes.success) {
+            return sendJson(res, 400, { error: resRes.error, ...resRes });
+          }
+          await db.logActivityAsync(owner.name, 'STOCK_RESERVED', 'Inventory', targetId, `Manually reserved ${qty} units (${reason || 'Manual Reservation'})`);
+          broadcastEvent('INVENTORY_UPDATED', { productId: targetId, action: 'RESERVE', manualReserved: resRes.manualReserved, availableStock: resRes.availableStock });
+          broadcastEvent('STOCK_UPDATED', { product: resRes });
+          return sendJson(res, 200, resRes);
+        }
+
+        // In-memory fallback
+        const prod = db.getById('products', targetId);
+        if (!prod) return sendJson(res, 404, { error: 'Product not found' });
+        const curManual = Number(prod.manualReservedStock || prod.manual_reserved_stock || 0);
+        const physical = Number(prod.stock || 0);
+        const available = Math.max(0, physical - curManual);
+        if (qty > available) {
+          return sendJson(res, 400, { error: `Cannot reserve ${qty} units. Maximum available is ${available} units.` });
+        }
+        prod.manualReservedStock = curManual + qty;
+        prod.manual_reserved_stock = curManual + qty;
+        db.save();
+        return sendJson(res, 200, { success: true, action: 'RESERVE', manualReserved: prod.manualReservedStock, availableStock: available - qty });
+      }
+
+      // Manual Unreserve / Release Endpoint
+      if (pathname === '/api/owner/inventory/unreserve' && method === 'POST') {
+        const body = await parseBody(req);
+        const { productId, quantity, reason } = body;
+        const targetId = String(productId || '');
+        const qty = Number(quantity || body.releaseQuantity || 0);
+
+        if (db.pgAdapter && db.pgAdapter.isAvailable()) {
+          const unresRes = await db.pgAdapter.manualUnreserveStockAtomic(targetId, qty, reason, owner.email || owner.name);
+          if (!unresRes.success) {
+            return sendJson(res, 400, { error: unresRes.error, ...unresRes });
+          }
+          await db.logActivityAsync(owner.name, 'STOCK_UNRESERVED', 'Inventory', targetId, `Manually released ${qty} reserved units (${reason || 'Manual Unreserve'})`);
+          broadcastEvent('INVENTORY_UPDATED', { productId: targetId, action: 'UNRESERVE', manualReserved: unresRes.manualReserved, availableStock: unresRes.availableStock });
+          broadcastEvent('STOCK_UPDATED', { product: unresRes });
+          return sendJson(res, 200, unresRes);
+        }
+
+        const prod = db.getById('products', targetId);
+        if (!prod) return sendJson(res, 404, { error: 'Product not found' });
+        const curManual = Number(prod.manualReservedStock || prod.manual_reserved_stock || 0);
+        if (qty > curManual) {
+          return sendJson(res, 400, { error: `Cannot release ${qty} units. Current manual reserved is only ${curManual} units.` });
+        }
+        prod.manualReservedStock = curManual - qty;
+        prod.manual_reserved_stock = curManual - qty;
+        db.save();
+        return sendJson(res, 200, { success: true, action: 'UNRESERVE', manualReserved: prod.manualReservedStock });
+      }
+
       if (pathname === '/api/owner/inventory/adjust' && method === 'POST') {
         const body = await parseBody(req);
-        const { productId, adjustment, type, reason } = body;
-        const prod = db.getById('products', productId);
+        const { productId, adjustment, type, reason, action } = body;
+        const targetId = String(productId || '');
+
+        // Handle Action Modes inside adjust endpoint
+        if (String(action).toUpperCase() === 'RESERVE' || String(type).toUpperCase() === 'RESERVE') {
+          const qty = Number(body.quantity || body.reserveQuantity || adjustment || 0);
+          if (db.pgAdapter && db.pgAdapter.isAvailable()) {
+            const resRes = await db.pgAdapter.manualReserveStockAtomic(targetId, qty, reason, owner.email || owner.name);
+            if (!resRes.success) return sendJson(res, 400, { error: resRes.error, ...resRes });
+            await db.logActivityAsync(owner.name, 'STOCK_RESERVED', 'Inventory', targetId, `Manually reserved ${qty} units`);
+            broadcastEvent('INVENTORY_UPDATED', { productId: targetId, action: 'RESERVE', manualReserved: resRes.manualReserved, availableStock: resRes.availableStock });
+            return sendJson(res, 200, resRes);
+          }
+        }
+
+        if (String(action).toUpperCase() === 'UNRESERVE' || String(action).toUpperCase() === 'RELEASE' || String(type).toUpperCase() === 'UNRESERVE' || String(type).toUpperCase() === 'RELEASE') {
+          const qty = Number(body.quantity || body.releaseQuantity || adjustment || 0);
+          if (db.pgAdapter && db.pgAdapter.isAvailable()) {
+            const unresRes = await db.pgAdapter.manualUnreserveStockAtomic(targetId, qty, reason, owner.email || owner.name);
+            if (!unresRes.success) return sendJson(res, 400, { error: unresRes.error, ...unresRes });
+            await db.logActivityAsync(owner.name, 'STOCK_UNRESERVED', 'Inventory', targetId, `Manually released ${qty} reserved units`);
+            broadcastEvent('INVENTORY_UPDATED', { productId: targetId, action: 'UNRESERVE', manualReserved: unresRes.manualReserved, availableStock: unresRes.availableStock });
+            return sendJson(res, 200, unresRes);
+          }
+        }
+
+        const prod = db.getById('products', targetId);
         let delta = 0;
         if (adjustment !== undefined) {
           delta = Number(adjustment) || 0;
@@ -5120,11 +5212,11 @@ const server = http.createServer(async (req, res) => {
           updatedAt: new Date().toISOString()
         };
 
-        const targetId = prod ? prod.id : productId;
         const updatedProd = await db.updateAsync('products', targetId, updates);
         db.save();
 
         const movId = 'mov_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+        const refId = 'ADJ-' + Date.now();
         await db.insertAsync('inventory_movements', {
           id: movId,
           date: new Date().toISOString(),
@@ -5141,7 +5233,9 @@ const server = http.createServer(async (req, res) => {
           new_stock: newStock,
           reason: reason || (delta >= 0 ? 'Stock Intake / Adjustment' : 'Stock Write-off / Adjustment'),
           user: `${owner.name} (${owner.role})`,
-          operator: owner.email || owner.name
+          operator: owner.email || owner.name,
+          referenceId: refId,
+          reference_id: refId
         });
 
         await db.logActivityAsync(owner.name, 'STOCK_ADJUSTED', 'Products', targetId, `Stock adjusted by ${delta > 0 ? '+' : ''}${delta} (${type || body.adjustmentType || 'ADJUST'}: ${reason || 'Manual Adjustment'})`);
