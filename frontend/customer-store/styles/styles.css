@@ -1622,13 +1622,13 @@ button[onclick="openWishlistDrawer()"]:active {
   animation: floatLeafDrift3 7s ease-in-out infinite;
 }
 
-/* 6-Image Seamless Bottom-to-Top Harvest Autoscroll */
-@keyframes harvestScrollBottomToTop {
+/* 6-Image Seamless Top-to-Bottom Harvest Autoscroll */
+@keyframes harvestScrollTopToBottom {
   0% {
-    transform: translateY(0);
+    transform: translate3d(0, -50%, 0);
   }
   100% {
-    transform: translateY(-50%);
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -1657,7 +1657,7 @@ button[onclick="openWishlistDrawer()"]:active {
   flex-direction: column;
   gap: 1.25rem;
   will-change: transform;
-  animation: harvestScrollBottomToTop 32s linear infinite;
+  animation: harvestScrollTopToBottom 34s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
