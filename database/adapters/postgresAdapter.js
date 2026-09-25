@@ -110,7 +110,10 @@ class PostgresAdapter {
             INSERT INTO freshmart_products (id, storefront_id, name, sku, category, price, selling_price, mrp, stock, status, data)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
             ON CONFLICT (id) DO UPDATE SET
+              storefront_id = EXCLUDED.storefront_id,
               name = EXCLUDED.name,
+              sku = EXCLUDED.sku,
+              category = EXCLUDED.category,
               price = EXCLUDED.price,
               selling_price = EXCLUDED.selling_price,
               mrp = EXCLUDED.mrp,
@@ -250,7 +253,10 @@ class PostgresAdapter {
           INSERT INTO freshmart_products (id, storefront_id, name, sku, category, price, selling_price, mrp, stock, status, data)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
           ON CONFLICT (id) DO UPDATE SET
+            storefront_id = EXCLUDED.storefront_id,
             name = EXCLUDED.name,
+            sku = EXCLUDED.sku,
+            category = EXCLUDED.category,
             price = EXCLUDED.price,
             selling_price = EXCLUDED.selling_price,
             mrp = EXCLUDED.mrp,

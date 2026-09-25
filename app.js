@@ -2884,9 +2884,9 @@ function applyProductArrayToStorefront(products, triggerRerender = true) {
     }
   });
 
-  if (newVeg.length > 0) allVegetablesData = newVeg;
-  if (newFruits.length > 0) allFruitsData = newFruits;
-  if (newGrocery.length > 0) allGroceryData = newGrocery;
+  allVegetablesData = newVeg;
+  allFruitsData = newFruits;
+  allGroceryData = newGrocery;
 
   if (triggerRerender) {
     if (document.getElementById('veg-products-grid')) {
@@ -2932,6 +2932,19 @@ function applyProductArrayToStorefront(products, triggerRerender = true) {
 }
 window.applyProductArrayToStorefront = applyProductArrayToStorefront;
 
+function hydrateCatalogFromStorage() {
+  try {
+    const raw = sessionStorage.getItem('freshmart_synced_catalog') || localStorage.getItem('freshmart_synced_catalog');
+    if (raw) {
+      const prods = JSON.parse(raw);
+      if (Array.isArray(prods) && prods.length > 0) {
+        applyProductArrayToStorefront(prods, false);
+      }
+    }
+  } catch (e) {}
+}
+hydrateCatalogFromStorage();
+
 let _lastSyncedCatalogHash = '';
 let _syncDebounceTimer = null;
 let _isSyncingCatalog = false;
@@ -2951,8 +2964,8 @@ async function syncStorefrontCatalogWithBackend() {
     if (!res.ok) return;
     const products = await res.json();
 
-    if (Array.isArray(products) && products.length > 0) {
-      const newHash = JSON.stringify(products.map(p => ({ id: p.id, price: p.price, stock: p.stock, name: p.name, status: p.status })));
+    if (Array.isArray(products)) {
+      const newHash = JSON.stringify(products.map(p => ({ id: p.id, price: p.price, stock: p.stock, name: p.name, status: p.status, category: p.category })));
       if (newHash !== _lastSyncedCatalogHash) {
         _lastSyncedCatalogHash = newHash;
         try {
@@ -3001,40 +3014,75 @@ window.addEventListener('storage', (e) => {
 // REAL-TIME STOREFRONT SUB-NAVBARS & CATEGORY BADGE SYNCHRONIZATION
 // -------------------------------------------------------------
 function updateGlobalNavBadges() {
-  const vegCount = (typeof allVegetablesData !== 'undefined') 
-    ? allVegetablesData.filter(v => !isProductSuspended(v.id)).length 
+  const isItemActive = (v) => {
+    if (!v) return false;
+    if (typeof isProductSuspended === 'function' && isProductSuspended(v.id)) return false;
+    if (v.storefrontId && typeof isProductSuspended === 'function' && isProductSuspended(v.storefrontId)) return false;
+    const s = (v.status || 'ACTIVE').toUpperCase();
+    if (['SUSPENDED', 'INACTIVE', 'DRAFT', 'DELETED', 'ARCHIVED', 'UNPUBLISHED'].includes(s)) return false;
+    return true;
+  };
+
+  const vegCount = (typeof allVegetablesData !== 'undefined' && Array.isArray(allVegetablesData))
+    ? allVegetablesData.filter(isItemActive).length
     : 0;
-  const fruitCount = (typeof allFruitsData !== 'undefined') 
-    ? allFruitsData.filter(v => !isProductSuspended(v.id)).length 
+  const fruitCount = (typeof allFruitsData !== 'undefined' && Array.isArray(allFruitsData))
+    ? allFruitsData.filter(isItemActive).length
     : 0;
-  const groceryCount = (typeof allGroceryData !== 'undefined') 
-    ? allGroceryData.filter(v => !isProductSuspended(v.id)).length 
+  const groceryCount = (typeof allGroceryData !== 'undefined' && Array.isArray(allGroceryData))
+    ? allGroceryData.filter(isItemActive).length
     : 0;
 
-  // Update sidebar & header sub-navigation link badges
+  // Update navbar category links & sidebar links for Vegetables
   document.querySelectorAll('a[href*="vegetables.html"]').forEach(a => {
-    const badge = a.querySelector('span:last-child');
-    if (badge && /fresh/i.test(badge.textContent)) {
-      badge.textContent = `${vegCount} Fresh`;
+    const isSidebarLink = a.classList.contains('sidebar-link') || a.querySelector('.sidebar-icon-wrapper');
+    if (isSidebarLink) {
+      const badge = a.querySelector('span:last-child') || a.querySelector('.rounded-full');
+      if (badge && (/fresh/i.test(badge.textContent) || /^\d+/.test(badge.textContent.trim()))) {
+        badge.textContent = `${vegCount} Fresh`;
+      }
+    } else {
+      const rawText = a.textContent.trim();
+      if (/^Vegetables(\s*\(\d+\))?$/i.test(rawText) || a.classList.contains('whitespace-nowrap')) {
+        a.textContent = `Vegetables (${vegCount})`;
+      }
     }
   });
 
+  // Update navbar category links & sidebar links for Fruits
   document.querySelectorAll('a[href*="fruits.html"]').forEach(a => {
-    const badge = a.querySelector('span:last-child');
-    if (badge && /orchard/i.test(badge.textContent)) {
-      badge.textContent = `${fruitCount} Orchard`;
+    const isSidebarLink = a.classList.contains('sidebar-link') || a.querySelector('.sidebar-icon-wrapper');
+    if (isSidebarLink) {
+      const badge = a.querySelector('span:last-child') || a.querySelector('.rounded-full');
+      if (badge && (/orchard/i.test(badge.textContent) || /^\d+/.test(badge.textContent.trim()))) {
+        badge.textContent = `${fruitCount} Orchard`;
+      }
+    } else {
+      const rawText = a.textContent.trim();
+      if (/^Fruits(\s*\(\d+\))?$/i.test(rawText) || a.classList.contains('whitespace-nowrap')) {
+        a.textContent = `Fruits (${fruitCount})`;
+      }
     }
   });
 
+  // Update navbar category links & sidebar links for Grocery
   document.querySelectorAll('a[href*="grocery.html"]').forEach(a => {
-    const badge = a.querySelector('span:last-child');
-    if (badge && /pantry/i.test(badge.textContent)) {
-      badge.textContent = `${groceryCount} Pantry`;
+    const isSidebarLink = a.classList.contains('sidebar-link') || a.querySelector('.sidebar-icon-wrapper');
+    if (isSidebarLink) {
+      const badge = a.querySelector('span:last-child') || a.querySelector('.rounded-full');
+      if (badge && (/pantry/i.test(badge.textContent) || /^\d+/.test(badge.textContent.trim()))) {
+        badge.textContent = `${groceryCount} Pantry`;
+      }
+    } else {
+      const rawText = a.textContent.trim();
+      if (/^Grocery(\s*\(\d+\))?$/i.test(rawText) || a.classList.contains('whitespace-nowrap')) {
+        a.textContent = `Grocery (${groceryCount})`;
+      }
     }
   });
 
-  // Standalone badge spans across DOM
-  document.querySelectorAll('span').forEach(sp => {
+  // Standalone badge spans & counts across DOM
+  document.querySelectorAll('span, a').forEach(sp => {
     if (sp.children.length === 0) {
       const text = sp.textContent.trim();
       if (/^\d+\s+Fresh$/i.test(text)) {
@@ -3043,6 +3091,12 @@ function updateGlobalNavBadges() {
         sp.textContent = `${fruitCount} Orchard`;
       } else if (/^\d+\s+Pantry$/i.test(text)) {
         sp.textContent = `${groceryCount} Pantry`;
+      } else if (/^Vegetables\s*\(\d+\)$/i.test(text)) {
+        sp.textContent = `Vegetables (${vegCount})`;
+      } else if (/^Fruits\s*\(\d+\)$/i.test(text)) {
+        sp.textContent = `Fruits (${fruitCount})`;
+      } else if (/^Grocery\s*\(\d+\)$/i.test(text)) {
+        sp.textContent = `Grocery (${groceryCount})`;
       }
     }
   });
@@ -3200,37 +3254,51 @@ function initGlobalOrderSSE() {
         } else if (data.type === 'PRODUCT_UPDATED' || data.type === 'STOCK_UPDATED' || data.type === 'PRODUCT_DELETED') {
           const prod = data.payload?.product || data.payload;
           if (prod && (prod.id || prod.storefrontId)) {
-            const mapped = typeof mapDbProductToStorefront === 'function' ? mapDbProductToStorefront(prod) : null;
-            if (mapped) {
-              const updateInList = (list) => {
-                if (!Array.isArray(list)) return false;
-                const idx = list.findIndex(item => item.id === mapped.id || item.id === prod.id || item.id === prod.storefrontId || item.id === (prod.storefrontId || '').replace(/^prod_/, ''));
-                if (idx !== -1) {
-                  list[idx] = { ...list[idx], ...mapped };
-                  return true;
-                }
-                return false;
-              };
-              let updated = updateInList(allVegetablesData);
-              if (!updated) updated = updateInList(allFruitsData);
-              if (!updated) updateInList(allGroceryData);
+            const cleanId = (prod.storefrontId || prod.id || '').replace(/^prod_/, '');
+            const prodStatus = (prod.status || 'ACTIVE').toUpperCase();
+            const isSusp = ['SUSPENDED', 'INACTIVE', 'DRAFT', 'DELETED', 'ARCHIVED', 'UNPUBLISHED'].includes(prodStatus) || data.type === 'PRODUCT_DELETED';
 
-              if (window.__suspendedProductIds) {
-                if (prod.status === 'SUSPENDED' || prod.status === 'INACTIVE' || prod.status === 'DELETED') {
-                  window.__suspendedProductIds.add(prod.id);
-                  if (prod.storefrontId) window.__suspendedProductIds.add(prod.storefrontId);
+            if (!window.__suspendedProductIds) window.__suspendedProductIds = new Set();
+            if (isSusp) {
+              window.__suspendedProductIds.add(prod.id);
+              window.__suspendedProductIds.add(cleanId);
+              if (prod.storefrontId) window.__suspendedProductIds.add(prod.storefrontId);
+            } else {
+              window.__suspendedProductIds.delete(prod.id);
+              window.__suspendedProductIds.delete(cleanId);
+              if (prod.storefrontId) window.__suspendedProductIds.delete(prod.storefrontId);
+            }
+
+            const removeFromList = (list) => {
+              if (!Array.isArray(list)) return [];
+              return list.filter(item => item.id !== prod.id && item.id !== prod.storefrontId && item.id !== cleanId && item.storefrontId !== prod.storefrontId && item.storefrontId !== prod.id && item.dbId !== prod.id);
+            };
+
+            if (typeof allVegetablesData !== 'undefined') allVegetablesData = removeFromList(allVegetablesData);
+            if (typeof allFruitsData !== 'undefined') allFruitsData = removeFromList(allFruitsData);
+            if (typeof allGroceryData !== 'undefined') allGroceryData = removeFromList(allGroceryData);
+
+            if (data.type !== 'PRODUCT_DELETED') {
+              const mapped = typeof mapDbProductToStorefront === 'function' ? mapDbProductToStorefront(prod) : null;
+              if (mapped) {
+                const cat = (prod.category || mapped.category || '').toLowerCase().trim();
+                if (cat.includes('fruit')) {
+                  if (typeof allFruitsData !== 'undefined') allFruitsData.unshift(mapped);
+                } else if (cat.includes('groc') || cat.includes('pant') || cat.includes('staple') || cat.includes('oil') || cat.includes('dal') || cat.includes('atta') || cat.includes('rice') || cat.includes('flour') || cat.includes('spice')) {
+                  if (typeof allGroceryData !== 'undefined') allGroceryData.unshift(mapped);
                 } else {
-                  window.__suspendedProductIds.delete(prod.id);
-                  if (prod.storefrontId) window.__suspendedProductIds.delete(prod.storefrontId);
+                  if (typeof allVegetablesData !== 'undefined') allVegetablesData.unshift(mapped);
                 }
               }
-
-              if (typeof applyFiltersAndRender === 'function') applyFiltersAndRender();
-              if (typeof applyVegetableFiltersAndRender === 'function') applyVegetableFiltersAndRender();
-              if (typeof applyFruitFiltersAndRender === 'function') applyFruitFiltersAndRender();
-              if (typeof applyGroceryFiltersAndRender === 'function') applyGroceryFiltersAndRender();
-              if (typeof applyOffersFiltersAndRender === 'function') applyOffersFiltersAndRender();
             }
+
+            if (typeof updateStorefrontSubnavs === 'function') updateStorefrontSubnavs();
+            if (typeof updateGlobalNavBadges === 'function') updateGlobalNavBadges();
+            if (typeof applyFiltersAndRender === 'function') applyFiltersAndRender();
+            if (typeof applyVegetableFiltersAndRender === 'function') applyVegetableFiltersAndRender();
+            if (typeof applyFruitFiltersAndRender === 'function') applyFruitFiltersAndRender();
+            if (typeof applyGroceryFiltersAndRender === 'function') applyGroceryFiltersAndRender();
+            if (typeof applyOffersFiltersAndRender === 'function') applyOffersFiltersAndRender();
           }
           if (typeof syncStorefrontCatalogWithBackend === 'function') {
             syncStorefrontCatalogWithBackend();
@@ -3556,19 +3624,6 @@ window.renderTrackOrderModalContent = async function(orderId) {
           Share this 4-digit code with your EV courier after receiving your fresh vegetables.
         </p>
       </div>
-
-      ${(order.reassignmentNeeded || order.deliveryStatus === 'REASSIGNMENT_REQUIRED' || order.assignmentRejected) ? `
-        <!-- REASSIGNMENT IN PROGRESS BANNER -->
-        <div class="p-4 rounded-2xl bg-amber-50 border border-amber-300 mb-5 flex items-center gap-3 shadow-xs animate-pulse">
-          <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-lg shrink-0">
-            🛵
-          </div>
-          <div>
-            <h4 class="font-bold text-xs sm:text-sm text-amber-950">Finding another Delivery Partner</h4>
-            <p class="text-[11px] text-amber-800 mt-0.5">Assigned partner was unavailable. Dark store manager is assigning another active EV partner right now.</p>
-          </div>
-        </div>
-      ` : ''}
 
       <!-- ETA Card -->
       <div class="p-4 rounded-2xl bg-gradient-to-r from-emerald-900 to-emerald-800 text-white mb-5 shadow-md">

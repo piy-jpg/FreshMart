@@ -2255,7 +2255,212 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (pathname === '/api/categories' && method === 'GET') {
-      return sendJson(res, 200, db.getAll('categories') || []);
+      const categories = db.getAll('categories') || [];
+      const products = db.getAll('products') || [];
+      const activeProducts = products.filter(p => {
+        const s = (p.status || 'ACTIVE').toUpperCase();
+        return !['SUSPENDED', 'INACTIVE', 'DRAFT', 'DELETED', 'ARCHIVED', 'UNPUBLISHED'].includes(s);
+      });
+
+      const enriched = categories.map(cat => {
+        const slug = (cat.slug || cat.id || cat.name || '').toLowerCase();
+        let count = 0;
+        if (slug.includes('veg')) {
+          count = activeProducts.filter(p => {
+            const c = (p.category || '').toLowerCase();
+            return !c.includes('fruit') && !c.includes('groc') && !c.includes('pant') && !c.includes('staple');
+          }).length;
+        } else if (slug.includes('fruit')) {
+          count = activeProducts.filter(p => (p.category || '').toLowerCase().includes('fruit')).length;
+        } else if (slug.includes('groc') || slug.includes('pant')) {
+          count = activeProducts.filter(p => {
+            const c = (p.category || '').toLowerCase();
+            return c.includes('groc') || c.includes('pant') || c.includes('staple') || c.includes('oil') || c.includes('dal') || c.includes('atta') || c.includes('rice') || c.includes('flour') || c.includes('spice');
+          }).length;
+        } else {
+          count = activeProducts.filter(p => (p.category || '').toLowerCase() === slug).length;
+        }
+        return {
+          ...cat,
+          productCount: count,
+          count
+        };
+      });
+      return sendJson(res, 200, enriched);
+    }
+
+    // ----------------------------------------------------
+    // Product Image Upload & Curated Image Library Endpoints
+    // ----------------------------------------------------
+    if ((pathname === '/api/upload/image' || pathname === '/api/owner/upload' || pathname === '/api/upload') && method === 'POST') {
+      const UPLOADS_DIR = path.join(__dirname, 'uploads');
+      if (!fs.existsSync(UPLOADS_DIR)) {
+        try { fs.mkdirSync(UPLOADS_DIR, { recursive: true }); } catch (e) {}
+      }
+
+      const body = await parseBody(req);
+      const rawData = body.data || body.image || body.base64 || body.file;
+      if (!rawData || typeof rawData !== 'string') {
+        return sendJson(res, 400, { success: false, error: 'No image data provided. Expected base64 data URL or string.' });
+      }
+
+      let mimeType = 'image/jpeg';
+      let base64Data = rawData;
+      let ext = 'jpg';
+
+      if (rawData.startsWith('data:')) {
+        const matches = rawData.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (matches && matches.length === 3) {
+          mimeType = matches[1].toLowerCase();
+          base64Data = matches[2];
+        }
+      } else if (body.mimeType || body.type) {
+        mimeType = (body.mimeType || body.type).toLowerCase();
+      }
+
+      const allowedMimes = {
+        'image/jpeg': 'jpg',
+        'image/jpg': 'jpg',
+        'image/png': 'png',
+        'image/webp': 'webp'
+      };
+
+      if (!allowedMimes[mimeType]) {
+        return sendJson(res, 400, { 
+          success: false, 
+          error: `Invalid file type "${mimeType}". Allowed formats are JPG, JPEG, PNG, and WebP.` 
+        });
+      }
+
+      ext = allowedMimes[mimeType];
+      const buffer = Buffer.from(base64Data, 'base64');
+      const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+      if (buffer.length > MAX_SIZE_BYTES) {
+        return sendJson(res, 400, { 
+          success: false, 
+          error: `File size exceeds the 10MB limit (size: ${(buffer.length / (1024 * 1024)).toFixed(2)}MB).` 
+        });
+      }
+
+      const filename = `product_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
+      const filePath = path.join(UPLOADS_DIR, filename);
+      fs.writeFileSync(filePath, buffer);
+
+      const imageUrl = `/uploads/${filename}`;
+      return sendJson(res, 201, {
+        success: true,
+        url: imageUrl,
+        imageUrl: imageUrl,
+        filename,
+        mimeType,
+        size: buffer.length
+      });
+    }
+
+    if ((pathname === '/api/images/library' || pathname === '/api/owner/images/library') && method === 'GET') {
+      const UPLOADS_DIR = path.join(__dirname, 'uploads');
+      const { category, search } = parsedUrl.query || {};
+      
+      const curatedLibrary = [
+        // Vegetables
+        { id: 'lib_veg_tomato', title: 'Farm Fresh Tomatoes', category: 'Vegetables', subcategory: 'Daily Fresh', url: 'https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_veg_potato', title: 'Agra Jyoti Potato', category: 'Vegetables', subcategory: 'Root Vegetables', url: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_veg_onion', title: 'Nashik Red Onions', category: 'Vegetables', subcategory: 'Root Vegetables', url: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_veg_capsicum_green', title: 'Green Capsicum (Shimla Mirch)', category: 'Vegetables', subcategory: 'Exotic Peppers', url: 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_veg_capsicum_red', title: 'Organic Red Bell Pepper', category: 'Vegetables', subcategory: 'Exotic Peppers', url: 'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_veg_capsicum_yellow', title: 'Yellow Bell Pepper', category: 'Vegetables', subcategory: 'Exotic Peppers', url: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_veg_carrot', title: 'Ooty Fresh Orange Carrot', category: 'Vegetables', subcategory: 'Root Vegetables', url: 'https://images.unsplash.com/photo-1447175008436-054170c2e979?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1447175008436-054170c2e979?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_veg_broccoli', title: 'Hydroponic Tender Broccoli', category: 'Vegetables', subcategory: 'Exotics', url: 'https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_veg_spinach', title: 'Farm Fresh Palak (Spinach)', category: 'Vegetables', subcategory: 'Leafy Greens', url: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_veg_coriander', title: 'Fresh Green Coriander (Dhaniya)', category: 'Vegetables', subcategory: 'Herbs & Greens', url: 'https://images.unsplash.com/photo-1587735243615-c03f25aaff15?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1587735243615-c03f25aaff15?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_veg_garlic', title: 'Peeled Fresh Garlic Bulbs', category: 'Vegetables', subcategory: 'Aromatics', url: 'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_veg_ginger', title: 'Organic Ginger (Adrak)', category: 'Vegetables', subcategory: 'Aromatics', url: 'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_veg_lemon', title: 'Fresh Juicy Nimbu (Lemon)', category: 'Vegetables', subcategory: 'Citrus & Aromatics', url: 'https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_veg_cucumber', title: 'Crispy Green Kheera (Cucumber)', category: 'Vegetables', subcategory: 'Salad Produce', url: 'https://images.unsplash.com/photo-1604977042946-1eecc30f269e?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1604977042946-1eecc30f269e?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_veg_cauliflower', title: 'Fresh White Gobhi (Cauliflower)', category: 'Vegetables', subcategory: 'Daily Fresh', url: 'https://images.unsplash.com/photo-1568584711075-3d021a7c3ca3?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1568584711075-3d021a7c3ca3?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_veg_chilli', title: 'Spicy Green Chilli (Hari Mirch)', category: 'Vegetables', subcategory: 'Spices & Aromatics', url: 'https://images.unsplash.com/photo-1588252303782-cb80119abd6d?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1588252303782-cb80119abd6d?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_veg_bhindi', title: 'Tender Ladies Finger (Bhindi/Okra)', category: 'Vegetables', subcategory: 'Daily Fresh', url: 'https://images.unsplash.com/photo-1425543103986-22abb7d7e8d2?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1425543103986-22abb7d7e8d2?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_veg_corn', title: 'Sweet Corn on the Cob', category: 'Vegetables', subcategory: 'Farm Grains', url: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&w=240&q=80' },
+
+        // Fruits
+        { id: 'lib_fruit_apple_red', title: 'Kinnaur Royal Red Delicious Apple', category: 'Fruits', subcategory: 'Orchard Fresh', url: 'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_fruit_banana', title: 'Robusta Golden Bananas', category: 'Fruits', subcategory: 'Daily Fruits', url: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_fruit_mango', title: 'Ratnagiri Alphonso Mango (Hapus)', category: 'Fruits', subcategory: 'Seasonal Premium', url: 'https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_fruit_pomegranate', title: 'Ruby Red Anar (Pomegranate)', category: 'Fruits', subcategory: 'Exotics & Premium', url: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_fruit_orange', title: 'Nagpur Sweet Mandarin Oranges', category: 'Fruits', subcategory: 'Citrus', url: 'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_fruit_papaya', title: 'Sweet Yellow Papaya', category: 'Fruits', subcategory: 'Tropical Fruits', url: 'https://images.unsplash.com/photo-1526346698789-224a79ed0881?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1526346698789-224a79ed0881?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_fruit_grapes_green', title: 'Seedless Green Thomson Grapes', category: 'Fruits', subcategory: 'Vine Fresh', url: 'https://images.unsplash.com/photo-1537640538966-79f369143f8f?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1537640538966-79f369143f8f?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_fruit_strawberry', title: 'Mahabaleshwar Juicy Strawberries', category: 'Fruits', subcategory: 'Berries', url: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_fruit_watermelon', title: 'Sweet Sugar Queen Watermelon', category: 'Fruits', subcategory: 'Melons', url: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_fruit_kiwi', title: 'Zespri Green Kiwi', category: 'Fruits', subcategory: 'Exotics', url: 'https://images.unsplash.com/photo-1585059895524-72359e06133a?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1585059895524-72359e06133a?auto=format&fit=crop&w=240&q=80' },
+
+        // Grocery & Pantry
+        { id: 'lib_groc_rice_basmati', title: 'Royal Basmati Rice Aged 2 Years', category: 'Grocery & Pantry', subcategory: 'Rice & Grains', url: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_groc_dal_toor', title: 'Unpolished Organic Toor Dal', category: 'Grocery & Pantry', subcategory: 'Pulses & Dals', url: 'https://images.unsplash.com/photo-1585994192700-141a02123cb2?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1585994192700-141a02123cb2?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_groc_oil_mustard', title: 'Cold-Pressed Kachi Ghani Mustard Oil', category: 'Grocery & Pantry', subcategory: 'Cooking Oils & Ghee', url: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_groc_atta', title: 'Chakki Fresh Sharbati Whole Wheat Atta', category: 'Grocery & Pantry', subcategory: 'Flours & Grains', url: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_groc_ghee', title: 'Pure Vedic A2 Desi Cow Bilona Ghee', category: 'Grocery & Pantry', subcategory: 'Dairy & Ghee', url: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_groc_spices', title: 'Assorted Handpicked Indian Spices', category: 'Grocery & Pantry', subcategory: 'Whole Spices', url: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_groc_turmeric', title: 'Salem Pure Ground Haldi (Turmeric)', category: 'Grocery & Pantry', subcategory: 'Spices & Seasoning', url: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_groc_honey', title: 'Wild Raw Forest Organic Honey', category: 'Grocery & Pantry', subcategory: 'Sweeteners', url: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_groc_cashew', title: 'Mangalore Premium Jumbo W180 Cashews', category: 'Grocery & Pantry', subcategory: 'Dry Fruits & Nuts', url: 'https://images.unsplash.com/photo-1506917728037-b6fb01c4e69b?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1506917728037-b6fb01c4e69b?auto=format&fit=crop&w=240&q=80' },
+        { id: 'lib_groc_almonds', title: 'California Mamra Premium Almonds', category: 'Grocery & Pantry', subcategory: 'Dry Fruits & Nuts', url: 'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?auto=format&fit=crop&w=700&q=80', thumbnail: 'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?auto=format&fit=crop&w=240&q=80' }
+      ];
+
+      // Scan existing products in catalog
+      const products = db.getAll('products') || [];
+      const seenUrls = new Set(curatedLibrary.map(i => i.url));
+
+      for (const p of products) {
+        const imgUrl = p.image || p.imageUrl;
+        if (imgUrl && !seenUrls.has(imgUrl) && typeof imgUrl === 'string' && imgUrl.startsWith('http')) {
+          seenUrls.add(imgUrl);
+          curatedLibrary.push({
+            id: `prod_img_${p.id}`,
+            title: p.name || 'Catalog Produce',
+            category: p.category || 'Vegetables',
+            subcategory: p.subcategory || 'Catalog Item',
+            url: imgUrl,
+            thumbnail: imgUrl
+          });
+        }
+      }
+
+      // Scan uploads directory
+      try {
+        if (fs.existsSync(UPLOADS_DIR)) {
+          const files = fs.readdirSync(UPLOADS_DIR);
+          for (const f of files) {
+            const ext = path.extname(f).toLowerCase();
+            if (['.jpg', '.jpeg', '.png', '.webp'].includes(ext)) {
+              const url = `/uploads/${f}`;
+              if (!seenUrls.has(url)) {
+                seenUrls.add(url);
+                curatedLibrary.unshift({
+                  id: `upload_${f}`,
+                  title: f.replace(/^product_\d+_/, '').replace(ext, ''),
+                  category: 'Uploads',
+                  subcategory: 'Custom Uploaded',
+                  url: url,
+                  thumbnail: url
+                });
+              }
+            }
+          }
+        }
+      } catch (e) {}
+
+      let results = curatedLibrary;
+      if (category && category !== 'ALL' && category !== 'all') {
+        const cLower = category.toLowerCase();
+        results = results.filter(i => (i.category || '').toLowerCase().includes(cLower));
+      }
+      if (search) {
+        const sLower = search.toLowerCase();
+        results = results.filter(i => (i.title || '').toLowerCase().includes(sLower) || (i.category || '').toLowerCase().includes(sLower) || (i.subcategory || '').toLowerCase().includes(sLower));
+      }
+
+      return sendJson(res, 200, { success: true, count: results.length, images: results });
     }
 
     if (pathname === '/api/products' && method === 'GET') {
@@ -4387,8 +4592,8 @@ const server = http.createServer(async (req, res) => {
         const prod = db.getById('products', id);
         const prodName = prod ? prod.name : id;
         const storefrontId = prod ? prod.storefrontId : id;
-        db.delete('products', id);
-        db.logActivity(owner.name, 'PRODUCT_DELETED', 'Products', id, `Deleted product "${prodName}" (${id})`);
+        await db.deleteAsync('products', id, owner.name);
+        await db.logActivityAsync(owner.name, 'PRODUCT_DELETED', 'Products', id, `Deleted product "${prodName}" (${id})`);
         broadcastEvent('PRODUCT_DELETED', { id, storefrontId });
         return sendJson(res, 200, { success: true, message: 'Product deleted', id, storefrontId });
       }
@@ -5200,6 +5405,7 @@ const server = http.createServer(async (req, res) => {
     path.join(__dirname, 'frontend', 'delivery-dashboard', pathname.startsWith('/') ? pathname.slice(1) : pathname),
     path.join(__dirname, 'frontend', 'customer-store', 'scripts', pathname.startsWith('/') ? pathname.slice(1) : pathname),
     path.join(__dirname, 'frontend', 'customer-store', 'styles', pathname.startsWith('/') ? pathname.slice(1) : pathname),
+    path.join(__dirname, pathname.startsWith('/') ? pathname.slice(1) : pathname),
     path.join(PUBLIC_DIR, pathname === '/' ? 'index.html' : pathname)
   ];
 

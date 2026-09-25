@@ -1570,9 +1570,52 @@
           </div>
         </div>
 
-        <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Image URL</label>
-          <input id="new-prod-image" type="url" placeholder="https://images.unsplash.com/..." class="w-full px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-amber-500" />
+        <!-- Product Image Selection Component (Add Product) -->
+        <div class="space-y-2 p-3 rounded-2xl bg-slate-800/60 border border-slate-700/80">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+              <span>🖼️</span> <span>Product Image</span>
+              <span class="text-[10px] text-emerald-400 font-normal ml-1" id="new-prod-image-source-badge">(Default Preset)</span>
+            </label>
+            <button type="button" onclick="clearProductImage('new')" id="new-prod-clear-img-btn" class="text-[11px] text-slate-400 hover:text-rose-400 transition cursor-pointer hidden">
+              ✕ Reset
+            </button>
+          </div>
+
+          <!-- Image Preview & 3-Option Buttons -->
+          <div class="flex items-center gap-3">
+            <div class="relative shrink-0">
+              <img id="new-prod-image-preview" 
+                   src="https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=300&q=80" 
+                   class="w-16 h-16 rounded-xl object-cover bg-slate-900 border border-slate-700 shadow-sm" 
+                   onerror="this.src='https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=300&q=80'" 
+                   alt="Preview" />
+            </div>
+
+            <!-- 3 Option Action Buttons -->
+            <div class="flex-1 flex flex-col gap-1.5">
+              <div class="grid grid-cols-3 gap-1.5">
+                <!-- Option 1: Capture from Camera -->
+                <button type="button" onclick="triggerCameraCapture('new')" class="px-2 py-1.5 rounded-xl bg-slate-700 hover:bg-emerald-600/30 hover:border-emerald-500/50 border border-slate-600 text-emerald-400 hover:text-emerald-300 font-bold text-[10px] sm:text-[11px] flex items-center justify-center gap-1 transition cursor-pointer">
+                  <span>📷</span> <span>Camera</span>
+                </button>
+
+                <!-- Option 2: Select File -->
+                <label class="px-2 py-1.5 rounded-xl bg-slate-700 hover:bg-sky-600/30 hover:border-sky-500/50 border border-slate-600 text-sky-400 hover:text-sky-300 font-bold text-[10px] sm:text-[11px] flex items-center justify-center gap-1 transition cursor-pointer">
+                  <span>📁</span> <span>File</span>
+                  <input type="file" id="new-prod-file-input" accept="image/jpeg,image/png,image/webp,image/jpg" onchange="handleImageFileSelected(event, 'new')" class="hidden" />
+                </label>
+
+                <!-- Option 3: Select from Library -->
+                <button type="button" onclick="openImageLibraryModal('new')" class="px-2 py-1.5 rounded-xl bg-slate-700 hover:bg-amber-600/30 hover:border-amber-500/50 border border-slate-600 text-amber-400 hover:text-amber-300 font-bold text-[10px] sm:text-[11px] flex items-center justify-center gap-1 transition cursor-pointer">
+                  <span>🖼️</span> <span>Library</span>
+                </button>
+              </div>
+
+              <!-- Direct URL fallback input -->
+              <input id="new-prod-image" type="text" placeholder="Or enter direct image URL..." oninput="updateImagePreviewFromInput(this.value, 'new')" class="w-full px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[11px] text-slate-300 placeholder-slate-500 focus:outline-none focus:border-amber-500" />
+            </div>
+          </div>
         </div>
 
         <div>
@@ -1845,20 +1888,51 @@
           </div>
         </div>
 
-        <div>
-          <div class="flex items-center justify-between mb-1">
-            <label class="block text-xs font-bold text-slate-300">Product Image URL</label>
-            <div class="flex items-center gap-1 text-[10px] text-slate-400">
-              <span>Quick Presets:</span>
-              <button type="button" onclick="setEditImagePreset('tomato')" class="hover:text-amber-400 underline">🍅</button>
-              <button type="button" onclick="setEditImagePreset('apple')" class="hover:text-amber-400 underline">🍎</button>
-              <button type="button" onclick="setEditImagePreset('capsicum')" class="hover:text-amber-400 underline">🫑</button>
-              <button type="button" onclick="setEditImagePreset('grocery')" class="hover:text-amber-400 underline">🌾</button>
-            </div>
+        <!-- Product Image Selection Component (Edit Product) -->
+        <div class="space-y-2 p-3 rounded-2xl bg-slate-800/60 border border-slate-700/80">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+              <span>🖼️</span> <span>Product Image</span>
+              <span class="text-[10px] text-emerald-400 font-normal ml-1" id="edit-prod-image-source-badge">(Current Catalog Image)</span>
+            </label>
+            <button type="button" onclick="clearProductImage('edit')" id="edit-prod-clear-img-btn" class="text-[11px] text-slate-400 hover:text-rose-400 transition cursor-pointer hidden">
+              ✕ Reset
+            </button>
           </div>
+
+          <!-- Image Preview & 3-Option Buttons -->
           <div class="flex items-center gap-3">
-            <img id="edit-prod-image-preview" src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=120&q=80" class="w-12 h-12 rounded-xl object-cover bg-slate-800 border border-slate-700 shrink-0" onerror="this.src='https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=120&q=80'" alt="Preview" />
-            <input id="edit-prod-image" type="url" oninput="updateEditImagePreview(this.value)" placeholder="https://images.unsplash.com/..." class="flex-1 px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-amber-500" />
+            <div class="relative shrink-0">
+              <img id="edit-prod-image-preview" 
+                   src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=300&q=80" 
+                   class="w-16 h-16 rounded-xl object-cover bg-slate-900 border border-slate-700 shadow-sm" 
+                   onerror="this.src='https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=300&q=80'" 
+                   alt="Preview" />
+            </div>
+
+            <!-- 3 Option Action Buttons -->
+            <div class="flex-1 flex flex-col gap-1.5">
+              <div class="grid grid-cols-3 gap-1.5">
+                <!-- Option 1: Capture from Camera -->
+                <button type="button" onclick="triggerCameraCapture('edit')" class="px-2 py-1.5 rounded-xl bg-slate-700 hover:bg-emerald-600/30 hover:border-emerald-500/50 border border-slate-600 text-emerald-400 hover:text-emerald-300 font-bold text-[10px] sm:text-[11px] flex items-center justify-center gap-1 transition cursor-pointer">
+                  <span>📷</span> <span>Camera</span>
+                </button>
+
+                <!-- Option 2: Select File -->
+                <label class="px-2 py-1.5 rounded-xl bg-slate-700 hover:bg-sky-600/30 hover:border-sky-500/50 border border-slate-600 text-sky-400 hover:text-sky-300 font-bold text-[10px] sm:text-[11px] flex items-center justify-center gap-1 transition cursor-pointer">
+                  <span>📁</span> <span>File</span>
+                  <input type="file" id="edit-prod-file-input" accept="image/jpeg,image/png,image/webp,image/jpg" onchange="handleImageFileSelected(event, 'edit')" class="hidden" />
+                </label>
+
+                <!-- Option 3: Select from Library -->
+                <button type="button" onclick="openImageLibraryModal('edit')" class="px-2 py-1.5 rounded-xl bg-slate-700 hover:bg-amber-600/30 hover:border-amber-500/50 border border-slate-600 text-amber-400 hover:text-amber-300 font-bold text-[10px] sm:text-[11px] flex items-center justify-center gap-1 transition cursor-pointer">
+                  <span>🖼️</span> <span>Library</span>
+                </button>
+              </div>
+
+              <!-- Direct URL fallback input -->
+              <input id="edit-prod-image" type="text" placeholder="Or enter direct image URL..." oninput="updateImagePreviewFromInput(this.value, 'edit')" class="w-full px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[11px] text-slate-300 placeholder-slate-500 focus:outline-none focus:border-amber-500" />
+            </div>
           </div>
         </div>
 
@@ -2413,6 +2487,113 @@
         </button>
         <button id="handover-confirm-btn" onclick="executePhysicalHandover()" class="py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md transition cursor-pointer flex items-center justify-center gap-1.5">
           <span>✓</span> Confirm Handover
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 8: Live Camera Capture -->
+  <div id="modal-camera-capture" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 rounded-3xl border border-slate-700/80 p-5 max-w-lg w-full shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📷</span>
+          <div>
+            <h3 class="font-heading font-black text-base text-white">Capture Product Photo</h3>
+            <p class="text-[11px] text-slate-400">Position produce clearly in frame under good lighting</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeCameraCaptureModal()" class="text-slate-400 hover:text-white text-lg font-bold p-1 cursor-pointer">&times;</button>
+      </div>
+
+      <!-- Live Stream / Snapshot Viewport -->
+      <div class="relative bg-black rounded-2xl overflow-hidden aspect-4/3 flex items-center justify-center border border-slate-700">
+        <video id="camera-stream-video" autoplay playsinline class="w-full h-full object-cover"></video>
+        <canvas id="camera-capture-canvas" class="hidden"></canvas>
+        <img id="camera-snapshot-preview" class="w-full h-full object-cover hidden" alt="Captured Photo" />
+        
+        <div id="camera-loading-overlay" class="absolute inset-0 bg-slate-950/80 flex flex-col items-center justify-center gap-2 text-slate-300 text-xs">
+          <div class="w-8 h-8 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+          <span>Starting camera stream...</span>
+        </div>
+
+        <div id="camera-error-banner" class="absolute inset-x-3 bottom-3 p-3 rounded-xl bg-rose-950/90 border border-rose-800 text-rose-200 text-xs hidden flex-col gap-2">
+          <p id="camera-error-message">Camera access unavailable.</p>
+          <label class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-center cursor-pointer">
+            📁 Select Image File Instead
+            <input type="file" accept="image/*" capture="environment" onchange="handleMobileCameraFile(event)" class="hidden" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Camera Action Controls -->
+      <div class="flex items-center justify-between pt-2">
+        <button type="button" onclick="closeCameraCaptureModal()" class="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white transition cursor-pointer">
+          Cancel
+        </button>
+
+        <!-- Live state controls -->
+        <div id="camera-live-controls" class="flex items-center gap-2">
+          <button type="button" id="camera-switch-btn" onclick="switchCameraFacingMode()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition cursor-pointer hidden">
+            🔄 Switch
+          </button>
+          <button type="button" onclick="capturePhotoFromStream()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-lg transition flex items-center gap-1.5 cursor-pointer">
+            <span>📸</span> <span>Take Photo</span>
+          </button>
+        </div>
+
+        <!-- Captured state controls -->
+        <div id="camera-captured-controls" class="items-center gap-2 hidden">
+          <button type="button" onclick="retakeCameraPhoto()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-bold border border-slate-700 transition cursor-pointer">
+            🔄 Retake
+          </button>
+          <button type="button" onclick="confirmCameraPhoto()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-lg transition flex items-center gap-1.5 cursor-pointer">
+            <span>✓</span> <span>Use This Photo</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 9: FreshMart Image Library & Gallery -->
+  <div id="modal-image-library" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 rounded-3xl border border-slate-700/80 p-5 max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🖼️</span>
+          <div>
+            <h3 class="font-heading font-black text-base text-white">FreshMart Product Image Library</h3>
+            <p class="text-[11px] text-slate-400">Select an existing verified produce photo to assign directly</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeImageLibraryModal()" class="text-slate-400 hover:text-white text-lg font-bold p-1 cursor-pointer">&times;</button>
+      </div>
+
+      <!-- Filters & Search Bar -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+        <div class="relative flex-1">
+          <input id="image-lib-search" type="text" oninput="filterImageLibrary()" placeholder="Search library produce by name..." class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500" />
+          <span class="absolute left-3 top-2.5 text-slate-400 text-xs">🔍</span>
+        </div>
+        <div class="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 shrink-0" id="image-lib-cat-tabs">
+          <button type="button" onclick="setImageLibraryCategory('ALL')" class="image-lib-tab px-3 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-600 text-white" data-cat="ALL">All</button>
+          <button type="button" onclick="setImageLibraryCategory('Vegetables')" class="image-lib-tab px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 hover:bg-slate-700" data-cat="Vegetables">Vegetables</button>
+          <button type="button" onclick="setImageLibraryCategory('Fruits')" class="image-lib-tab px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 hover:bg-slate-700" data-cat="Fruits">Fruits</button>
+          <button type="button" onclick="setImageLibraryCategory('Grocery & Pantry')" class="image-lib-tab px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 hover:bg-slate-700" data-cat="Grocery & Pantry">Grocery</button>
+          <button type="button" onclick="setImageLibraryCategory('Uploads')" class="image-lib-tab px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 hover:bg-slate-700" data-cat="Uploads">Uploads</button>
+        </div>
+      </div>
+
+      <!-- Gallery Grid -->
+      <div id="image-lib-grid" class="flex-1 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pr-1 min-h-[300px]">
+        <!-- Populated dynamically -->
+      </div>
+
+      <!-- Footer / Status -->
+      <div class="flex items-center justify-between pt-3 border-t border-slate-800 text-xs text-slate-400 shrink-0">
+        <span id="image-lib-count-label">0 items</span>
+        <button type="button" onclick="closeImageLibraryModal()" class="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition cursor-pointer">
+          Close Library
         </button>
       </div>
     </div>
@@ -3169,18 +3350,10 @@
         const riderPhone = (o.deliveryBoyPhone || o.deliveryPartnerPhone) ? ` &bull; ${o.deliveryBoyPhone || o.deliveryPartnerPhone}` : '';
         const addr = o.deliveryAddress ? (typeof o.deliveryAddress === 'string' ? o.deliveryAddress : `${o.deliveryAddress.street || o.deliveryAddress.flat || ''}, ${o.deliveryAddress.city || ''}`) : 'Bengaluru Central';
 
-        const isReassignNeeded = !!(o.reassignmentNeeded || o.assignmentRejected || status === 'REASSIGNMENT_REQUIRED' || o.deliveryStatus === 'REASSIGNMENT_REQUIRED');
-
         // Render Single Next Step Action Button for row
         let rowActionBtn = '';
         if (status === 'CANCELLED') {
           rowActionBtn = '<span class="text-[10px] text-slate-500 font-bold">Cancelled</span>';
-        } else if (isReassignNeeded) {
-          rowActionBtn = `
-            <button onclick="openAssignDeliveryBoyModal('${orderId}')" class="px-2.5 py-1 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] shadow-xs flex items-center gap-1 cursor-pointer animate-pulse">
-              <span>🛵</span> Reassign
-            </button>
-          `;
         } else if (status === 'DELIVERY_FAILED') {
           rowActionBtn = `
             <button onclick="overrideOrderStatus('${orderId}', 'READY_FOR_HANDOVER', 'Rescheduled for retry delivery')" class="px-2.5 py-1 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-[10px] shadow-xs flex items-center gap-1 cursor-pointer">
@@ -3234,11 +3407,11 @@
         }
 
         return `
-          <tr class="hover:bg-slate-800/40 transition ${isNewOrder ? 'bg-amber-950/20 border-l-2 border-l-amber-500' : isReassignNeeded ? 'bg-amber-950/25 border-l-2 border-l-amber-400' : ''}">
+          <tr class="hover:bg-slate-800/40 transition ${isNewOrder ? 'bg-amber-950/20 border-l-2 border-l-amber-500' : ''}">
             <td class="py-3.5 px-4">
               <div class="flex items-center gap-1.5">
                 <div class="font-mono text-amber-400 font-black text-xs">#${orderId}</div>
-                ${isNewOrder ? '<span class="px-1.5 py-0.2 rounded bg-amber-500 text-slate-950 font-black text-[9px] uppercase animate-pulse">🔔 NEW</span>' : isReassignNeeded ? '<span class="px-1.5 py-0.2 rounded bg-rose-500 text-white font-black text-[9px] uppercase animate-pulse">⚠️ REJECTED</span>' : ''}
+                ${isNewOrder ? '<span class="px-1.5 py-0.2 rounded bg-amber-500 text-slate-950 font-black text-[9px] uppercase animate-pulse">🔔 NEW</span>' : ''}
               </div>
               <div class="text-[10px] text-slate-400 mt-0.5">${dateStr}</div>
               <span class="inline-block mt-1 px-1.5 py-0.5 rounded text-[9px] font-bold ${isPaid ? 'bg-emerald-950/70 border border-emerald-500/30 text-emerald-400' : 'bg-amber-950/70 border border-amber-500/30 text-amber-400'}">
@@ -3256,14 +3429,7 @@
             </td>
             <td class="py-3.5 px-4">
               <div class="font-bold text-slate-200 flex items-center gap-1">🏬 ${hubName}</div>
-              ${isReassignNeeded ? `
-                <div class="text-[11px] text-rose-400 font-bold mt-1 flex items-center gap-1">
-                  <span>❌</span> <span>Assignment Declined</span>
-                </div>
-                <button onclick="openAssignDeliveryBoyModal('${orderId}')" class="mt-1 px-2.5 py-1 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[11px] transition inline-flex items-center gap-1 cursor-pointer shadow-xs animate-pulse">
-                  <span>🛵</span> Reassign Delivery Boy
-                </button>
-              ` : hasRider ? `
+              ${hasRider ? `
                 <div class="text-[11px] text-emerald-400 font-bold mt-1 flex items-center gap-1">
                   <span>🛵</span> <span>${riderName}</span>${riderPhone}
                 </div>
@@ -3287,7 +3453,7 @@
               ₹${totalAmount}
             </td>
             <td class="py-3.5 px-4 text-center">
-              ${isReassignNeeded ? '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-950/70 border border-rose-500/40 text-rose-400 animate-pulse">⚠️ REASSIGNMENT REQUIRED</span>' : renderStatusBadge(status)}
+              ${renderStatusBadge(status)}
             </td>
             <td class="py-3.5 px-4 text-right">
               <div class="flex items-center justify-end gap-1.5">
@@ -4249,26 +4415,387 @@
       openEditProductModal(targetId);
     }
 
-    function updateEditImagePreview(url) {
-      const preview = document.getElementById('edit-prod-image-preview');
-      if (preview) {
-        preview.src = url || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=120&q=80';
+    // ==========================================
+    // PRODUCT IMAGE SELECTION (Camera, File, Library)
+    // ==========================================
+    let activeImageTarget = 'new'; // 'new' or 'edit'
+    let activeCameraStream = null;
+    let activeCameraFacingMode = 'environment';
+    let imageLibraryCache = null;
+    let selectedLibraryCategory = 'ALL';
+
+    function updateImagePreviewFromInput(url, target = 'new') {
+      const prefix = target === 'new' ? 'new-prod' : 'edit-prod';
+      const previewImg = document.getElementById(`${prefix}-image-preview`);
+      const clearBtn = document.getElementById(`${prefix}-clear-img-btn`);
+      const badge = document.getElementById(`${prefix}-image-source-badge`);
+      const fallback = 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=300&q=80';
+
+      if (previewImg) {
+        previewImg.src = url || fallback;
+      }
+      if (clearBtn) {
+        if (url && url !== fallback) {
+          clearBtn.classList.remove('hidden');
+        } else {
+          clearBtn.classList.add('hidden');
+        }
+      }
+      if (badge && !badge.textContent.includes('Camera') && !badge.textContent.includes('Uploaded') && !badge.textContent.includes('Library')) {
+        badge.textContent = url ? (url.startsWith('data:') ? '(Local Preview)' : '(Custom URL)') : '(Default Preset)';
       }
     }
 
-    function setEditImagePreset(type) {
-      const presets = {
-        tomato: 'https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80',
-        apple: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=400&q=80',
-        capsicum: 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=400&q=80',
-        grocery: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80'
-      };
-      const url = presets[type];
-      if (url) {
-        const input = document.getElementById('edit-prod-image');
-        if (input) input.value = url;
-        updateEditImagePreview(url);
+    function updateEditImagePreview(url) {
+      updateImagePreviewFromInput(url, 'edit');
+    }
+
+    function clearProductImage(target = 'new') {
+      const prefix = target === 'new' ? 'new-prod' : 'edit-prod';
+      const input = document.getElementById(`${prefix}-image`);
+      const fileInput = document.getElementById(`${prefix}-file-input`);
+      const badge = document.getElementById(`${prefix}-image-source-badge`);
+      const fallback = target === 'new'
+        ? 'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=300&q=80'
+        : 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=300&q=80';
+
+      if (input) input.value = '';
+      if (fileInput) fileInput.value = '';
+      if (badge) badge.textContent = '(Removed / Reset)';
+      updateImagePreviewFromInput(fallback, target);
+      showToast('Product image removed/reset', 'info');
+    }
+
+    // --- Option 1: Camera Capture ---
+    async function triggerCameraCapture(target = 'new') {
+      activeImageTarget = target;
+      const modal = document.getElementById('modal-camera-capture');
+      const video = document.getElementById('camera-stream-video');
+      const canvas = document.getElementById('camera-capture-canvas');
+      const snapshot = document.getElementById('camera-snapshot-preview');
+      const loadingOverlay = document.getElementById('camera-loading-overlay');
+      const errorBanner = document.getElementById('camera-error-banner');
+      const liveControls = document.getElementById('camera-live-controls');
+      const capturedControls = document.getElementById('camera-captured-controls');
+      const switchBtn = document.getElementById('camera-switch-btn');
+
+      if (modal) modal.classList.remove('hidden');
+      if (video) video.classList.remove('hidden');
+      if (snapshot) snapshot.classList.add('hidden');
+      if (loadingOverlay) loadingOverlay.classList.remove('hidden');
+      if (errorBanner) errorBanner.classList.add('hidden');
+      if (liveControls) liveControls.classList.remove('hidden');
+      if (capturedControls) capturedControls.classList.add('hidden');
+
+      // Stop any existing stream
+      if (activeCameraStream) {
+        activeCameraStream.getTracks().forEach(track => track.stop());
+        activeCameraStream = null;
       }
+
+      // Check if getUserMedia is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (loadingOverlay) loadingOverlay.classList.add('hidden');
+        if (errorBanner) {
+          errorBanner.classList.remove('hidden');
+          const msg = document.getElementById('camera-error-message');
+          if (msg) msg.textContent = 'Camera API is not supported in this browser or context. You can use the mobile/file camera option below.';
+        }
+        return;
+      }
+
+      try {
+        const constraints = {
+          video: {
+            facingMode: activeCameraFacingMode,
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          },
+          audio: false
+        };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        activeCameraStream = stream;
+        if (video) {
+          video.srcObject = stream;
+          video.onloadedmetadata = () => {
+            if (loadingOverlay) loadingOverlay.classList.add('hidden');
+            video.play().catch(() => {});
+          };
+        }
+        if (switchBtn) switchBtn.classList.remove('hidden');
+      } catch (err) {
+        console.warn('Camera stream error:', err);
+        if (loadingOverlay) loadingOverlay.classList.add('hidden');
+        if (errorBanner) {
+          errorBanner.classList.remove('hidden');
+          const msg = document.getElementById('camera-error-message');
+          if (msg) msg.textContent = 'Unable to access camera (' + (err.message || 'Permission denied') + '). Please allow camera access or choose a file.';
+        }
+      }
+    }
+
+    async function switchCameraFacingMode() {
+      activeCameraFacingMode = activeCameraFacingMode === 'environment' ? 'user' : 'environment';
+      await triggerCameraCapture(activeImageTarget);
+    }
+
+    function capturePhotoFromStream() {
+      const video = document.getElementById('camera-stream-video');
+      const canvas = document.getElementById('camera-capture-canvas');
+      const snapshot = document.getElementById('camera-snapshot-preview');
+      const liveControls = document.getElementById('camera-live-controls');
+      const capturedControls = document.getElementById('camera-captured-controls');
+
+      if (!video || !canvas || !snapshot) return;
+
+      const width = video.videoWidth || 640;
+      const height = video.videoHeight || 480;
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, width, height);
+
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      snapshot.src = dataUrl;
+      snapshot.classList.remove('hidden');
+      video.classList.add('hidden');
+
+      if (liveControls) liveControls.classList.add('hidden');
+      if (capturedControls) {
+        capturedControls.classList.remove('hidden');
+        capturedControls.classList.add('flex');
+      }
+    }
+
+    function retakeCameraPhoto() {
+      const video = document.getElementById('camera-stream-video');
+      const snapshot = document.getElementById('camera-snapshot-preview');
+      const liveControls = document.getElementById('camera-live-controls');
+      const capturedControls = document.getElementById('camera-captured-controls');
+
+      if (snapshot) snapshot.classList.add('hidden');
+      if (video) video.classList.remove('hidden');
+      if (liveControls) liveControls.classList.remove('hidden');
+      if (capturedControls) {
+        capturedControls.classList.add('hidden');
+        capturedControls.classList.remove('flex');
+      }
+    }
+
+    function confirmCameraPhoto() {
+      const snapshot = document.getElementById('camera-snapshot-preview');
+      if (!snapshot || !snapshot.src) return;
+
+      const dataUrl = snapshot.src;
+      const prefix = activeImageTarget === 'new' ? 'new-prod' : 'edit-prod';
+      const input = document.getElementById(`${prefix}-image`);
+      const badge = document.getElementById(`${prefix}-image-source-badge`);
+
+      if (input) input.value = dataUrl;
+      if (badge) badge.textContent = '📷 Camera Photo Captured';
+      updateImagePreviewFromInput(dataUrl, activeImageTarget);
+
+      closeCameraCaptureModal();
+      showToast('Camera photo captured & applied to produce! 📷', 'success');
+    }
+
+    function closeCameraCaptureModal() {
+      const modal = document.getElementById('modal-camera-capture');
+      if (modal) modal.classList.add('hidden');
+      if (activeCameraStream) {
+        activeCameraStream.getTracks().forEach(track => track.stop());
+        activeCameraStream = null;
+      }
+    }
+
+    function handleMobileCameraFile(e) {
+      const file = e.target?.files?.[0];
+      if (!file) return;
+      processSelectedImageFile(file, activeImageTarget);
+      closeCameraCaptureModal();
+    }
+
+    // --- Option 2: File Upload ---
+    function handleImageFileSelected(e, target = 'new') {
+      const file = e.target?.files?.[0];
+      if (!file) return;
+      processSelectedImageFile(file, target);
+    }
+
+    function processSelectedImageFile(file, target = 'new') {
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+      if (!validTypes.includes(file.type.toLowerCase())) {
+        showToast('Invalid file format. Please select a JPG, PNG, or WebP image.', 'error');
+        return;
+      }
+
+      const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+      if (file.size > MAX_SIZE) {
+        showToast('Image file size exceeds 10MB limit. Please choose a smaller photo.', 'error');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target.result;
+        const prefix = target === 'new' ? 'new-prod' : 'edit-prod';
+        const input = document.getElementById(`${prefix}-image`);
+        const badge = document.getElementById(`${prefix}-image-source-badge`);
+
+        if (input) input.value = dataUrl;
+        if (badge) badge.textContent = `📁 Uploaded: ${file.name.slice(0, 18)}`;
+        updateImagePreviewFromInput(dataUrl, target);
+        showToast(`Image file "${file.name}" selected! 📁`, 'success');
+      };
+      reader.onerror = () => {
+        showToast('Failed to read image file from disk.', 'error');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // --- Option 3: Image Library ---
+    async function openImageLibraryModal(target = 'new') {
+      activeImageTarget = target;
+      const modal = document.getElementById('modal-image-library');
+      if (modal) modal.classList.remove('hidden');
+
+      if (!imageLibraryCache) {
+        await fetchImageLibrary();
+      } else {
+        renderImageLibraryGrid();
+      }
+    }
+
+    function closeImageLibraryModal() {
+      const modal = document.getElementById('modal-image-library');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    async function fetchImageLibrary() {
+      const grid = document.getElementById('image-lib-grid');
+      if (grid) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 flex flex-col items-center justify-center gap-2 text-slate-400">
+            <div class="w-7 h-7 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+            <span class="text-xs">Loading FreshMart image library...</span>
+          </div>
+        `;
+      }
+
+      try {
+        const res = await fetch('/api/images/library');
+        const data = await res.json();
+        if (res.ok && data.success && Array.isArray(data.images)) {
+          imageLibraryCache = data.images;
+          renderImageLibraryGrid();
+        } else {
+          if (grid) grid.innerHTML = `<div class="col-span-full py-8 text-center text-rose-400 text-xs">Failed to load library images</div>`;
+        }
+      } catch (err) {
+        if (grid) grid.innerHTML = `<div class="col-span-full py-8 text-center text-rose-400 text-xs">Network error loading image library</div>`;
+      }
+    }
+
+    function setImageLibraryCategory(cat) {
+      selectedLibraryCategory = cat;
+      const tabs = document.querySelectorAll('.image-lib-tab');
+      tabs.forEach(tab => {
+        if (tab.getAttribute('data-cat') === cat) {
+          tab.className = 'image-lib-tab px-3 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-600 text-white';
+        } else {
+          tab.className = 'image-lib-tab px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 hover:bg-slate-700';
+        }
+      });
+      renderImageLibraryGrid();
+    }
+
+    function filterImageLibrary() {
+      renderImageLibraryGrid();
+    }
+
+    function renderImageLibraryGrid() {
+      const grid = document.getElementById('image-lib-grid');
+      const countLabel = document.getElementById('image-lib-count-label');
+      if (!grid) return;
+
+      const searchInput = document.getElementById('image-lib-search');
+      const query = (searchInput?.value || '').toLowerCase().trim();
+
+      let items = imageLibraryCache || [];
+      if (selectedLibraryCategory !== 'ALL') {
+        const cLower = selectedLibraryCategory.toLowerCase();
+        items = items.filter(i => (i.category || '').toLowerCase().includes(cLower));
+      }
+      if (query) {
+        items = items.filter(i => (i.title || '').toLowerCase().includes(query) || (i.category || '').toLowerCase().includes(query) || (i.subcategory || '').toLowerCase().includes(query));
+      }
+
+      if (countLabel) countLabel.textContent = `${items.length} images available`;
+
+      if (items.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 text-center text-slate-400 space-y-1">
+            <p class="text-sm font-bold">No images found</p>
+            <p class="text-xs text-slate-500">Try changing your search query or category filter</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = items.map(img => `
+        <div onclick="selectLibraryImage('${img.url.replace(/'/g, "\\'")}', '${(img.title || '').replace(/'/g, "\\'")}')" 
+             class="group relative bg-slate-800/80 hover:bg-slate-800 rounded-2xl p-2 border border-slate-700/80 hover:border-emerald-500 transition cursor-pointer flex flex-col gap-2 shadow-sm hover:shadow-emerald-950/30">
+          <div class="relative w-full aspect-square rounded-xl overflow-hidden bg-slate-900">
+            <img src="${img.thumbnail || img.url}" alt="${img.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy" />
+            <span class="absolute top-1 left-1 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-xs text-[9px] font-bold text-slate-200">
+              ${img.category}
+            </span>
+          </div>
+          <div class="min-w-0">
+            <h4 class="text-[11px] font-bold text-white truncate group-hover:text-emerald-300 transition">${img.title}</h4>
+            <p class="text-[10px] text-slate-400 truncate">${img.subcategory || 'Catalog'}</p>
+          </div>
+          <button type="button" class="w-full py-1 rounded-lg bg-slate-700/80 group-hover:bg-emerald-600 group-hover:text-white text-slate-300 text-[10px] font-bold transition">
+            Select Photo
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function selectLibraryImage(url, title) {
+      const prefix = activeImageTarget === 'new' ? 'new-prod' : 'edit-prod';
+      const input = document.getElementById(`${prefix}-image`);
+      const badge = document.getElementById(`${prefix}-image-source-badge`);
+
+      if (input) input.value = url;
+      if (badge) badge.textContent = `🖼️ Library: ${title.slice(0, 16)}`;
+      updateImagePreviewFromInput(url, activeImageTarget);
+
+      closeImageLibraryModal();
+      showToast(`Selected "${title}" from image library! 🖼️`, 'success');
+    }
+
+    // Helper to upload base64 images before creating/updating product
+    async function uploadBase64ImageIfNeeded(imageData) {
+      if (!imageData || typeof imageData !== 'string' || !imageData.startsWith('data:image/')) {
+        return imageData;
+      }
+      try {
+        const res = await fetch('/api/upload/image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ data: imageData })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.success && data.url) {
+          return data.url;
+        }
+      } catch (err) {
+        console.warn('Image upload error:', err);
+      }
+      return imageData;
     }
 
     // Edit Product Modal Handlers
@@ -4313,7 +4840,9 @@
       document.getElementById('edit-prod-farmer').value = prod.farmer || '';
       const imgUrl = prod.image || prod.imageUrl || '';
       document.getElementById('edit-prod-image').value = imgUrl;
-      updateEditImagePreview(imgUrl);
+      updateImagePreviewFromInput(imgUrl, 'edit');
+      const editBadge = document.getElementById('edit-prod-image-source-badge');
+      if (editBadge) editBadge.textContent = '(Current Catalog Image)';
       document.getElementById('edit-prod-description').value = prod.description || '';
 
       const submitBtn = document.getElementById('edit-prod-submit-btn');
@@ -4348,7 +4877,7 @@
         const status = document.getElementById('edit-prod-status').value;
         const sku = document.getElementById('edit-prod-sku').value.trim();
         const farmer = document.getElementById('edit-prod-farmer').value.trim();
-        const image = document.getElementById('edit-prod-image').value.trim();
+        const rawImage = document.getElementById('edit-prod-image').value.trim();
         const description = document.getElementById('edit-prod-description').value.trim();
 
         if (!name) {
@@ -4366,8 +4895,11 @@
 
         if (submitBtn) {
           submitBtn.disabled = true;
-          submitBtn.innerHTML = '<span>⏳</span> <span>Saving Changes...</span>';
+          submitBtn.innerHTML = '<span>⏳</span> <span>Uploading / Saving Changes...</span>';
         }
+
+        // Auto-upload base64 camera or file images to disk storage
+        const image = await uploadBase64ImageIfNeeded(rawImage);
 
         const payload = {
           name,
@@ -5931,6 +6463,12 @@
 
     // Modal Operations
     function openAddProductModal() {
+      const defaultImg = 'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=400&q=80';
+      const imgInput = document.getElementById('new-prod-image');
+      if (imgInput) imgInput.value = defaultImg;
+      updateImagePreviewFromInput(defaultImg, 'new');
+      const badge = document.getElementById('new-prod-image-source-badge');
+      if (badge) badge.textContent = '(Default Preset)';
       document.getElementById('modal-add-product')?.classList.remove('hidden');
     }
     function closeAddProductModal() {
@@ -5973,8 +6511,11 @@
         const lowStockLimit = Number(document.getElementById('new-prod-low-limit').value) || 15;
         const farmer = document.getElementById('new-prod-farm').value.trim() || 'Kolar Organic Farms, Karnataka';
         const freshnessDays = Number(document.getElementById('new-prod-freshness').value) || 5;
-        const image = document.getElementById('new-prod-image').value.trim() || 'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=400&q=80';
+        const rawImage = document.getElementById('new-prod-image').value.trim() || 'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=400&q=80';
         const description = document.getElementById('new-prod-desc').value.trim();
+
+        // Auto-upload base64 camera or file images to disk storage
+        const image = await uploadBase64ImageIfNeeded(rawImage);
 
         const payload = {
           name,
@@ -6182,13 +6723,9 @@
     // Logout
     async function handleOwnerLogout() {
       try {
-        sessionStorage.clear();
-        localStorage.removeItem('fm_session_token');
-        localStorage.removeItem('freshmart_catalog_updated');
-        localStorage.removeItem('freshmart_last_updated_prod');
         await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
       } catch (e) {}
-      window.location.href = '/?auth=signin';
+      window.location.href = '/';
     }
 
     // Helper: Badge Renderer
