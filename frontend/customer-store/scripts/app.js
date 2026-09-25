@@ -2983,9 +2983,28 @@ async function syncStorefrontCatalogWithBackend() {
 }
 window.syncStorefrontCatalogWithBackend = syncStorefrontCatalogWithBackend;
 
+function hydrateCategoryCountsFromStorage() {
+  try {
+    const raw = sessionStorage.getItem('freshmart_category_counts');
+    if (raw) {
+      const counts = JSON.parse(raw);
+      if (counts && typeof counts === 'object') {
+        window.__categoryCountsMap = counts;
+      }
+    }
+  } catch (e) {}
+}
+hydrateCategoryCountsFromStorage();
+
 async function syncStorefrontCategoriesWithBackend() {
   try {
-    const res = await fetch('/api/categories?_t=' + Date.now(), { cache: 'no-store' });
+    const res = await fetch('/api/categories?_t=' + Date.now(), { 
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
     if (!res.ok) return;
     const categories = await res.json();
     if (!Array.isArray(categories)) return;
@@ -2999,6 +3018,10 @@ async function syncStorefrontCategoriesWithBackend() {
       if (c.id) window.__categoryCountsMap[c.id.toLowerCase()] = count;
     });
 
+    try {
+      sessionStorage.setItem('freshmart_category_counts', JSON.stringify(window.__categoryCountsMap));
+    } catch(e) {}
+
     const activeCats = categories.filter(c => (c.status || 'ACTIVE') === 'ACTIVE');
 
     // Keep Desktop & Mobile Navigation Badges strictly synced with Neon PostgreSQL counts
@@ -3006,7 +3029,7 @@ async function syncStorefrontCategoriesWithBackend() {
     const fruitCat = activeCats.find(c => (c.slug || '').toLowerCase() === 'fruits' || (c.name || '').toLowerCase().includes('fruit'));
     const grocCat = activeCats.find(c => (c.slug || '').toLowerCase() === 'grocery' || (c.name || '').toLowerCase().includes('groc') || (c.name || '').toLowerCase().includes('pant'));
 
-    const vegCount = vegCat ? (vegCat.activeProductCount ?? vegCat.productCount ?? 52) : 52;
+    const vegCount = vegCat ? (vegCat.activeProductCount ?? vegCat.productCount ?? 54) : 54;
     const fruitCount = fruitCat ? (fruitCat.activeProductCount ?? fruitCat.productCount ?? 26) : 26;
     const grocCount = grocCat ? (grocCat.activeProductCount ?? grocCat.productCount ?? 21) : 21;
 

@@ -2273,11 +2273,11 @@ class PostgresAdapter {
           c.created_at,
           c.updated_at,
           c.data,
-          COUNT(p.id) FILTER (WHERE p.status != 'DELETED' AND p.status != 'ARCHIVED') as total_product_count,
-          COUNT(p.id) FILTER (WHERE p.status = 'ACTIVE') as active_product_count,
-          COUNT(p.id) FILTER (WHERE p.status = 'SUSPENDED') as suspended_product_count,
-          COUNT(p.id) FILTER (WHERE p.status = 'ACTIVE' AND p.stock > 0) as in_stock_active_count,
-          COUNT(p.id) FILTER (WHERE p.status = 'ACTIVE' AND p.stock <= 0) as out_of_stock_count
+          COUNT(DISTINCT p.id) FILTER (WHERE p.status NOT IN ('DELETED', 'ARCHIVED')) as total_product_count,
+          COUNT(DISTINCT p.id) FILTER (WHERE p.status NOT IN ('DELETED', 'ARCHIVED', 'SUSPENDED', 'INACTIVE', 'DRAFT', 'UNPUBLISHED')) as active_product_count,
+          COUNT(DISTINCT p.id) FILTER (WHERE p.status IN ('SUSPENDED', 'INACTIVE')) as suspended_product_count,
+          COUNT(DISTINCT p.id) FILTER (WHERE p.status NOT IN ('DELETED', 'ARCHIVED', 'SUSPENDED', 'INACTIVE', 'DRAFT', 'UNPUBLISHED') AND p.stock > 0) as in_stock_active_count,
+          COUNT(DISTINCT p.id) FILTER (WHERE p.status NOT IN ('DELETED', 'ARCHIVED', 'SUSPENDED', 'INACTIVE', 'DRAFT', 'UNPUBLISHED') AND (p.stock <= 0 OR p.stock IS NULL)) as out_of_stock_count
         FROM freshmart_categories c
         LEFT JOIN freshmart_products p ON (
           p.category_id = c.id
@@ -2286,7 +2286,7 @@ class PostgresAdapter {
           OR LOWER(TRIM(p.category)) = LOWER(TRIM(c.slug))
           OR (c.slug = 'vegetables' AND (LOWER(p.category) LIKE '%veg%' OR LOWER(p.subcategory) LIKE '%veg%'))
           OR (c.slug = 'fruits' AND (LOWER(p.category) LIKE '%fruit%' OR LOWER(p.subcategory) LIKE '%fruit%'))
-          OR (c.slug = 'grocery' AND (LOWER(p.category) LIKE '%groc%' OR LOWER(p.category) LIKE '%pant%' OR LOWER(p.category) LIKE '%staple%'))
+          OR (c.slug = 'grocery' AND (LOWER(p.category) LIKE '%groc%' OR LOWER(p.category) LIKE '%pant%' OR LOWER(p.category) LIKE '%staple%' OR LOWER(p.category) LIKE '%oil%' OR LOWER(p.category) LIKE '%dal%' OR LOWER(p.category) LIKE '%atta%' OR LOWER(p.category) LIKE '%rice%' OR LOWER(p.category) LIKE '%flour%' OR LOWER(p.category) LIKE '%spice%'))
           OR (c.slug = 'leafy-herbs' AND (LOWER(p.category) LIKE '%herb%' OR LOWER(p.category) LIKE '%leaf%'))
           OR (c.slug = 'dairy' AND (LOWER(p.category) LIKE '%dairy%' OR LOWER(p.name) LIKE '%ghee%'))
           OR (c.slug = 'sweeteners' AND (LOWER(p.category) LIKE '%sweet%' OR LOWER(p.name) LIKE '%honey%'))
@@ -2373,7 +2373,9 @@ class PostgresAdapter {
       const orphanProducts = [];
       const multiAssignedProducts = [];
       const duplicateProductIds = [];
+      const duplicateSkus = [];
       const seenIds = new Set();
+      const seenSkus = new Set();
 
       products.forEach(p => {
         if (!p.id) return;
@@ -2381,6 +2383,13 @@ class PostgresAdapter {
           duplicateProductIds.push(p.id);
         }
         seenIds.add(p.id);
+
+        if (p.sku) {
+          if (seenSkus.has(p.sku)) {
+            duplicateSkus.push(p.sku);
+          }
+          seenSkus.add(p.sku);
+        }
 
         const dataObj = typeof p.data === 'object' ? (p.data || {}) : JSON.parse(p.data || '{}');
         const catId = p.category_id || dataObj.categoryId;
@@ -2394,7 +2403,7 @@ class PostgresAdapter {
           if (pCat && (pCat === cName || pCat === cSlug)) return true;
           if (cSlug === 'vegetables' && (pCat.includes('veg') || pSub.includes('veg'))) return true;
           if (cSlug === 'fruits' && (pCat.includes('fruit') || pSub.includes('fruit'))) return true;
-          if (cSlug === 'grocery' && (pCat.includes('groc') || pCat.includes('pant') || pCat.includes('staple'))) return true;
+          if (cSlug === 'grocery' && (pCat.includes('groc') || pCat.includes('pant') || pCat.includes('staple') || pCat.includes('oil') || pCat.includes('dal') || pCat.includes('atta') || pCat.includes('rice') || pCat.includes('flour') || pCat.includes('spice'))) return true;
           if (cSlug === 'leafy-herbs' && (pCat.includes('herb') || pCat.includes('leaf'))) return true;
           if (cSlug === 'dairy' && (pCat.includes('dairy') || (p.name || '').toLowerCase().includes('ghee'))) return true;
           if (cSlug === 'sweeteners' && (pCat.includes('sweet') || (p.name || '').toLowerCase().includes('honey'))) return true;
@@ -2408,9 +2417,11 @@ class PostgresAdapter {
           const entry = categoryMap.get(primaryCat.id);
           if (entry) {
             entry.totalProducts.push(p.id);
-            if (p.status === 'ACTIVE') {
+            const isSuspended = p.status === 'SUSPENDED' || p.status === 'INACTIVE';
+            const isDeleted = p.status === 'DELETED' || p.status === 'ARCHIVED';
+            if (!isDeleted && !isSuspended) {
               entry.activeProducts.push(p.id);
-            } else if (p.status === 'SUSPENDED') {
+            } else if (isSuspended) {
               entry.suspendedProducts.push(p.id);
             }
           }
@@ -2456,6 +2467,7 @@ class PostgresAdapter {
         orphanProducts,
         duplicateAssignedProducts: multiAssignedProducts,
         duplicateProductIds,
+        duplicateSkus,
         missingProductIds: products.filter(p => !p.id).map(p => p.name),
         timestamp: new Date().toISOString()
       };

@@ -2350,6 +2350,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (pathname === '/api/categories/diagnostics' && method === 'GET') {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
       const pg = db.postgres || db.pgAdapter;
       if (pg && pg.isAvailable()) {
         try {
@@ -2363,6 +2364,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (pathname === '/api/categories' && method === 'GET') {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
       const pg = db.postgres || db.pgAdapter;
       if (pg && pg.isAvailable()) {
         try {
