@@ -5099,20 +5099,27 @@
       let list = state.products;
 
       // Filter by category or status
-      if (productsCategoryFilter === 'vegetables') {
-        list = list.filter(p => (p.category || '').toLowerCase().includes('veg'));
-      } else if (productsCategoryFilter === 'fruits') {
-        list = list.filter(p => (p.category || '').toLowerCase().includes('fruit'));
-      } else if (productsCategoryFilter === 'grocery') {
-        list = list.filter(p => (p.category || '').toLowerCase().includes('groc') || (p.category || '').toLowerCase().includes('pant'));
-      } else if (productsCategoryFilter === 'ACTIVE') {
-        list = list.filter(p => p.status === 'ACTIVE');
-      } else if (productsCategoryFilter === 'SUSPENDED') {
-        list = list.filter(p => p.status === 'SUSPENDED');
-      } else if (productsCategoryFilter === 'LOW_STOCK') {
-        list = list.filter(p => p.status === 'LOW_STOCK' || ((p.stock || 0) > 0 && (p.stock || 0) <= (p.lowStockLimit || 15)));
-      } else if (productsCategoryFilter === 'OUT_OF_STOCK') {
-        list = list.filter(p => p.status === 'OUT_OF_STOCK' || (p.stock || 0) <= 0);
+      if (productsCategoryFilter && productsCategoryFilter !== 'ALL' && productsCategoryFilter !== 'all') {
+        if (['ACTIVE', 'SUSPENDED', 'LOW_STOCK', 'OUT_OF_STOCK'].includes(productsCategoryFilter)) {
+          if (productsCategoryFilter === 'ACTIVE') list = list.filter(p => p.status === 'ACTIVE');
+          else if (productsCategoryFilter === 'SUSPENDED') list = list.filter(p => p.status === 'SUSPENDED');
+          else if (productsCategoryFilter === 'LOW_STOCK') list = list.filter(p => p.status === 'LOW_STOCK' || ((p.stock || 0) > 0 && (p.stock || 0) <= (p.lowStockLimit || 15)));
+          else if (productsCategoryFilter === 'OUT_OF_STOCK') list = list.filter(p => p.status === 'OUT_OF_STOCK' || (p.stock || 0) <= 0);
+        } else {
+          const catFilter = productsCategoryFilter.toLowerCase();
+          const targetCat = (state.categories || []).find(c => (c.slug || '').toLowerCase() === catFilter || (c.id || '').toLowerCase() === catFilter || (c.name || '').toLowerCase() === catFilter);
+          const catName = targetCat ? targetCat.name.toLowerCase() : catFilter;
+          const catId = targetCat ? targetCat.id.toLowerCase() : '';
+          const catSlug = targetCat ? targetCat.slug.toLowerCase() : catFilter;
+
+          list = list.filter(p => {
+            const pCat = (p.category || '').toLowerCase();
+            const pId = (p.categoryId || p.category_id || '').toLowerCase();
+            const pSlug = (p.categorySlug || p.category_slug || '').toLowerCase();
+            const pNorm = pCat.replace(/[^a-z0-9]+/g, '-');
+            return pCat === catName || pId === catId || pSlug === catSlug || pNorm === catSlug || pCat.includes(catSlug);
+          });
+        }
       }
 
       // Search term
@@ -6128,16 +6135,26 @@
 
       let list = state.inventory;
 
-      if (inventoryCategoryFilter === 'vegetables') {
-        list = list.filter(i => (i.category || '').toLowerCase().includes('veg'));
-      } else if (inventoryCategoryFilter === 'fruits') {
-        list = list.filter(i => (i.category || '').toLowerCase().includes('fruit'));
-      } else if (inventoryCategoryFilter === 'grocery') {
-        list = list.filter(i => (i.category || '').toLowerCase().includes('groc') || (i.category || '').toLowerCase().includes('pant'));
-      } else if (inventoryCategoryFilter === 'low_stock') {
-        list = list.filter(i => i.status === 'LOW_STOCK');
-      } else if (inventoryCategoryFilter === 'out_of_stock') {
-        list = list.filter(i => i.status === 'OUT_OF_STOCK');
+      if (inventoryCategoryFilter && inventoryCategoryFilter !== 'all' && inventoryCategoryFilter !== 'ALL') {
+        if (inventoryCategoryFilter === 'low_stock') {
+          list = list.filter(i => i.status === 'LOW_STOCK' || (i.availableStock > 0 && i.availableStock <= (i.lowStockThreshold || 15)));
+        } else if (inventoryCategoryFilter === 'out_of_stock') {
+          list = list.filter(i => i.status === 'OUT_OF_STOCK' || i.availableStock <= 0);
+        } else {
+          const catFilter = inventoryCategoryFilter.toLowerCase();
+          const targetCat = (state.categories || []).find(c => (c.slug || '').toLowerCase() === catFilter || (c.id || '').toLowerCase() === catFilter || (c.name || '').toLowerCase() === catFilter);
+          const catName = targetCat ? targetCat.name.toLowerCase() : catFilter;
+          const catId = targetCat ? targetCat.id.toLowerCase() : '';
+          const catSlug = targetCat ? targetCat.slug.toLowerCase() : catFilter;
+
+          list = list.filter(i => {
+            const iCat = (i.category || '').toLowerCase();
+            const iId = (i.categoryId || i.category_id || '').toLowerCase();
+            const iSlug = (i.categorySlug || i.category_slug || '').toLowerCase();
+            const iNorm = iCat.replace(/[^a-z0-9]+/g, '-');
+            return iCat === catName || iId === catId || iSlug === catSlug || iNorm === catSlug || iCat.includes(catSlug);
+          });
+        }
       }
 
       if (inventorySearchTerm) {

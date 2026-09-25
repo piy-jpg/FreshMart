@@ -5099,20 +5099,27 @@
       let list = state.products;
 
       // Filter by category or status
-      if (productsCategoryFilter === 'vegetables') {
-        list = list.filter(p => (p.category || '').toLowerCase().includes('veg'));
-      } else if (productsCategoryFilter === 'fruits') {
-        list = list.filter(p => (p.category || '').toLowerCase().includes('fruit'));
-      } else if (productsCategoryFilter === 'grocery') {
-        list = list.filter(p => (p.category || '').toLowerCase().includes('groc') || (p.category || '').toLowerCase().includes('pant'));
-      } else if (productsCategoryFilter === 'ACTIVE') {
-        list = list.filter(p => p.status === 'ACTIVE');
-      } else if (productsCategoryFilter === 'SUSPENDED') {
-        list = list.filter(p => p.status === 'SUSPENDED');
-      } else if (productsCategoryFilter === 'LOW_STOCK') {
-        list = list.filter(p => p.status === 'LOW_STOCK' || ((p.stock || 0) > 0 && (p.stock || 0) <= (p.lowStockLimit || 15)));
-      } else if (productsCategoryFilter === 'OUT_OF_STOCK') {
-        list = list.filter(p => p.status === 'OUT_OF_STOCK' || (p.stock || 0) <= 0);
+      if (productsCategoryFilter && productsCategoryFilter !== 'ALL' && productsCategoryFilter !== 'all') {
+        if (['ACTIVE', 'SUSPENDED', 'LOW_STOCK', 'OUT_OF_STOCK'].includes(productsCategoryFilter)) {
+          if (productsCategoryFilter === 'ACTIVE') list = list.filter(p => p.status === 'ACTIVE');
+          else if (productsCategoryFilter === 'SUSPENDED') list = list.filter(p => p.status === 'SUSPENDED');
+          else if (productsCategoryFilter === 'LOW_STOCK') list = list.filter(p => p.status === 'LOW_STOCK' || ((p.stock || 0) > 0 && (p.stock || 0) <= (p.lowStockLimit || 15)));
+          else if (productsCategoryFilter === 'OUT_OF_STOCK') list = list.filter(p => p.status === 'OUT_OF_STOCK' || (p.stock || 0) <= 0);
+        } else {
+          const catFilter = productsCategoryFilter.toLowerCase();
+          const targetCat = (state.categories || []).find(c => (c.slug || '').toLowerCase() === catFilter || (c.id || '').toLowerCase() === catFilter || (c.name || '').toLowerCase() === catFilter);
+          const catName = targetCat ? targetCat.name.toLowerCase() : catFilter;
+          const catId = targetCat ? targetCat.id.toLowerCase() : '';
+          const catSlug = targetCat ? targetCat.slug.toLowerCase() : catFilter;
+
+          list = list.filter(p => {
+            const pCat = (p.category || '').toLowerCase();
+            const pId = (p.categoryId || p.category_id || '').toLowerCase();
+            const pSlug = (p.categorySlug || p.category_slug || '').toLowerCase();
+            const pNorm = pCat.replace(/[^a-z0-9]+/g, '-');
+            return pCat === catName || pId === catId || pSlug === catSlug || pNorm === catSlug || pCat.includes(catSlug);
+          });
+        }
       }
 
       // Search term
@@ -5149,24 +5156,33 @@
       const countEl = document.getElementById('products-catalog-count');
       if (countEl) countEl.textContent = total;
 
-      // 2. Catalog Category Filter Subnav Dropdown
+      // 2. Catalog Category Filter Subnav Dropdown (Dynamic from state.categories)
       const catSelect = document.getElementById('prod-cat-filter');
       if (catSelect) {
         const selVal = catSelect.value || 'ALL';
-        catSelect.innerHTML = `
-          <option value="ALL">All Categories (${total})</option>
-          <option value="vegetables">🥬 Vegetables & Combos (${vegCount})</option>
-          <option value="fruits">🍎 Fruits & Combos (${fruitCount})</option>
-          <option value="grocery">🌾 Grocery & Pantry (${grocCount})</option>
+        let optionsHtml = `<option value="ALL">All Categories (${total})</option>`;
+        if (state.categories && state.categories.length > 0) {
+          state.categories.forEach(c => {
+            const cSlug = (c.slug || c.name || '').toLowerCase();
+            const cName = c.name || c.slug;
+            const cCount = prods.filter(p => {
+              const pCat = (p.category || '').toLowerCase();
+              return pCat === cName.toLowerCase() || pCat === cSlug || pCat.includes(cSlug);
+            }).length;
+            optionsHtml += `<option value="${cSlug}">${c.icon || '📁'} ${cName} (${cCount})</option>`;
+          });
+        }
+        optionsHtml += `
           <option value="ACTIVE">🟢 Active Only (${activeCount})</option>
           <option value="SUSPENDED">⏸️ Suspended Only (${suspendedCount})</option>
           <option value="LOW_STOCK">⚠️ Low Stock Only (${lowCount})</option>
           <option value="OUT_OF_STOCK">🔴 Out of Stock Only (${outCount})</option>
         `;
+        catSelect.innerHTML = optionsHtml;
         catSelect.value = selVal;
       }
 
-      // 3. Inventory Subnav & Filter Chips
+      // 3. Inventory Subnav & Filter Chips (Dynamic from state.categories)
       const invSkusEl = document.getElementById('owner-inv-total-skus');
       if (invSkusEl) invSkusEl.textContent = `${total} Products`;
 
@@ -5178,20 +5194,51 @@
       const invSelect = document.getElementById('inv-cat-filter');
       if (invSelect) {
         const invVal = invSelect.value || 'all';
-        invSelect.innerHTML = `
-          <option value="all">All Categories (${total})</option>
-          <option value="vegetables">🥬 Vegetables (${vegCount})</option>
-          <option value="fruits">🍎 Fruits (${fruitCount})</option>
-          <option value="grocery">🌾 Grocery (${grocCount})</option>
+        let invOptions = `<option value="all">All Categories (${total})</option>`;
+        if (state.categories && state.categories.length > 0) {
+          state.categories.forEach(c => {
+            const cSlug = (c.slug || c.name || '').toLowerCase();
+            const cName = c.name || c.slug;
+            const cCount = (state.inventory || prods).filter(i => {
+              const iCat = (i.category || '').toLowerCase();
+              return iCat === cName.toLowerCase() || iCat === cSlug || iCat.includes(cSlug);
+            }).length;
+            invOptions += `<option value="${cSlug}">${c.icon || '📁'} ${cName} (${cCount})</option>`;
+          });
+        }
+        invOptions += `
           <option value="low_stock">⚠️ Low Stock (${lowCount})</option>
           <option value="out_of_stock">🔴 Out of Stock (${outCount})</option>
         `;
+        invSelect.innerHTML = invOptions;
         invSelect.value = invVal;
       }
 
       // 4. Sidebar Low Stock Badge
       const badgeLow = document.getElementById('badge-low-stock');
       if (badgeLow) badgeLow.textContent = lowCount;
+
+      // 5. Populate Product Form Category Selectors
+      populateCategoryDropdowns();
+    }
+
+    function populateCategoryDropdowns() {
+      const cats = state.categories || [];
+      const newCatSelect = document.getElementById('new-prod-category');
+      const editCatSelect = document.getElementById('edit-prod-category');
+
+      if (newCatSelect && cats.length > 0) {
+        const cur = newCatSelect.value;
+        const activeCats = cats.filter(c => (c.status || 'ACTIVE') === 'ACTIVE');
+        newCatSelect.innerHTML = activeCats.map(c => `<option value="${c.name}">${c.icon || '📦'} ${c.name}</option>`).join('');
+        if (cur && activeCats.some(c => c.name === cur)) newCatSelect.value = cur;
+      }
+
+      if (editCatSelect && cats.length > 0) {
+        const cur = editCatSelect.value;
+        editCatSelect.innerHTML = cats.map(c => `<option value="${c.name}">${c.icon || '📦'} ${c.name}${c.status === 'SUSPENDED' ? ' (Suspended)' : ''}</option>`).join('');
+        if (cur) editCatSelect.value = cur;
+      }
     }
 
     function renderProductsTable(productsList) {
@@ -6088,16 +6135,26 @@
 
       let list = state.inventory;
 
-      if (inventoryCategoryFilter === 'vegetables') {
-        list = list.filter(i => (i.category || '').toLowerCase().includes('veg'));
-      } else if (inventoryCategoryFilter === 'fruits') {
-        list = list.filter(i => (i.category || '').toLowerCase().includes('fruit'));
-      } else if (inventoryCategoryFilter === 'grocery') {
-        list = list.filter(i => (i.category || '').toLowerCase().includes('groc') || (i.category || '').toLowerCase().includes('pant'));
-      } else if (inventoryCategoryFilter === 'low_stock') {
-        list = list.filter(i => i.status === 'LOW_STOCK');
-      } else if (inventoryCategoryFilter === 'out_of_stock') {
-        list = list.filter(i => i.status === 'OUT_OF_STOCK');
+      if (inventoryCategoryFilter && inventoryCategoryFilter !== 'all' && inventoryCategoryFilter !== 'ALL') {
+        if (inventoryCategoryFilter === 'low_stock') {
+          list = list.filter(i => i.status === 'LOW_STOCK' || (i.availableStock > 0 && i.availableStock <= (i.lowStockThreshold || 15)));
+        } else if (inventoryCategoryFilter === 'out_of_stock') {
+          list = list.filter(i => i.status === 'OUT_OF_STOCK' || i.availableStock <= 0);
+        } else {
+          const catFilter = inventoryCategoryFilter.toLowerCase();
+          const targetCat = (state.categories || []).find(c => (c.slug || '').toLowerCase() === catFilter || (c.id || '').toLowerCase() === catFilter || (c.name || '').toLowerCase() === catFilter);
+          const catName = targetCat ? targetCat.name.toLowerCase() : catFilter;
+          const catId = targetCat ? targetCat.id.toLowerCase() : '';
+          const catSlug = targetCat ? targetCat.slug.toLowerCase() : catFilter;
+
+          list = list.filter(i => {
+            const iCat = (i.category || '').toLowerCase();
+            const iId = (i.categoryId || i.category_id || '').toLowerCase();
+            const iSlug = (i.categorySlug || i.category_slug || '').toLowerCase();
+            const iNorm = iCat.replace(/[^a-z0-9]+/g, '-');
+            return iCat === catName || iId === catId || iSlug === catSlug || iNorm === catSlug || iCat.includes(catSlug);
+          });
+        }
       }
 
       if (inventorySearchTerm) {

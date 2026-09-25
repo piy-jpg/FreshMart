@@ -377,6 +377,8 @@ class PostgresAdapter {
         'image TEXT',
         'description TEXT',
         'farmer VARCHAR(255)',
+        'category_id VARCHAR(255)',
+        'category_slug VARCHAR(255)',
         'created_at TIMESTAMPTZ DEFAULT NOW()',
         'updated_at TIMESTAMPTZ DEFAULT NOW()'
       ];
@@ -409,8 +411,33 @@ class PostgresAdapter {
 
       try {
         await pool.query(`CREATE INDEX IF NOT EXISTS idx_freshmart_products_cat ON freshmart_products (category);`);
+        await pool.query(`CREATE INDEX IF NOT EXISTS idx_freshmart_products_cat_id ON freshmart_products (category_id);`);
+        await pool.query(`CREATE INDEX IF NOT EXISTS idx_freshmart_products_cat_slug ON freshmart_products (category_slug);`);
         await pool.query(`CREATE INDEX IF NOT EXISTS idx_freshmart_products_status ON freshmart_products (status);`);
         await pool.query(`CREATE INDEX IF NOT EXISTS idx_freshmart_inv_mov_prod ON freshmart_inventory_movements (product_id);`);
+      } catch (e) {}
+
+      // Backfill category_id and category_slug for existing products
+      try {
+        await pool.query(`
+          UPDATE freshmart_products p
+          SET category_id = COALESCE(p.category_id, c.id),
+              category_slug = COALESCE(p.category_slug, c.slug),
+              category = c.name
+          FROM freshmart_categories c
+          WHERE (p.category_id IS NULL OR p.category_id = '')
+            AND (
+              p.data->>'categoryId' = c.id
+              OR LOWER(TRIM(p.category)) = LOWER(TRIM(c.name))
+              OR LOWER(TRIM(p.category)) = LOWER(TRIM(c.slug))
+              OR (c.slug = 'vegetables' AND (LOWER(p.category) LIKE '%veg%' OR LOWER(p.subcategory) LIKE '%veg%'))
+              OR (c.slug = 'fruits' AND (LOWER(p.category) LIKE '%fruit%' OR LOWER(p.subcategory) LIKE '%fruit%'))
+              OR (c.slug = 'grocery' AND (LOWER(p.category) LIKE '%groc%' OR LOWER(p.category) LIKE '%pant%' OR LOWER(p.category) LIKE '%staple%'))
+              OR (c.slug = 'leafy-herbs' AND (LOWER(p.category) LIKE '%herb%' OR LOWER(p.category) LIKE '%leaf%'))
+              OR (c.slug = 'dairy' AND (LOWER(p.category) LIKE '%dairy%' OR LOWER(p.name) LIKE '%ghee%'))
+              OR (c.slug = 'sweeteners' AND (LOWER(p.category) LIKE '%sweet%' OR LOWER(p.name) LIKE '%honey%'))
+            );
+        `);
       } catch (e) {}
     } catch (err) {
       console.warn('ensureProductsAndInventorySchema warning:', err.message);
@@ -685,14 +712,19 @@ class PostgresAdapter {
     const table = this.getTableName(collection);
     if (table) {
       if (collection === 'products') {
+        const catId = item.categoryId || item.category_id || (item.data && (item.data.categoryId || item.data.category_id)) || null;
+        const catSlug = item.categorySlug || item.category_slug || (item.data && (item.data.categorySlug || item.data.category_slug)) || null;
+
         await this.query(`
-          INSERT INTO freshmart_products (id, storefront_id, name, sku, category, price, selling_price, mrp, stock, status, data)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+          INSERT INTO freshmart_products (id, storefront_id, name, sku, category, category_id, category_slug, price, selling_price, mrp, stock, status, data)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
           ON CONFLICT (id) DO UPDATE SET
             storefront_id = EXCLUDED.storefront_id,
             name = EXCLUDED.name,
             sku = EXCLUDED.sku,
             category = EXCLUDED.category,
+            category_id = COALESCE(EXCLUDED.category_id, freshmart_products.category_id),
+            category_slug = COALESCE(EXCLUDED.category_slug, freshmart_products.category_slug),
             price = EXCLUDED.price,
             selling_price = EXCLUDED.selling_price,
             mrp = EXCLUDED.mrp,
@@ -702,6 +734,7 @@ class PostgresAdapter {
             updated_at = NOW()
         `, [
           item.id, item.storefrontId || null, item.name, item.sku || null, item.category || null,
+          catId, catSlug,
           item.price || item.sellingPrice || 0, item.sellingPrice || item.price || 0,
           item.mrp || item.originalPrice || 0, item.stock || 0, item.status || 'ACTIVE',
           JSON.stringify(item)
@@ -2296,6 +2329,20 @@ class PostgresAdapter {
       const categories = catsRes.rows;
       const products = prodsRes.rows;
 
+      const seenCatIds = new Set();
+      const duplicateCategoryIds = [];
+      const seenCatSlugs = new Set();
+      const duplicateCategorySlugs = [];
+
+      categories.forEach(c => {
+        if (seenCatIds.has(c.id)) duplicateCategoryIds.push(c.id);
+        seenCatIds.add(c.id);
+        if (c.slug) {
+          if (seenCatSlugs.has(c.slug)) duplicateCategorySlugs.push(c.slug);
+          seenCatSlugs.add(c.slug);
+        }
+      });
+
       const categoryMap = new Map();
       categories.forEach(c => {
         categoryMap.set(c.id, {
@@ -2322,7 +2369,7 @@ class PostgresAdapter {
         seenIds.add(p.id);
 
         const dataObj = typeof p.data === 'object' ? (p.data || {}) : JSON.parse(p.data || '{}');
-        const catId = dataObj.categoryId;
+        const catId = p.category_id || dataObj.categoryId;
         const pCat = (p.category || '').toLowerCase().trim();
         const pSub = (p.subcategory || '').toLowerCase().trim();
 
@@ -2386,10 +2433,12 @@ class PostgresAdapter {
         sourceOfTruth: 'Neon PostgreSQL (freshmart_products & freshmart_categories)',
         totalProductsInDb: products.length,
         sumCategoryAssignments,
-        categorySumMatchesTotalProducts: sumCategoryAssignments === products.length && orphanProducts.length === 0,
+        categorySumMatchesTotalProducts: sumCategoryAssignments === products.length && orphanProducts.length === 0 && duplicateCategoryIds.length === 0 && duplicateCategorySlugs.length === 0,
         totalCategories: categories.length,
         activeCategories: categories.filter(c => (c.status || 'ACTIVE') === 'ACTIVE').length,
         categoriesBreakdown,
+        duplicateCategoryIds,
+        duplicateCategorySlugs,
         orphanProducts,
         duplicateAssignedProducts: multiAssignedProducts,
         duplicateProductIds,
@@ -2497,6 +2546,30 @@ class PostgresAdapter {
       WHERE id = $9;
     `, [name, slug, icon, image, description, displayOrder, status, JSON.stringify(updatedData), String(categoryId)]);
 
+    // Cascade rename / slug change to freshmart_products
+    if (name !== row.name || slug !== row.slug) {
+      try {
+        await this.query(`
+          UPDATE freshmart_products
+          SET category = $1,
+              category_id = $2,
+              category_slug = $3,
+              data = jsonb_set(
+                jsonb_set(
+                  jsonb_set(data, '{category}', to_jsonb($1::text)),
+                  '{categoryId}', to_jsonb($2::text)
+                ),
+                '{categorySlug}', to_jsonb($3::text)
+              )
+          WHERE category_id = $2
+             OR data->>'categoryId' = $2
+             OR LOWER(TRIM(category)) = LOWER(TRIM($4));
+        `, [name, String(categoryId), slug, row.name]);
+      } catch (cascadeErr) {
+        console.warn('Cascade update products on category rename warning:', cascadeErr.message);
+      }
+    }
+
     return {
       success: true,
       category: {
@@ -2527,12 +2600,13 @@ class PostgresAdapter {
 
     const catRow = existingRes.rows[0];
 
-    // Check if category has any active products
+    // Check if category has any active/registered products
     const prodCountRes = await this.query(`
       SELECT COUNT(*) as count 
       FROM freshmart_products p
       WHERE (
-        p.data->>'categoryId' = $1
+        p.category_id = $1
+        OR p.data->>'categoryId' = $1
         OR LOWER(TRIM(p.category)) = LOWER(TRIM($2))
         OR LOWER(TRIM(p.category)) = LOWER(TRIM($3))
         OR ($3 = 'vegetables' AND (LOWER(p.category) LIKE '%veg%' OR LOWER(p.subcategory) LIKE '%veg%'))
@@ -2549,8 +2623,6 @@ class PostgresAdapter {
         productCount: count,
         blocked: true
       };
-    }
-
     await this.query('DELETE FROM freshmart_categories WHERE id = $1', [String(categoryId)]);
     return { success: true, message: `Category "${catRow.name}" deleted successfully.` };
   }

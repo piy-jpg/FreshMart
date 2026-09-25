@@ -3591,6 +3591,13 @@ function initGlobalOrderSSE() {
           if (statusData) {
             applyStoreStatusToUI(statusData);
           }
+        } else if (data.type === 'CATEGORY_UPDATED' || data.type === 'CATEGORY_CREATED' || data.type === 'CATEGORY_DELETED') {
+          if (typeof syncStorefrontCategoriesWithBackend === 'function') {
+            syncStorefrontCategoriesWithBackend();
+          }
+          if (typeof syncStorefrontCatalogWithBackend === 'function') {
+            syncStorefrontCatalogWithBackend();
+          }
         }
       } catch (e) {}
     };
