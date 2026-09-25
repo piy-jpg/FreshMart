@@ -2623,6 +2623,8 @@ class PostgresAdapter {
         productCount: count,
         blocked: true
       };
+    }
+
     await this.query('DELETE FROM freshmart_categories WHERE id = $1', [String(categoryId)]);
     return { success: true, message: `Category "${catRow.name}" deleted successfully.` };
   }
