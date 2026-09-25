@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth dark">
+<html lang="en" class="scroll-smooth theme-light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Executive Owner Console | FreshMart Quick Commerce</title>
   <meta name="description" content="FreshMart Executive Owner Management Portal - Unconstrained Root Control for Products, Inventory, Orders, Fleet, Staff, and Platform Financials." />
 
-  <!-- Immediate Theme Loader to prevent FOUC (Flash of Unstyled Content) -->
+  <!-- Immediate Theme Loader: Primary Day Mode Default -->
   <script>
     (function() {
       try {
-        const savedTheme = localStorage.getItem('freshmart_owner_theme') || 'dark';
-        if (savedTheme === 'light') {
-          document.documentElement.classList.add('theme-light');
-          document.documentElement.classList.remove('dark');
-        } else {
+        const savedTheme = localStorage.getItem('freshmart_owner_theme') || 'light';
+        if (savedTheme === 'dark') {
           document.documentElement.classList.add('dark');
           document.documentElement.classList.remove('theme-light');
+        } else {
+          document.documentElement.classList.add('theme-light');
+          document.documentElement.classList.remove('dark');
         }
       } catch (e) {}
     })();
@@ -477,12 +477,12 @@
         <button 
           id="owner-theme-toggle-btn" 
           onclick="toggleThemeMode()" 
-          title="Switch between Day Mode (Light) and Night Mode (Dark)" 
+          title="Switch between Day Mode (Light) and Night Mode (Dark) [⌘+Shift+D]" 
           aria-label="Toggle Day and Night mode" 
-          class="theme-switch-btn relative flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-amber-500/40 text-xs font-bold transition-all shadow-xs cursor-pointer group"
+          class="theme-switch-btn relative flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-xs font-bold transition-all shadow-xs cursor-pointer group"
         >
-          <span id="owner-theme-icon" class="text-sm transition-transform duration-300 group-hover:scale-115">🌙</span>
-          <span id="owner-theme-label" class="hidden sm:inline font-bold tracking-tight">Night Mode</span>
+          <span id="owner-theme-icon" class="text-sm transition-transform duration-300 group-hover:scale-115">☀️</span>
+          <span id="owner-theme-label" class="hidden sm:inline font-bold tracking-tight">Day Mode</span>
         </button>
 
         <!-- Sound Audio FX Toggle -->
@@ -7398,10 +7398,10 @@
     // =========================================================================
     function initOwnerTheme() {
       try {
-        const savedTheme = localStorage.getItem('freshmart_owner_theme') || 'dark';
+        const savedTheme = localStorage.getItem('freshmart_owner_theme') || 'light';
         applyOwnerTheme(savedTheme, false);
       } catch (e) {
-        applyOwnerTheme('dark', false);
+        applyOwnerTheme('light', false);
       }
     }
 
