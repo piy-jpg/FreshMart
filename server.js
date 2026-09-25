@@ -5795,7 +5795,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       if (pathname.startsWith('/api/owner/categories/') && (method === 'PATCH' || method === 'PUT')) {
-        const id = pathname.replace('/api/owner/categories/', '');
+        const id = pathname.replace('/api/owner/categories/', '').replace(/\/status\/?$/, '');
         const body = await parseBody(req);
         const pg = db.postgres || db.pgAdapter;
 
@@ -5831,7 +5831,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       if (pathname.startsWith('/api/owner/categories/') && method === 'DELETE') {
-        const id = pathname.replace('/api/owner/categories/', '');
+        const id = pathname.replace('/api/owner/categories/', '').replace(/\/status\/?$/, '');
         const pg = db.postgres || db.pgAdapter;
 
         if (pg && pg.isAvailable()) {

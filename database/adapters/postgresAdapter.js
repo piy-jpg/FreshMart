@@ -1528,9 +1528,9 @@ class PostgresAdapter {
         p.storefront_id,
         p.name,
         p.sku,
-        p.category,
-        p.category_id,
-        p.category_slug,
+        COALESCE(c.name, p.category, p.data->>'category', 'Fresh Produce') AS category,
+        COALESCE(p.category_id, c.id, p.data->>'categoryId') AS category_id,
+        COALESCE(p.category_slug, c.slug, p.data->>'categorySlug') AS category_slug,
         p.subcategory,
         p.price,
         p.selling_price,
@@ -1567,6 +1567,14 @@ class PostgresAdapter {
             )
         ), 0) AS customer_reserved_stock
       FROM freshmart_products p
+      LEFT JOIN freshmart_categories c ON (
+        p.category_id = c.id
+        OR p.data->>'categoryId' = c.id
+        OR (p.category_id IS NULL AND (
+          LOWER(TRIM(COALESCE(p.category, p.data->>'category', ''))) = LOWER(TRIM(c.name))
+          OR LOWER(TRIM(COALESCE(p.category, p.data->>'category', ''))) = LOWER(TRIM(c.slug))
+        ))
+      )
       WHERE p.status != 'DELETED'
       ORDER BY p.name ASC;
     `;
@@ -2272,7 +2280,8 @@ class PostgresAdapter {
           COUNT(p.id) FILTER (WHERE p.status = 'ACTIVE' AND p.stock <= 0) as out_of_stock_count
         FROM freshmart_categories c
         LEFT JOIN freshmart_products p ON (
-          p.data->>'categoryId' = c.id
+          p.category_id = c.id
+          OR p.data->>'categoryId' = c.id
           OR LOWER(TRIM(p.category)) = LOWER(TRIM(c.name))
           OR LOWER(TRIM(p.category)) = LOWER(TRIM(c.slug))
           OR (c.slug = 'vegetables' AND (LOWER(p.category) LIKE '%veg%' OR LOWER(p.subcategory) LIKE '%veg%'))
