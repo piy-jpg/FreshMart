@@ -665,6 +665,342 @@ class PostgresAdapter {
       return value;
     }
   }
+
+  // Atomic transactional inventory deduction and order placement
+  async placeOrderWithInventoryAtomic(order, items, hubInfo = {}, operatorEmail = 'System Order Engine') {
+    const pool = this.getPool();
+    if (!pool) throw new Error('PostgreSQL Pool is not configured');
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      const deductedItems = [];
+      for (const item of items) {
+        const qty = Number(item.quantity || item.qty || 1);
+        const prodId = String(item.id || item.productId || '');
+        const prodName = String(item.name || '');
+
+        // 1. Lock and inspect product stock
+        const findRes = await client.query(
+          `SELECT id, name, sku, stock FROM freshmart_products 
+           WHERE id = $1 OR storefront_id = $1 OR sku = $1 OR LOWER(name) = LOWER($2)
+           LIMIT 1 FOR UPDATE`,
+          [prodId, prodName]
+        );
+
+        if (findRes.rows.length === 0) {
+          await client.query('ROLLBACK');
+          return {
+            success: false,
+            error: `Product "${prodName || prodId}" not found in store catalog.`,
+            code: 'PRODUCT_NOT_FOUND',
+            productId: prodId
+          };
+        }
+
+        const dbProd = findRes.rows[0];
+        const currentStock = Number(dbProd.stock) || 0;
+
+        if (currentStock < qty) {
+          await client.query('ROLLBACK');
+          return {
+            success: false,
+            error: `Insufficient stock for "${dbProd.name}". Available: ${currentStock}, Requested: ${qty}`,
+            code: 'INSUFFICIENT_STOCK',
+            productId: dbProd.id,
+            productName: dbProd.name,
+            availableStock: currentStock,
+            requestedQuantity: qty
+          };
+        }
+
+        // 2. Atomic SQL stock deduction with conditional check stock >= qty
+        const updateRes = await client.query(`
+          UPDATE freshmart_products
+          SET stock = stock - $1,
+              status = CASE WHEN (stock - $1) = 0 THEN 'OUT_OF_STOCK' WHEN (stock - $1) <= 15 THEN 'LOW_STOCK' ELSE 'ACTIVE' END,
+              data = jsonb_set(
+                jsonb_set(
+                  jsonb_set(
+                    data,
+                    '{stock}',
+                    to_jsonb(stock - $1)
+                  ),
+                  '{stockCount}',
+                  to_jsonb(stock - $1)
+                ),
+                '{status}',
+                to_jsonb(CASE WHEN (stock - $1) = 0 THEN 'OUT_OF_STOCK' WHEN (stock - $1) <= 15 THEN 'LOW_STOCK' ELSE 'ACTIVE' END)
+              ),
+              updated_at = NOW()
+          WHERE id = $2 AND stock >= $1
+          RETURNING id, name, sku, stock;
+        `, [qty, dbProd.id]);
+
+        if (updateRes.rowCount !== 1) {
+          await client.query('ROLLBACK');
+          return {
+            success: false,
+            error: `Insufficient stock for "${dbProd.name}" due to concurrent order.`,
+            code: 'INSUFFICIENT_STOCK',
+            productId: dbProd.id,
+            productName: dbProd.name
+          };
+        }
+
+        const newStock = Number(updateRes.rows[0].stock);
+        deductedItems.push({
+          id: dbProd.id,
+          name: dbProd.name,
+          sku: dbProd.sku,
+          qty,
+          beforeStock: currentStock,
+          afterStock: newStock
+        });
+      }
+
+      // 3. Atomically write Order to freshmart_orders
+      order.stockRestored = false;
+      const orderId = order.orderId || order.id;
+      const customerId = order.customerId || order.userId || null;
+      const userId = order.userId || order.customerId || null;
+      const customerName = order.customerName || order.deliveryAddress?.fullName || order.deliveryAddress?.name || null;
+      const customerPhone = order.customerPhone || order.deliveryAddress?.phone || null;
+      const itemsJson = JSON.stringify(order.items || []);
+      const subtotal = Number(order.subtotal ?? order.itemsPrice ?? 0);
+      const deliveryFee = Number(order.deliveryFee ?? order.deliveryCharge ?? 0);
+      const discount = Number(order.discount ?? order.couponDiscount ?? 0);
+      const finalTotal = Number(order.finalTotal ?? order.totalAmount ?? order.total ?? 0);
+      const deliveryAddressJson = JSON.stringify(order.deliveryAddress || {});
+      const paymentMethod = order.paymentMethod || 'UPI';
+      const paymentStatus = order.paymentStatus || 'PENDING';
+      const orderStatus = order.orderStatus || order.status || 'ORDER_PLACED';
+      const status = order.status || order.orderStatus || 'ORDER_PLACED';
+      const deliveryPartnerId = order.deliveryPartnerId || order.deliveryBoyId || null;
+      const deliveryPartnerName = order.deliveryPartnerName || order.deliveryBoyName || null;
+      const deliveryBoyId = order.deliveryBoyId || order.deliveryPartnerId || null;
+      const deliveryBoyName = order.deliveryBoyName || order.deliveryPartnerName || null;
+      const createdAt = order.createdAt ? new Date(order.createdAt) : new Date();
+
+      await client.query(`
+        INSERT INTO freshmart_orders (
+          id, order_id, customer_id, user_id, customer_name, customer_phone,
+          items, subtotal, delivery_fee, discount, final_total,
+          delivery_address, payment_method, payment_status, order_status, status,
+          delivery_partner_id, delivery_partner_name, delivery_boy_id, delivery_boy_name,
+          created_at, confirmed_at, packed_at, out_for_delivery_at, delivered_at, cancelled_at,
+          data
+        )
+        VALUES (
+          $1, $2, $3, $4, $5, $6,
+          $7, $8, $9, $10, $11,
+          $12, $13, $14, $15, $16,
+          $17, $18, $19, $20,
+          $21, $22, $23, $24, $25, $26,
+          $27
+        )
+        ON CONFLICT (id) DO UPDATE SET
+          order_id = EXCLUDED.order_id,
+          customer_id = EXCLUDED.customer_id,
+          user_id = EXCLUDED.user_id,
+          customer_name = EXCLUDED.customer_name,
+          customer_phone = EXCLUDED.customer_phone,
+          items = EXCLUDED.items,
+          subtotal = EXCLUDED.subtotal,
+          delivery_fee = EXCLUDED.delivery_fee,
+          discount = EXCLUDED.discount,
+          final_total = EXCLUDED.final_total,
+          delivery_address = EXCLUDED.delivery_address,
+          payment_method = EXCLUDED.payment_method,
+          payment_status = EXCLUDED.payment_status,
+          order_status = EXCLUDED.order_status,
+          status = EXCLUDED.status,
+          delivery_partner_id = EXCLUDED.delivery_partner_id,
+          delivery_partner_name = EXCLUDED.delivery_partner_name,
+          delivery_boy_id = EXCLUDED.delivery_boy_id,
+          delivery_boy_name = EXCLUDED.delivery_boy_name,
+          data = EXCLUDED.data,
+          updated_at = NOW()
+      `, [
+        order.id, orderId, customerId, userId, customerName, customerPhone,
+        itemsJson, subtotal, deliveryFee, discount, finalTotal,
+        deliveryAddressJson, paymentMethod, paymentStatus, orderStatus, status,
+        deliveryPartnerId, deliveryPartnerName, deliveryBoyId, deliveryBoyName,
+        createdAt, null, null, null, null, null,
+        JSON.stringify(order)
+      ]);
+
+      // 4. Record Inventory Movements
+      for (const d of deductedItems) {
+        const movId = 'mov_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+        await client.query(`
+          INSERT INTO freshmart_inventory_movements (id, product_id, sku, type, quantity, previous_stock, new_stock, reason, operator, data)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        `, [
+          movId, d.id, d.sku || null, 'SALE', -d.qty,
+          d.beforeStock, d.afterStock,
+          `Reserved for Customer Order #${orderId}`,
+          operatorEmail,
+          JSON.stringify({
+            id: movId,
+            productId: d.id,
+            productName: d.name,
+            sku: d.sku,
+            type: 'SALE',
+            quantity: -d.qty,
+            before: d.beforeStock,
+            after: d.afterStock,
+            reason: `Reserved for Customer Order #${orderId}`,
+            user: operatorEmail,
+            hubId: hubInfo.id || null,
+            hubName: hubInfo.name || null,
+            date: new Date().toISOString()
+          })
+        ]);
+      }
+
+      await client.query('COMMIT');
+      return { success: true, order, deductedItems };
+    } catch (err) {
+      await client.query('ROLLBACK');
+      console.error('placeOrderWithInventoryAtomic error:', err.message);
+      return { success: false, error: err.message, code: 'DATABASE_ERROR' };
+    } finally {
+      client.release();
+    }
+  }
+
+  // Atomic idempotent stock restoration on order cancellation
+  async restoreOrderStockAtomic(orderId, operatorEmail = 'System Order Engine') {
+    const pool = this.getPool();
+    if (!pool) throw new Error('PostgreSQL Pool is not configured');
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // 1. Fetch order with row lock to prevent concurrent double restoration
+      const orderRes = await client.query(
+        `SELECT id, order_id, order_status, status, items, data, cancelled_at
+         FROM freshmart_orders
+         WHERE id = $1 OR order_id = $1
+         LIMIT 1 FOR UPDATE`,
+        [String(orderId)]
+      );
+
+      if (orderRes.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return { success: false, error: 'Order not found' };
+      }
+
+      const dbOrderRow = orderRes.rows[0];
+      const orderData = typeof dbOrderRow.data === 'object' ? (dbOrderRow.data || {}) : JSON.parse(dbOrderRow.data || '{}');
+
+      // Idempotency: Verify stock was not already restored
+      if (orderData.stockRestored === true) {
+        await client.query('ROLLBACK');
+        return {
+          success: true,
+          alreadyRestored: true,
+          message: `Stock for order #${orderId} has already been restored previously. Double-restoration prevented.`
+        };
+      }
+
+      const items = Array.isArray(dbOrderRow.items) ? dbOrderRow.items : (orderData.items || []);
+      const restoredItems = [];
+
+      // 2. Increment stock atomically for each product in order
+      for (const item of items) {
+        const qty = Number(item.quantity || item.qty || 1);
+        const prodId = String(item.id || item.productId || '');
+        const prodName = String(item.name || '');
+
+        const updateRes = await client.query(`
+          UPDATE freshmart_products
+          SET stock = stock + $1,
+              status = CASE WHEN (stock + $1) > 15 THEN 'ACTIVE' WHEN (stock + $1) > 0 THEN 'LOW_STOCK' ELSE 'OUT_OF_STOCK' END,
+              data = jsonb_set(
+                jsonb_set(
+                  jsonb_set(
+                    data,
+                    '{stock}',
+                    to_jsonb(stock + $1)
+                  ),
+                  '{stockCount}',
+                  to_jsonb(stock + $1)
+                ),
+                '{status}',
+                to_jsonb(CASE WHEN (stock + $1) > 15 THEN 'ACTIVE' WHEN (stock + $1) > 0 THEN 'LOW_STOCK' ELSE 'OUT_OF_STOCK' END)
+              ),
+              updated_at = NOW()
+          WHERE id = $2 OR storefront_id = $2 OR sku = $2 OR LOWER(name) = LOWER($3)
+          RETURNING id, name, sku, stock, (stock - $1) as previous_stock;
+        `, [qty, prodId, prodName]);
+
+        if (updateRes.rows.length > 0) {
+          const row = updateRes.rows[0];
+          const currentNewStock = Number(row.stock);
+          const prevStock = Number(row.previous_stock);
+          restoredItems.push({
+            id: row.id,
+            name: row.name,
+            sku: row.sku,
+            qty,
+            beforeStock: prevStock,
+            afterStock: currentNewStock
+          });
+
+          // Insert inventory movement
+          const movId = 'mov_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+          await client.query(`
+            INSERT INTO freshmart_inventory_movements (id, product_id, sku, type, quantity, previous_stock, new_stock, reason, operator, data)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+          `, [
+            movId, row.id, row.sku || null, 'RETURN', qty,
+            prevStock, currentNewStock,
+            `Order #${orderId} cancelled - stock restored`,
+            operatorEmail,
+            JSON.stringify({
+              id: movId,
+              productId: row.id,
+              productName: row.name,
+              sku: row.sku,
+              type: 'RETURN',
+              quantity: qty,
+              before: prevStock,
+              after: currentNewStock,
+              reason: `Order #${orderId} cancelled - stock restored`,
+              user: operatorEmail,
+              date: new Date().toISOString()
+            })
+          ]);
+        }
+      }
+
+      // 3. Flag order in database as stockRestored = true
+      orderData.stockRestored = true;
+      orderData.stockRestoredAt = new Date().toISOString();
+      orderData.stockRestoredBy = operatorEmail;
+
+      await client.query(`
+        UPDATE freshmart_orders
+        SET data = $2,
+            cancelled_at = COALESCE(cancelled_at, NOW()),
+            order_status = 'CANCELLED',
+            status = 'CANCELLED',
+            updated_at = NOW()
+        WHERE id = $1 OR order_id = $1
+      `, [String(dbOrderRow.id), JSON.stringify(orderData)]);
+
+      await client.query('COMMIT');
+      return { success: true, alreadyRestored: false, restoredItems, order: orderData };
+    } catch (err) {
+      await client.query('ROLLBACK');
+      console.error('restoreOrderStockAtomic error:', err.message);
+      return { success: false, error: err.message, code: 'DATABASE_ERROR' };
+    } finally {
+      client.release();
+    }
+  }
 }
 
 module.exports = PostgresAdapter;

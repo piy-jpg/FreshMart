@@ -2914,42 +2914,6 @@ const server = http.createServer(async (req, res) => {
       const riders = db.getAll('delivery_partners');
       const rider = riders[0];
 
-      // Transactional inventory deduction
-      const products = db.getAll('products');
-      for (const orderedItem of items) {
-        const prod = products.find(p => 
-          p.id === orderedItem.id || 
-          p.id === orderedItem.productId || 
-          p.storefrontId === orderedItem.productId || 
-          p.storefrontId === orderedItem.id || 
-          p.name === orderedItem.name
-        );
-        if (prod) {
-          const qty = Number(orderedItem.quantity || orderedItem.qty || 1);
-          const beforeStock = prod.stock || 0;
-          prod.stock = Math.max(0, beforeStock - qty);
-          if (prod.stock === 0) prod.status = 'OUT_OF_STOCK';
-          else if (prod.stock <= prod.lowStockLimit) prod.status = 'LOW_STOCK';
-          db.update('products', prod.id, prod);
-
-          db.insert('inventory_movements', {
-            id: 'mov_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-            date: new Date().toISOString(),
-            productId: prod.id,
-            productName: prod.name,
-            sku: prod.sku,
-            hubId: hub.id,
-            hubName: hub.name,
-            type: 'SALE',
-            quantity: -qty,
-            before: beforeStock,
-            after: prod.stock,
-            reason: `Reserved for Customer Order #${orderId}`,
-            user: 'System Order Engine'
-          });
-        }
-      }
-
       const customerId = body.customerId || currentUser?.id || 'usr_customer_' + Date.now();
       const customerName = body.customerName || currentUser?.name || body.deliveryAddress?.fullName || 'Valued Customer';
       const customerPhone = body.customerPhone || currentUser?.phone || body.deliveryAddress?.phone || '';
@@ -3030,6 +2994,7 @@ const server = http.createServer(async (req, res) => {
         cancelledAt: null,
         cancelledBy: null,
         cancellationReason: null,
+        stockRestored: false,
         timeline: [
           {
             status: 'ORDER_PLACED',
@@ -3044,8 +3009,59 @@ const server = http.createServer(async (req, res) => {
         reviews: null
       };
 
-      db.insert('orders', newOrder);
-      await persistOrder(newOrder);
+      // Atomic inventory deduction & order persistence in Neon PostgreSQL
+      if (db.postgres && db.postgres.isAvailable()) {
+        const atomicRes = await db.postgres.placeOrderWithInventoryAtomic(newOrder, items, hub, 'System Order Engine');
+        if (!atomicRes.success) {
+          return sendJson(res, 400, {
+            success: false,
+            error: atomicRes.error,
+            code: atomicRes.code || 'INSUFFICIENT_STOCK',
+            detail: atomicRes
+          });
+        }
+
+        // Sync local memory products from atomic deduction
+        if (Array.isArray(atomicRes.deductedItems)) {
+          for (const d of atomicRes.deductedItems) {
+            const localProd = db.getById('products', d.id);
+            if (localProd) {
+              localProd.stock = d.afterStock;
+              localProd.stockCount = d.afterStock;
+              localProd.status = d.afterStock === 0 ? 'OUT_OF_STOCK' : (d.afterStock <= 15 ? 'LOW_STOCK' : 'ACTIVE');
+            }
+          }
+        }
+        if (!db.data.orders) db.data.orders = [];
+        db.data.orders.unshift(newOrder);
+        db.save();
+      } else {
+        // Fallback in-memory validation & deduction
+        const products = db.getAll('products');
+        for (const orderedItem of items) {
+          const prod = products.find(p => p.id === orderedItem.id || p.storefrontId === orderedItem.id || p.name === orderedItem.name);
+          const qty = Number(orderedItem.quantity || orderedItem.qty || 1);
+          if (!prod || prod.stock < qty) {
+            return sendJson(res, 400, {
+              success: false,
+              error: `Insufficient stock for "${prod ? prod.name : orderedItem.name}". Available: ${prod ? prod.stock : 0}, Requested: ${qty}`,
+              code: 'INSUFFICIENT_STOCK'
+            });
+          }
+        }
+        for (const orderedItem of items) {
+          const prod = products.find(p => p.id === orderedItem.id || p.storefrontId === orderedItem.id || p.name === orderedItem.name);
+          if (prod) {
+            const qty = Number(orderedItem.quantity || orderedItem.qty || 1);
+            const beforeStock = prod.stock || 0;
+            prod.stock = Math.max(0, beforeStock - qty);
+            if (prod.stock === 0) prod.status = 'OUT_OF_STOCK';
+            else if (prod.stock <= prod.lowStockLimit) prod.status = 'LOW_STOCK';
+            db.update('products', prod.id, prod);
+          }
+        }
+        db.insert('orders', newOrder);
+      }
 
       if (currentUser && currentUser.id) {
         currentUser.totalOrdersCount = (currentUser.totalOrdersCount || 0) + 1;
@@ -3120,31 +3136,31 @@ const server = http.createServer(async (req, res) => {
         time: new Date().toISOString()
       });
 
-      // Restore inventory
-      const products = db.getAll('products');
-      for (const item of order.items) {
-        const prod = products.find(p => p.id === item.id || p.name === item.name);
-        if (prod) {
-          const beforeStock = prod.stock;
-          prod.stock += Number(item.quantity || item.qty || 1);
-          if (prod.stock > prod.lowStockLimit) prod.status = 'ACTIVE';
-          db.update('products', prod.id, prod);
-
-          db.insert('inventory_movements', {
-            id: 'mov_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-            date: new Date().toISOString(),
-            productId: prod.id,
-            productName: prod.name,
-            sku: prod.sku,
-            hubId: order.hubId,
-            hubName: order.hubName,
-            type: 'RETURN',
-            quantity: item.qty || 1,
-            before: beforeStock,
-            after: prod.stock,
-            reason: `Order #${order.orderId} cancelled - stock restored`,
-            user: 'System Order Engine'
-          });
+      // Atomic idempotent stock restoration in PostgreSQL
+      if (db.postgres && db.postgres.isAvailable()) {
+        const restRes = await db.postgres.restoreOrderStockAtomic(order.orderId || order.id, 'Customer Cancellation');
+        if (restRes.success && Array.isArray(restRes.restoredItems)) {
+          for (const r of restRes.restoredItems) {
+            const localProd = db.getById('products', r.id);
+            if (localProd) {
+              localProd.stock = r.afterStock;
+              localProd.stockCount = r.afterStock;
+              localProd.status = r.afterStock <= 0 ? 'OUT_OF_STOCK' : (r.afterStock <= 15 ? 'LOW_STOCK' : 'ACTIVE');
+            }
+          }
+        }
+      } else if (!order.stockRestored) {
+        order.stockRestored = true;
+        const products = db.getAll('products');
+        for (const item of (order.items || [])) {
+          const prod = products.find(p => p.id === item.id || p.name === item.name);
+          if (prod) {
+            const beforeStock = prod.stock;
+            const qty = Number(item.quantity || item.qty || 1);
+            prod.stock += qty;
+            if (prod.stock > (prod.lowStockLimit || 15)) prod.status = 'ACTIVE';
+            db.update('products', prod.id, prod);
+          }
         }
       }
 
@@ -3162,6 +3178,7 @@ const server = http.createServer(async (req, res) => {
       });
 
       order.cancelledAt = new Date().toISOString();
+      order.stockRestored = true;
       db.update('orders', order.id, order);
       await persistOrder(order);
       db.logActivity('Customer / System', 'ORDER_CANCELLED', 'Order', order.orderId, `Order #${order.orderId} cancelled. Refund of ₹${order.totalAmount} approved.`);
@@ -4484,16 +4501,32 @@ const server = http.createServer(async (req, res) => {
           }
 
           if (targetStatusKey === 'CANCELLED' && oldStatus !== 'CANCELLED') {
-            // Restore inventory
-            const products = db.getAll('products');
-            for (const item of (order.items || [])) {
-              const pid = item.id || item.productId;
-              const prod = products.find(p => p.id === pid || p.name === item.name);
-              if (prod) {
-                const qty = Number(item.qty || item.quantity || 1);
-                db.adjustProductStock(prod.id, qty, `Order #${order.orderId || order.id} cancelled by Owner - Stock Restored`, owner.email);
+            // Atomic idempotent stock restoration in PostgreSQL
+            if (db.postgres && db.postgres.isAvailable()) {
+              const restRes = await db.postgres.restoreOrderStockAtomic(order.orderId || order.id, owner.name || owner.email || 'Owner');
+              if (restRes.success && Array.isArray(restRes.restoredItems)) {
+                for (const r of restRes.restoredItems) {
+                  const localProd = db.getById('products', r.id);
+                  if (localProd) {
+                    localProd.stock = r.afterStock;
+                    localProd.stockCount = r.afterStock;
+                    localProd.status = r.afterStock <= 0 ? 'OUT_OF_STOCK' : (r.afterStock <= 15 ? 'LOW_STOCK' : 'ACTIVE');
+                  }
+                }
+              }
+            } else if (!order.stockRestored) {
+              order.stockRestored = true;
+              const products = db.getAll('products');
+              for (const item of (order.items || [])) {
+                const pid = item.id || item.productId;
+                const prod = products.find(p => p.id === pid || p.name === item.name);
+                if (prod) {
+                  const qty = Number(item.qty || item.quantity || 1);
+                  db.adjustProductStock(prod.id, qty, `Order #${order.orderId || order.id} cancelled by Owner - Stock Restored`, owner.email);
+                }
               }
             }
+            order.stockRestored = true;
           }
         }
 
