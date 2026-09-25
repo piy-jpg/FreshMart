@@ -913,7 +913,6 @@ class PostgresAdapter {
 
       // 3. Atomically write Order to freshmart_orders
       order.stockRestored = false;
-      const orderId = order.orderId || order.id;
       const customerId = order.customerId || order.userId || null;
       const userId = order.userId || order.customerId || null;
       const customerName = order.customerName || order.deliveryAddress?.fullName || order.deliveryAddress?.name || null;
