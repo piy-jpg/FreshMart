@@ -772,24 +772,66 @@
               <span class="text-emerald-800 font-bold">Vegetables</span>
             </nav>
 
-      <!-- Wide Visual Hero Banner (Lush Cinematic Farm Harvest matching User Design) -->
+      <!-- Wide Visual Hero Banner (Lush Cinematic Farm Harvest with 6-Image Bottom-to-Top Autoscroll) -->
       <div class="relative rounded-[2rem] overflow-hidden bg-[#042416] text-white p-6 sm:p-10 lg:p-12 shadow-2xl border border-emerald-800/40 min-h-[340px] sm:min-h-[400px] lg:min-h-[430px] flex flex-col justify-between group">
         
-        <!-- Ultra-Realistic High-Res Background Image -->
-        <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <img 
-            src="images/veg_hero_harvest.jpg" 
-            alt="Farm Fresh Harvest Vegetables" 
-            class="w-full h-full object-cover object-right sm:object-right-center scale-100 group-hover:scale-105 transition-transform duration-1000 ease-out"
-          />
-          <!-- Seamless Gradient Overlay (Deep Emerald on Left, Soft Sunlight Vignette) -->
-          <div class="absolute inset-0 bg-gradient-to-r from-[#032314] via-[#04331d]/90 sm:via-[#04331d]/75 md:via-[#04331d]/40 to-transparent"></div>
-          <div class="absolute inset-0 bg-gradient-to-t from-[#02180d]/70 via-transparent to-transparent sm:hidden"></div>
-          
-          <!-- Ambient Morning Sunlight & Particle Glow -->
-          <div class="absolute top-0 right-1/4 w-96 h-96 bg-amber-300/15 rounded-full filter blur-3xl pointer-events-none"></div>
-          <div class="absolute -bottom-10 left-10 w-72 h-72 bg-emerald-500/20 rounded-full filter blur-3xl pointer-events-none"></div>
+        <!-- 6-Image Seamless Bottom-to-Top Vertical Autoscroll Track -->
+        <div class="harvest-scroll-container">
+          <div class="harvest-scroll-track">
+            <!-- Image 1: Vine Tomatoes, Bell Peppers, Broccoli & Radishes -->
+            <div class="harvest-scroll-card">
+              <img src="images/veg_harvest_1.jpg" alt="Farm Fresh Tomatoes, Broccoli & Peppers" loading="eager" />
+            </div>
+            <!-- Image 2: Crisp Greens, Kale, Broccoli & Cucumbers -->
+            <div class="harvest-scroll-card">
+              <img src="images/veg_harvest_2.jpg" alt="Fresh Organic Greens & Broccoli" loading="lazy" />
+            </div>
+            <!-- Image 3: Ripe Tomatoes, Eggplants, Garlic & Peppers -->
+            <div class="harvest-scroll-card">
+              <img src="images/veg_harvest_3.jpg" alt="Sun-Ripened Tomatoes & Farm Eggplants" loading="lazy" />
+            </div>
+            <!-- Image 4: Bunch Carrots, Beets, Yellow Peppers & Ginger -->
+            <div class="harvest-scroll-card">
+              <img src="images/veg_harvest_4.jpg" alt="Farm Fresh Carrots & Root Vegetables" loading="lazy" />
+            </div>
+            <!-- Image 5: Sweet Corn, Zucchini, Cauliflower & Peas -->
+            <div class="harvest-scroll-card">
+              <img src="images/veg_harvest_5.jpg" alt="Sweet Corn & Fresh Garden Vegetables" loading="lazy" />
+            </div>
+            <!-- Image 6: Savoy Cabbage, Peppers, Plum Tomatoes & Potatoes -->
+            <div class="harvest-scroll-card">
+              <img src="images/veg_harvest_6.jpg" alt="Assorted Farm Harvest Basket" loading="lazy" />
+            </div>
+
+            <!-- Duplicate Set for Seamless Continuous Infinite Loop -->
+            <div class="harvest-scroll-card">
+              <img src="images/veg_harvest_1.jpg" alt="Farm Fresh Tomatoes, Broccoli & Peppers" loading="lazy" />
+            </div>
+            <div class="harvest-scroll-card">
+              <img src="images/veg_harvest_2.jpg" alt="Fresh Organic Greens & Broccoli" loading="lazy" />
+            </div>
+            <div class="harvest-scroll-card">
+              <img src="images/veg_harvest_3.jpg" alt="Sun-Ripened Tomatoes & Farm Eggplants" loading="lazy" />
+            </div>
+            <div class="harvest-scroll-card">
+              <img src="images/veg_harvest_4.jpg" alt="Farm Fresh Carrots & Root Vegetables" loading="lazy" />
+            </div>
+            <div class="harvest-scroll-card">
+              <img src="images/veg_harvest_5.jpg" alt="Sweet Corn & Fresh Garden Vegetables" loading="lazy" />
+            </div>
+            <div class="harvest-scroll-card">
+              <img src="images/veg_harvest_6.jpg" alt="Assorted Farm Harvest Basket" loading="lazy" />
+            </div>
+          </div>
         </div>
+
+        <!-- Seamless Gradient Overlay (Deep Emerald on Left for Crisp Text Contrast) -->
+        <div class="absolute inset-0 bg-gradient-to-r from-[#032314] via-[#04331d]/90 sm:via-[#04331d]/80 md:via-[#04331d]/50 to-transparent pointer-events-none z-5"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#02180d]/80 via-transparent to-transparent sm:hidden pointer-events-none z-5"></div>
+        
+        <!-- Ambient Morning Sunlight & Particle Glow -->
+        <div class="absolute top-0 right-1/4 w-96 h-96 bg-amber-300/15 rounded-full filter blur-3xl pointer-events-none z-5"></div>
+        <div class="absolute -bottom-10 left-10 w-72 h-72 bg-emerald-500/20 rounded-full filter blur-3xl pointer-events-none z-5"></div>
 
         <!-- Floating 100% Farm Plucked Glass Badge (Top Right - Hidden on extra-narrow mobile) -->
         <div class="absolute top-4 sm:top-6 right-4 sm:right-8 z-10 hidden sm:block">
