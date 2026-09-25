@@ -654,31 +654,74 @@
         if (!banner) {
           banner = document.createElement('div');
           banner.id = 'store-offline-banner';
-          banner.className = 'sticky top-0 z-50 w-full bg-gradient-to-r from-rose-900 via-rose-800 to-red-900 text-white border-b-2 border-rose-500/80 px-4 py-2.5 shadow-xl transition-all duration-300';
+          banner.className = 'offline-banner-wrapper banner-enter';
           if (document.body && document.body.firstChild) {
             document.body.insertBefore(banner, document.body.firstChild);
           } else if (document.body) {
             document.body.appendChild(banner);
           }
+        } else {
+          banner.classList.remove('hidden', 'banner-exit');
+          banner.classList.add('banner-enter');
         }
-        if (banner) {
-          banner.innerHTML = `
-            <div class="max-w-6xl mx-auto flex items-center justify-between gap-3 text-xs sm:text-sm font-semibold">
-              <div class="flex items-center gap-2.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-rose-400 animate-ping shrink-0"></span>
-                <span class="text-rose-200 font-black tracking-wide uppercase text-xs sm:text-sm whitespace-nowrap">🔴 Store Temporarily Offline</span>
-                <span class="hidden sm:inline text-rose-100 font-normal">— ${msg}</span>
+
+        banner.innerHTML = `
+          <div class="relative py-2.5 sm:py-3 px-3 sm:px-6 lg:px-8">
+            <!-- Ambient floating background glow lights -->
+            <div class="offline-ambient-orb-1"></div>
+            <div class="offline-ambient-orb-2"></div>
+            <!-- Horizontal Shimmer Light Streak -->
+            <div class="offline-shimmer-streak"></div>
+
+            <div class="max-w-6xl mx-auto flex items-center justify-between gap-3 text-xs sm:text-sm relative z-10">
+              <div class="flex items-center gap-2.5 sm:gap-3.5 flex-wrap sm:flex-nowrap">
+                <!-- Pulsing Status Dot & Primary Label -->
+                <div class="flex items-center gap-2 shrink-0">
+                  <span class="offline-pulse-dot" aria-hidden="true"></span>
+                  <span class="font-heading font-black tracking-wider text-white uppercase text-xs sm:text-sm drop-shadow-xs">
+                    STORE TEMPORARILY OFFLINE
+                  </span>
+                </div>
+
+                <!-- Divider -->
+                <span class="text-rose-400/40 hidden sm:inline text-xs font-light" aria-hidden="true">•</span>
+
+                <!-- Subtitle Notice Message -->
+                <span class="text-rose-100/90 text-xs sm:text-xs font-medium leading-tight">
+                  ${msg}
+                </span>
               </div>
-              <div class="text-[11px] bg-rose-950/60 border border-rose-400/30 px-2.5 py-1 rounded-full text-rose-200 shrink-0">
-                <span>Orders Paused</span>
+
+              <!-- Premium Right-Side Glass Pill -->
+              <div class="shrink-0 hidden sm:flex items-center">
+                <div class="offline-glass-pill" role="status">
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping" aria-hidden="true"></span>
+                  <span>ORDERS PAUSED</span>
+                </div>
               </div>
             </div>
-            <div class="sm:hidden text-[11px] text-rose-100 mt-1 pl-5">${msg}</div>
-          `;
-          banner.classList.remove('hidden');
-        }
+
+            <!-- Mobile pill below on compact screens -->
+            <div class="sm:hidden flex items-center justify-between pt-1.5 mt-1 border-t border-rose-500/20 text-[10px] text-rose-300 relative z-10">
+              <span class="font-medium">Ordering will resume shortly</span>
+              <div class="offline-glass-pill text-[9px] px-2 py-0.5">
+                <span class="w-1 h-1 rounded-full bg-rose-400"></span>
+                <span>ORDERS PAUSED</span>
+              </div>
+            </div>
+          </div>
+        `;
       } else {
-        if (banner) banner.classList.add('hidden');
+        if (banner && !banner.classList.contains('hidden')) {
+          banner.classList.remove('banner-enter');
+          banner.classList.add('banner-exit');
+          setTimeout(() => {
+            if (!isStoreOffline && banner) {
+              banner.classList.add('hidden');
+              banner.classList.remove('banner-exit');
+            }
+          }, 380);
+        }
       }
 
       const placeBtn = document.getElementById('place-order-btn');
