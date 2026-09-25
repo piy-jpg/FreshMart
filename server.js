@@ -5057,9 +5057,20 @@ const server = http.createServer(async (req, res) => {
         const body = await parseBody(req);
         const { productId, adjustment, type, reason } = body;
         const prod = db.getById('products', productId);
-        if (!prod) return sendJson(res, 404, { error: 'Product not found' });
-
-        const delta = Number(adjustment !== undefined ? adjustment : body.adjustmentQuantity) || 0;
+        let delta = 0;
+        if (adjustment !== undefined) {
+          delta = Number(adjustment) || 0;
+        } else if (body.adjustmentQuantity !== undefined) {
+          delta = Number(body.adjustmentQuantity) || 0;
+        } else if (body.quantity !== undefined) {
+          const qty = Number(body.quantity) || 0;
+          const adjType = String(body.adjustmentType || type || '').toUpperCase();
+          if (adjType === 'DAMAGE' || adjType === 'EXPIRED' || adjType === 'WRITE_OFF' || adjType === 'DISCARD') {
+            delta = -Math.abs(qty);
+          } else {
+            delta = Math.abs(qty);
+          }
+        }
         const oldStock = Number(prod.stock) || 0;
         const newStock = Math.max(0, oldStock + delta);
         
