@@ -1480,11 +1480,116 @@ button[onclick="openWishlistDrawer()"]:active {
   .cart-cta-button,
   .cart-cta-button::after,
   .nav-account-btn,
-  #notif-btn {
+  #notif-btn,
+  .veg-hero-scroll-track-1,
+  .veg-hero-scroll-track-2 {
     animation: none !important;
     transition: none !important;
     transform: none !important;
   }
 }
+
+/* ========================================================
+   VEGETABLE HERO 6-IMAGE VERTICAL AUTOSCROLL (BOTTOM TO TOP)
+   ======================================================== */
+.veg-hero-scroll-container {
+  position: absolute;
+  top: -30%;
+  bottom: -30%;
+  right: -2%;
+  width: 58%;
+  display: flex;
+  gap: 16px;
+  pointer-events: none;
+  overflow: hidden;
+  transform: rotate(2.5deg) skewY(-2deg) scale(1.04);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%), linear-gradient(to left, black 65%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%), linear-gradient(to left, black 65%, transparent 100%);
+  mask-composite: intersect;
+  -webkit-mask-composite: source-in;
+  opacity: 0.52;
+  transition: opacity 0.4s ease;
+  z-index: 1;
+}
+
+@media (max-width: 1024px) {
+  .veg-hero-scroll-container {
+    width: 68%;
+    opacity: 0.42;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .veg-hero-scroll-container {
+    width: 90%;
+    right: -10%;
+    opacity: 0.32;
+    gap: 10px;
+    top: -20%;
+    bottom: -20%;
+  }
+}
+
+.veg-hero-scroll-track {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  will-change: transform;
+}
+
+.veg-hero-scroll-track-1 {
+  animation: vegScrollBottomToTop 20s linear infinite;
+}
+
+.veg-hero-scroll-track-2 {
+  animation: vegScrollBottomToTop 25s linear infinite;
+}
+
+@keyframes vegScrollBottomToTop {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.veg-hero-scroll-card {
+  width: 100%;
+  height: 175px;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.45), 0 4px 10px -2px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+  background: #042f1a;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .veg-hero-scroll-card {
+    height: 130px;
+    border-radius: 1rem;
+  }
+}
+
+.veg-hero-scroll-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(1.15) brightness(0.95) contrast(1.05);
+}
+
+.veg-hero-scroll-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(6, 78, 59, 0.1) 0%, rgba(2, 44, 22, 0.4) 100%);
+  pointer-events: none;
+}
+
 
 
