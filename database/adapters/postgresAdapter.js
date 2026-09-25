@@ -1871,5 +1871,8 @@ class PostgresAdapter {
       client.release();
     }
   }
+}
+
 module.exports = PostgresAdapter;
+
 
