@@ -131,6 +131,7 @@ class PostgresAdapter {
         await pool.query('SELECT 1');
         await this.ensureOrdersSchema();
         await this.ensureReviewsSchema();
+        await this.ensureProductsAndInventorySchema();
         this.isInitialized = true;
         return true;
       } catch (err) {
@@ -326,6 +327,85 @@ class PostgresAdapter {
       } catch (e) {}
     } catch (err) {
       console.warn('ensureReviewsSchema warning:', err.message);
+    }
+  }
+
+  async ensureProductsAndInventorySchema() {
+    try {
+      const pool = this.getPool();
+      if (!pool) return;
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS freshmart_products (
+          id VARCHAR(255) PRIMARY KEY,
+          storefront_id VARCHAR(255),
+          name VARCHAR(255) NOT NULL,
+          sku VARCHAR(255),
+          category VARCHAR(255),
+          subcategory VARCHAR(255),
+          price NUMERIC DEFAULT 0,
+          selling_price NUMERIC DEFAULT 0,
+          mrp NUMERIC DEFAULT 0,
+          cost_price NUMERIC DEFAULT 0,
+          stock NUMERIC DEFAULT 0,
+          damaged_stock NUMERIC DEFAULT 0,
+          expired_stock NUMERIC DEFAULT 0,
+          low_stock_limit NUMERIC DEFAULT 15,
+          unit VARCHAR(50) DEFAULT '1 kg',
+          status VARCHAR(50) DEFAULT 'ACTIVE',
+          image TEXT,
+          description TEXT,
+          farmer VARCHAR(255),
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          updated_at TIMESTAMPTZ DEFAULT NOW(),
+          data JSONB NOT NULL DEFAULT '{}'::jsonb
+        );
+      `);
+
+      const productCols = [
+        'storefront_id VARCHAR(255)',
+        'sku VARCHAR(255)',
+        'subcategory VARCHAR(255)',
+        'cost_price NUMERIC DEFAULT 0',
+        'damaged_stock NUMERIC DEFAULT 0',
+        'expired_stock NUMERIC DEFAULT 0',
+        'low_stock_limit NUMERIC DEFAULT 15',
+        'unit VARCHAR(50) DEFAULT \'1 kg\'',
+        'image TEXT',
+        'description TEXT',
+        'farmer VARCHAR(255)',
+        'created_at TIMESTAMPTZ DEFAULT NOW()',
+        'updated_at TIMESTAMPTZ DEFAULT NOW()'
+      ];
+      for (const col of productCols) {
+        try {
+          await pool.query(`ALTER TABLE freshmart_products ADD COLUMN IF NOT EXISTS ${col}`);
+        } catch (e) {}
+      }
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS freshmart_inventory_movements (
+          id VARCHAR(255) PRIMARY KEY,
+          product_id VARCHAR(255) NOT NULL,
+          sku VARCHAR(255),
+          type VARCHAR(50) DEFAULT 'ADJUSTMENT',
+          quantity NUMERIC NOT NULL,
+          previous_stock NUMERIC DEFAULT 0,
+          new_stock NUMERIC DEFAULT 0,
+          reason TEXT,
+          operator VARCHAR(255),
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          data JSONB NOT NULL DEFAULT '{}'::jsonb
+        );
+      `);
+
+      try {
+        await pool.query(`CREATE INDEX IF NOT EXISTS idx_freshmart_products_cat ON freshmart_products (category);`);
+        await pool.query(`CREATE INDEX IF NOT EXISTS idx_freshmart_products_status ON freshmart_products (status);`);
+        await pool.query(`CREATE INDEX IF NOT EXISTS idx_freshmart_inv_mov_prod ON freshmart_inventory_movements (product_id);`);
+      } catch (e) {}
+    } catch (err) {
+      console.warn('ensureProductsAndInventorySchema warning:', err.message);
     }
   }
 
@@ -760,6 +840,10 @@ class PostgresAdapter {
   async delete(collection, id) {
     const table = this.getTableName(collection);
     if (table) {
+      if (collection === 'products') {
+        const res = await this.query(`DELETE FROM ${table} WHERE id = $1 OR storefront_id = $1 OR sku = $1`, [String(id)]);
+        return res.rowCount > 0;
+      }
       const res = await this.query(`DELETE FROM ${table} WHERE id = $1`, [String(id)]);
       return res.rowCount > 0;
     }

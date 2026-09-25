@@ -4982,8 +4982,33 @@ const server = http.createServer(async (req, res) => {
 
         const updated = await db.updateAsync('products', prod.id, updates);
         db.save();
+
+        if (body.stock !== undefined && Number(body.stock) !== Number(prod.stock)) {
+          const delta = Number(body.stock) - Number(prod.stock);
+          const movId = 'mov_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+          await db.insertAsync('inventory_movements', {
+            id: movId,
+            date: new Date().toISOString(),
+            productId: prod.id,
+            productName: updates.name,
+            sku: updates.sku || prod.sku,
+            hubId: prod.hubId || 'hub_blr_indiranagar',
+            hubName: 'Indiranagar Central Hub',
+            type: delta >= 0 ? 'PROCUREMENT' : 'ADJUSTMENT',
+            quantity: delta,
+            before: Number(prod.stock),
+            after: Number(body.stock),
+            previous_stock: Number(prod.stock),
+            new_stock: Number(body.stock),
+            reason: 'Catalog Specification Edit by Store Owner',
+            user: `${owner.name} (Owner)`,
+            operator: owner.email || owner.name
+          });
+        }
+
         await db.logActivityAsync(owner.name, 'PRODUCT_UPDATED', 'Products', prod.id, `Updated product "${updated.name}" (${updated.sku})`);
         broadcastEvent('PRODUCT_UPDATED', updated);
+        broadcastEvent('STOCK_UPDATED', { product: updated, delta: (Number(body.stock || prod.stock) - Number(prod.stock)), currentStock: updated.stock });
         return sendJson(res, 200, { success: true, product: updated });
       }
 
@@ -5036,17 +5061,39 @@ const server = http.createServer(async (req, res) => {
 
         const delta = Number(adjustment !== undefined ? adjustment : body.adjustmentQuantity) || 0;
         const oldStock = Number(prod.stock) || 0;
-        prod.stock = Math.max(0, oldStock + delta);
+        const newStock = Math.max(0, oldStock + delta);
+        
+        let damagedStock = Number(prod.damagedStock) || 0;
+        let expiredStock = Number(prod.expiredStock) || 0;
         if (type === 'DAMAGE') {
-          prod.damagedStock = (Number(prod.damagedStock) || 0) + Math.abs(delta);
+          damagedStock += Math.abs(delta);
         } else if (type === 'EXPIRED') {
-          prod.expiredStock = (Number(prod.expiredStock) || 0) + Math.abs(delta);
+          expiredStock += Math.abs(delta);
         }
-        prod.updatedAt = new Date().toISOString();
+
+        const lowLimit = Number(prod.lowStockLimit || prod.lowStockThreshold) || 15;
+        let status = prod.status;
+        if (status !== 'SUSPENDED') {
+          if (newStock <= 0) status = 'OUT_OF_STOCK';
+          else if (newStock <= lowLimit) status = 'LOW_STOCK';
+          else status = 'ACTIVE';
+        }
+
+        const updates = {
+          stock: newStock,
+          stockCount: newStock,
+          damagedStock,
+          expiredStock,
+          status,
+          updatedAt: new Date().toISOString()
+        };
+
+        const updatedProd = await db.updateAsync('products', prod.id, updates);
         db.save();
 
-        db.insert('inventory_movements', {
-          id: 'mov_' + Date.now(),
+        const movId = 'mov_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+        await db.insertAsync('inventory_movements', {
+          id: movId,
           date: new Date().toISOString(),
           productId: prod.id,
           productName: prod.name,
@@ -5056,15 +5103,18 @@ const server = http.createServer(async (req, res) => {
           type: type || (delta >= 0 ? 'HARVEST' : 'DAMAGE'),
           quantity: delta,
           before: oldStock,
-          after: prod.stock,
-          reason: reason || 'Stock Adjustment',
-          user: `${owner.name} (${owner.role})`
+          after: newStock,
+          previous_stock: oldStock,
+          new_stock: newStock,
+          reason: reason || (delta >= 0 ? 'Stock Intake / Adjustment' : 'Stock Write-off / Adjustment'),
+          user: `${owner.name} (${owner.role})`,
+          operator: owner.email || owner.name
         });
 
-        db.logActivity(owner.name, 'STOCK_ADJUSTED', 'Products', prod.id, `Stock adjusted by ${delta > 0 ? '+' : ''}${delta} (${type}: ${reason || 'Manual Adjustment'})`);
-        broadcastEvent('PRODUCT_UPDATED', prod);
-        broadcastEvent('STOCK_UPDATED', { product: prod, delta, currentStock: prod.stock });
-        return sendJson(res, 200, { success: true, product: prod, currentStock: prod.stock, ledger: db.getInventoryLedger() });
+        await db.logActivityAsync(owner.name, 'STOCK_ADJUSTED', 'Products', prod.id, `Stock adjusted by ${delta > 0 ? '+' : ''}${delta} (${type}: ${reason || 'Manual Adjustment'})`);
+        broadcastEvent('PRODUCT_UPDATED', updatedProd);
+        broadcastEvent('STOCK_UPDATED', { product: updatedProd, delta, currentStock: updatedProd.stock });
+        return sendJson(res, 200, { success: true, product: updatedProd, currentStock: updatedProd.stock, ledger: db.getInventoryLedger() });
       }
 
       if (pathname === '/api/owner/inventory/movements' && method === 'GET') {
