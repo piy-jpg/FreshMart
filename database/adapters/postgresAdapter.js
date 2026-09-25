@@ -245,7 +245,7 @@ class PostgresAdapter {
           created_at = COALESCE(created_at, NULLIF(data->>'createdAt', '')::timestamptz, NOW()),
           confirmed_at = COALESCE(confirmed_at, NULLIF(data->>'confirmedAt', '')::timestamptz),
           packed_at = COALESCE(packed_at, NULLIF(data->>'packedAt', '')::timestamptz, NULLIF(data->>'packingAt', '')::timestamptz),
-          out_for_delivery_at = COALESCE(out_for_delivery_at, NULLIF(data->>'outForDeliveryAt', '')::timestamptz),
+          out_for_delivery_at = COALESCE(out_for_delivery_at, NULLIF(data->>'outForDeliveryAt', '')::timestamptz)
         WHERE data IS NOT NULL;
       `);
 
@@ -798,8 +798,8 @@ class PostgresAdapter {
       const seq = parseInt(res.rows[0].seq, 10);
       return `FM-OD-${String(seq).padStart(5, '0')}`;
     } catch (e) {
-      if (e.message && e.message.includes('does not exist')) {
-        await this.ensureOrdersSchema();
+      if (e.code === '42P01' || (e.message && e.message.includes('does not exist'))) {
+        await pool.query(`CREATE SEQUENCE IF NOT EXISTS freshmart_order_id_seq START WITH 1 INCREMENT BY 1;`);
         const res = await pool.query(`SELECT nextval('freshmart_order_id_seq') AS seq;`);
         const seq = parseInt(res.rows[0].seq, 10);
         return `FM-OD-${String(seq).padStart(5, '0')}`;
@@ -819,9 +819,20 @@ class PostgresAdapter {
       // Ensure customer-facing sequential Order ID (FM-OD-00001)
       let orderId = order.orderId || order.id;
       if (!orderId || !orderId.startsWith('FM-OD-')) {
-        const seqRes = await client.query(`SELECT nextval('freshmart_order_id_seq') AS seq;`);
-        const seq = parseInt(seqRes.rows[0].seq, 10);
-        orderId = `FM-OD-${String(seq).padStart(5, '0')}`;
+        try {
+          const seqRes = await client.query(`SELECT nextval('freshmart_order_id_seq') AS seq;`);
+          const seq = parseInt(seqRes.rows[0].seq, 10);
+          orderId = `FM-OD-${String(seq).padStart(5, '0')}`;
+        } catch (seqErr) {
+          if (seqErr.code === '42P01' || (seqErr.message && seqErr.message.includes('does not exist'))) {
+            await client.query(`CREATE SEQUENCE IF NOT EXISTS freshmart_order_id_seq START WITH 1 INCREMENT BY 1;`);
+            const seqRes = await client.query(`SELECT nextval('freshmart_order_id_seq') AS seq;`);
+            const seq = parseInt(seqRes.rows[0].seq, 10);
+            orderId = `FM-OD-${String(seq).padStart(5, '0')}`;
+          } else {
+            throw seqErr;
+          }
+        }
         order.id = orderId;
         order.orderId = orderId;
       }
