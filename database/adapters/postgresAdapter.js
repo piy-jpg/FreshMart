@@ -374,7 +374,13 @@ class PostgresAdapter {
         return res.rows.map(r => r.data);
       }
       if (collection === 'orders') {
-        const res = await this.query(`SELECT data FROM ${table} ORDER BY created_at DESC`);
+        const res = await this.query(`
+          SELECT data FROM ${table} 
+          WHERE id NOT IN ('SJH10248', 'SJH10249', 'SJH10250', 'SJH10251')
+            AND (order_id IS NULL OR order_id NOT IN ('SJH10248', 'SJH10249', 'SJH10250', 'SJH10251'))
+            AND (customer_name IS NULL OR customer_name != 'Rahul Sharma' OR customer_phone != '+91 98450 12345')
+          ORDER BY created_at DESC
+        `);
         return res.rows.map(r => r.data);
       }
       const res = await this.query(`SELECT data FROM ${table}`);
