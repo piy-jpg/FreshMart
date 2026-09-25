@@ -449,6 +449,19 @@ function validateOrderStepTransition(order, targetStatus, role, options = {}) {
   return { valid: true, targetKey };
 }
 
+async function persistOrder(order) {
+  if (!order) return;
+  order.updatedAt = new Date().toISOString();
+  db.save();
+  if (db.postgres && db.postgres.isAvailable()) {
+    try {
+      await db.postgres.insert('orders', order);
+    } catch (e) {
+      console.error('PostgreSQL persistOrder error:', e.message);
+    }
+  }
+}
+
 function applyOrderStepTransition(order, targetStatus, user = {}, options = {}) {
   const normTarget = String(targetStatus).toUpperCase().trim();
   const stepIdx = getCanonicalStepIndex(normTarget);
@@ -566,10 +579,12 @@ function applyOrderStepTransition(order, targetStatus, user = {}, options = {}) 
       break;
     case 4: // PACKING
       order.packingAt = nowIso;
+      order.packedAt = order.packedAt || nowIso;
       order.packedBy = userName;
       order.packedById = userId;
       break;
     case 5: // READY_FOR_HANDOVER
+      order.packedAt = order.packedAt || nowIso;
       order.readyForHandoverAt = nowIso;
       order.readyForHandoverBy = userName;
       order.readyForHandoverById = userId;
@@ -1110,6 +1125,86 @@ const server = http.createServer(async (req, res) => {
           ? 'In Vercel Dashboard -> freshmart -> Settings -> Environment Variables, replace HOST in DATABASE_URL with your actual PostgreSQL endpoint.'
           : (pgHealthy ? 'PostgreSQL connected and active.' : 'Configure DATABASE_URL to connect to PostgreSQL.')
       });
+    }
+
+    // Orders PostgreSQL Table Schema & Data Integrity Audit Endpoint
+    if (pathname === '/api/database/orders-schema' && method === 'GET') {
+      const isPgConfigured = Boolean(db.postgres && db.postgres.isAvailable());
+      if (!isPgConfigured) {
+        return sendJson(res, 500, {
+          success: false,
+          error: 'PostgreSQL is not configured or unavailable'
+        });
+      }
+
+      try {
+        if (db.postgres.ensureOrdersSchema) {
+          await db.postgres.ensureOrdersSchema();
+        }
+
+        // Query actual production columns from information_schema
+        const colRes = await db.postgres.query(`
+          SELECT column_name, data_type, is_nullable, column_default
+          FROM information_schema.columns
+          WHERE table_name = 'freshmart_orders'
+          ORDER BY ordinal_position;
+        `);
+
+        const columns = colRes.rows.map(r => ({
+          name: r.column_name,
+          type: r.data_type,
+          nullable: r.is_nullable,
+          default: r.column_default
+        }));
+
+        // Required 19 fields to verify
+        const requiredFields = [
+          'order_id', 'customer_id', 'items', 'subtotal', 'delivery_fee',
+          'discount', 'final_total', 'delivery_address', 'payment_method',
+          'payment_status', 'order_status', 'delivery_partner_id',
+          'created_at', 'confirmed_at', 'packed_at', 'out_for_delivery_at',
+          'delivered_at', 'cancelled_at'
+        ];
+
+        const existingColNames = new Set(columns.map(c => c.name));
+        const verification = requiredFields.map(field => ({
+          field,
+          exists: existingColNames.has(field),
+          type: columns.find(c => c.name === field)?.type || null
+        }));
+
+        // Row count
+        const countRes = await db.postgres.query('SELECT COUNT(*) FROM freshmart_orders');
+        const rowCount = parseInt(countRes.rows[0].count, 10);
+
+        // Fetch latest sample order
+        const sampleRes = await db.postgres.query(`
+          SELECT id, order_id, customer_id, user_id, customer_name, customer_phone,
+                 items, subtotal, delivery_fee, discount, final_total,
+                 delivery_address, payment_method, payment_status, order_status, status,
+                 delivery_partner_id, delivery_partner_name,
+                 created_at, confirmed_at, packed_at, out_for_delivery_at, delivered_at, cancelled_at
+          FROM freshmart_orders
+          ORDER BY created_at DESC
+          LIMIT 1
+        `);
+
+        return sendJson(res, 200, {
+          success: true,
+          table: 'freshmart_orders',
+          rowCount,
+          allRequiredFieldsPresent: verification.every(v => v.exists),
+          verifiedFields: verification,
+          totalColumns: columns.length,
+          columns,
+          latestOrderSample: sampleRes.rows[0] || null
+        });
+      } catch (err) {
+        return sendJson(res, 500, {
+          success: false,
+          error: err.message
+        });
+      }
     }
 
     // Public Settings Endpoint
@@ -2912,6 +3007,7 @@ const server = http.createServer(async (req, res) => {
         couponCode: discount > 0 ? couponCode : null,
         deliveryFee,
         totalAmount,
+        finalTotal: totalAmount,
         paymentMethod: body.paymentMethod || 'UPI (Google Pay)',
         paymentStatus: (String(body.paymentMethod || '').toUpperCase().includes('COD') || String(body.paymentMethod || '').toUpperCase().includes('CASH')) ? 'PENDING' : 'PAID',
         orderStatus: 'ORDER_PLACED',
@@ -2949,6 +3045,7 @@ const server = http.createServer(async (req, res) => {
       };
 
       db.insert('orders', newOrder);
+      await persistOrder(newOrder);
 
       if (currentUser && currentUser.id) {
         currentUser.totalOrdersCount = (currentUser.totalOrdersCount || 0) + 1;
@@ -3064,7 +3161,9 @@ const server = http.createServer(async (req, res) => {
         processedBy: 'Auto Cancellation System'
       });
 
+      order.cancelledAt = new Date().toISOString();
       db.update('orders', order.id, order);
+      await persistOrder(order);
       db.logActivity('Customer / System', 'ORDER_CANCELLED', 'Order', order.orderId, `Order #${order.orderId} cancelled. Refund of ₹${order.totalAmount} approved.`);
       broadcastEvent('ORDER_UPDATED', order);
       broadcastEvent('STOCK_UPDATED', { message: 'Stock restored from cancellation' });
@@ -3245,7 +3344,7 @@ const server = http.createServer(async (req, res) => {
       if (body.completeDelivery) {
         const isPaid = (order.paymentStatus || '').toUpperCase() === 'PAID';
         if (!isPaid) {
-          db.save();
+          await persistOrder(order);
           broadcastEvent('ORDER_UPDATED', order);
           return sendJson(res, 400, {
             success: false,
@@ -3256,7 +3355,7 @@ const server = http.createServer(async (req, res) => {
         applyOrderStepTransition(order, 'DELIVERED', currentUser, { notes: 'Order handed over and verified successfully.' });
       }
 
-      db.save();
+      await persistOrder(order);
       broadcastEvent('ORDER_UPDATED', order);
       return sendJson(res, 200, { 
         success: true, 
@@ -3293,7 +3392,7 @@ const server = http.createServer(async (req, res) => {
       });
 
       order.updatedAt = new Date().toISOString();
-      db.save();
+      await persistOrder(order);
       broadcastEvent('ORDER_UPDATED', order);
       return sendJson(res, 200, { success: true, message: `Collected ₹${amount} COD payment.`, order });
     }
@@ -3315,7 +3414,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       applyOrderStepTransition(order, 'DELIVERY_BOY_ACCEPTED', currentUser, { notes: `${currentUser.name || 'Delivery Boy'} accepted order handover.` });
-      db.save();
+      await persistOrder(order);
       broadcastEvent('ORDER_UPDATED', order);
       return sendJson(res, 200, { success: true, order });
     }
@@ -3378,7 +3477,7 @@ const server = http.createServer(async (req, res) => {
       });
 
       order.updatedAt = new Date().toISOString();
-      db.save();
+      await persistOrder(order);
       db.logActivity(rejectedRiderName, 'DELIVERY_REJECTED', 'Order', order.orderId || order.id, `Delivery assignment rejected by ${rejectedRiderName}: ${reason}`);
       broadcastEvent('ORDER_UPDATED', order);
       return sendJson(res, 200, {
@@ -3405,7 +3504,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       applyOrderStepTransition(order, 'PICKED_UP', currentUser, { notes: `Order picked up and package secured from hub by ${currentUser.name || 'Delivery Boy'}.` });
-      db.save();
+      await persistOrder(order);
       broadcastEvent('ORDER_UPDATED', order);
       return sendJson(res, 200, { success: true, order });
     }
@@ -3427,7 +3526,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       applyOrderStepTransition(order, 'OUT_FOR_DELIVERY', currentUser, { notes: `${currentUser.name || 'Delivery Boy'} is en route to customer destination.` });
-      db.save();
+      await persistOrder(order);
       broadcastEvent('ORDER_UPDATED', order);
       return sendJson(res, 200, { success: true, order });
     }
@@ -3449,7 +3548,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       applyOrderStepTransition(order, 'ARRIVED', currentUser, { notes: `${currentUser.name || 'Delivery Boy'} arrived at customer delivery location.` });
-      db.save();
+      await persistOrder(order);
       broadcastEvent('ORDER_UPDATED', order);
       return sendJson(res, 200, { success: true, order });
     }
@@ -3497,7 +3596,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       applyOrderStepTransition(order, 'DELIVERED', currentUser, { notes: `Order handed over and verified by ${currentUser.name || 'Delivery Boy'}.` });
-      db.save();
+      await persistOrder(order);
       db.logActivity(currentUser.name, 'ORDER_DELIVERED', 'Order', order.orderId, `Order #${order.orderId} delivered successfully.`);
       broadcastEvent('ORDER_UPDATED', order);
       return sendJson(res, 200, { success: true, message: 'Order marked as DELIVERED.', order });
@@ -3522,7 +3621,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       applyOrderStepTransition(order, 'DELIVERY_FAILED', currentUser, { reason });
-      db.save();
+      await persistOrder(order);
       db.logActivity(currentUser.name, 'DELIVERY_FAILED', 'Order', order.orderId, `Delivery failed for Order #${order.orderId}: ${reason}`);
       broadcastEvent('ORDER_UPDATED', order);
       return sendJson(res, 200, { success: true, message: 'Delivery recorded as failed. Owner notified for resolution.', order });
@@ -3550,7 +3649,7 @@ const server = http.createServer(async (req, res) => {
       }
 
       applyOrderStepTransition(order, validation.targetKey || newStatus, currentUser, { notes: body.notes });
-      db.save();
+      await persistOrder(order);
       broadcastEvent('ORDER_UPDATED', order);
       return sendJson(res, 200, { success: true, order });
     }
@@ -4404,7 +4503,7 @@ const server = http.createServer(async (req, res) => {
         }
 
         order.updatedAt = new Date().toISOString();
-        db.save();
+        await persistOrder(order);
         db.logActivity(owner.name, 'ORDER_UPDATED', 'Orders', order.orderId || order.id, `Status set to ${order.orderStatus}`);
         broadcastEvent('ORDER_UPDATED', order);
         return sendJson(res, 200, { success: true, order });

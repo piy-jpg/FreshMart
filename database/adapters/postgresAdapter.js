@@ -126,6 +126,7 @@ class PostgresAdapter {
       try {
         // Fast ping to verify connection without heavy DDL transaction locks
         await pool.query('SELECT 1');
+        await this.ensureOrdersSchema();
         this.isInitialized = true;
         return true;
       } catch (err) {
@@ -136,6 +137,118 @@ class PostgresAdapter {
     })();
 
     return this._initPromise;
+  }
+
+  async ensureOrdersSchema() {
+    try {
+      const pool = this.getPool();
+      if (!pool) return;
+
+      // 1. Create table if not exists with all dedicated columns
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS freshmart_orders (
+          id VARCHAR(255) PRIMARY KEY,
+          order_id VARCHAR(255),
+          customer_id VARCHAR(255),
+          user_id VARCHAR(255),
+          customer_name VARCHAR(255),
+          customer_phone VARCHAR(255),
+          items JSONB,
+          subtotal NUMERIC(10,2) DEFAULT 0,
+          delivery_fee NUMERIC(10,2) DEFAULT 0,
+          discount NUMERIC(10,2) DEFAULT 0,
+          final_total NUMERIC(10,2) DEFAULT 0,
+          delivery_address JSONB,
+          payment_method VARCHAR(100) DEFAULT 'UPI',
+          payment_status VARCHAR(50) DEFAULT 'PENDING',
+          order_status VARCHAR(50) DEFAULT 'ORDER_PLACED',
+          status VARCHAR(50) DEFAULT 'ORDER_PLACED',
+          delivery_partner_id VARCHAR(255),
+          delivery_partner_name VARCHAR(255),
+          delivery_boy_id VARCHAR(255),
+          delivery_boy_name VARCHAR(255),
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          confirmed_at TIMESTAMPTZ,
+          packed_at TIMESTAMPTZ,
+          out_for_delivery_at TIMESTAMPTZ,
+          delivered_at TIMESTAMPTZ,
+          cancelled_at TIMESTAMPTZ,
+          updated_at TIMESTAMPTZ DEFAULT NOW(),
+          data JSONB NOT NULL DEFAULT '{}'::jsonb
+        );
+      `);
+
+      // 2. Safely add any missing columns if table already existed
+      const columnsToAdd = [
+        'order_id VARCHAR(255)',
+        'customer_id VARCHAR(255)',
+        'user_id VARCHAR(255)',
+        'customer_name VARCHAR(255)',
+        'customer_phone VARCHAR(255)',
+        'items JSONB',
+        'subtotal NUMERIC(10,2) DEFAULT 0',
+        'delivery_fee NUMERIC(10,2) DEFAULT 0',
+        'discount NUMERIC(10,2) DEFAULT 0',
+        'final_total NUMERIC(10,2) DEFAULT 0',
+        'delivery_address JSONB',
+        'payment_method VARCHAR(100) DEFAULT \'UPI\'',
+        'payment_status VARCHAR(50) DEFAULT \'PENDING\'',
+        'order_status VARCHAR(50) DEFAULT \'ORDER_PLACED\'',
+        'status VARCHAR(50) DEFAULT \'ORDER_PLACED\'',
+        'delivery_partner_id VARCHAR(255)',
+        'delivery_partner_name VARCHAR(255)',
+        'delivery_boy_id VARCHAR(255)',
+        'delivery_boy_name VARCHAR(255)',
+        'created_at TIMESTAMPTZ DEFAULT NOW()',
+        'confirmed_at TIMESTAMPTZ',
+        'packed_at TIMESTAMPTZ',
+        'out_for_delivery_at TIMESTAMPTZ',
+        'delivered_at TIMESTAMPTZ',
+        'cancelled_at TIMESTAMPTZ',
+        'updated_at TIMESTAMPTZ DEFAULT NOW()',
+        'data JSONB NOT NULL DEFAULT \'{}\'::jsonb'
+      ];
+
+      for (const col of columnsToAdd) {
+        try {
+          await pool.query(`ALTER TABLE freshmart_orders ADD COLUMN IF NOT EXISTS ${col}`);
+        } catch (e) {
+          // ignore already existing or syntax variants
+        }
+      }
+
+      // 3. Backfill any existing NULL fields from JSON data column without overwriting populated values
+      await pool.query(`
+        UPDATE freshmart_orders SET
+          order_id = COALESCE(order_id, data->>'orderId', data->>'id', id),
+          customer_id = COALESCE(customer_id, data->>'customerId', data->>'userId', user_id),
+          customer_name = COALESCE(customer_name, data->>'customerName', data->'deliveryAddress'->>'fullName', data->'deliveryAddress'->>'name'),
+          customer_phone = COALESCE(customer_phone, data->>'customerPhone', data->'deliveryAddress'->>'phone'),
+          items = COALESCE(items, data->'items'),
+          subtotal = COALESCE(subtotal, NULLIF(data->>'subtotal', '')::numeric, 0),
+          delivery_fee = COALESCE(delivery_fee, NULLIF(data->>'deliveryFee', '')::numeric, NULLIF(data->>'deliveryCharge', '')::numeric, 0),
+          discount = COALESCE(discount, NULLIF(data->>'discount', '')::numeric, NULLIF(data->>'couponDiscount', '')::numeric, 0),
+          final_total = COALESCE(final_total, NULLIF(data->>'totalAmount', '')::numeric, NULLIF(data->>'finalTotal', '')::numeric, NULLIF(data->>'total', '')::numeric, 0),
+          delivery_address = COALESCE(delivery_address, data->'deliveryAddress', data->'shippingAddress'),
+          payment_method = COALESCE(payment_method, data->>'paymentMethod', 'UPI'),
+          payment_status = COALESCE(payment_status, data->>'paymentStatus', 'PENDING'),
+          order_status = COALESCE(order_status, data->>'orderStatus', data->>'status', status, 'ORDER_PLACED'),
+          status = COALESCE(status, data->>'status', data->>'orderStatus', order_status, 'ORDER_PLACED'),
+          delivery_partner_id = COALESCE(delivery_partner_id, data->>'deliveryPartnerId', data->>'deliveryBoyId', delivery_boy_id),
+          delivery_partner_name = COALESCE(delivery_partner_name, data->>'deliveryPartnerName', data->>'deliveryBoyName', delivery_boy_name),
+          delivery_boy_id = COALESCE(delivery_boy_id, data->>'deliveryBoyId', data->>'deliveryPartnerId', delivery_partner_id),
+          delivery_boy_name = COALESCE(delivery_boy_name, data->>'deliveryBoyName', data->>'deliveryPartnerName', delivery_partner_name),
+          created_at = COALESCE(created_at, NULLIF(data->>'createdAt', '')::timestamptz, NOW()),
+          confirmed_at = COALESCE(confirmed_at, NULLIF(data->>'confirmedAt', '')::timestamptz),
+          packed_at = COALESCE(packed_at, NULLIF(data->>'packedAt', '')::timestamptz, NULLIF(data->>'packingAt', '')::timestamptz),
+          out_for_delivery_at = COALESCE(out_for_delivery_at, NULLIF(data->>'outForDeliveryAt', '')::timestamptz),
+          delivered_at = COALESCE(delivered_at, NULLIF(data->>'deliveredAt', '')::timestamptz),
+          cancelled_at = COALESCE(cancelled_at, NULLIF(data->>'cancelledAt', '')::timestamptz)
+        WHERE data IS NOT NULL;
+      `);
+    } catch (err) {
+      console.warn('ensureOrdersSchema warning:', err.message);
+    }
   }
 
   async _seedInitialData(client, seedData) {
@@ -325,20 +438,82 @@ class PostgresAdapter {
           JSON.stringify(item)
         ]);
       } else if (collection === 'orders') {
+        const orderId = item.orderId || item.id;
+        const customerId = item.customerId || item.userId || null;
+        const userId = item.userId || item.customerId || null;
+        const customerName = item.customerName || item.deliveryAddress?.fullName || item.deliveryAddress?.name || null;
+        const customerPhone = item.customerPhone || item.deliveryAddress?.phone || null;
+        const itemsJson = item.items ? JSON.stringify(item.items) : '[]';
+        const subtotal = Number(item.subtotal ?? item.itemsPrice ?? 0);
+        const deliveryFee = Number(item.deliveryFee ?? item.deliveryCharge ?? 0);
+        const discount = Number(item.discount ?? item.couponDiscount ?? 0);
+        const finalTotal = Number(item.finalTotal ?? item.totalAmount ?? item.total ?? 0);
+        const deliveryAddressJson = item.deliveryAddress ? JSON.stringify(item.deliveryAddress) : '{}';
+        const paymentMethod = item.paymentMethod || 'UPI';
+        const paymentStatus = item.paymentStatus || 'PENDING';
+        const orderStatus = item.orderStatus || item.status || 'ORDER_PLACED';
+        const status = item.status || item.orderStatus || 'ORDER_PLACED';
+        const deliveryPartnerId = item.deliveryPartnerId || item.deliveryBoyId || null;
+        const deliveryPartnerName = item.deliveryPartnerName || item.deliveryBoyName || null;
+        const deliveryBoyId = item.deliveryBoyId || item.deliveryPartnerId || null;
+        const deliveryBoyName = item.deliveryBoyName || item.deliveryPartnerName || null;
+        const createdAt = item.createdAt ? new Date(item.createdAt) : new Date();
+        const confirmedAt = item.confirmedAt ? new Date(item.confirmedAt) : null;
+        const packedAt = (item.packedAt || item.packingAt) ? new Date(item.packedAt || item.packingAt) : null;
+        const outForDeliveryAt = item.outForDeliveryAt ? new Date(item.outForDeliveryAt) : null;
+        const deliveredAt = item.deliveredAt ? new Date(item.deliveredAt) : null;
+        const cancelledAt = item.cancelledAt ? new Date(item.cancelledAt) : null;
+
         await this.query(`
-          INSERT INTO freshmart_orders (id, order_id, user_id, customer_name, customer_phone, status, payment_status, final_total, delivery_boy_id, delivery_boy_name, data)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+          INSERT INTO freshmart_orders (
+            id, order_id, customer_id, user_id, customer_name, customer_phone,
+            items, subtotal, delivery_fee, discount, final_total,
+            delivery_address, payment_method, payment_status, order_status, status,
+            delivery_partner_id, delivery_partner_name, delivery_boy_id, delivery_boy_name,
+            created_at, confirmed_at, packed_at, out_for_delivery_at, delivered_at, cancelled_at,
+            data
+          )
+          VALUES (
+            $1, $2, $3, $4, $5, $6,
+            $7, $8, $9, $10, $11,
+            $12, $13, $14, $15, $16,
+            $17, $18, $19, $20,
+            $21, $22, $23, $24, $25, $26,
+            $27
+          )
           ON CONFLICT (id) DO UPDATE SET
-            status = EXCLUDED.status,
+            order_id = EXCLUDED.order_id,
+            customer_id = EXCLUDED.customer_id,
+            user_id = EXCLUDED.user_id,
+            customer_name = EXCLUDED.customer_name,
+            customer_phone = EXCLUDED.customer_phone,
+            items = EXCLUDED.items,
+            subtotal = EXCLUDED.subtotal,
+            delivery_fee = EXCLUDED.delivery_fee,
+            discount = EXCLUDED.discount,
+            final_total = EXCLUDED.final_total,
+            delivery_address = EXCLUDED.delivery_address,
+            payment_method = EXCLUDED.payment_method,
             payment_status = EXCLUDED.payment_status,
+            order_status = EXCLUDED.order_status,
+            status = EXCLUDED.status,
+            delivery_partner_id = EXCLUDED.delivery_partner_id,
+            delivery_partner_name = EXCLUDED.delivery_partner_name,
             delivery_boy_id = EXCLUDED.delivery_boy_id,
             delivery_boy_name = EXCLUDED.delivery_boy_name,
+            confirmed_at = COALESCE(EXCLUDED.confirmed_at, freshmart_orders.confirmed_at),
+            packed_at = COALESCE(EXCLUDED.packed_at, freshmart_orders.packed_at),
+            out_for_delivery_at = COALESCE(EXCLUDED.out_for_delivery_at, freshmart_orders.out_for_delivery_at),
+            delivered_at = COALESCE(EXCLUDED.delivered_at, freshmart_orders.delivered_at),
+            cancelled_at = COALESCE(EXCLUDED.cancelled_at, freshmart_orders.cancelled_at),
             data = EXCLUDED.data,
             updated_at = NOW()
         `, [
-          item.id, item.orderId || item.id, item.userId || null, item.customerName || null, item.customerPhone || null,
-          item.status || 'ORDER_PLACED', item.paymentStatus || 'PENDING', item.finalTotal || item.total || 0,
-          item.deliveryBoyId || null, item.deliveryBoyName || null,
+          item.id, orderId, customerId, userId, customerName, customerPhone,
+          itemsJson, subtotal, deliveryFee, discount, finalTotal,
+          deliveryAddressJson, paymentMethod, paymentStatus, orderStatus, status,
+          deliveryPartnerId, deliveryPartnerName, deliveryBoyId, deliveryBoyName,
+          createdAt, confirmedAt, packedAt, outForDeliveryAt, deliveredAt, cancelledAt,
           JSON.stringify(item)
         ]);
       } else if (collection === 'categories') {
