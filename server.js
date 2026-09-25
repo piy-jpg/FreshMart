@@ -2293,7 +2293,13 @@ const server = http.createServer(async (req, res) => {
     // Store Status (Live / Offline) Endpoints
     // ----------------------------------------------------
     if ((pathname === '/api/store/status' || pathname === '/api/store-status' || pathname === '/api/owner/store/status') && method === 'GET') {
-      const storeStatus = db.getStoreStatus ? db.getStoreStatus() : { success: true, isOpen: true, status: 'LIVE' };
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0');
+      res.setHeader('CDN-Cache-Control', 'no-store');
+      res.setHeader('Vercel-CDN-Cache-Control', 'no-store');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+
+      const storeStatus = db.getStoreStatusAsync ? await db.getStoreStatusAsync() : db.getStoreStatus();
       return sendJson(res, 200, storeStatus);
     }
 
@@ -2303,26 +2309,40 @@ const server = http.createServer(async (req, res) => {
 
       const body = await parseBody(req);
       const requestedStatus = body.status || (body.isOpen === false ? 'OFFLINE' : (body.isOpen === true ? 'LIVE' : 'LIVE'));
-      const oldStatusObj = db.getStoreStatus ? db.getStoreStatus() : { status: 'LIVE' };
+      const customMessage = body.message || (String(requestedStatus).toUpperCase().trim() === 'OFFLINE' ? "We're currently not accepting orders. Please check back soon." : "Store is open for orders.");
+      const oldStatusObj = db.getStoreStatusAsync ? await db.getStoreStatusAsync() : (db.getStoreStatus ? db.getStoreStatus() : { status: 'LIVE' });
       const oldStatus = oldStatusObj.status || 'LIVE';
       const normNewStatus = String(requestedStatus).toUpperCase().trim() === 'OFFLINE' ? 'OFFLINE' : 'LIVE';
 
-      const updatedStatus = await db.setStoreStatusAsync(normNewStatus, owner.name || owner.email || 'Owner');
+      let updatedStatus;
+      try {
+        updatedStatus = await db.setStoreStatusAsync(normNewStatus, owner.name || owner.email || 'Owner', customMessage);
+      } catch (saveErr) {
+        console.error('Failed to persist store status to PostgreSQL:', saveErr.message);
+        return sendJson(res, 500, {
+          success: false,
+          error: 'Failed to update store status in database: ' + saveErr.message,
+          message: 'Failed to update store status in database.'
+        });
+      }
 
       // Record in freshmart_audit_logs
-      await db.logActivityAsync(
-        owner.name || owner.email || 'Owner',
-        'STORE_STATUS',
-        'Settings',
-        'STORE_STATUS',
-        `Changed store status from ${oldStatus} to ${normNewStatus}`,
-        {
-          oldStatus,
-          newStatus: normNewStatus,
-          operator: owner.name || owner.email || 'Owner',
-          timestamp: new Date().toISOString()
-        }
-      );
+      try {
+        await db.logActivityAsync(
+          owner.name || owner.email || 'Owner',
+          'STORE_STATUS',
+          'Settings',
+          'STORE_STATUS',
+          `Changed store status from ${oldStatus} to ${normNewStatus}`,
+          {
+            oldStatus,
+            newStatus: normNewStatus,
+            message: customMessage,
+            operator: owner.name || owner.email || 'Owner',
+            timestamp: new Date().toISOString()
+          }
+        );
+      } catch(e) {}
 
       // Broadcast real-time SSE event to all connected clients
       broadcastEvent('STORE_STATUS_UPDATED', updatedStatus);
@@ -2751,7 +2771,7 @@ const server = http.createServer(async (req, res) => {
       const currentUser = auth?.user ? (db.getById('users', auth.user.id) || auth.user) : null;
       
       // Enforce Store Offline Check (Ordering strictly blocked)
-      const storeStatus = db.getStoreStatus ? db.getStoreStatus() : { isOpen: true, status: 'LIVE' };
+      const storeStatus = db.getStoreStatusAsync ? await db.getStoreStatusAsync() : (db.getStoreStatus ? db.getStoreStatus() : { isOpen: true, status: 'LIVE' });
       if (!storeStatus.isOpen || storeStatus.status === 'OFFLINE') {
         return sendJson(res, 403, {
           success: false,

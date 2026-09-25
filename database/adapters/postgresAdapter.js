@@ -4,9 +4,46 @@
  */
 
 const { Pool } = require('pg');
+const fs = require('fs');
+const path = require('path');
+
+function loadLocalEnvFiles() {
+  const envFiles = [
+    path.join(process.cwd(), '.env.production.local'),
+    path.join(process.cwd(), '.env.local'),
+    path.join(process.cwd(), '.env'),
+    path.join(__dirname, '..', '..', '.env.production.local'),
+    path.join(__dirname, '..', '..', '.env.local'),
+    path.join(__dirname, '..', '..', '.env')
+  ];
+  for (const f of envFiles) {
+    if (fs.existsSync(f)) {
+      try {
+        const content = fs.readFileSync(f, 'utf8');
+        content.split('\n').forEach(line => {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith('#')) return;
+          const idx = trimmed.indexOf('=');
+          if (idx > 0) {
+            const key = trimmed.slice(0, idx).trim();
+            let val = trimmed.slice(idx + 1).trim();
+            if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+              val = val.slice(1, -1);
+            }
+            if (!process.env[key]) {
+              process.env[key] = val;
+            }
+          }
+        });
+      } catch (e) {}
+    }
+  }
+}
+try { loadLocalEnvFiles(); } catch (e) {}
 
 class PostgresAdapter {
   constructor(connectionString) {
+    try { loadLocalEnvFiles(); } catch(e) {}
     const candidateUrls = [
       connectionString,
       process.env.DATABASE_URL,

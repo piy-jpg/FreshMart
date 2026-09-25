@@ -9900,16 +9900,45 @@ class Database {
     };
   }
 
-  async setStoreStatusAsync(newStatus, operator = 'Owner') {
+  async getStoreStatusAsync() {
+    if (this.postgres && this.postgres.isAvailable()) {
+      try {
+        const pgVal = await this.postgres.getSetting('store_status');
+        if (pgVal && typeof pgVal === 'object') {
+          this._storeStatus = pgVal;
+          const status = (pgVal.status || (pgVal.isOpen === false ? 'OFFLINE' : 'LIVE')).toUpperCase();
+          const isOpen = status !== 'OFFLINE' && pgVal.isOpen !== false;
+          return {
+            success: true,
+            status,
+            isOpen,
+            message: pgVal.message || (isOpen ? 'Store is open and accepting orders.' : "We're currently not accepting orders. Please check back soon."),
+            updatedAt: pgVal.updatedAt || new Date().toISOString(),
+            updatedBy: pgVal.updatedBy || 'Owner'
+          };
+        }
+      } catch (err) {
+        console.warn('Error reading store_status from PostgreSQL:', err.message);
+      }
+    }
+    return this.getStoreStatus();
+  }
+
+  async setStoreStatusAsync(newStatus, operator = 'Owner', customMessage = null) {
     const norm = String(newStatus).toUpperCase().trim();
     const isLive = norm === 'LIVE' || norm === 'TRUE' || norm === 'OPEN';
     const status = isLive ? 'LIVE' : 'OFFLINE';
+    const defaultMsg = isLive 
+      ? 'Store is open and accepting orders.' 
+      : "We're currently not accepting orders. Please check back soon.";
+    const message = (customMessage && typeof customMessage === 'string' && customMessage.trim()) 
+      ? customMessage.trim() 
+      : defaultMsg;
+
     const statusObj = {
       status,
       isOpen: isLive,
-      message: isLive 
-        ? 'Store is open and accepting orders.' 
-        : "We're currently not accepting orders. Please check back soon.",
+      message,
       updatedAt: new Date().toISOString(),
       updatedBy: operator || 'Owner'
     };
@@ -9924,7 +9953,8 @@ class Database {
         await this.postgres.setSetting('store_status', statusObj);
         await this.postgres.setSetting('global_settings', this.data.settings);
       } catch (err) {
-        console.warn('Error saving store_status to PostgreSQL:', err.message);
+        console.error('Error saving store_status to PostgreSQL:', err.message);
+        throw err;
       }
     }
     this.save();

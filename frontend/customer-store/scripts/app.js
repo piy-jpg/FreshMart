@@ -3071,8 +3071,30 @@ function applyStoreStatusToUI(statusData) {
       placeBtn.removeAttribute('title');
     }
   }
+
+  // 3. Update Cart Drawer Checkout button if present
+  const drawerCheckoutBtn = document.querySelector('button[onclick="proceedToCheckout()"]') || document.getElementById('drawer-checkout-btn');
+  if (drawerCheckoutBtn) {
+    if (isOffline) {
+      drawerCheckoutBtn.classList.add('opacity-50', 'cursor-not-allowed', 'bg-rose-800');
+      drawerCheckoutBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
+      drawerCheckoutBtn.innerHTML = `<span>🔴 Store Offline — Orders Paused</span>`;
+    } else {
+      drawerCheckoutBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-rose-800');
+      drawerCheckoutBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
+      drawerCheckoutBtn.innerHTML = `<span>Proceed to Checkout</span> <span class="ml-1">→</span>`;
+    }
+  }
 }
 window.applyStoreStatusToUI = applyStoreStatusToUI;
+
+// Automatic interval polling as fallback for serverless SSE disconnects
+try {
+  setInterval(fetchStoreStatus, 10000);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) fetchStoreStatus();
+  });
+} catch(e) {}
 
 try { debouncedSyncStorefront(); } catch (e) {}
 
@@ -6969,6 +6991,7 @@ window.openCartDrawer = function() {
     drawer.classList.add('open');
     document.body.classList.add('overflow-hidden');
   }
+  if (typeof fetchStoreStatus === 'function') fetchStoreStatus();
 };
 
 window.closeCartDrawer = function() {
@@ -7783,12 +7806,18 @@ window.showToast = function(message, type = 'success') {
 };
 
 // Checkout Navigation
-window.proceedToCheckout = function() {
+window.proceedToCheckout = async function() {
+  if (typeof fetchStoreStatus === 'function') {
+    try { await fetchStoreStatus(); } catch(e) {}
+  }
   if (window.__freshmart_store_offline) {
+    const msg = (typeof currentStoreStatus !== 'undefined' && currentStoreStatus?.message) 
+      ? currentStoreStatus.message 
+      : "We're currently not accepting orders. Please check back soon.";
     if (typeof showToast === 'function') {
-      showToast('🔴 Store is temporarily offline. Orders are currently paused.', 'error');
+      showToast('🔴 Store is temporarily offline: ' + msg, 'error');
     } else {
-      alert("🔴 Store Temporarily Offline: We're currently not accepting orders. Please check back soon.");
+      alert("🔴 Store Temporarily Offline: " + msg);
     }
     return;
   }

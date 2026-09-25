@@ -341,8 +341,8 @@
       "walletBalance": 10000,
       "provider": "local",
       "createdAt": "2026-09-12T11:54:26.481Z",
-      "updatedAt": "2026-09-25T05:13:49.066Z",
-      "lastLoginAt": "2026-09-25T05:13:49.014Z",
+      "updatedAt": "2026-09-25T05:34:31.333Z",
+      "lastLoginAt": "2026-09-25T05:34:31.267Z",
       "googleSub": "google_sub_owner_730929",
       "profileImage": "https://lh3.googleusercontent.com/a/owner-pic",
       "active": true,
@@ -351,8 +351,8 @@
       "passwordSalt": "a1b2c3d4e5f67890",
       "failedLoginAttempts": 0,
       "lockUntil": null,
-      "totalOrdersCount": 11,
-      "totalSpent": 860
+      "totalOrdersCount": 12,
+      "totalSpent": 900
     },
     {
       "id": "usr_g_1789213219865_499",
@@ -903,6 +903,100 @@
     }
   ],
   "orders": [
+    {
+      "id": "SJH96534",
+      "orderId": "SJH96534",
+      "customerId": "usr_owner_1789214066481",
+      "userId": "usr_owner_1789214066481",
+      "customerName": "Piyush Verma",
+      "customerPhone": "+91 98765 00001",
+      "customerEmail": "piyushverma730929@gmail.com",
+      "customer": {
+        "id": "usr_owner_1789214066481",
+        "name": "Piyush Verma",
+        "phone": "+91 98765 00001",
+        "email": "piyushverma730929@gmail.com"
+      },
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "deliveryBoyId": null,
+      "deliveryBoyName": null,
+      "deliveryBoyPhone": null,
+      "deliveryPartnerId": null,
+      "deliveryPartnerName": null,
+      "deliveryPartnerPhone": null,
+      "deliveryPartnerVehicle": null,
+      "deliveryPartnerRating": null,
+      "deliveryAddress": {
+        "tag": "Home",
+        "fullName": "Test Customer",
+        "phone": "9876543210",
+        "flat": "101",
+        "street": "Main Road",
+        "city": "Bengaluru",
+        "pincode": "560001"
+      },
+      "deliveryLatitude": 12.9784,
+      "deliveryLongitude": 77.6408,
+      "deliveryInstructions": "",
+      "deliveryOption": "EXPRESS_90_MIN",
+      "deliverySlot": "Express Delivery (30–90 Mins)",
+      "items": [
+        {
+          "id": "tomato",
+          "name": "Fresh Tomato",
+          "price": 10,
+          "qty": 1,
+          "weightLabel": "1 kg",
+          "status": "AVAILABLE"
+        }
+      ],
+      "subtotal": 10,
+      "discount": 0,
+      "couponCode": null,
+      "deliveryFee": 30,
+      "totalAmount": 40,
+      "paymentMethod": "Cash on Delivery",
+      "paymentStatus": "PENDING",
+      "orderStatus": "ORDER_PLACED",
+      "status": "ORDER_PLACED",
+      "deliveryStatus": "UNASSIGNED",
+      "qualityCheck": {
+        "passed": false,
+        "checklist": []
+      },
+      "packaging": {
+        "type": "Plastic-Free / Biodegradable Bag",
+        "status": "PENDING"
+      },
+      "deliveryOtp": "3937",
+      "deliveryOtpVerified": false,
+      "assignedAt": null,
+      "acceptedAt": null,
+      "pickedUpAt": null,
+      "outForDeliveryAt": null,
+      "arrivedAt": null,
+      "deliveredAt": null,
+      "deliveredBy": null,
+      "failedAt": null,
+      "failedBy": null,
+      "failureReason": null,
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "cancellationReason": null,
+      "timeline": [
+        {
+          "status": "ORDER_PLACED",
+          "title": "Order Placed",
+          "desc": "Order received successfully via Cash on Delivery. Routing to Indiranagar Central Hub.",
+          "time": "2026-09-25T05:34:31.328Z"
+        }
+      ],
+      "estimatedDeliveryTime": "90 Minutes",
+      "createdAt": "2026-09-25T05:34:31.328Z",
+      "updatedAt": "2026-09-25T05:34:31.328Z",
+      "reviews": null
+    },
     {
       "id": "SJH61497",
       "orderId": "SJH61497",
@@ -11286,6 +11380,15 @@
   ],
   "notifications": [
     {
+      "id": "notif_1790314471343",
+      "userId": "usr_owner_1789214066481",
+      "title": "Order #SJH96534 Confirmed!",
+      "message": "Your farm produce is queued for picking at Indiranagar Central Hub. Delivery in ~90 mins.",
+      "type": "ORDER",
+      "read": false,
+      "createdAt": "2026-09-25T05:34:31.343Z"
+    },
+    {
       "id": "notif_1790313229074",
       "userId": "usr_owner_1789214066481",
       "title": "Order #SJH61497 Confirmed!",
@@ -12257,7 +12360,7 @@
       "originalPrice": 299,
       "discountPercent": 16,
       "costPrice": 20,
-      "stock": 274,
+      "stock": 273,
       "lowStockLimit": 25,
       "reorderLevel": 50,
       "farmer": "Kolar Organic Farms, Karnataka",
@@ -12371,7 +12474,7 @@
           "stock": 28
         }
       ],
-      "updatedAt": "2026-09-25T05:13:49.053Z"
+      "updatedAt": "2026-09-25T05:34:31.317Z"
     },
     {
       "id": "prod_potato",
@@ -20358,6 +20461,21 @@
   ],
   "inventory_movements": [
     {
+      "id": "mov_1790314471322_647",
+      "date": "2026-09-25T05:34:31.322Z",
+      "productId": "prod_tomato",
+      "productName": "Fresh Organic Desi Tomato",
+      "sku": "SJH-VEG-TOM-01",
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "type": "SALE",
+      "quantity": -1,
+      "before": 274,
+      "after": 273,
+      "reason": "Reserved for Customer Order #SJH96534",
+      "user": "System Order Engine"
+    },
+    {
       "id": "mov_1790313229057_109",
       "date": "2026-09-25T05:13:49.057Z",
       "productId": "prod_tomato",
@@ -24626,6 +24744,17 @@
   ],
   "payments": [
     {
+      "id": "pay_1790314471338",
+      "transactionId": "TXN_1790314471338",
+      "orderId": "SJH96534",
+      "customerId": "usr_owner_1789214066481",
+      "customerName": "Piyush Verma",
+      "amount": 40,
+      "paymentMethod": "Cash on Delivery",
+      "status": "PENDING",
+      "date": "2026-09-25T05:34:31.338Z"
+    },
+    {
       "id": "pay_1790313229070",
       "transactionId": "TXN_1790313229070",
       "orderId": "SJH61497",
@@ -25283,6 +25412,110 @@
     }
   ],
   "activity_logs": [
+    {
+      "id": "log_1790314471347_374",
+      "timestamp": "2026-09-25T05:34:31.347Z",
+      "user": "System Order Engine",
+      "operatorEmail": "System Order Engine",
+      "action": "ORDER_CREATED",
+      "entity": "Order",
+      "target": "Order",
+      "entityId": "SJH96534",
+      "details": "New order created for ₹40 by Piyush Verma",
+      "changes": {},
+      "data": {
+        "operatorEmail": "System Order Engine",
+        "action": "ORDER_CREATED",
+        "entity": "Order",
+        "entityId": "SJH96534",
+        "details": "New order created for ₹40 by Piyush Verma",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790314471305_381",
+      "timestamp": "2026-09-25T05:34:31.305Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STORE_STATUS",
+      "entity": "Settings",
+      "target": "Settings",
+      "entityId": "STORE_STATUS",
+      "details": "Changed store status from OFFLINE to LIVE",
+      "changes": {
+        "oldStatus": "OFFLINE",
+        "newStatus": "LIVE",
+        "message": "Store is open for orders.",
+        "operator": "Piyush Verma",
+        "timestamp": "2026-09-25T05:34:31.305Z"
+      },
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "STORE_STATUS",
+        "entity": "Settings",
+        "entityId": "STORE_STATUS",
+        "details": "Changed store status from OFFLINE to LIVE",
+        "changes": {
+          "oldStatus": "OFFLINE",
+          "newStatus": "LIVE",
+          "message": "Store is open for orders.",
+          "operator": "Piyush Verma",
+          "timestamp": "2026-09-25T05:34:31.305Z"
+        }
+      }
+    },
+    {
+      "id": "log_1790314471293_340",
+      "timestamp": "2026-09-25T05:34:31.293Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STORE_STATUS",
+      "entity": "Settings",
+      "target": "Settings",
+      "entityId": "STORE_STATUS",
+      "details": "Changed store status from LIVE to OFFLINE",
+      "changes": {
+        "oldStatus": "LIVE",
+        "newStatus": "OFFLINE",
+        "message": "Store is temporarily closed for maintenance.",
+        "operator": "Piyush Verma",
+        "timestamp": "2026-09-25T05:34:31.293Z"
+      },
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "STORE_STATUS",
+        "entity": "Settings",
+        "entityId": "STORE_STATUS",
+        "details": "Changed store status from LIVE to OFFLINE",
+        "changes": {
+          "oldStatus": "LIVE",
+          "newStatus": "OFFLINE",
+          "message": "Store is temporarily closed for maintenance.",
+          "operator": "Piyush Verma",
+          "timestamp": "2026-09-25T05:34:31.293Z"
+        }
+      }
+    },
+    {
+      "id": "log_1790314471281_744",
+      "timestamp": "2026-09-25T05:34:31.281Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "OWNER_LOGIN",
+        "entity": "Users",
+        "entityId": "usr_owner_1789214066481",
+        "details": "Session created for role OWNER",
+        "changes": {}
+      }
+    },
     {
       "id": "log_1790313229079_194",
       "timestamp": "2026-09-25T05:13:49.079Z",
@@ -29358,6 +29591,16 @@
   },
   "sessions": [
     {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwNDAwODcxMjcyLCJpYXQiOjE3OTAzMTQ0NzEyNzIsInJuZCI6ImM4Mjk0MmQ1NTRmNmJlYWIifQ.XYGpLox-g0rAmjmiQrMSHljlFTuH9Imh6YIrEpOiBO4",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": false,
+      "createdAt": "2026-09-25T05:34:31.272Z",
+      "expiresAt": "2026-09-26T05:34:31.272Z",
+      "userAgent": "Unknown Device",
+      "ip": "::1"
+    },
+    {
       "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzk5NjI5MDE4LCJpYXQiOjE3OTAzMTMyMjkwMTgsInJuZCI6ImY4OTM4Y2ZlMTUwYmZiNzgifQ.XNBs9LLg5L18wqoOSw5fboVlKVmt7MA6xRrEXlyK5AI",
       "userId": "usr_owner_1789214066481",
       "role": "OWNER",
@@ -32210,6 +32453,110 @@
     }
   ],
   "audit_logs": [
+    {
+      "id": "log_1790314471347_374",
+      "timestamp": "2026-09-25T05:34:31.347Z",
+      "user": "System Order Engine",
+      "operatorEmail": "System Order Engine",
+      "action": "ORDER_CREATED",
+      "entity": "Order",
+      "target": "Order",
+      "entityId": "SJH96534",
+      "details": "New order created for ₹40 by Piyush Verma",
+      "changes": {},
+      "data": {
+        "operatorEmail": "System Order Engine",
+        "action": "ORDER_CREATED",
+        "entity": "Order",
+        "entityId": "SJH96534",
+        "details": "New order created for ₹40 by Piyush Verma",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790314471305_381",
+      "timestamp": "2026-09-25T05:34:31.305Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STORE_STATUS",
+      "entity": "Settings",
+      "target": "Settings",
+      "entityId": "STORE_STATUS",
+      "details": "Changed store status from OFFLINE to LIVE",
+      "changes": {
+        "oldStatus": "OFFLINE",
+        "newStatus": "LIVE",
+        "message": "Store is open for orders.",
+        "operator": "Piyush Verma",
+        "timestamp": "2026-09-25T05:34:31.305Z"
+      },
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "STORE_STATUS",
+        "entity": "Settings",
+        "entityId": "STORE_STATUS",
+        "details": "Changed store status from OFFLINE to LIVE",
+        "changes": {
+          "oldStatus": "OFFLINE",
+          "newStatus": "LIVE",
+          "message": "Store is open for orders.",
+          "operator": "Piyush Verma",
+          "timestamp": "2026-09-25T05:34:31.305Z"
+        }
+      }
+    },
+    {
+      "id": "log_1790314471293_340",
+      "timestamp": "2026-09-25T05:34:31.293Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STORE_STATUS",
+      "entity": "Settings",
+      "target": "Settings",
+      "entityId": "STORE_STATUS",
+      "details": "Changed store status from LIVE to OFFLINE",
+      "changes": {
+        "oldStatus": "LIVE",
+        "newStatus": "OFFLINE",
+        "message": "Store is temporarily closed for maintenance.",
+        "operator": "Piyush Verma",
+        "timestamp": "2026-09-25T05:34:31.293Z"
+      },
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "STORE_STATUS",
+        "entity": "Settings",
+        "entityId": "STORE_STATUS",
+        "details": "Changed store status from LIVE to OFFLINE",
+        "changes": {
+          "oldStatus": "LIVE",
+          "newStatus": "OFFLINE",
+          "message": "Store is temporarily closed for maintenance.",
+          "operator": "Piyush Verma",
+          "timestamp": "2026-09-25T05:34:31.293Z"
+        }
+      }
+    },
+    {
+      "id": "log_1790314471281_744",
+      "timestamp": "2026-09-25T05:34:31.281Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "OWNER_LOGIN",
+        "entity": "Users",
+        "entityId": "usr_owner_1789214066481",
+        "details": "Session created for role OWNER",
+        "changes": {}
+      }
+    },
     {
       "id": "log_1790313229079_194",
       "timestamp": "2026-09-25T05:13:49.079Z",

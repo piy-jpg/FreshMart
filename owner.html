@@ -2843,7 +2843,14 @@
 
     async function loadStoreStatus() {
       try {
-        const res = await fetch('/api/store/status');
+        const res = await fetch('/api/store/status?_t=' + Date.now(), {
+          cache: 'no-store',
+          credentials: 'include',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        });
         const data = await res.json();
         if (data && data.success) {
           currentActiveStoreStatus = data.status || (data.isOpen ? 'LIVE' : 'OFFLINE');
@@ -2954,8 +2961,11 @@
       try {
         const res = await fetch('/api/owner/store/status', {
           method: 'POST',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
             ...getAuthHeaders()
           },
           body: JSON.stringify({
