@@ -4769,8 +4769,8 @@
           if (Array.isArray(backendProducts)) {
             state.products = backendProducts;
             applyProductsFilter();
-            populateAdjustStockDropdown(state.products);
           }
+
         } else {
           console.error('Failed to load products from database');
         }
@@ -5958,12 +5958,10 @@
         const badgeEl = document.getElementById('badge-low-stock');
         if (badgeEl) badgeEl.textContent = lowStockCount;
 
-        // Populate quick adjust dropdown if empty
-        populateAdjustStockDropdown(state.inventory);
-
         renderInventoryTable();
         renderMovementsTable();
       } catch (err) {
+
         console.error('loadInventory error', err);
       }
     }
@@ -7653,8 +7651,8 @@
           state.inventory = (state.inventory || []).filter(p => p.id !== productId && p.storefrontId !== productId);
           applyProductsFilter();
           renderInventoryTable();
-          populateAdjustStockDropdown(state.products);
           broadcastCatalogUpdate({ id: productId, status: 'DELETED' });
+
           showToast(`"${prodName}" permanently deleted from database! 🗑️`, 'success');
           loadDashboard();
         } else {
@@ -7939,6 +7937,8 @@
     window.closeAddStaffModal = closeAddStaffModal;
     window.toggleOwnerSound = toggleOwnerSound;
     window.refreshCurrentTab = refreshCurrentTab;
+    window.populateAdjustStockDropdown = function() {};
   </script>
+
 </body>
 </html>
