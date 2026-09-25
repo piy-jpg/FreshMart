@@ -43,9 +43,75 @@
 </head>
 <body class="bg-[#fafbf6] text-[#0f291e] antialiased selection:bg-emerald-200 selection:text-emerald-900 pb-16 md:pb-0">
 
+  <!-- ================= MOBILE DRAWER SIDEBAR ================= -->
+  <div id="mobile-sidebar-overlay" onclick="closeMobileSidebar()" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 hidden transition-opacity"></div>
+  <aside id="mobile-sidebar-drawer" class="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-white/95 backdrop-blur-xl z-50 shadow-2xl p-5 transform -translate-x-full transition-transform duration-300 ease-out flex flex-col justify-between overflow-y-auto border-r border-emerald-900/10">
+    <div class="space-y-6">
+      <div class="flex items-center justify-between pb-4 border-b border-stone-100">
+        <a href="/" class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl overflow-hidden shadow-xs border border-emerald-500/20">
+            <img src="/images/freshmart_logo.jpg" alt="Logo" class="w-full h-full object-cover" />
+          </div>
+          <span class="font-heading font-black text-lg text-emerald-950">Fresh<span class="text-emerald-600">Mart</span></span>
+        </a>
+        <button onclick="closeMobileSidebar()" class="p-1.5 rounded-xl hover:bg-stone-100 text-stone-400 hover:text-stone-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="sidebar-section-title">
+        <span>Daily Harvest</span>
+      </div>
+
+      <nav class="space-y-1">
+        <a href="/" onclick="closeMobileSidebar();" class="sidebar-link group">
+          <div class="sidebar-icon-wrapper icon-emerald"><i data-lucide="home" class="w-4 h-4"></i></div>
+          <span class="flex-1">Home</span>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i>
+        </a>
+        <a href="/vegetables.html" onclick="closeMobileSidebar();" class="sidebar-link group">
+          <div class="sidebar-icon-wrapper icon-emerald"><i data-lucide="carrot" class="w-4 h-4"></i></div>
+          <span class="flex-1">Vegetables</span>
+          <span class="text-[9.5px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Fresh</span>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i>
+        </a>
+        <a href="/fruits.html" onclick="closeMobileSidebar();" class="sidebar-link group">
+          <div class="sidebar-icon-wrapper icon-amber"><i data-lucide="apple" class="w-4 h-4"></i></div>
+          <span class="flex-1">Fruits</span>
+          <span class="text-[9.5px] font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full">Orchard</span>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i>
+        </a>
+        <a href="/grocery.html" onclick="closeMobileSidebar();" class="sidebar-link group">
+          <div class="sidebar-icon-wrapper icon-blue"><i data-lucide="shopping-bag" class="w-4 h-4"></i></div>
+          <span class="flex-1">Grocery & Pantry</span>
+          <span class="text-[9.5px] font-bold bg-blue-50 text-blue-800 px-2 py-0.5 rounded-full">Pantry</span>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i>
+        </a>
+      </nav>
+
+      <div class="sidebar-section-title mt-3">
+        <span>Savings & Orders</span>
+      </div>
+
+      <nav class="space-y-1">
+        <a href="/offers.html" onclick="closeMobileSidebar();" class="sidebar-link group">
+          <div class="sidebar-icon-wrapper icon-orange"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+          <span class="flex-1">Today's Offers</span>
+          <span class="text-[9.5px] font-black bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-0.5 rounded-full">40% OFF</span>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i>
+        </a>
+        <a href="/checkout.html" onclick="closeMobileSidebar();" class="sidebar-link group">
+          <div class="sidebar-icon-wrapper icon-teal"><i data-lucide="package-check" class="w-4 h-4"></i></div>
+          <span class="flex-1">Checkout / Cart</span>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i>
+        </a>
+      </nav>
+    </div>
+  </aside>
+
   <!-- ================= TOP ANNOUNCEMENT BAR ================= -->
   <div class="relative z-50 bg-gradient-to-r from-[#072413] via-[#0d3f23] to-[#082a17] text-white border-b border-emerald-500/20 shadow-xs">
-    <div class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between text-xs">
+    <div class="max-w-[1480px] mx-auto px-4 py-2 flex items-center justify-between text-xs">
       <div class="flex items-center gap-2">
         <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 font-extrabold uppercase text-[10px]">
           🌱 Farm-Direct Single Source of Truth
@@ -58,10 +124,13 @@
     </div>
   </div>
 
-  <!-- ================= HEADER & DYNAMIC NAVBAR ================= -->
+  <!-- ================= HEADER & NAVBAR ================= -->
   <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-emerald-900/10 shadow-xs">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+    <div class="max-w-[1480px] mx-auto px-4 py-3 flex items-center justify-between gap-4">
       <div class="flex items-center gap-3">
+        <button onclick="openMobileSidebar()" class="xl:hidden p-1.5 sm:p-2 rounded-xl text-stone-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors shrink-0" aria-label="Open Menu">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
         <a href="/" class="flex items-center gap-2">
           <span class="text-2xl font-heading font-black text-emerald-900 flex items-center gap-1.5">
             <span class="w-8 h-8 rounded-xl bg-emerald-700 text-white flex items-center justify-center text-base">🌱</span>
@@ -70,7 +139,7 @@
         </a>
       </div>
 
-      <!-- Dynamic Customer Navbar Links (Loaded from Neon /api/categories) -->
+      <!-- Dynamic Customer Navbar Links -->
       <nav id="customer-navbar-categories" class="hidden md:flex items-center gap-1.5 overflow-x-auto text-xs font-bold text-stone-600">
         <a href="/" class="px-3 py-1.5 rounded-xl text-stone-600 hover:bg-stone-100 transition">Home</a>
       </nav>
@@ -85,69 +154,159 @@
     </div>
   </header>
 
-  <!-- ================= CATEGORY HERO BANNER ================= -->
-  <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
-    <div class="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 text-white shadow-lg relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-      <div class="relative z-10 space-y-2">
-        <div class="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-wider">
-          <a href="/" class="hover:underline">Store</a>
-          <span>/</span>
-          <span id="cat-breadcrumb-name">Category</span>
-        </div>
-        <div class="flex items-center gap-3">
-          <span id="cat-hero-icon" class="text-4xl sm:text-5xl">🏷️</span>
-          <h1 id="cat-hero-title" class="font-heading font-black text-2xl sm:text-4xl tracking-tight text-white">Loading Category...</h1>
-        </div>
-        <p id="cat-hero-desc" class="text-xs sm:text-sm text-emerald-100/90 max-w-xl leading-relaxed">
-          Sourced daily from verified organic farms. Graded, sanitized, and packed fresh for express delivery.
-        </p>
-        <div class="pt-2 flex items-center gap-2 flex-wrap">
-          <span id="cat-items-badge" class="px-3 py-1 rounded-full bg-emerald-700/80 border border-emerald-500/30 text-emerald-200 text-xs font-bold">
-            ... Items Available
-          </span>
-          <span class="px-3 py-1 rounded-full bg-emerald-950/50 border border-emerald-600/30 text-emerald-300 text-xs font-medium">
-            ⚡ 90-Min Hub Dispatch
-          </span>
-        </div>
-      </div>
-      <div id="cat-hero-img-container" class="w-full md:w-64 h-36 rounded-2xl overflow-hidden bg-emerald-950/40 border border-emerald-600/30 shrink-0 hidden sm:block">
-        <img id="cat-hero-img" src="" alt="Category" class="w-full h-full object-cover" />
-      </div>
-    </div>
+  <!-- ================= MAIN LAYOUT WITH LEFT SIDEBAR ================= -->
+  <div class="max-w-[1480px] mx-auto px-3 sm:px-6 lg:px-8 py-6">
+    <div class="flex items-start gap-6 xl:gap-8">
+      
+      <!-- ================= LEFT VERTICAL NAVIGATION SIDEBAR (Desktop Sticky) ================= -->
+      <aside class="hidden xl:block w-64 shrink-0 sticky top-24 space-y-4">
+        
+        <div class="sidebar-nav-card">
+          <!-- Morning Harvest Status Pill -->
+          <div class="px-3 py-2 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50/70 to-emerald-50 border border-emerald-500/20 mb-2 flex items-center justify-between shadow-2xs">
+            <div class="flex items-center gap-2">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+              </span>
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-950">BLR Hub • Live</span>
+            </div>
+            <span class="text-[9px] font-bold text-emerald-800 bg-white/95 px-2 py-0.5 rounded-full border border-emerald-200/60 shadow-2xs">4 AM Harvest</span>
+          </div>
 
-    <!-- ================= CONTROLS & SUBCATEGORIES ================= -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-emerald-900/10 shadow-xs">
-      <!-- Subcategory Filter Pills -->
-      <div id="subcat-filters" class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none text-xs font-semibold">
-        <button onclick="filterBySubcategory('ALL')" class="subcat-pill active px-3 py-1.5 rounded-xl bg-emerald-700 text-white font-bold transition">All Items</button>
-      </div>
+          <!-- Section 1: Daily Harvest -->
+          <div class="sidebar-section-title">
+            <span>Daily Harvest</span>
+          </div>
 
-      <!-- Search & Sort -->
-      <div class="flex items-center gap-2 shrink-0">
-        <input 
-          id="cat-search-input" 
-          type="text" 
-          placeholder="Search items in this category..." 
-          oninput="handleCategorySearch(this.value)"
-          class="px-3 py-1.5 rounded-xl bg-stone-50 border border-stone-200 text-xs focus:outline-none focus:border-emerald-600 w-48 sm:w-56"
-        />
-        <select id="cat-sort-select" onchange="handleSortChange(this.value)" class="px-3 py-1.5 rounded-xl bg-stone-50 border border-stone-200 text-xs font-semibold focus:outline-none focus:border-emerald-600">
-          <option value="featured">✨ Featured</option>
-          <option value="price-asc">₹ Price: Low to High</option>
-          <option value="price-desc">₹ Price: High to Low</option>
-          <option value="stock-desc">📦 In Stock First</option>
-        </select>
-      </div>
-    </div>
+          <nav class="space-y-1">
+            <a href="/" class="sidebar-link group">
+              <div class="sidebar-icon-wrapper icon-emerald"><i data-lucide="home" class="w-4 h-4"></i></div>
+              <span class="flex-1">Home</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i>
+            </a>
+            <a href="/vegetables.html" class="sidebar-link group">
+              <div class="sidebar-icon-wrapper icon-emerald"><i data-lucide="carrot" class="w-4 h-4"></i></div>
+              <span class="flex-1">Vegetables</span>
+              <span class="text-[9.5px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Fresh</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i>
+            </a>
+            <a href="/fruits.html" class="sidebar-link group">
+              <div class="sidebar-icon-wrapper icon-amber"><i data-lucide="apple" class="w-4 h-4"></i></div>
+              <span class="flex-1">Fruits</span>
+              <span class="text-[9.5px] font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full">Orchard</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i>
+            </a>
+            <a href="/grocery.html" class="sidebar-link group">
+              <div class="sidebar-icon-wrapper icon-blue"><i data-lucide="shopping-bag" class="w-4 h-4"></i></div>
+              <span class="flex-1">Grocery & Pantry</span>
+              <span class="text-[9.5px] font-bold bg-blue-50 text-blue-800 px-2 py-0.5 rounded-full">Pantry</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i>
+            </a>
+          </nav>
 
-    <!-- ================= DYNAMIC PRODUCT GRID ================= -->
-    <div id="category-products-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-      <div class="col-span-full py-16 text-center text-stone-400 font-medium">
-        <div class="w-8 h-8 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-        Loading farm-fresh products from database...
-      </div>
+          <!-- Section 2: Savings & Orders -->
+          <div class="sidebar-section-title mt-2">
+            <span>Savings & Orders</span>
+          </div>
+
+          <nav class="space-y-1">
+            <a href="/offers.html" class="sidebar-link group">
+              <div class="sidebar-icon-wrapper icon-orange"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+              <span class="flex-1">Today's Offers</span>
+              <span class="text-[9.5px] font-black bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-0.5 rounded-full shadow-2xs">40% OFF</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i>
+            </a>
+            <a href="/checkout.html" class="sidebar-link group">
+              <div class="sidebar-icon-wrapper icon-teal"><i data-lucide="package-check" class="w-4 h-4"></i></div>
+              <span class="flex-1">Checkout / Cart</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i>
+            </a>
+          </nav>
+        </div>
+
+        <!-- Farmer First Support Card -->
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-900 via-emerald-950 to-stone-900 text-white p-4 shadow-soft border border-emerald-700/30">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xl">🧑‍🌾</span>
+            <div>
+              <h5 class="text-xs font-bold text-emerald-100">Farmer Direct</h5>
+              <p class="text-[9.5px] text-emerald-400">Zero Middlemen</p>
+            </div>
+          </div>
+          <p class="text-[11px] text-emerald-200/80 leading-relaxed">
+            Every order supports 350+ local organic farmer families.
+          </p>
+        </div>
+
+      </aside>
+
+      <!-- ================= CENTER FEED CONTENT ================= -->
+      <main class="flex-1 min-w-0 space-y-6">
+        
+        <!-- Category Hero Banner -->
+        <div class="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 text-white shadow-lg relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div class="relative z-10 space-y-2">
+            <div class="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-wider">
+              <a href="/" class="hover:underline">Store</a>
+              <span>/</span>
+              <span id="cat-breadcrumb-name">Category</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span id="cat-hero-icon" class="text-4xl sm:text-5xl">🏷️</span>
+              <h1 id="cat-hero-title" class="font-heading font-black text-2xl sm:text-4xl tracking-tight text-white">Loading Category...</h1>
+            </div>
+            <p id="cat-hero-desc" class="text-xs sm:text-sm text-emerald-100/90 max-w-xl leading-relaxed">
+              Sourced daily from verified organic farms. Graded, sanitized, and packed fresh for express delivery.
+            </p>
+            <div class="pt-2 flex items-center gap-2 flex-wrap">
+              <span id="cat-items-badge" class="px-3 py-1 rounded-full bg-emerald-700/80 border border-emerald-500/30 text-emerald-200 text-xs font-bold">
+                ... Items Available
+              </span>
+              <span class="px-3 py-1 rounded-full bg-emerald-950/50 border border-emerald-600/30 text-emerald-300 text-xs font-medium">
+                ⚡ 90-Min Hub Dispatch
+              </span>
+            </div>
+          </div>
+          <div id="cat-hero-img-container" class="w-full md:w-64 h-36 rounded-2xl overflow-hidden bg-emerald-950/40 border border-emerald-600/30 shrink-0 hidden sm:block">
+            <img id="cat-hero-img" src="" alt="Category" class="w-full h-full object-cover" />
+          </div>
+        </div>
+
+        <!-- Controls & Filters -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-emerald-900/10 shadow-xs">
+          <div id="subcat-filters" class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none text-xs font-semibold">
+            <button onclick="filterBySubcategory('ALL')" class="subcat-pill active px-3 py-1.5 rounded-xl bg-emerald-700 text-white font-bold transition">All Items</button>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <input 
+              id="cat-search-input" 
+              type="text" 
+              placeholder="Search items in this category..." 
+              oninput="handleCategorySearch(this.value)"
+              class="px-3 py-1.5 rounded-xl bg-stone-50 border border-stone-200 text-xs focus:outline-none focus:border-emerald-600 w-48 sm:w-56"
+            />
+            <select id="cat-sort-select" onchange="handleSortChange(this.value)" class="px-3 py-1.5 rounded-xl bg-stone-50 border border-stone-200 text-xs font-semibold focus:outline-none focus:border-emerald-600">
+              <option value="featured">✨ Featured</option>
+              <option value="price-asc">₹ Price: Low to High</option>
+              <option value="price-desc">₹ Price: High to Low</option>
+              <option value="stock-desc">📦 In Stock First</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Dynamic Product Grid -->
+        <div id="category-products-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div class="col-span-full py-16 text-center text-stone-400 font-medium">
+            <div class="w-8 h-8 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+            Loading farm-fresh products from database...
+          </div>
+        </div>
+
+      </main>
     </div>
-  </main>
+  </div>
 
   <script src="/app.js"></script>
   <script>
