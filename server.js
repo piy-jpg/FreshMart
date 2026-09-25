@@ -5061,9 +5061,10 @@ const server = http.createServer(async (req, res) => {
       // 4. Inventory & Stock Ledger
       if ((pathname === '/api/owner/inventory' || pathname === '/api/owner/inventory/ledger') && method === 'GET') {
         let ledger = [];
-        if (db.pgAdapter && db.pgAdapter.isAvailable()) {
+        const pg = db.postgres || db.pgAdapter;
+        if (pg && pg.isAvailable()) {
           try {
-            ledger = await db.pgAdapter.getInventoryLedgerAsync();
+            ledger = await pg.getInventoryLedgerAsync();
           } catch (e) {
             console.warn('Postgres getInventoryLedgerAsync error, falling back:', e.message);
           }
@@ -5075,18 +5076,15 @@ const server = http.createServer(async (req, res) => {
       }
 
       // Manual Reserve Endpoint
-      if ((pathname === '/api/owner/inventory/reserve' || (pathname === '/api/owner/inventory/adjust' && req.headers['content-type']?.includes('json'))) && method === 'POST') {
-        // We handle in adjust route below or route directly
-      }
-
       if (pathname === '/api/owner/inventory/reserve' && method === 'POST') {
         const body = await parseBody(req);
         const { productId, quantity, reason } = body;
         const targetId = String(productId || '');
         const qty = Number(quantity || body.reserveQuantity || 0);
 
-        if (db.pgAdapter && db.pgAdapter.isAvailable()) {
-          const resRes = await db.pgAdapter.manualReserveStockAtomic(targetId, qty, reason, owner.email || owner.name);
+        const pg = db.postgres || db.pgAdapter;
+        if (pg && pg.isAvailable()) {
+          const resRes = await pg.manualReserveStockAtomic(targetId, qty, reason, owner.email || owner.name);
           if (!resRes.success) {
             return sendJson(res, 400, { error: resRes.error, ...resRes });
           }
@@ -5108,7 +5106,7 @@ const server = http.createServer(async (req, res) => {
         prod.manualReservedStock = curManual + qty;
         prod.manual_reserved_stock = curManual + qty;
         db.save();
-        return sendJson(res, 200, { success: true, action: 'RESERVE', manualReserved: prod.manualReservedStock, availableStock: available - qty });
+        return sendJson(res, 200, { success: true, action: 'RESERVE', physicalStock: physical, manualReserved: prod.manualReservedStock, availableStock: available - qty });
       }
 
       // Manual Unreserve / Release Endpoint
@@ -5118,8 +5116,9 @@ const server = http.createServer(async (req, res) => {
         const targetId = String(productId || '');
         const qty = Number(quantity || body.releaseQuantity || 0);
 
-        if (db.pgAdapter && db.pgAdapter.isAvailable()) {
-          const unresRes = await db.pgAdapter.manualUnreserveStockAtomic(targetId, qty, reason, owner.email || owner.name);
+        const pg = db.postgres || db.pgAdapter;
+        if (pg && pg.isAvailable()) {
+          const unresRes = await pg.manualUnreserveStockAtomic(targetId, qty, reason, owner.email || owner.name);
           if (!unresRes.success) {
             return sendJson(res, 400, { error: unresRes.error, ...unresRes });
           }
@@ -5132,25 +5131,27 @@ const server = http.createServer(async (req, res) => {
         const prod = db.getById('products', targetId);
         if (!prod) return sendJson(res, 404, { error: 'Product not found' });
         const curManual = Number(prod.manualReservedStock || prod.manual_reserved_stock || 0);
+        const physical = Number(prod.stock || 0);
         if (qty > curManual) {
           return sendJson(res, 400, { error: `Cannot release ${qty} units. Current manual reserved is only ${curManual} units.` });
         }
         prod.manualReservedStock = curManual - qty;
         prod.manual_reserved_stock = curManual - qty;
         db.save();
-        return sendJson(res, 200, { success: true, action: 'UNRESERVE', manualReserved: prod.manualReservedStock });
+        return sendJson(res, 200, { success: true, action: 'UNRESERVE', physicalStock: physical, manualReserved: prod.manualReservedStock, availableStock: Math.max(0, physical - prod.manualReservedStock) });
       }
 
       if (pathname === '/api/owner/inventory/adjust' && method === 'POST') {
         const body = await parseBody(req);
         const { productId, adjustment, type, reason, action } = body;
         const targetId = String(productId || '');
+        const pg = db.postgres || db.pgAdapter;
 
         // Handle Action Modes inside adjust endpoint
         if (String(action).toUpperCase() === 'RESERVE' || String(type).toUpperCase() === 'RESERVE') {
           const qty = Number(body.quantity || body.reserveQuantity || adjustment || 0);
-          if (db.pgAdapter && db.pgAdapter.isAvailable()) {
-            const resRes = await db.pgAdapter.manualReserveStockAtomic(targetId, qty, reason, owner.email || owner.name);
+          if (pg && pg.isAvailable()) {
+            const resRes = await pg.manualReserveStockAtomic(targetId, qty, reason, owner.email || owner.name);
             if (!resRes.success) return sendJson(res, 400, { error: resRes.error, ...resRes });
             await db.logActivityAsync(owner.name, 'STOCK_RESERVED', 'Inventory', targetId, `Manually reserved ${qty} units`);
             broadcastEvent('INVENTORY_UPDATED', { productId: targetId, action: 'RESERVE', manualReserved: resRes.manualReserved, availableStock: resRes.availableStock });
@@ -5160,8 +5161,8 @@ const server = http.createServer(async (req, res) => {
 
         if (String(action).toUpperCase() === 'UNRESERVE' || String(action).toUpperCase() === 'RELEASE' || String(type).toUpperCase() === 'UNRESERVE' || String(type).toUpperCase() === 'RELEASE') {
           const qty = Number(body.quantity || body.releaseQuantity || adjustment || 0);
-          if (db.pgAdapter && db.pgAdapter.isAvailable()) {
-            const unresRes = await db.pgAdapter.manualUnreserveStockAtomic(targetId, qty, reason, owner.email || owner.name);
+          if (pg && pg.isAvailable()) {
+            const unresRes = await pg.manualUnreserveStockAtomic(targetId, qty, reason, owner.email || owner.name);
             if (!unresRes.success) return sendJson(res, 400, { error: unresRes.error, ...unresRes });
             await db.logActivityAsync(owner.name, 'STOCK_UNRESERVED', 'Inventory', targetId, `Manually released ${qty} reserved units`);
             broadcastEvent('INVENTORY_UPDATED', { productId: targetId, action: 'UNRESERVE', manualReserved: unresRes.manualReserved, availableStock: unresRes.availableStock });
@@ -5247,9 +5248,10 @@ const server = http.createServer(async (req, res) => {
 
       if (pathname === '/api/owner/inventory/movements' && method === 'GET') {
         let movements = [];
-        if (db.pgAdapter && db.pgAdapter.isAvailable()) {
+        const pg = db.postgres || db.pgAdapter;
+        if (pg && pg.isAvailable()) {
           try {
-            movements = await db.pgAdapter.getInventoryMovementsAsync(100);
+            movements = await pg.getInventoryMovementsAsync(100);
           } catch (e) {
             console.warn('Postgres getInventoryMovementsAsync error, falling back:', e.message);
           }
@@ -5259,6 +5261,7 @@ const server = http.createServer(async (req, res) => {
         }
         return sendJson(res, 200, movements);
       }
+
 
       // 5. Staff & Sub-Admin Management (Strictly Root Owner Exclusive)
       if (pathname.startsWith('/api/owner/staff')) {
