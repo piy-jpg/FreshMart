@@ -1,15 +1,32 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Executive Owner Console | FreshMart Quick Commerce</title>
   <meta name="description" content="FreshMart Executive Owner Management Portal - Unconstrained Root Control for Products, Inventory, Orders, Fleet, Staff, and Platform Financials." />
 
+  <!-- Immediate Theme Loader to prevent FOUC (Flash of Unstyled Content) -->
+  <script>
+    (function() {
+      try {
+        const savedTheme = localStorage.getItem('freshmart_owner_theme') || 'dark';
+        if (savedTheme === 'light') {
+          document.documentElement.classList.add('theme-light');
+          document.documentElement.classList.remove('dark');
+        } else {
+          document.documentElement.classList.add('dark');
+          document.documentElement.classList.remove('theme-light');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           colors: {
@@ -41,6 +58,159 @@
     .tab-pane { display: none; }
     .tab-pane.active { display: block; }
     .gold-glow { box-shadow: 0 0 20px -5px rgba(245, 158, 11, 0.3); }
+
+    /* ==========================================================================
+       DAY & NIGHT MODE THEME ENGINE FOR OWNER CONSOLE
+       ========================================================================== */
+    /* Universal smooth color transition */
+    body, aside, header, main, div, section, table, tr, th, td, input, select, textarea, button, span, p, h1, h2, h3, h4, h5, h6 {
+      transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                  border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                  color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                  box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Light Theme (Day Mode) Overrides */
+    html.theme-light,
+    html.theme-light body {
+      background-color: #f8fafc !important;
+      color: #0f172a !important;
+    }
+
+    html.theme-light ::-webkit-scrollbar-track { background: #f1f5f9; }
+    html.theme-light ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+    html.theme-light ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* Light Mode Top Navbar */
+    html.theme-light header#owner-topbar {
+      background: rgba(255, 255, 255, 0.88) !important;
+      border-color: #e2e8f0 !important;
+      box-shadow: 0 4px 20px -5px rgba(15, 23, 42, 0.06) !important;
+    }
+
+    /* Light Mode Sidebar */
+    html.theme-light aside#owner-sidebar {
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      color: #334155 !important;
+      box-shadow: 2px 0 20px -5px rgba(15, 23, 42, 0.05) !important;
+    }
+    html.theme-light aside#owner-sidebar .border-slate-800,
+    html.theme-light aside#owner-sidebar .border-slate-700\/60 {
+      border-color: #f1f5f9 !important;
+    }
+    html.theme-light aside#owner-sidebar h1 { color: #0f172a !important; }
+    html.theme-light aside#owner-sidebar .text-slate-400 { color: #64748b !important; }
+    html.theme-light aside#owner-sidebar .text-slate-300 { color: #334155 !important; }
+    html.theme-light aside#owner-sidebar .sidebar-btn:hover {
+      background-color: #f8fafc !important;
+      color: #0f172a !important;
+    }
+    html.theme-light #sidebar-user-card {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 40%, #ffffff 100%) !important;
+      border-color: #fde68a !important;
+      box-shadow: 0 4px 12px -2px rgba(245, 158, 11, 0.12) !important;
+    }
+    html.theme-light #sidebar-user-card span#sidebar-user-name { color: #0f172a !important; }
+    html.theme-light #sidebar-user-card p#sidebar-user-identifier { color: #92400e !important; }
+
+    /* Light Mode Main Content Surfaces & Cards */
+    html.theme-light main { background-color: #f8fafc !important; }
+    html.theme-light .bg-slate-950 { background-color: #f8fafc !important; }
+    html.theme-light .bg-slate-900 {
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      color: #0f172a !important;
+      box-shadow: 0 2px 10px -2px rgba(15, 23, 42, 0.04) !important;
+    }
+    html.theme-light .bg-slate-900\/60,
+    html.theme-light .bg-slate-900\/80,
+    html.theme-light .bg-slate-900\/90 {
+      background-color: rgba(255, 255, 255, 0.9) !important;
+      border-color: #e2e8f0 !important;
+    }
+    html.theme-light .bg-slate-800 {
+      background-color: #f1f5f9 !important;
+      border-color: #e2e8f0 !important;
+      color: #0f172a !important;
+    }
+    html.theme-light .bg-slate-800\/80,
+    html.theme-light .bg-slate-800\/60,
+    html.theme-light .bg-slate-800\/50,
+    html.theme-light .bg-slate-800\/40 {
+      background-color: #f8fafc !important;
+      border-color: #e2e8f0 !important;
+    }
+
+    /* Light Mode Borders & Separators */
+    html.theme-light .border-slate-800,
+    html.theme-light .border-slate-700 {
+      border-color: #e2e8f0 !important;
+    }
+    html.theme-light .divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
+      border-color: #f1f5f9 !important;
+    }
+
+    /* Light Mode Typography */
+    html.theme-light .text-white { color: #0f172a !important; }
+    html.theme-light .text-slate-100 { color: #0f172a !important; }
+    html.theme-light .text-slate-200 { color: #1e293b !important; }
+    html.theme-light .text-slate-300 { color: #334155 !important; }
+    html.theme-light .text-slate-400 { color: #64748b !important; }
+    html.theme-light .text-slate-500 { color: #64748b !important; }
+
+    /* Light Mode Form Elements */
+    html.theme-light input:not([type="checkbox"]):not([type="radio"]),
+    html.theme-light select,
+    html.theme-light textarea {
+      background-color: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+    html.theme-light input::placeholder,
+    html.theme-light textarea::placeholder {
+      color: #94a3b8 !important;
+    }
+    html.theme-light input:focus,
+    html.theme-light select:focus,
+    html.theme-light textarea:focus {
+      border-color: #f59e0b !important;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15) !important;
+      background-color: #ffffff !important;
+    }
+
+    /* Light Mode Tables */
+    html.theme-light th {
+      background-color: #f8fafc !important;
+      color: #475569 !important;
+      border-bottom-color: #e2e8f0 !important;
+    }
+    html.theme-light tr:hover {
+      background-color: #f8fafc !important;
+    }
+
+    /* Light Mode Modals */
+    html.theme-light [id^="modal-"] > div > div {
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      color: #0f172a !important;
+      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25) !important;
+    }
+
+    /* Light Mode Hero Banner */
+    html.theme-light #tab-dashboard > div.rounded-3xl.bg-gradient-to-r {
+      background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 50%, #f0fdf4 100%) !important;
+      border-color: #a7f3d0 !important;
+      box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.12) !important;
+    }
+    html.theme-light #tab-dashboard > div.rounded-3xl.bg-gradient-to-r h2 { color: #064e3b !important; }
+    html.theme-light #tab-dashboard > div.rounded-3xl.bg-gradient-to-r p { color: #065f46 !important; }
+
+    /* Topbar Day/Night Switch Animation */
+    .theme-switch-btn {
+      position: relative;
+      overflow: hidden;
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 antialiased min-h-screen font-sans flex flex-col md:flex-row">
@@ -223,57 +393,106 @@
   <!-- ================= MAIN CONTENT AREA ================= -->
   <main class="flex-1 flex flex-col min-w-0 bg-slate-950 overflow-x-hidden">
     
-    <!-- Topbar -->
-    <header class="h-16 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-40">
-      <div class="flex items-center gap-3">
-        <button onclick="toggleSidebar()" class="md:hidden p-2 text-slate-400 hover:text-white">
-          ☰
+    <!-- ================= TOPBAR (EXECUTIVE NAVIGATION & THEME ENGINE) ================= -->
+    <header id="owner-topbar" class="h-16 sm:h-[70px] bg-slate-900/90 backdrop-blur-xl border-b border-slate-800/80 px-3 sm:px-6 flex items-center justify-between sticky top-0 z-40 shadow-xs transition-colors duration-300">
+      
+      <!-- Left Group: Mobile Menu, Active Tab Breadcrumb & Global Search -->
+      <div class="flex items-center gap-2.5 sm:gap-4 min-w-0">
+        <!-- Mobile Sidebar Toggle -->
+        <button onclick="toggleSidebar()" aria-label="Toggle navigation menu" class="md:hidden p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition cursor-pointer flex items-center justify-center">
+          <span class="text-base leading-none">☰</span>
         </button>
-        <div class="relative hidden sm:block w-72 md:w-96">
-          <input id="global-search-input" onkeyup="handleGlobalSearch(event)" type="text" placeholder="Search orders, products, staff, SKU..." class="w-full pl-9 pr-4 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:border-amber-500 transition" />
-          <span class="absolute left-3 top-2 text-slate-400 text-xs">🔍</span>
+
+        <!-- Dynamic Tab Breadcrumb Capsule (Desktop/Tablet) -->
+        <div id="navbar-tab-indicator" class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/60 border border-slate-700/60 text-xs shadow-2xs select-none">
+          <span id="navbar-tab-icon" class="text-sm">📊</span>
+          <span id="navbar-tab-title" class="font-heading font-black text-slate-200 tracking-tight">Executive Dashboard</span>
+        </div>
+
+        <!-- Global Search Bar with Shortcut hint and clear button -->
+        <div class="relative w-48 sm:w-64 md:w-80 lg:w-96 group">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs transition-colors group-focus-within:text-amber-400 pointer-events-none">🔍</span>
+          <input 
+            id="global-search-input" 
+            onkeyup="handleGlobalSearch(event)" 
+            type="text" 
+            placeholder="Search orders, products, SKU... (⌘K)" 
+            class="w-full pl-9 pr-14 py-2 rounded-xl bg-slate-800/90 border border-slate-700/80 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-amber-500/80 focus:ring-2 focus:ring-amber-500/20 transition-all shadow-inner" 
+          />
+          <div class="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            <button 
+              id="global-search-clear-btn" 
+              onclick="clearGlobalSearch()" 
+              type="button" 
+              title="Clear search" 
+              class="hidden text-[10px] w-4 h-4 rounded-full bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-white items-center justify-center cursor-pointer transition"
+            >
+              ✕
+            </button>
+            <kbd class="hidden xl:inline-flex items-center px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-slate-700/60 border border-slate-600/50 text-slate-400 select-none">
+              ⌘K
+            </kbd>
+          </div>
         </div>
       </div>
 
-      <!-- Right-side Actions & Status Controls -->
-      <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-        <!-- Store Live / Offline Switch Control -->
-        <div class="flex items-center gap-2">
-          <div id="owner-store-status-badge" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/50 text-emerald-400 text-xs font-black shadow-xs">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" id="owner-store-status-dot"></span>
-            <span id="owner-store-status-text">🟢 STORE LIVE</span>
+      <!-- Right-side Executive Actions, Controls & Theme Switcher -->
+      <div class="flex items-center gap-1.5 sm:gap-2.5 flex-nowrap shrink-0">
+        
+        <!-- Store Live / Offline Capsule Control -->
+        <div class="flex items-center gap-1.5">
+          <div id="owner-store-status-badge" class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 text-[11px] sm:text-xs font-black shadow-xs whitespace-nowrap">
+            <span class="relative flex h-2.5 w-2.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" id="owner-store-status-dot"></span>
+            </span>
+            <span id="owner-store-status-text" class="tracking-wide">🟢 STORE LIVE</span>
           </div>
-          <button id="owner-store-toggle-btn" onclick="openStoreStatusModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-bold transition shadow-xs cursor-pointer flex items-center gap-1.5">
+          <button id="owner-store-toggle-btn" onclick="openStoreStatusModal()" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5">
             <span id="owner-store-toggle-icon">⏸️</span>
-            <span id="owner-store-toggle-label" class="hidden sm:inline">Take Offline</span>
+            <span id="owner-store-toggle-label" class="hidden xl:inline">Take Offline</span>
           </button>
         </div>
 
-        <!-- Live System Status Badge -->
-        <div class="hidden xl:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-[11px] font-medium">
+        <!-- Live Core DB Status Badge -->
+        <div class="hidden 2xl:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/60 border border-slate-700/60 text-emerald-400 text-[11px] font-semibold select-none">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>Core APIs Operational</span>
+          <span>⚡ Neon PG Connected</span>
         </div>
 
-        <!-- Quick Action Dropdown / Buttons -->
-        <button onclick="openAddProductModal()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition cursor-pointer">
-          <span>+</span> Product
-        </button>
-        <button onclick="openStockAdjustModal()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs transition cursor-pointer">
-          <span>📦</span> Adjust Stock
-        </button>
-        <button onclick="openAddStaffModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs shadow-md transition cursor-pointer">
-          <span>👑</span> Add Staff
+        <!-- Quick Action Buttons -->
+        <div class="hidden md:flex items-center gap-1.5">
+          <button onclick="openAddProductModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold text-xs shadow-md shadow-emerald-900/20 hover:shadow-emerald-600/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+            <span class="text-sm leading-none font-black">+</span> <span>Product</span>
+          </button>
+          <button onclick="openStockAdjustModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white font-bold text-xs transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shadow-xs">
+            <span>📦</span> <span>Stock</span>
+          </button>
+          <button onclick="openAddStaffModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-md shadow-amber-900/20 hover:shadow-amber-500/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+            <span>👑</span> <span class="hidden lg:inline">Add Staff</span>
+          </button>
+        </div>
+
+        <!-- ================= DAY / NIGHT MODE SHIFT SWITCH ================= -->
+        <button 
+          id="owner-theme-toggle-btn" 
+          onclick="toggleThemeMode()" 
+          title="Switch between Day Mode (Light) and Night Mode (Dark)" 
+          aria-label="Toggle Day and Night mode" 
+          class="theme-switch-btn relative flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-amber-500/40 text-xs font-bold transition-all shadow-xs cursor-pointer group"
+        >
+          <span id="owner-theme-icon" class="text-sm transition-transform duration-300 group-hover:scale-115">🌙</span>
+          <span id="owner-theme-label" class="hidden sm:inline font-bold tracking-tight">Night Mode</span>
         </button>
 
-        <!-- Sound On/Off Toggle Button -->
+        <!-- Sound Audio FX Toggle -->
         <button id="owner-sound-toggle-btn" onclick="toggleOwnerSound()" title="Notification Audio Toggle" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-bold border border-slate-700 transition cursor-pointer flex items-center gap-1.5 shadow-xs">
           <span id="owner-sound-icon">🔊</span>
-          <span id="owner-sound-label" class="hidden sm:inline">Sound ON</span>
+          <span id="owner-sound-label" class="hidden xl:inline">Sound ON</span>
         </button>
 
-        <!-- Refresh Button -->
-        <button onclick="refreshCurrentTab(this)" title="Reload Tab Data" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs border border-slate-700 transition cursor-pointer flex items-center justify-center">
+        <!-- Tab Data Live Refresh -->
+        <button id="owner-refresh-btn" onclick="refreshCurrentTab(this)" title="Reload live telemetry data (⌘R)" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs border border-slate-700 transition-all cursor-pointer flex items-center justify-center shadow-xs">
           <span class="inline-block transition-transform duration-500">🔄</span>
         </button>
       </div>
@@ -3235,6 +3454,9 @@
 
     // Initialize on DOM Ready
     document.addEventListener('DOMContentLoaded', async () => {
+      // Initialize theme UI
+      initOwnerTheme();
+
       // First verify session is authenticated and authorized for dashboard
       let authUser = null;
       try {
@@ -3325,6 +3547,34 @@
       sidebar.classList.toggle('-translate-x-full');
     }
 
+    // Tab Titles Map for Executive Top Navbar Breadcrumb
+    const TAB_TITLES = {
+      dashboard: { icon: '📊', title: 'Executive Dashboard' },
+      orders: { icon: '📦', title: 'Live Orders Management' },
+      products: { icon: '🥬', title: 'Products Catalog' },
+      inventory: { icon: '📋', title: 'Inventory & Fresh Stock' },
+      categories: { icon: '🏷️', title: 'Product Categories' },
+      farmers: { icon: '🧑‍🌾', title: 'Farmers & Procurement' },
+      hubs: { icon: '🏬', title: 'Dark Stores / Hubs' },
+      delivery: { icon: '🛵', title: 'EV Fleet & Riders' },
+      customers: { icon: '👥', title: 'Customers & CRM' },
+      payments: { icon: '💳', title: 'Payments & Cash Ledger' },
+      reviews: { icon: '⭐', title: 'Customer Reviews & Ratings' },
+      staff: { icon: '🛡️', title: 'Staff & Sub-Admins' },
+      roles: { icon: '🔐', title: 'Role Hierarchy Matrix' },
+      audit: { icon: '📜', title: 'Security & Audit Logs' },
+      settings: { icon: '⚙️', title: 'Platform Settings' },
+      health: { icon: '🩺', title: 'Database & Health Telemetry' }
+    };
+
+    function updateNavbarBreadcrumb(tabId) {
+      const info = TAB_TITLES[tabId] || { icon: '👑', title: 'Executive Console' };
+      const iconEl = document.getElementById('navbar-tab-icon');
+      const titleEl = document.getElementById('navbar-tab-title');
+      if (iconEl) iconEl.textContent = info.icon;
+      if (titleEl) titleEl.textContent = info.title;
+    }
+
     // Tab Switching
     function switchTab(tabId, updateUrl = true) {
       state.currentTab = tabId;
@@ -3342,6 +3592,9 @@
       if (activeBtn) {
         activeBtn.classList.add('bg-amber-500/10', 'text-amber-400', 'border', 'border-amber-500/30');
       }
+
+      // Update navbar breadcrumb
+      updateNavbarBreadcrumb(tabId);
 
       // Close mobile sidebar if open
       const sidebar = document.getElementById('owner-sidebar');
@@ -7092,7 +7345,20 @@
 
     // Global Search Across Tabs
     function handleGlobalSearch(e) {
-      const q = e.target.value.toLowerCase().trim();
+      const input = document.getElementById('global-search-input');
+      const clearBtn = document.getElementById('global-search-clear-btn');
+      const q = (input?.value || '').toLowerCase().trim();
+      
+      if (clearBtn) {
+        if (q.length > 0) {
+          clearBtn.classList.remove('hidden');
+          clearBtn.classList.add('flex');
+        } else {
+          clearBtn.classList.add('hidden');
+          clearBtn.classList.remove('flex');
+        }
+      }
+
       if (!q) {
         renderOrdersTable(state.orders);
         renderProductsTable(state.products);
@@ -7110,6 +7376,115 @@
         handleProductsSearch(q);
       }
     }
+
+    // Clear Global Search
+    function clearGlobalSearch() {
+      const input = document.getElementById('global-search-input');
+      const clearBtn = document.getElementById('global-search-clear-btn');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+      if (clearBtn) {
+        clearBtn.classList.add('hidden');
+        clearBtn.classList.remove('flex');
+      }
+      renderOrdersTable(state.orders);
+      renderProductsTable(state.products);
+    }
+
+    // =========================================================================
+    // DAY / NIGHT MODE THEME ENGINE
+    // =========================================================================
+    function initOwnerTheme() {
+      try {
+        const savedTheme = localStorage.getItem('freshmart_owner_theme') || 'dark';
+        applyOwnerTheme(savedTheme, false);
+      } catch (e) {
+        applyOwnerTheme('dark', false);
+      }
+    }
+
+    function toggleThemeMode() {
+      const isCurrentlyLight = document.documentElement.classList.contains('theme-light');
+      const newTheme = isCurrentlyLight ? 'dark' : 'light';
+      applyOwnerTheme(newTheme, true);
+      
+      // Audio click feedback
+      if (window.FreshMartSound && window.FreshMartSound.playFeedback) {
+        window.FreshMartSound.playFeedback();
+      }
+      
+      showToast(newTheme === 'light' ? '☀️ Switched to Day Mode (Light)' : '🌙 Switched to Night Mode (Dark)', 'success');
+    }
+
+    function applyOwnerTheme(theme, animate = false) {
+      const isLight = theme === 'light';
+      try {
+        localStorage.setItem('freshmart_owner_theme', theme);
+      } catch (e) {}
+
+      if (isLight) {
+        document.documentElement.classList.add('theme-light');
+        document.documentElement.classList.remove('dark');
+        document.body?.classList.add('theme-light');
+      } else {
+        document.documentElement.classList.remove('theme-light');
+        document.documentElement.classList.add('dark');
+        document.body?.classList.remove('theme-light');
+      }
+
+      updateThemeToggleUI(isLight);
+    }
+
+    function updateThemeToggleUI(isLight) {
+      const icon = document.getElementById('owner-theme-icon');
+      const label = document.getElementById('owner-theme-label');
+      const btn = document.getElementById('owner-theme-toggle-btn');
+      
+      if (icon) {
+        icon.textContent = isLight ? '☀️' : '🌙';
+        icon.style.transform = isLight ? 'rotate(360deg)' : 'rotate(0deg)';
+      }
+      if (label) {
+        label.textContent = isLight ? 'Day Mode' : 'Night Mode';
+      }
+      if (btn) {
+        btn.setAttribute('title', isLight ? 'Switch to Night Mode (Dark) [⌘+Shift+D]' : 'Switch to Day Mode (Light) [⌘+Shift+D]');
+        if (isLight) {
+          btn.classList.add('bg-amber-100', 'text-amber-900', 'border-amber-300');
+          btn.classList.remove('bg-slate-800', 'text-slate-200', 'border-slate-700');
+        } else {
+          btn.classList.remove('bg-amber-100', 'text-amber-900', 'border-amber-300');
+          btn.classList.add('bg-slate-800', 'text-slate-200', 'border-slate-700');
+        }
+      }
+    }
+
+    // Global Keyboard Shortcuts (⌘K for Search, ⌘+Shift+D for Day/Night, Esc to blur)
+    window.addEventListener('keydown', (e) => {
+      // ⌘K or Ctrl+K -> Search
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        const searchInput = document.getElementById('global-search-input');
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+      }
+      // ⌘+Shift+D or Ctrl+Shift+D -> Toggle Theme
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'd' || e.key === 'D')) {
+        e.preventDefault();
+        toggleThemeMode();
+      }
+      // Escape -> Blur Search
+      if (e.key === 'Escape') {
+        const searchInput = document.getElementById('global-search-input');
+        if (document.activeElement === searchInput) {
+          searchInput.blur();
+        }
+      }
+    });
 
     // Refresh Current Tab with Live Feedback
     async function refreshCurrentTab(btn) {
@@ -7231,6 +7606,9 @@
     // Top navbar global window exports
     window.toggleSidebar = toggleSidebar;
     window.handleGlobalSearch = handleGlobalSearch;
+    window.clearGlobalSearch = clearGlobalSearch;
+    window.toggleThemeMode = toggleThemeMode;
+    window.initOwnerTheme = initOwnerTheme;
     window.openAddProductModal = openAddProductModal;
     window.closeAddProductModal = closeAddProductModal;
     window.openStockAdjustModal = openStockAdjustModal;
