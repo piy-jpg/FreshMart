@@ -261,24 +261,7 @@ class PostgresAdapter {
 
       // 5. Ensure database-backed atomic sequence for customer-facing sequential Order IDs: FM-OD-00001, FM-OD-00002...
       try {
-        await pool.query(`
-          DO $$
-          DECLARE
-            max_num integer;
-          BEGIN
-            CREATE SEQUENCE IF NOT EXISTS freshmart_order_id_seq START WITH 1 INCREMENT BY 1;
-            
-            -- Find highest existing FM-OD-xxxxx sequence number if any exists
-            SELECT COALESCE(MAX(SUBSTRING(order_id FROM 'FM-OD-([0-9]+)')::integer), 0)
-            INTO max_num
-            FROM freshmart_orders
-            WHERE order_id ~ '^FM-OD-[0-9]+$';
-            
-            IF max_num > 0 THEN
-              PERFORM setval('freshmart_order_id_seq', max_num, true);
-            END IF;
-          END $$;
-        `);
+        await pool.query(`CREATE SEQUENCE IF NOT EXISTS freshmart_order_id_seq START WITH 1 INCREMENT BY 1;`);
       } catch (seqInitErr) {
         console.warn('PostgreSQL order sequence setup warning:', seqInitErr.message);
       }
