@@ -153,6 +153,11 @@
               <span class="text-base">💳</span> <span>Payments & Cash</span>
             </button>
           </li>
+          <li>
+            <button onclick="switchTab('reviews')" data-tab-btn="reviews" class="sidebar-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition">
+              <span class="text-base">⭐</span> <span>Customer Reviews</span>
+            </button>
+          </li>
         </ul>
       </div>
 
@@ -839,6 +844,108 @@
               </thead>
               <tbody id="payments-table" class="divide-y divide-slate-800">
                 <tr><td colspan="6" class="py-8 text-center text-slate-500">Loading payment ledger...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB: CUSTOMER REVIEWS & RATINGS ================= -->
+      <section id="tab-reviews" class="tab-pane space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="font-heading font-black text-xl text-white">Customer Reviews & Ratings</h2>
+            <p class="text-xs text-slate-400 mt-1">
+              Verified customer feedback and star ratings directly recorded in Neon PostgreSQL (<code class="font-mono text-amber-400">freshmart_reviews</code>).
+            </p>
+          </div>
+          <button 
+            type="button" 
+            onclick="loadReviews()" 
+            class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs transition flex items-center gap-2 cursor-pointer self-start sm:self-auto">
+            <span>🔄</span> <span>Refresh Reviews</span>
+          </button>
+        </div>
+
+        <!-- Rating KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- 1. Store Rating -->
+          <div class="rounded-3xl bg-slate-900 border border-slate-800 p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Store Rating</span>
+              <span class="text-lg">🏪</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span id="kpi-store-rating" class="font-heading font-black text-3xl text-amber-400">5.0</span>
+              <span class="text-xs text-slate-400">/ 5.0</span>
+            </div>
+            <div id="kpi-store-stars" class="text-amber-400 text-sm mt-1">★★★★★</div>
+            <p class="text-[11px] text-slate-500 mt-2">Calculated live across all orders</p>
+          </div>
+
+          <!-- 2. Delivery Partner Rating -->
+          <div class="rounded-3xl bg-slate-900 border border-slate-800 p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Delivery Partner Rating</span>
+              <span class="text-lg">🛵</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span id="kpi-rider-rating" class="font-heading font-black text-3xl text-emerald-400">5.0</span>
+              <span class="text-xs text-slate-400">/ 5.0</span>
+            </div>
+            <div id="kpi-rider-stars" class="text-emerald-400 text-sm mt-1">★★★★★</div>
+            <p class="text-[11px] text-slate-500 mt-2">Calculated live across delivery fleet</p>
+          </div>
+
+          <!-- 3. Total Reviews -->
+          <div class="rounded-3xl bg-slate-900 border border-slate-800 p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Reviews</span>
+              <span class="text-lg">📝</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span id="kpi-total-reviews" class="font-heading font-black text-3xl text-white">0</span>
+              <span class="text-xs text-slate-400">submissions</span>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-3">100% Verified delivered orders</p>
+          </div>
+
+          <!-- 4. Verified Satisfaction CSAT -->
+          <div class="rounded-3xl bg-slate-900 border border-slate-800 p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Satisfaction Score</span>
+              <span class="text-lg">✨</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span id="kpi-csat-score" class="font-heading font-black text-3xl text-indigo-400">100%</span>
+              <span class="text-xs text-slate-400">CSAT</span>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-3">Ratings &ge; 4 stars</p>
+          </div>
+        </div>
+
+        <!-- Reviews Data Table -->
+        <div class="rounded-3xl bg-slate-900 border border-slate-800 overflow-hidden">
+          <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+            <h3 class="font-bold text-sm text-white flex items-center gap-2">
+              <span>⭐</span> <span>Verified Order Reviews Ledger</span>
+            </h3>
+            <span class="text-[11px] text-slate-400">Source: Neon PostgreSQL</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-800/80 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-700">
+                <tr>
+                  <th class="py-3.5 px-4">Order / Review ID</th>
+                  <th class="py-3.5 px-4">Customer</th>
+                  <th class="py-3.5 px-4">Store Rating</th>
+                  <th class="py-3.5 px-4">Rider Rating</th>
+                  <th class="py-3.5 px-4">Customer Comment</th>
+                  <th class="py-3.5 px-4">Date & Time</th>
+                </tr>
+              </thead>
+              <tbody id="reviews-table" class="divide-y divide-slate-800">
+                <tr><td colspan="6" class="py-8 text-center text-slate-500">Loading customer reviews from PostgreSQL...</td></tr>
               </tbody>
             </table>
           </div>
@@ -3173,6 +3280,7 @@
       await loadFleet();
       await loadCustomers();
       await loadPayments();
+      await loadReviews();
       await loadAuditLogs();
       await loadSettings();
       await loadHealthTelemetry();
@@ -3185,6 +3293,8 @@
             await loadOrders();
           } else if (state.currentTab === 'dashboard') {
             await loadDashboard();
+          } else if (state.currentTab === 'reviews') {
+            await loadReviews();
           }
         } catch (e) {}
       }, 5000);
@@ -3253,6 +3363,7 @@
       // Lazy refresh tab data when activated
       if (tabId === 'staff') loadStaff();
       else if (tabId === 'roles') loadRoles();
+      else if (tabId === 'reviews') loadReviews();
       else if (tabId === 'audit') loadAuditLogs();
       else if (tabId === 'settings') loadSettings();
       else if (tabId === 'health') loadHealthTelemetry();
@@ -6395,6 +6506,86 @@
         }
       } catch (err) {
         console.error('loadPayments error', err);
+      }
+    }
+
+    async function loadReviews() {
+      try {
+        const res = await fetch('/api/owner/reviews', { credentials: 'include' });
+        if (!res.ok) throw new Error('Failed to fetch reviews');
+        const data = await res.json();
+        const reviews = Array.isArray(data.reviews) ? data.reviews : [];
+        const stats = data.stats || {};
+
+        // Live stats from PostgreSQL calculation
+        const storeAvg = stats.storeRatingStats?.averageRating || (reviews.length > 0 ? (reviews.reduce((acc, r) => acc + Number(r.storeRating || 5), 0) / reviews.length).toFixed(1) : '5.0');
+        const riderAvg = stats.riderRatingStats?.averageRating || (reviews.length > 0 ? (reviews.reduce((acc, r) => acc + Number(r.riderRating || 5), 0) / reviews.length).toFixed(1) : '5.0');
+        const totalRev = stats.totalReviews !== undefined ? stats.totalReviews : reviews.length;
+
+        const storeEl = document.getElementById('kpi-store-rating');
+        if (storeEl) storeEl.textContent = storeAvg;
+        const riderEl = document.getElementById('kpi-rider-rating');
+        if (riderEl) riderEl.textContent = riderAvg;
+        const totalEl = document.getElementById('kpi-total-reviews');
+        if (totalEl) totalEl.textContent = totalRev;
+
+        const satisfiedCount = reviews.filter(r => (Number(r.storeRating || 5) >= 4)).length;
+        const csat = reviews.length > 0 ? Math.round((satisfiedCount / reviews.length) * 100) : 100;
+        const csatEl = document.getElementById('kpi-csat-score');
+        if (csatEl) csatEl.textContent = `${csat}%`;
+
+        const renderStars = (rating) => {
+          const num = Math.round(Number(rating) || 5);
+          return '★'.repeat(num) + '☆'.repeat(Math.max(0, 5 - num));
+        };
+
+        const storeStarsEl = document.getElementById('kpi-store-stars');
+        if (storeStarsEl) storeStarsEl.textContent = renderStars(storeAvg);
+        const riderStarsEl = document.getElementById('kpi-rider-stars');
+        if (riderStarsEl) riderStarsEl.textContent = renderStars(riderAvg);
+
+        const tbody = document.getElementById('reviews-table');
+        if (tbody) {
+          if (reviews.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-500">No verified customer reviews yet. Reviews submitted after order delivery will appear here automatically.</td></tr>`;
+          } else {
+            tbody.innerHTML = reviews.map(r => `
+              <tr class="hover:bg-slate-800/40 transition">
+                <td class="py-3.5 px-4 font-mono">
+                  <div class="text-amber-400 font-bold">${r.orderId}</div>
+                  <div class="text-[10px] text-slate-500">${r.reviewId || r.id}</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="text-white font-bold">${r.customerName || r.customerId}</div>
+                  <div class="text-[10px] font-mono text-slate-400">${r.customerId}</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-amber-400 font-bold text-xs">${r.storeRating} ★</span>
+                    <span class="text-amber-400 text-xs">${renderStars(r.storeRating)}</span>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-emerald-400 font-bold text-xs">${r.riderRating} ★</span>
+                    <span class="text-emerald-400 text-xs">${renderStars(r.riderRating)}</span>
+                  </div>
+                  <div class="text-[10px] text-slate-400 font-mono">Rider: ${r.deliveryPartnerId || 'Assigned Pilot'}</div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <p class="text-slate-200 text-xs italic bg-slate-950/50 p-2 rounded-xl border border-slate-800/60 max-w-md">
+                    "${r.comment ? String(r.comment).replace(/"/g, '&quot;') : 'Verified order delivery - no comment provided.'}"
+                  </p>
+                </td>
+                <td class="py-3.5 px-4 text-slate-400 text-xs whitespace-nowrap">
+                  ${r.createdAt ? new Date(r.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'Recently'}
+                </td>
+              </tr>
+            `).join('');
+          }
+        }
+      } catch (err) {
+        console.error('loadReviews error', err);
       }
     }
 

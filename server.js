@@ -3208,34 +3208,137 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, { success: true, order });
     }
 
-    // 10. Order Review
+    // 10. Order Review (GET and POST)
     const reviewMatch = pathname.match(/^\/api\/orders\/([A-Za-z0-9_-]+)\/review$/);
+    if (reviewMatch && method === 'GET') {
+      const orderId = reviewMatch[1];
+      let review = null;
+      if (db.postgres && db.postgres.isAvailable()) {
+        try {
+          review = await db.postgres.getReviewByOrderId(orderId);
+        } catch (e) {}
+      }
+      if (!review) {
+        let order = db.getById('orders', orderId);
+        if (order && order.reviews) review = order.reviews;
+      }
+      return sendJson(res, 200, { success: true, review: review || null });
+    }
+
     if (reviewMatch && method === 'POST') {
-      const body = await parseBody(req);
-      const order = db.getById('orders', reviewMatch[1]);
+      const orderId = reviewMatch[1];
+      let order = null;
+      if (db.postgres && db.postgres.isAvailable()) {
+        try {
+          order = await db.postgres.getById('orders', orderId);
+        } catch (e) {}
+      }
+      if (!order) order = db.getById('orders', orderId);
+      if (!order) {
+        const orders = db.getAll('orders') || [];
+        order = orders.find(o => o.id === orderId || o.orderId === orderId);
+      }
       if (!order) return sendJson(res, 404, { error: 'Order not found' });
 
-      order.reviews = {
-        deliveryRating: body.deliveryRating || 5,
-        productRating: body.productRating || 5,
-        feedback: body.feedback || '',
-        submittedAt: new Date().toISOString()
+      // 1. Requirement: Only DELIVERED orders can be reviewed
+      const orderStatus = (order.orderStatus || order.status || '').toUpperCase();
+      if (orderStatus !== 'DELIVERED') {
+        return sendJson(res, 400, { 
+          error: `Only delivered orders can be reviewed. Current status is ${orderStatus}.`,
+          code: 'ORDER_NOT_DELIVERED'
+        });
+      }
+
+      // 2. Requirement: Exactly one review per order (Check database level)
+      if (db.postgres && db.postgres.isAvailable()) {
+        try {
+          const existingReview = await db.postgres.getReviewByOrderId(orderId);
+          if (existingReview) {
+            return sendJson(res, 409, { 
+              error: 'This order has already been reviewed. Only one review is allowed per order.',
+              code: 'DUPLICATE_REVIEW',
+              review: existingReview
+            });
+          }
+        } catch (e) {}
+      } else if (order.reviews && (order.reviews.storeRating || order.reviews.riderRating || order.reviews.rating)) {
+        return sendJson(res, 409, { 
+          error: 'This order has already been reviewed. Only one review is allowed per order.',
+          code: 'DUPLICATE_REVIEW',
+          review: order.reviews
+        });
+      }
+
+      const body = await parseBody(req);
+      const storeRating = parseInt(body.storeRating || body.store_rating || body.productRating || body.product_rating || body.rating || 5, 10);
+      const riderRating = parseInt(body.riderRating || body.rider_rating || body.deliveryRating || body.delivery_rating || 5, 10);
+      const comment = (body.comment || body.feedback || body.reviewText || '').trim();
+
+      if (isNaN(storeRating) || storeRating < 1 || storeRating > 5) {
+        return sendJson(res, 400, { error: 'FreshMart store rating must be between 1 and 5 stars.' });
+      }
+      if (isNaN(riderRating) || riderRating < 1 || riderRating > 5) {
+        return sendJson(res, 400, { error: 'Delivery partner rating must be between 1 and 5 stars.' });
+      }
+
+      const auth = extractUserSession(req);
+      const customerId = (auth?.user?.id) || order.customerId || order.userId || 'usr_customer';
+      const customerName = order.customerName || (order.deliveryAddress && (order.deliveryAddress.fullName || order.deliveryAddress.name)) || auth?.user?.name || 'Customer';
+      const customerPhone = order.customerPhone || (order.deliveryAddress && order.deliveryAddress.phone) || auth?.user?.phone || null;
+      const customerEmail = order.customerEmail || auth?.user?.email || null;
+      const deliveryPartnerId = order.deliveryPartnerId || order.deliveryBoyId || null;
+      const deliveryPartnerName = order.deliveryPartnerName || order.deliveryBoyName || 'Delivery Partner';
+
+      const reviewId = 'rev_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+      const reviewRecord = {
+        id: reviewId,
+        reviewId,
+        orderId: order.orderId || order.id,
+        customerId,
+        customerName,
+        customerPhone,
+        customerEmail,
+        deliveryPartnerId,
+        deliveryPartnerName,
+        storeRating,
+        riderRating,
+        comment,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
-      db.update('orders', order.id, order);
 
-      db.insert('reviews', {
-        id: 'rev_' + Date.now(),
-        orderId: order.orderId,
-        customerName: order.customerName,
-        productName: order.items[0]?.name || 'Fresh Produce',
-        rating: body.productRating || 5,
-        reviewText: body.feedback || 'Excellent fresh harvest!',
-        date: new Date().toISOString(),
-        status: 'APPROVED'
-      });
+      // 3. Save permanently in Neon PostgreSQL table freshmart_reviews
+      if (db.postgres && db.postgres.isAvailable()) {
+        try {
+          await db.postgres.insert('reviews', reviewRecord);
+        } catch (pgErr) {
+          if (pgErr.message && pgErr.message.includes('unique constraint') || pgErr.code === '23505') {
+            return sendJson(res, 409, { 
+              error: 'This order has already been reviewed. Duplicate submission prevented.',
+              code: 'DUPLICATE_REVIEW'
+            });
+          }
+          console.error('PostgreSQL review insert error:', pgErr.message);
+        }
+      } else {
+        db.insert('reviews', reviewRecord);
+      }
 
+      // 4. Attach review to order record
+      order.reviews = reviewRecord;
+      order.updatedAt = new Date().toISOString();
+      await persistOrder(order);
+
+      db.logActivity(customerName, 'REVIEW_SUBMITTED', 'Reviews', order.orderId || order.id, `Rated Store: ${storeRating}★, Rider: ${riderRating}★`);
+      broadcastEvent('REVIEW_CREATED', reviewRecord);
       broadcastEvent('ORDER_UPDATED', order);
-      return sendJson(res, 200, { success: true, order });
+
+      return sendJson(res, 201, { 
+        success: true, 
+        message: 'Review and ratings submitted successfully!',
+        review: reviewRecord, 
+        order 
+      });
     }
 
     // ========================================================
@@ -3348,6 +3451,19 @@ const server = http.createServer(async (req, res) => {
     // ========================================================
     // DELIVERY PARTNER ENDPOINTS (REAL STATUS TRANSITIONS & LIFECYCLE)
     // ========================================================
+    if (pathname === '/api/delivery/reviews' && method === 'GET') {
+      const auth = extractUserSession(req);
+      const currentUser = auth?.user || {};
+      const riderId = parsedUrl.query.riderId || currentUser.id || currentUser.employeeId || (currentUser.role === 'DELIVERY_BOY' ? currentUser.name : null);
+      let stats = { totalReviews: 0, averageRating: 5.0, reviews: [] };
+      if (db.postgres && db.postgres.isAvailable() && riderId) {
+        try {
+          stats = await db.postgres.getRiderRatingStats(riderId);
+        } catch (e) {}
+      }
+      return sendJson(res, 200, { success: true, ...stats });
+    }
+
     if (pathname === '/api/delivery/available-orders' && method === 'GET') {
       const orders = db.getAll('orders') || [];
       const available = orders.filter(o => ['READY_FOR_PICKUP', 'PACKED', 'CONFIRMED', 'ASSIGNED'].includes(o.orderStatus || o.deliveryStatus));
@@ -4604,6 +4720,27 @@ const server = http.createServer(async (req, res) => {
         db.logActivity(owner.name, 'ORDER_UPDATED', 'Orders', order.orderId || order.id, `Status set to ${order.orderStatus}`);
         broadcastEvent('ORDER_UPDATED', order);
         return sendJson(res, 200, { success: true, order });
+      }
+
+      // Customer Ratings & Reviews Management
+      if (pathname === '/api/owner/reviews' && method === 'GET') {
+        let reviews = [];
+        let stats = { totalReviews: 0, averageStoreRating: 5.0, averageRiderRating: 5.0 };
+        if (db.postgres && db.postgres.isAvailable()) {
+          try {
+            reviews = await db.postgres.getAllReviews();
+            stats = await db.postgres.getStoreRatingStats();
+          } catch (e) {
+            reviews = db.getAll('reviews') || [];
+          }
+        } else {
+          reviews = db.getAll('reviews') || [];
+        }
+        return sendJson(res, 200, {
+          success: true,
+          stats,
+          reviews
+        });
       }
 
       // 3. Products & SKUs

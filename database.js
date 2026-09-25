@@ -9724,7 +9724,7 @@ class Database {
       await this.initPostgres();
       return;
     }
-    const collections = ['users', 'products', 'categories', 'orders', 'delivery_partners', 'farmers', 'hubs', 'inventory_movements', 'audit_logs'];
+    const collections = ['users', 'products', 'categories', 'orders', 'delivery_partners', 'farmers', 'hubs', 'inventory_movements', 'audit_logs', 'reviews'];
     const results = await Promise.allSettled(collections.map(coll => this.postgres.getAll(coll)));
     results.forEach((res, idx) => {
       const coll = collections[idx];

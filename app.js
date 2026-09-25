@@ -3750,6 +3750,18 @@ window.renderTrackOrderModalContent = async function(orderId) {
   const riderPhone = order.deliveryBoyPhone || order.deliveryPartnerPhone || '+91 98765 43210';
   const hasRider = !!(order.deliveryBoyName || order.deliveryPartnerName);
 
+  // Fetch existing review if order is DELIVERED
+  let existingReview = order.reviews || null;
+  if (isDelivered && !existingReview) {
+    try {
+      const revRes = await fetch(`/api/orders/${orderId}/review`);
+      if (revRes.ok) {
+        const revData = await revRes.json();
+        if (revData.review) existingReview = revData.review;
+      }
+    } catch (e) {}
+  }
+
   modalBox.innerHTML = `
     <!-- Modal Header -->
     <div class="flex items-center justify-between pb-4 border-b border-stone-100 mb-5">
@@ -3780,35 +3792,88 @@ window.renderTrackOrderModalContent = async function(orderId) {
         </div>
         <div>
           <h4 class="font-heading font-black text-lg text-emerald-950">Delivered Successfully!</h4>
-          <p class="text-xs text-stone-600 mt-0.5">Handed over at ${order.deliveryAddress?.city || 'Indiranagar'} • Verified via OTP</p>
+          <p class="text-xs text-stone-600 mt-0.5">Handed over at ${order.deliveryAddress?.city || 'Doorstep'} • Verified via OTP</p>
         </div>
 
-        <!-- 5-Star Rating Widget -->
-        <div class="bg-white p-4 rounded-2xl border border-emerald-200/80 text-left space-y-3">
-          <div>
-            <span class="text-xs font-bold text-emerald-950 block">Rate Delivery Partner (${riderName})</span>
-            <div class="flex gap-1 mt-1 text-xl text-amber-400 cursor-pointer" id="delivery-star-rating">
-              <span onclick="setRating('delivery', 1)">★</span>
-              <span onclick="setRating('delivery', 2)">★</span>
-              <span onclick="setRating('delivery', 3)">★</span>
-              <span onclick="setRating('delivery', 4)">★</span>
-              <span onclick="setRating('delivery', 5)">★</span>
+        ${existingReview ? `
+          <!-- Submitted Review Card -->
+          <div class="bg-white p-5 rounded-2xl border border-emerald-300 text-left space-y-3 shadow-xs">
+            <div class="flex items-center justify-between pb-2 border-b border-stone-100">
+              <span class="text-xs font-black text-emerald-950 uppercase tracking-wider">Your Submitted Review</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                ✓ Verified Customer Review
+              </span>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3">
+              <div class="p-3 rounded-xl bg-stone-50 border border-stone-200/80">
+                <span class="text-[10px] font-bold text-stone-500 uppercase block">Store Produce</span>
+                <div class="text-amber-400 text-base font-black flex items-center gap-1 mt-0.5">
+                  <span>${'★'.repeat(existingReview.storeRating || 5)}${'☆'.repeat(5 - (existingReview.storeRating || 5))}</span>
+                  <span class="text-xs font-bold text-stone-700">(${existingReview.storeRating || 5}/5)</span>
+                </div>
+              </div>
+
+              <div class="p-3 rounded-xl bg-stone-50 border border-stone-200/80">
+                <span class="text-[10px] font-bold text-stone-500 uppercase block">EV Delivery Partner</span>
+                <div class="text-amber-400 text-base font-black flex items-center gap-1 mt-0.5">
+                  <span>${'★'.repeat(existingReview.riderRating || 5)}${'☆'.repeat(5 - (existingReview.riderRating || 5))}</span>
+                  <span class="text-xs font-bold text-stone-700">(${existingReview.riderRating || 5}/5)</span>
+                </div>
+              </div>
+            </div>
+
+            ${existingReview.comment ? `
+              <div class="p-3 rounded-xl bg-stone-50 border border-stone-200/80 text-xs text-stone-700 italic">
+                "${existingReview.comment}"
+              </div>
+            ` : ''}
+
+            <div class="text-[10px] text-stone-400 font-medium text-right">
+              Submitted on ${new Date(existingReview.createdAt || Date.now()).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
             </div>
           </div>
-          <div>
-            <span class="text-xs font-bold text-emerald-950 block">Rate Produce Freshness</span>
-            <div class="flex gap-1 mt-1 text-xl text-amber-400 cursor-pointer" id="produce-star-rating">
-              <span onclick="setRating('produce', 1)">★</span>
-              <span onclick="setRating('produce', 2)">★</span>
-              <span onclick="setRating('produce', 3)">★</span>
-              <span onclick="setRating('produce', 4)">★</span>
-              <span onclick="setRating('produce', 5)">★</span>
+        ` : `
+          <!-- Interactive 5-Star Rating Form -->
+          <div class="bg-white p-5 rounded-2xl border border-emerald-200/80 text-left space-y-4 shadow-xs">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-emerald-950 block">Rate FreshMart Produce & Store</span>
+                <span id="store-rating-label" class="text-[11px] font-bold text-emerald-700">5 / 5 • Exceptional Quality</span>
+              </div>
+              <div class="flex gap-2 mt-1.5 text-2xl cursor-pointer select-none" id="store-star-rating">
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setStoreRating(1)">★</span>
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setStoreRating(2)">★</span>
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setStoreRating(3)">★</span>
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setStoreRating(4)">★</span>
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setStoreRating(5)">★</span>
+              </div>
             </div>
+
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-emerald-950 block">Rate Delivery Partner (${riderName})</span>
+                <span id="rider-rating-label" class="text-[11px] font-bold text-emerald-700">5 / 5 • Fast & Polite</span>
+              </div>
+              <div class="flex gap-2 mt-1.5 text-2xl cursor-pointer select-none" id="rider-star-rating">
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setRiderRating(1)">★</span>
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setRiderRating(2)">★</span>
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setRiderRating(3)">★</span>
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setRiderRating(4)">★</span>
+                <span class="star-btn text-amber-400 transition cursor-pointer" onclick="setRiderRating(5)">★</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-emerald-950 mb-1">Written Feedback (Optional)</label>
+              <textarea id="order-rating-comment" rows="2" placeholder="Share your experience with produce freshness, ozone wash, or delivery speed..." class="w-full p-2.5 rounded-xl bg-stone-50 border border-stone-200 text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 resize-none"></textarea>
+            </div>
+
+            <button id="btn-submit-order-rating" onclick="submitOrderRating('${order.id || order.orderId}')" class="w-full py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs transition-all shadow-xs cursor-pointer">
+              ✓ Submit Rating & Feedback
+            </button>
           </div>
-          <button onclick="submitOrderRating('${order.id || order.orderId}')" class="w-full py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs transition-colors">
-            Submit Rating & Feedback
-          </button>
-        </div>
+        `}
 
         <button onclick="reorderItems('${order.id || order.orderId}')" class="w-full py-3 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2">
           <span>🔄 Reorder These Items</span>
@@ -3965,22 +4030,85 @@ function getProgressWidth(status) {
   }
 }
 
-window.setRating = function(type, stars) {
-  showToast(`Rated ${type} ${stars} Stars!`, 'success');
+let activeOrderStoreRating = 5;
+let activeOrderRiderRating = 5;
+
+window.setStoreRating = function(stars) {
+  activeOrderStoreRating = stars;
+  const container = document.getElementById('store-star-rating');
+  if (container) {
+    const starSpans = container.querySelectorAll('.star-btn');
+    starSpans.forEach((span, idx) => {
+      if (idx < stars) {
+        span.className = 'star-btn text-amber-400 transition cursor-pointer';
+      } else {
+        span.className = 'star-btn text-stone-300 hover:text-amber-200 transition cursor-pointer';
+      }
+    });
+  }
+  const label = document.getElementById('store-rating-label');
+  if (label) {
+    const labels = ['', '1 / 5 • Poor Quality', '2 / 5 • Fair Freshness', '3 / 5 • Good Quality', '4 / 5 • Very Fresh', '5 / 5 • Exceptional Quality'];
+    label.textContent = labels[stars] || `${stars} / 5`;
+  }
+};
+
+window.setRiderRating = function(stars) {
+  activeOrderRiderRating = stars;
+  const container = document.getElementById('rider-star-rating');
+  if (container) {
+    const starSpans = container.querySelectorAll('.star-btn');
+    starSpans.forEach((span, idx) => {
+      if (idx < stars) {
+        span.className = 'star-btn text-amber-400 transition cursor-pointer';
+      } else {
+        span.className = 'star-btn text-stone-300 hover:text-amber-200 transition cursor-pointer';
+      }
+    });
+  }
+  const label = document.getElementById('rider-rating-label');
+  if (label) {
+    const labels = ['', '1 / 5 • Delayed / Issues', '2 / 5 • Below Average', '3 / 5 • Satisfactory', '4 / 5 • Fast & Polite', '5 / 5 • Lightning Fast & Polite'];
+    label.textContent = labels[stars] || `${stars} / 5`;
+  }
 };
 
 window.submitOrderRating = async function(orderId) {
+  const submitBtn = document.getElementById('btn-submit-order-rating');
+  const commentInput = document.getElementById('order-rating-comment');
+  const comment = commentInput ? commentInput.value.trim() : '';
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '⏳ Submitting review to database...';
+  }
+
   try {
-    await fetch(`/api/orders/${orderId}/review`, {
+    const res = await fetch(`/api/orders/${orderId}/review`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ deliveryRating: 5, productRating: 5, feedback: 'Great fresh produce!' })
+      credentials: 'include',
+      body: JSON.stringify({
+        storeRating: activeOrderStoreRating,
+        riderRating: activeOrderRiderRating,
+        comment
+      })
     });
-    showToast('Thank you for your rating! ₹20 FreshMart Cash added to your wallet.', 'success');
-    closeTrackOrderModal();
-  } catch (e) {
-    showToast('Rating submitted!', 'success');
-    closeTrackOrderModal();
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to submit review');
+    }
+
+    showToast('🌟 Review saved permanently in Neon PostgreSQL database!', 'success');
+    if (window.FreshMartSound) window.FreshMartSound.play('success');
+    await renderTrackOrderModalContent(orderId);
+  } catch (err) {
+    showToast(err.message || 'Error submitting review', 'error');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '✓ Submit Rating & Feedback';
+    }
   }
 };
 

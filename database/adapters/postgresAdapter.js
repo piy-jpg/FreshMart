@@ -130,6 +130,7 @@ class PostgresAdapter {
         // Fast ping to verify connection without heavy DDL transaction locks
         await pool.query('SELECT 1');
         await this.ensureOrdersSchema();
+        await this.ensureReviewsSchema();
         this.isInitialized = true;
         return true;
       } catch (err) {
@@ -254,11 +255,70 @@ class PostgresAdapter {
           DELETE FROM freshmart_orders 
           WHERE id IN ('SJH10248', 'SJH10249', 'SJH10250', 'SJH10251')
              OR order_id IN ('SJH10248', 'SJH10249', 'SJH10250', 'SJH10251')
-             OR customer_name = 'Rahul Sharma' AND (data->>'hubId' = 'hub_blr_indiranagar');
+             OR (customer_name = 'Rahul Sharma' AND (data->>'hubId' = 'hub_blr_indiranagar'));
         `);
       } catch (e) {}
     } catch (err) {
       console.warn('ensureOrdersSchema warning:', err.message);
+    }
+  }
+
+  async ensureReviewsSchema() {
+    try {
+      const pool = this.getPool();
+      if (!pool) return;
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS freshmart_reviews (
+          id VARCHAR(255) PRIMARY KEY,
+          review_id VARCHAR(255),
+          order_id VARCHAR(255) UNIQUE NOT NULL,
+          customer_id VARCHAR(255) NOT NULL,
+          customer_name VARCHAR(255),
+          customer_phone VARCHAR(255),
+          customer_email VARCHAR(255),
+          delivery_partner_id VARCHAR(255),
+          delivery_partner_name VARCHAR(255),
+          store_rating INT NOT NULL CHECK (store_rating >= 1 AND store_rating <= 5),
+          rider_rating INT NOT NULL CHECK (rider_rating >= 1 AND rider_rating <= 5),
+          comment TEXT,
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          updated_at TIMESTAMPTZ DEFAULT NOW(),
+          data JSONB NOT NULL DEFAULT '{}'::jsonb
+        );
+      `);
+
+      // Ensure dedicated columns exist if table was already created
+      const reviewCols = [
+        'review_id VARCHAR(255)',
+        'order_id VARCHAR(255)',
+        'customer_id VARCHAR(255)',
+        'customer_name VARCHAR(255)',
+        'customer_phone VARCHAR(255)',
+        'customer_email VARCHAR(255)',
+        'delivery_partner_id VARCHAR(255)',
+        'delivery_partner_name VARCHAR(255)',
+        'store_rating INT DEFAULT 5',
+        'rider_rating INT DEFAULT 5',
+        'comment TEXT',
+        'created_at TIMESTAMPTZ DEFAULT NOW()',
+        'updated_at TIMESTAMPTZ DEFAULT NOW()',
+        'data JSONB NOT NULL DEFAULT \'{}\'::jsonb'
+      ];
+      for (const col of reviewCols) {
+        try {
+          await pool.query(`ALTER TABLE freshmart_reviews ADD COLUMN IF NOT EXISTS ${col}`);
+        } catch (e) {}
+      }
+
+      // Ensure Unique constraint on order_id
+      try {
+        await pool.query(`
+          CREATE UNIQUE INDEX IF NOT EXISTS idx_freshmart_reviews_order_id ON freshmart_reviews (order_id);
+        `);
+      } catch (e) {}
+    } catch (err) {
+      console.warn('ensureReviewsSchema warning:', err.message);
     }
   }
 
@@ -361,7 +421,8 @@ class PostgresAdapter {
       hubs: 'freshmart_hubs',
       inventory_movements: 'freshmart_inventory_movements',
       audit_logs: 'freshmart_audit_logs',
-      activity_logs: 'freshmart_audit_logs'
+      activity_logs: 'freshmart_audit_logs',
+      reviews: 'freshmart_reviews'
     };
     return mapping[collection] || null;
   }
@@ -371,6 +432,10 @@ class PostgresAdapter {
     if (table) {
       if (collection === 'audit_logs' || collection === 'activity_logs') {
         const res = await this.query(`SELECT data FROM ${table} ORDER BY timestamp DESC LIMIT 500`);
+        return res.rows.map(r => r.data);
+      }
+      if (collection === 'reviews') {
+        const res = await this.query(`SELECT data FROM ${table} ORDER BY created_at DESC`);
         return res.rows.map(r => r.data);
       }
       if (collection === 'orders') {
@@ -622,6 +687,37 @@ class PostgresAdapter {
           item.id, item.timestamp || new Date().toISOString(), item.operatorEmail || item.operator_email || item.user || 'Owner',
           item.action || 'UPDATE', item.entity || 'General', item.entityId || item.entity_id || 'GLOBAL',
           typeof item.details === 'string' ? item.details : JSON.stringify(item.details || ''), JSON.stringify(item)
+        ]);
+      } else if (collection === 'reviews') {
+        const reviewId = item.reviewId || item.id || `rev_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+        const orderId = item.orderId;
+        const customerId = item.customerId || item.userId || 'usr_customer';
+        const customerName = item.customerName || item.customer?.name || null;
+        const customerPhone = item.customerPhone || item.customer?.phone || null;
+        const customerEmail = item.customerEmail || item.customer?.email || null;
+        const deliveryPartnerId = item.deliveryPartnerId || item.deliveryBoyId || null;
+        const deliveryPartnerName = item.deliveryPartnerName || item.deliveryBoyName || null;
+        const storeRating = Math.max(1, Math.min(5, parseInt(item.storeRating || item.productRating || 5, 10)));
+        const riderRating = Math.max(1, Math.min(5, parseInt(item.riderRating || item.deliveryRating || 5, 10)));
+        const comment = (item.comment || item.feedback || item.reviewText || '').trim();
+
+        await this.query(`
+          INSERT INTO freshmart_reviews (
+            id, review_id, order_id, customer_id, customer_name, customer_phone, customer_email,
+            delivery_partner_id, delivery_partner_name, store_rating, rider_rating, comment,
+            created_at, updated_at, data
+          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), NOW(), $13)
+          ON CONFLICT (order_id) DO UPDATE SET
+            store_rating = EXCLUDED.store_rating,
+            rider_rating = EXCLUDED.rider_rating,
+            comment = EXCLUDED.comment,
+            updated_at = NOW(),
+            data = EXCLUDED.data
+        `, [
+          reviewId, reviewId, orderId, customerId, customerName, customerPhone, customerEmail,
+          deliveryPartnerId, deliveryPartnerName, storeRating, riderRating, comment,
+          JSON.stringify(item)
         ]);
       } else {
         await this.query(`
@@ -1021,6 +1117,121 @@ class PostgresAdapter {
     } finally {
       client.release();
     }
+  }
+
+  async getReviewByOrderId(orderId) {
+    if (!orderId) return null;
+    await this.init();
+    const res = await this.query(`
+      SELECT data, store_rating, rider_rating, comment, created_at, customer_name, delivery_partner_name, order_id
+      FROM freshmart_reviews 
+      WHERE order_id = $1 OR data->>'orderId' = $1
+      LIMIT 1
+    `, [String(orderId)]);
+    if (res.rows.length === 0) return null;
+    const r = res.rows[0];
+    return {
+      ...(r.data || {}),
+      orderId: r.order_id || (r.data && r.data.orderId),
+      storeRating: Number(r.store_rating || (r.data && r.data.storeRating) || 5),
+      riderRating: Number(r.rider_rating || (r.data && r.data.riderRating) || 5),
+      comment: r.comment || (r.data && r.data.comment) || '',
+      createdAt: r.created_at || (r.data && r.data.createdAt),
+      customerName: r.customer_name || (r.data && r.data.customerName),
+      deliveryPartnerName: r.delivery_partner_name || (r.data && r.data.deliveryPartnerName)
+    };
+  }
+
+  async getAllReviews() {
+    await this.init();
+    const res = await this.query(`
+      SELECT 
+        id, review_id, order_id, customer_id, customer_name, customer_email, customer_phone,
+        delivery_partner_id, delivery_partner_name, store_rating, rider_rating, comment,
+        created_at, updated_at, data
+      FROM freshmart_reviews 
+      ORDER BY created_at DESC
+    `);
+    return res.rows.map(r => ({
+      ...(r.data || {}),
+      id: r.id || r.review_id,
+      reviewId: r.review_id || r.id,
+      orderId: r.order_id,
+      customerId: r.customer_id,
+      customerName: r.customer_name || (r.data && r.data.customerName) || 'Customer',
+      customerEmail: r.customer_email || (r.data && r.data.customerEmail),
+      customerPhone: r.customer_phone || (r.data && r.data.customerPhone),
+      deliveryPartnerId: r.delivery_partner_id,
+      deliveryPartnerName: r.delivery_partner_name || (r.data && r.data.deliveryPartnerName) || 'Delivery Partner',
+      storeRating: Number(r.store_rating),
+      riderRating: Number(r.rider_rating),
+      comment: r.comment || (r.data && r.data.comment) || '',
+      createdAt: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString()
+    }));
+  }
+
+  async getRiderRatingStats(riderId) {
+    await this.init();
+    const res = await this.query(`
+      SELECT 
+        COUNT(*) as total_reviews,
+        AVG(rider_rating) as average_rating,
+        AVG(store_rating) as average_store_rating
+      FROM freshmart_reviews 
+      WHERE delivery_partner_id = $1 
+         OR data->>'deliveryBoyId' = $1 
+         OR data->>'deliveryPartnerId' = $1
+         OR LOWER(delivery_partner_name) = LOWER($1)
+    `, [String(riderId)]);
+
+    const totalReviews = parseInt(res.rows[0]?.total_reviews || 0, 10);
+    const avgRating = totalReviews > 0 ? parseFloat(Number(res.rows[0]?.average_rating || 5.0).toFixed(1)) : 5.0;
+
+    const listRes = await this.query(`
+      SELECT data, rider_rating, store_rating, comment, created_at, customer_name, order_id
+      FROM freshmart_reviews
+      WHERE delivery_partner_id = $1 
+         OR data->>'deliveryBoyId' = $1 
+         OR data->>'deliveryPartnerId' = $1
+         OR LOWER(delivery_partner_name) = LOWER($1)
+      ORDER BY created_at DESC 
+      LIMIT 50
+    `, [String(riderId)]);
+
+    return {
+      totalReviews,
+      averageRating: avgRating,
+      reviews: listRes.rows.map(r => ({
+        ...(r.data || {}),
+        orderId: r.order_id,
+        riderRating: Number(r.rider_rating),
+        storeRating: Number(r.store_rating),
+        comment: r.comment || (r.data && r.data.comment) || '',
+        customerName: r.customer_name || (r.data && r.data.customerName) || 'Customer',
+        createdAt: r.created_at
+      }))
+    };
+  }
+
+  async getStoreRatingStats() {
+    await this.init();
+    const res = await this.query(`
+      SELECT 
+        COUNT(*) as total_reviews,
+        AVG(store_rating) as average_store_rating,
+        AVG(rider_rating) as average_rider_rating
+      FROM freshmart_reviews
+    `);
+
+    const totalReviews = parseInt(res.rows[0]?.total_reviews || 0, 10);
+    const avgStore = totalReviews > 0 ? parseFloat(Number(res.rows[0]?.average_store_rating || 5.0).toFixed(1)) : 5.0;
+    const avgRider = totalReviews > 0 ? parseFloat(Number(res.rows[0]?.average_rider_rating || 5.0).toFixed(1)) : 5.0;
+
+    return {
+      totalReviews,
+      averageStoreRating: avgStore,
+      averageRiderRating: avgRider
+    };
   }
 }
 
