@@ -2883,6 +2883,13 @@
     }
 
     function openStoreStatusModal() {
+      const user = state.currentUser;
+      const role = user ? String(user.role || '').toUpperCase().replace(/[\s-]/g, '_') : 'STAFF';
+      const isOwner = role === 'OWNER' || user?.email === 'piyushverma730929@gmail.com';
+      if (!isOwner && role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
+        showToast('Only Store Owners and Admins can modify store status', 'warning');
+        return;
+      }
       const targetStatus = (currentActiveStoreStatus === 'LIVE') ? 'OFFLINE' : 'LIVE';
       selectStoreStatusOption(targetStatus);
       const modal = document.getElementById('modal-store-status-confirm');
@@ -3054,6 +3061,16 @@
           hideTabBtn('audit');
           hideTabBtn('settings');
           hideTabBtn('health');
+        }
+
+        // Store Toggle Button Access Control
+        const storeToggleBtn = document.getElementById('owner-store-toggle-btn');
+        if (storeToggleBtn) {
+          if (!isOwner && normRole !== 'ADMIN' && normRole !== 'SUPER_ADMIN') {
+            storeToggleBtn.style.display = 'none';
+          } else {
+            storeToggleBtn.style.display = 'inline-flex';
+          }
         }
       }
     }
