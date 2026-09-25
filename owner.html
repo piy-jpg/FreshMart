@@ -834,7 +834,7 @@
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm">
             <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Registered Storefront SKUs</span>
-            <span id="owner-inv-total-skus" class="text-2xl font-mono font-black text-white mt-1 block">87 Products</span>
+            <span id="owner-inv-total-skus" class="text-2xl font-mono font-black text-white mt-1 block">...</span>
             <span class="text-[10px] text-emerald-400 font-semibold mt-0.5 block">100% Live Website Coverage</span>
           </div>
           <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm">
@@ -859,7 +859,7 @@
           <!-- View Switcher -->
           <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
             <button id="inv-view-ledger-btn" onclick="setInventoryView('ledger')" class="px-3.5 py-1.5 rounded-lg font-bold transition bg-amber-500/20 text-amber-300 border border-amber-500/30 cursor-pointer">
-              📋 Live Stock Balances (87)
+              📋 Live Stock Balances
             </button>
             <button id="inv-view-movements-btn" onclick="setInventoryView('movements')" class="px-3.5 py-1.5 rounded-lg font-bold transition text-slate-400 hover:text-white cursor-pointer">
               🌱 Fresh Stock Inward Register
@@ -873,10 +873,10 @@
               <span class="absolute left-2.5 top-2 text-slate-500 text-xs">🔍</span>
             </div>
             <select id="inv-cat-filter" onchange="handleInventoryCategory(this.value)" class="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 font-bold focus:outline-none focus:border-amber-500/50 cursor-pointer">
-              <option value="all">All Categories (87)</option>
-              <option value="vegetables">🥬 Vegetables & Combos (49)</option>
-              <option value="fruits">🍎 Fruits & Combos (19)</option>
-              <option value="grocery">🌾 Grocery & Combos (19)</option>
+              <option value="all">All Categories</option>
+              <option value="vegetables">🥬 Vegetables & Combos</option>
+              <option value="fruits">🍎 Fruits & Combos</option>
+              <option value="grocery">🌾 Grocery & Combos</option>
               <option value="low_stock">⚠️ Low Stock Only</option>
               <option value="out_of_stock">🔴 Out of Stock Only</option>
             </select>
@@ -3106,6 +3106,12 @@
                   if (window.FreshMartSound) window.FreshMartSound.playForStatus(st);
                 }
               }
+              loadInventory();
+              loadDashboard();
+            } else if (data.type === 'INVENTORY_UPDATED') {
+              loadInventory();
+              loadProducts();
+              loadDashboard();
             } else if (data.type === 'STORE_STATUS_UPDATED') {
               const statusData = data.payload;
               if (statusData) {
@@ -5834,6 +5840,30 @@
         if (physEl) physEl.textContent = `${totalPhys.toLocaleString()} Units`;
         if (resEl) resEl.textContent = `${totalRes.toLocaleString()} Units`;
         if (availEl) availEl.textContent = `${totalAvail.toLocaleString()} Units`;
+
+        const ledgerBtn = document.getElementById('inv-view-ledger-btn');
+        if (ledgerBtn) ledgerBtn.innerHTML = `📋 Live Stock Balances (${state.inventory.length})`;
+
+        // Update category filter option counts
+        const catFilter = document.getElementById('inv-cat-filter');
+        if (catFilter) {
+          const vegCount = state.inventory.filter(i => (i.category || '').toLowerCase().includes('veg')).length;
+          const fruitCount = state.inventory.filter(i => (i.category || '').toLowerCase().includes('fruit')).length;
+          const grocCount = state.inventory.filter(i => (i.category || '').toLowerCase().includes('groc') || (i.category || '').toLowerCase().includes('pant')).length;
+          const lowCount = state.inventory.filter(i => i.status === 'LOW_STOCK' || (i.availableStock > 0 && i.availableStock <= (i.lowStockThreshold || 15))).length;
+          const outCount = state.inventory.filter(i => i.availableStock === 0 || i.status === 'OUT_OF_STOCK').length;
+
+          const currentVal = catFilter.value;
+          catFilter.innerHTML = `
+            <option value="all">All Categories (${state.inventory.length})</option>
+            <option value="vegetables">🥬 Vegetables & Combos (${vegCount})</option>
+            <option value="fruits">🍎 Fruits & Combos (${fruitCount})</option>
+            <option value="grocery">🌾 Grocery & Combos (${grocCount})</option>
+            <option value="low_stock">⚠️ Low Stock Only (${lowCount})</option>
+            <option value="out_of_stock">🔴 Out of Stock Only (${outCount})</option>
+          `;
+          catFilter.value = currentVal;
+        }
 
         // Update low stock badge
         const lowStockCount = state.inventory.filter(i => i.status === 'LOW_STOCK' || i.availableStock <= (i.lowStockThreshold || 15)).length;

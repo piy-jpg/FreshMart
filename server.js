@@ -3170,8 +3170,9 @@ const server = http.createServer(async (req, res) => {
       });
 
       // Atomic idempotent stock restoration in PostgreSQL
-      if (db.postgres && db.postgres.isAvailable()) {
-        const restRes = await db.postgres.restoreOrderStockAtomic(order.orderId || order.id, 'Customer Cancellation');
+      const pg = db.pgAdapter || db.postgres;
+      if (pg && pg.isAvailable()) {
+        const restRes = await pg.restoreOrderStockAtomic(order.orderId || order.id, 'Customer Cancellation');
         if (restRes.success && Array.isArray(restRes.restoredItems)) {
           for (const r of restRes.restoredItems) {
             const localProd = db.getById('products', r.id);
@@ -3217,6 +3218,7 @@ const server = http.createServer(async (req, res) => {
       db.logActivity('Customer / System', 'ORDER_CANCELLED', 'Order', order.orderId, `Order #${order.orderId} cancelled. Refund of ₹${order.totalAmount} approved.`);
       broadcastEvent('ORDER_UPDATED', order);
       broadcastEvent('STOCK_UPDATED', { message: 'Stock restored from cancellation' });
+      broadcastEvent('INVENTORY_UPDATED', { orderId: order.orderId, status: 'CANCELLED' });
       return sendJson(res, 200, { success: true, order });
     }
 
@@ -3762,9 +3764,18 @@ const server = http.createServer(async (req, res) => {
       }
 
       applyOrderStepTransition(order, 'DELIVERED', currentUser, { notes: `Order handed over and verified by ${currentUser.name || 'Delivery Boy'}.` });
+      const pg = db.pgAdapter || db.postgres;
+      if (pg && pg.isAvailable()) {
+        try {
+          await pg.markOrderDeliveredAtomic(order.orderId || order.id, currentUser.email || currentUser.name);
+        } catch (e) {
+          console.warn('markOrderDeliveredAtomic error:', e.message);
+        }
+      }
       await persistOrder(order);
       db.logActivity(currentUser.name, 'ORDER_DELIVERED', 'Order', order.orderId, `Order #${order.orderId} delivered successfully.`);
       broadcastEvent('ORDER_UPDATED', order);
+      broadcastEvent('INVENTORY_UPDATED', { orderId: order.orderId, status: 'DELIVERED' });
       return sendJson(res, 200, { success: true, message: 'Order marked as DELIVERED.', order });
     }
 
@@ -5049,7 +5060,17 @@ const server = http.createServer(async (req, res) => {
 
       // 4. Inventory & Stock Ledger
       if ((pathname === '/api/owner/inventory' || pathname === '/api/owner/inventory/ledger') && method === 'GET') {
-        const ledger = db.getInventoryLedger();
+        let ledger = [];
+        if (db.pgAdapter && db.pgAdapter.isAvailable()) {
+          try {
+            ledger = await db.pgAdapter.getInventoryLedgerAsync();
+          } catch (e) {
+            console.warn('Postgres getInventoryLedgerAsync error, falling back:', e.message);
+          }
+        }
+        if (!ledger || ledger.length === 0) {
+          ledger = db.getInventoryLedger();
+        }
         return sendJson(res, 200, ledger);
       }
 
@@ -5071,19 +5092,19 @@ const server = http.createServer(async (req, res) => {
             delta = Math.abs(qty);
           }
         }
-        const oldStock = Number(prod.stock) || 0;
+        const oldStock = Number(prod ? prod.stock : 0) || 0;
         const newStock = Math.max(0, oldStock + delta);
         
-        let damagedStock = Number(prod.damagedStock) || 0;
-        let expiredStock = Number(prod.expiredStock) || 0;
-        if (type === 'DAMAGE') {
+        let damagedStock = Number(prod ? prod.damagedStock : 0) || 0;
+        let expiredStock = Number(prod ? prod.expiredStock : 0) || 0;
+        if (type === 'DAMAGE' || body.adjustmentType === 'DAMAGE') {
           damagedStock += Math.abs(delta);
-        } else if (type === 'EXPIRED') {
+        } else if (type === 'EXPIRED' || body.adjustmentType === 'EXPIRED') {
           expiredStock += Math.abs(delta);
         }
 
-        const lowLimit = Number(prod.lowStockLimit || prod.lowStockThreshold) || 15;
-        let status = prod.status;
+        const lowLimit = Number(prod ? (prod.lowStockLimit || prod.lowStockThreshold) : 15) || 15;
+        let status = prod ? prod.status : 'ACTIVE';
         if (status !== 'SUSPENDED') {
           if (newStock <= 0) status = 'OUT_OF_STOCK';
           else if (newStock <= lowLimit) status = 'LOW_STOCK';
@@ -5099,19 +5120,20 @@ const server = http.createServer(async (req, res) => {
           updatedAt: new Date().toISOString()
         };
 
-        const updatedProd = await db.updateAsync('products', prod.id, updates);
+        const targetId = prod ? prod.id : productId;
+        const updatedProd = await db.updateAsync('products', targetId, updates);
         db.save();
 
         const movId = 'mov_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
         await db.insertAsync('inventory_movements', {
           id: movId,
           date: new Date().toISOString(),
-          productId: prod.id,
-          productName: prod.name,
-          sku: prod.sku,
-          hubId: prod.hubId || 'hub_blr_indiranagar',
+          productId: targetId,
+          productName: prod ? prod.name : 'Product',
+          sku: prod ? prod.sku : targetId,
+          hubId: (prod && prod.hubId) || 'hub_blr_indiranagar',
           hubName: 'Indiranagar Central Hub',
-          type: type || (delta >= 0 ? 'HARVEST' : 'DAMAGE'),
+          type: type || body.adjustmentType || (delta >= 0 ? 'HARVEST' : 'DAMAGE'),
           quantity: delta,
           before: oldStock,
           after: newStock,
@@ -5122,14 +5144,25 @@ const server = http.createServer(async (req, res) => {
           operator: owner.email || owner.name
         });
 
-        await db.logActivityAsync(owner.name, 'STOCK_ADJUSTED', 'Products', prod.id, `Stock adjusted by ${delta > 0 ? '+' : ''}${delta} (${type}: ${reason || 'Manual Adjustment'})`);
+        await db.logActivityAsync(owner.name, 'STOCK_ADJUSTED', 'Products', targetId, `Stock adjusted by ${delta > 0 ? '+' : ''}${delta} (${type || body.adjustmentType || 'ADJUST'}: ${reason || 'Manual Adjustment'})`);
         broadcastEvent('PRODUCT_UPDATED', updatedProd);
         broadcastEvent('STOCK_UPDATED', { product: updatedProd, delta, currentStock: updatedProd.stock });
-        return sendJson(res, 200, { success: true, product: updatedProd, currentStock: updatedProd.stock, ledger: db.getInventoryLedger() });
+        broadcastEvent('INVENTORY_UPDATED', { productId: targetId, newStock, delta });
+        return sendJson(res, 200, { success: true, product: updatedProd, currentStock: updatedProd.stock, newStock: updatedProd.stock });
       }
 
       if (pathname === '/api/owner/inventory/movements' && method === 'GET') {
-        const movements = db.getAll('inventory_movements');
+        let movements = [];
+        if (db.pgAdapter && db.pgAdapter.isAvailable()) {
+          try {
+            movements = await db.pgAdapter.getInventoryMovementsAsync(100);
+          } catch (e) {
+            console.warn('Postgres getInventoryMovementsAsync error, falling back:', e.message);
+          }
+        }
+        if (!movements || movements.length === 0) {
+          movements = db.getAll('inventory_movements');
+        }
         return sendJson(res, 200, movements);
       }
 

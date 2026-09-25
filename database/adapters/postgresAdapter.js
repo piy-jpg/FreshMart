@@ -1362,6 +1362,250 @@ class PostgresAdapter {
       averageRiderRating: avgRider
     };
   }
+  async getInventoryLedgerAsync() {
+    await this.init();
+    const pool = this.getPool();
+    if (!pool) return [];
+
+    const queryStr = `
+      SELECT 
+        p.id,
+        p.storefront_id,
+        p.name,
+        p.sku,
+        p.category,
+        p.subcategory,
+        p.price,
+        p.selling_price,
+        p.mrp,
+        p.cost_price,
+        COALESCE(p.stock, 0) AS physical_stock,
+        COALESCE(p.damaged_stock, 0) AS damaged_stock,
+        COALESCE(p.expired_stock, 0) AS expired_stock,
+        COALESCE(p.low_stock_limit, 15) AS low_stock_limit,
+        p.unit,
+        p.status,
+        p.image,
+        p.description,
+        p.farmer,
+        p.created_at,
+        p.updated_at,
+        p.data,
+        COALESCE(r.reserved_qty, 0) AS reserved_stock
+      FROM freshmart_products p
+      LEFT JOIN (
+        SELECT 
+          COALESCE(item->>'id', item->>'productId') AS product_id,
+          item->>'name' AS product_name,
+          item->>'sku' AS product_sku,
+          SUM(COALESCE((item->>'quantity')::numeric, (item->>'qty')::numeric, 1)) AS reserved_qty
+        FROM freshmart_orders o,
+             jsonb_array_elements(
+               CASE 
+                 WHEN jsonb_typeof(o.items::jsonb) = 'array' THEN o.items::jsonb 
+                 ELSE '[]'::jsonb 
+               END
+             ) AS item
+        WHERE UPPER(COALESCE(o.order_status, o.status, '')) NOT IN ('DELIVERED', 'CANCELLED', 'DELIVERY_FAILED', 'COMPLETED')
+        GROUP BY COALESCE(item->>'id', item->>'productId'), item->>'name', item->>'sku'
+      ) r ON (
+        r.product_id = p.id OR 
+        r.product_id = p.storefront_id OR 
+        (r.product_sku IS NOT NULL AND r.product_sku = p.sku) OR 
+        (r.product_name IS NOT NULL AND LOWER(r.product_name) = LOWER(p.name))
+      )
+      ORDER BY p.name ASC;
+    `;
+
+    try {
+      const res = await this.query(queryStr);
+      return res.rows.map(r => {
+        const physicalStock = Number(r.physical_stock) || 0;
+        const reservedStock = Number(r.reserved_stock) || 0;
+        const availableStock = Math.max(0, physicalStock - reservedStock);
+        const lowLimit = Number(r.low_stock_limit) || 15;
+
+        let computedStatus = r.status;
+        if (computedStatus !== 'SUSPENDED') {
+          if (availableStock === 0) computedStatus = 'OUT_OF_STOCK';
+          else if (availableStock <= lowLimit) computedStatus = 'LOW_STOCK';
+          else computedStatus = 'ACTIVE';
+        }
+
+        const dataObj = typeof r.data === 'object' ? (r.data || {}) : JSON.parse(r.data || '{}');
+
+        return {
+          ...dataObj,
+          id: r.id,
+          storefrontId: r.storefront_id || r.id,
+          name: r.name,
+          hindiName: dataObj.hindiName || '',
+          sku: r.sku || `SKU-${r.id.toUpperCase()}`,
+          category: r.category || 'Fresh Produce',
+          subcategory: r.subcategory || '',
+          hub: dataObj.hubName || 'Indiranagar Central Hub',
+          farmer: r.farmer || dataObj.farmer || '',
+          harvestDate: dataObj.harvestDate || '',
+          freshnessDays: dataObj.freshnessDays || 5,
+          unit: r.unit || dataObj.unit || '1 unit',
+          price: Number(r.price || r.selling_price) || 0,
+          sellingPrice: Number(r.selling_price || r.price) || 0,
+          costPrice: Number(r.cost_price) || Math.round(Number(r.price || r.selling_price) * 0.65),
+          mrp: Number(r.mrp) || Number(r.price || r.selling_price) || 0,
+          currentStock: physicalStock,
+          physicalStock,
+          stock: availableStock,
+          reservedStock,
+          availableStock,
+          lowStockThreshold: lowLimit,
+          lowStockLimit: lowLimit,
+          damagedStock: Number(r.damaged_stock) || 0,
+          expiredStock: Number(r.expired_stock) || 0,
+          status: computedStatus,
+          lastUpdated: r.updated_at ? new Date(r.updated_at).toISOString() : new Date().toISOString()
+        };
+      });
+    } catch (err) {
+      console.warn('getInventoryLedgerAsync query error:', err.message);
+      return [];
+    }
+  }
+
+  async getInventoryMovementsAsync(limit = 100) {
+    await this.init();
+    try {
+      const res = await this.query(`
+        SELECT 
+          id, product_id, sku, type, quantity, previous_stock, new_stock, reason, operator, created_at, data
+        FROM freshmart_inventory_movements
+        ORDER BY created_at DESC
+        LIMIT $1;
+      `, [limit]);
+
+      return res.rows.map(r => {
+        const dataObj = typeof r.data === 'object' ? (r.data || {}) : JSON.parse(r.data || '{}');
+        return {
+          ...dataObj,
+          id: r.id,
+          productId: r.product_id,
+          sku: r.sku,
+          type: r.type,
+          quantity: Number(r.quantity),
+          previousStock: Number(r.previous_stock),
+          newStock: Number(r.new_stock),
+          reason: r.reason,
+          operator: r.operator,
+          user: r.operator || dataObj.user || 'Store Owner',
+          date: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString()
+        };
+      });
+    } catch (err) {
+      console.warn('getInventoryMovementsAsync error:', err.message);
+      return [];
+    }
+  }
+
+  async markOrderDeliveredAtomic(orderId, operatorEmail = 'System Delivery Engine') {
+    const pool = this.getPool();
+    if (!pool) throw new Error('PostgreSQL Pool is not configured');
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      const orderRes = await client.query(
+        `SELECT id, order_id, order_status, status, items, data, delivered_at
+         FROM freshmart_orders
+         WHERE id = $1 OR order_id = $1
+         LIMIT 1 FOR UPDATE`,
+        [String(orderId)]
+      );
+
+      if (orderRes.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return { success: false, error: 'Order not found' };
+      }
+
+      const dbOrderRow = orderRes.rows[0];
+      const orderData = typeof dbOrderRow.data === 'object' ? (dbOrderRow.data || {}) : JSON.parse(dbOrderRow.data || '{}');
+
+      // Idempotency check
+      if (orderData.deliveryFulfillmentCompleted === true) {
+        await client.query('ROLLBACK');
+        return { success: true, alreadyFulfilled: true, order: orderData };
+      }
+
+      const items = Array.isArray(dbOrderRow.items) ? dbOrderRow.items : (orderData.items || []);
+
+      // Deduct physical stock on delivery fulfillment and log SALE movement
+      for (const item of items) {
+        const qty = Number(item.quantity || item.qty || 1);
+        const prodId = String(item.id || item.productId || '');
+        const prodName = String(item.name || '');
+
+        const updateRes = await client.query(`
+          UPDATE freshmart_products
+          SET stock = GREATEST(0, stock - $1),
+              updated_at = NOW()
+          WHERE id = $2 OR storefront_id = $2 OR sku = $2 OR LOWER(name) = LOWER($3)
+          RETURNING id, name, sku, stock, (stock + $1) as previous_stock;
+        `, [qty, prodId, prodName]);
+
+        if (updateRes.rows.length > 0) {
+          const row = updateRes.rows[0];
+          const currentNewStock = Number(row.stock);
+          const prevStock = Number(row.previous_stock);
+
+          const movId = 'mov_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+          await client.query(`
+            INSERT INTO freshmart_inventory_movements (id, product_id, sku, type, quantity, previous_stock, new_stock, reason, operator, data)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+          `, [
+            movId, row.id, row.sku || null, 'SALE', -qty,
+            prevStock, currentNewStock,
+            `Order #${orderId} delivered and fulfilled`,
+            operatorEmail,
+            JSON.stringify({
+              id: movId,
+              productId: row.id,
+              productName: row.name,
+              sku: row.sku,
+              type: 'SALE',
+              quantity: -qty,
+              before: prevStock,
+              after: currentNewStock,
+              reason: `Order #${orderId} delivered and fulfilled`,
+              user: operatorEmail,
+              date: new Date().toISOString()
+            })
+          ]);
+        }
+      }
+
+      orderData.deliveryFulfillmentCompleted = true;
+      orderData.deliveredAt = new Date().toISOString();
+      orderData.deliveredBy = operatorEmail;
+
+      await client.query(`
+        UPDATE freshmart_orders
+        SET data = $2,
+            delivered_at = COALESCE(delivered_at, NOW()),
+            order_status = 'DELIVERED',
+            status = 'DELIVERED',
+            updated_at = NOW()
+        WHERE id = $1 OR order_id = $1
+      `, [String(dbOrderRow.id), JSON.stringify(orderData)]);
+
+      await client.query('COMMIT');
+      return { success: true, order: orderData };
+    } catch (err) {
+      await client.query('ROLLBACK');
+      console.error('markOrderDeliveredAtomic error:', err.message);
+      return { success: false, error: err.message };
+    } finally {
+      client.release();
+    }
+  }
 }
 
 module.exports = PostgresAdapter;
+
