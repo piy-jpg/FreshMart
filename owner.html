@@ -2883,12 +2883,16 @@
     }
 
     function openStoreStatusModal() {
-      const user = state.currentUser;
-      const role = user ? String(user.role || '').toUpperCase().replace(/[\s-]/g, '_') : 'STAFF';
-      const isOwner = role === 'OWNER' || user?.email === 'piyushverma730929@gmail.com';
-      if (!isOwner && role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
-        showToast('Only Store Owners and Admins can modify store status', 'warning');
-        return;
+      const user = state.currentUser || (() => {
+        try { return JSON.parse(localStorage.getItem('fm_user') || localStorage.getItem('freshmart_user') || 'null'); } catch(e) { return null; }
+      })();
+      if (user) {
+        const role = String(user.role || '').toUpperCase().replace(/[\s-]/g, '_');
+        const isOwner = role === 'OWNER' || user.email === 'piyushverma730929@gmail.com';
+        if (!isOwner && role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
+          showToast('Only Store Owners and Admins can modify store status', 'warning');
+          return;
+        }
       }
       const targetStatus = (currentActiveStoreStatus === 'LIVE') ? 'OFFLINE' : 'LIVE';
       selectStoreStatusOption(targetStatus);
@@ -2963,8 +2967,9 @@
           throw new Error(data.message || 'Failed to update store status');
         }
 
-        currentActiveStoreStatus = data.data?.status || currentSelectedStoreStatus;
-        updateStoreStatusUI(data.data || { status: currentActiveStoreStatus, isOpen: currentActiveStoreStatus === 'LIVE' });
+        const newStatus = data.status || data.data?.status || currentSelectedStoreStatus;
+        currentActiveStoreStatus = newStatus;
+        updateStoreStatusUI(data);
         closeStoreStatusModal();
         showToast(
           currentActiveStoreStatus === 'LIVE' 
@@ -2981,6 +2986,13 @@
         }
       }
     }
+
+    window.loadStoreStatus = loadStoreStatus;
+    window.updateStoreStatusUI = updateStoreStatusUI;
+    window.openStoreStatusModal = openStoreStatusModal;
+    window.closeStoreStatusModal = closeStoreStatusModal;
+    window.selectStoreStatusOption = selectStoreStatusOption;
+    window.executeStoreStatusChange = executeStoreStatusChange;
 
     // Adapt sidebar, identity card, and tab access according to the logged-in staff/admin role
     function applyRolePermissionsUI(user) {
