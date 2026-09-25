@@ -2291,31 +2291,82 @@
   </div>
 
   <!-- Modal 2: Adjust Stock -->
-  <div id="modal-adjust-stock" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 rounded-3xl border border-slate-800 p-6 max-w-md w-full shadow-2xl">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
-        <h3 class="font-heading font-black text-base text-white">Adjust Physical Stock</h3>
-        <button onclick="closeStockAdjustModal()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+  <div id="modal-adjust-stock" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 rounded-3xl border border-slate-700/80 p-6 sm:p-7 max-w-md w-full shadow-2xl relative">
+      <!-- Fixed Header with Selected Product Details -->
+      <div class="flex items-start justify-between pb-4 border-b border-slate-800 mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-black text-lg shrink-0">
+            ⚡
+          </div>
+          <div>
+            <h3 id="adjust-prod-name" class="font-heading font-black text-base sm:text-lg text-white leading-tight">Fresh Organic Desi Tomato</h3>
+            <p id="adjust-prod-meta" class="text-xs text-amber-400 font-mono font-semibold mt-0.5">SKU: SJH-VEG-TOM-01 • Current Stock: 271</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeStockAdjustModal()" class="text-slate-400 hover:text-white text-lg font-bold p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer">&times;</button>
       </div>
-      <form onsubmit="submitStockAdjustment(event)" class="space-y-3.5">
+
+      <form onsubmit="submitStockAdjustment(event)" class="space-y-4">
+        <!-- Hidden Product ID (No dropdown!) -->
+        <input id="adjust-prod-id" type="hidden" />
+
+        <!-- Adjustment Quantity -->
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Select Product</label>
-          <select id="adjust-prod-id" required class="w-full px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-amber-500">
-            <!-- Dynamically populated -->
-          </select>
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="adjust-quantity" class="block text-xs font-bold text-slate-300">
+              Adjustment Quantity
+            </label>
+            <span class="text-[11px] text-slate-400 font-medium">Positive (+) to add • Negative (&minus;) to deduct</span>
+          </div>
+          <div class="relative">
+            <input 
+              id="adjust-quantity" 
+              type="number" 
+              step="any"
+              required 
+              placeholder="+22" 
+              class="w-full px-4 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-sm font-mono font-bold text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition" 
+            />
+          </div>
+          <!-- Quick Preset Chips -->
+          <div class="flex flex-wrap items-center gap-1.5 mt-2">
+            <button type="button" onclick="setAdjustQty(10)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 text-[11px] font-bold border border-slate-700 transition cursor-pointer">+10</button>
+            <button type="button" onclick="setAdjustQty(25)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 text-[11px] font-bold border border-slate-700 transition cursor-pointer">+25</button>
+            <button type="button" onclick="setAdjustQty(50)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 text-[11px] font-bold border border-slate-700 transition cursor-pointer">+50</button>
+            <button type="button" onclick="setAdjustQty(-5)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-rose-400 text-[11px] font-bold border border-slate-700 transition cursor-pointer">-5</button>
+            <button type="button" onclick="setAdjustQty(-10)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-rose-400 text-[11px] font-bold border border-slate-700 transition cursor-pointer">-10</button>
+          </div>
         </div>
+
+        <!-- Reason / Note -->
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Adjustment Quantity (+ / &minus;)</label>
-          <input id="adjust-quantity" type="number" required placeholder="+50 or -10" class="w-full px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-amber-500" />
-          <p class="text-[11px] text-slate-400 mt-1">Use positive numbers to add harvested stock; negative numbers to write off spoilage.</p>
+          <label for="adjust-reason" class="block text-xs font-bold text-slate-300 mb-1.5">
+            Reason / Note
+          </label>
+          <input 
+            id="adjust-reason" 
+            type="text" 
+            required 
+            placeholder="Harvest received" 
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition" 
+          />
+          <!-- Quick Preset Reasons -->
+          <div class="flex flex-wrap items-center gap-1.5 mt-2">
+            <button type="button" onclick="setAdjustReason('Harvest received')" class="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px] font-medium border border-slate-700 transition cursor-pointer">🌱 Harvest received</button>
+            <button type="button" onclick="setAdjustReason('Damaged in transit')" class="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px] font-medium border border-slate-700 transition cursor-pointer">📦 Damaged in transit</button>
+            <button type="button" onclick="setAdjustReason('Stock recount correction')" class="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px] font-medium border border-slate-700 transition cursor-pointer">📋 Stock recount</button>
+          </div>
         </div>
-        <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Reason / Note</label>
-          <input id="adjust-reason" type="text" required placeholder="e.g. Fresh farm delivery batch #402" class="w-full px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-amber-500" />
-        </div>
-        <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
-          <button type="button" onclick="closeStockAdjustModal()" class="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white">Cancel</button>
-          <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs shadow-md transition">Apply Adjustment</button>
+
+        <!-- Action Buttons: Cancel | Apply Adjustment -->
+        <div class="pt-4 border-t border-slate-800 flex items-center justify-end gap-2.5">
+          <button type="button" onclick="closeStockAdjustModal()" class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition cursor-pointer">
+            Cancel
+          </button>
+          <button type="submit" id="btn-submit-stock-adjust" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md hover:shadow-amber-500/20 transition cursor-pointer">
+            Apply Adjustment
+          </button>
         </div>
       </form>
     </div>
@@ -7218,28 +7269,61 @@
       document.getElementById('modal-add-product')?.classList.add('hidden');
     }
 
-    function openStockAdjustModal() {
-      if (state.products && state.products.length) {
-        populateAdjustStockDropdown(state.products);
+    function setAdjustQty(val) {
+      const input = document.getElementById('adjust-quantity');
+      if (input) {
+        input.value = val;
+        input.focus();
       }
-      document.getElementById('modal-adjust-stock')?.classList.remove('hidden');
     }
-    function closeStockAdjustModal() {
-      document.getElementById('modal-adjust-stock')?.classList.add('hidden');
+
+    function setAdjustReason(val) {
+      const input = document.getElementById('adjust-reason');
+      if (input) {
+        input.value = val;
+      }
     }
 
     function prefillStockAdjust(prodId) {
-      const select = document.getElementById('adjust-prod-id');
-      if (select) select.value = prodId;
-      openStockAdjustModal();
+      const allItems = [...(state.inventory || []), ...(state.products || [])];
+      const prod = allItems.find(p => p.id === prodId || p.storefrontId === prodId || p.sku === prodId);
+      
+      const idInput = document.getElementById('adjust-prod-id');
+      const nameEl = document.getElementById('adjust-prod-name');
+      const metaEl = document.getElementById('adjust-prod-meta');
+      const qtyInput = document.getElementById('adjust-quantity');
+      const reasonInput = document.getElementById('adjust-reason');
+
+      if (idInput) idInput.value = prod ? prod.id : prodId;
+      if (nameEl) nameEl.textContent = prod ? (prod.name || prod.title) : 'Product Stock Adjustment';
+      
+      const physicalStock = prod ? (prod.physicalStock ?? prod.currentStock ?? prod.stock ?? 0) : 0;
+      const sku = prod ? (prod.sku || prod.id) : prodId;
+      const unit = prod ? (prod.unit || 'units') : 'units';
+      if (metaEl) metaEl.textContent = `SKU: ${sku} • Current Stock: ${physicalStock} ${unit}`;
+
+      if (qtyInput) qtyInput.value = '';
+      if (reasonInput) reasonInput.value = 'Harvest received';
+
+      document.getElementById('modal-adjust-stock')?.classList.remove('hidden');
+      if (qtyInput) setTimeout(() => qtyInput.focus(), 50);
     }
 
-    function populateAdjustStockDropdown(products) {
-      const select = document.getElementById('adjust-prod-id');
-      if (!select) return;
-      select.innerHTML = products.map(p => `
-        <option value="${p.id}">${p.name} (Current: ${p.stock})</option>
-      `).join('');
+    function openStockAdjustModal(prodId) {
+      if (prodId) {
+        prefillStockAdjust(prodId);
+        return;
+      }
+      const firstItem = (state.inventory && state.inventory[0]) || (state.products && state.products[0]);
+      if (firstItem) {
+        prefillStockAdjust(firstItem.id);
+      } else {
+        document.getElementById('modal-adjust-stock')?.classList.remove('hidden');
+      }
+    }
+
+    function closeStockAdjustModal() {
+      document.getElementById('modal-adjust-stock')?.classList.add('hidden');
     }
 
     async function submitAddProduct(e) {
@@ -7317,6 +7401,17 @@
         const adjustmentQuantity = Number(document.getElementById('adjust-quantity').value);
         const reason = document.getElementById('adjust-reason').value;
 
+        if (isNaN(adjustmentQuantity) || adjustmentQuantity === 0) {
+          showToast('Please enter a valid non-zero adjustment quantity', 'error');
+          return;
+        }
+
+        const submitBtn = document.getElementById('btn-submit-stock-adjust');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = 'Updating Database...';
+        }
+
         const res = await fetch('/api/owner/inventory/adjust', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -7335,13 +7430,19 @@
             }
             broadcastCatalogUpdate(data.product);
           }
-          showToast(`Stock updated! (${adjustmentQuantity > 0 ? '+' : ''}${adjustmentQuantity} units) 📋`, 'success');
-          await Promise.all([loadInventory(), loadDashboard(), loadAuditLogs()]);
+          showToast(`Stock updated in Neon DB! (${adjustmentQuantity > 0 ? '+' : ''}${adjustmentQuantity} units) 📋`, 'success');
+          await Promise.all([loadInventory(), loadProducts(), loadDashboard(), loadAuditLogs()]);
         } else {
           showToast(data.error || 'Failed to adjust stock on server', 'error');
         }
       } catch (err) {
         showToast('Error adjusting stock: ' + err.message, 'error');
+      } finally {
+        const submitBtn = document.getElementById('btn-submit-stock-adjust');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = 'Apply Adjustment';
+        }
       }
     }
 
