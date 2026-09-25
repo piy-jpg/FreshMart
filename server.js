@@ -4560,7 +4560,7 @@ const server = http.createServer(async (req, res) => {
         const sku = body.sku || `SJH-${(body.category || 'VEG').substring(0, 3).toUpperCase()}-${name.substring(0, 3).toUpperCase()}-${Math.floor(10 + Math.random() * 90)}`;
 
         const newProduct = {
-          id: 'prod_' + Date.now(),
+          id: body.id || ('prod_' + Date.now()),
           storefrontId: (body.storefrontId || name.toLowerCase().replace(/[^a-z0-9]/g, '_')),
           name,
           hindiName: body.hindiName || '',
