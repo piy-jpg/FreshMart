@@ -2976,11 +2976,42 @@ async function syncStorefrontCatalogWithBackend() {
     }
   } catch (e) {
     console.warn('Storefront catalog sync notice:', e);
-  } finally {
+    } finally {
     _isSyncingCatalog = false;
+    syncStorefrontCategoriesWithBackend();
   }
 }
 window.syncStorefrontCatalogWithBackend = syncStorefrontCatalogWithBackend;
+
+async function syncStorefrontCategoriesWithBackend() {
+  try {
+    const res = await fetch('/api/categories?_t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const categories = await res.json();
+    if (!Array.isArray(categories)) return;
+
+    const vegCat = categories.find(c => (c.slug || '').includes('veg'));
+    const fruitCat = categories.find(c => (c.slug || '').includes('fruit'));
+    const grocCat = categories.find(c => (c.slug || '').includes('groc') || (c.slug || '').includes('staple'));
+
+    document.querySelectorAll('.category-card').forEach(card => {
+      const text = card.textContent || '';
+      const badge = card.querySelector('span.text-xs.font-black.uppercase');
+      if (!badge) return;
+      if (text.includes('Vegetables') && vegCat) {
+        badge.textContent = `${vegCat.productCount || vegCat.activeProductCount || 0} Varieties & Combos`;
+      } else if (text.includes('Fruits') && fruitCat) {
+        badge.textContent = `${fruitCat.productCount || fruitCat.activeProductCount || 0} Varieties`;
+      } else if (text.includes('Groceries') && grocCat) {
+        badge.textContent = `${grocCat.productCount || grocCat.activeProductCount || 0} Pantry Staples`;
+      }
+    });
+  } catch (e) {
+    console.warn('syncStorefrontCategoriesWithBackend error:', e);
+  }
+}
+window.syncStorefrontCategoriesWithBackend = syncStorefrontCategoriesWithBackend;
+
 
 function debouncedSyncStorefront() {
   if (_syncDebounceTimer) clearTimeout(_syncDebounceTimer);

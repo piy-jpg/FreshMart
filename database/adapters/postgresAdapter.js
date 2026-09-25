@@ -132,7 +132,9 @@ class PostgresAdapter {
         await this.ensureOrdersSchema();
         await this.ensureReviewsSchema();
         await this.ensureProductsAndInventorySchema();
+        await this.ensureCategoriesSchema();
         this.isInitialized = true;
+
         return true;
       } catch (err) {
         console.error('PostgreSQL Initialization Error:', err.message);
@@ -414,6 +416,76 @@ class PostgresAdapter {
       console.warn('ensureProductsAndInventorySchema warning:', err.message);
     }
   }
+
+  async ensureCategoriesSchema() {
+    try {
+      const pool = this.getPool();
+      if (!pool) return;
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS freshmart_categories (
+          id VARCHAR(255) PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          slug VARCHAR(255) UNIQUE NOT NULL,
+          icon VARCHAR(100),
+          image TEXT,
+          description TEXT,
+          display_order INT DEFAULT 0,
+          status VARCHAR(50) DEFAULT 'ACTIVE',
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          updated_at TIMESTAMPTZ DEFAULT NOW(),
+          data JSONB NOT NULL DEFAULT '{}'::jsonb
+        );
+      `);
+
+      const catCols = [
+        'icon VARCHAR(100)',
+        'image TEXT',
+        'description TEXT',
+        'display_order INT DEFAULT 0',
+        'status VARCHAR(50) DEFAULT \'ACTIVE\'',
+        'created_at TIMESTAMPTZ DEFAULT NOW()',
+        'updated_at TIMESTAMPTZ DEFAULT NOW()',
+        'data JSONB NOT NULL DEFAULT \'{}\'::jsonb'
+      ];
+      for (const col of catCols) {
+        try {
+          await pool.query(`ALTER TABLE freshmart_categories ADD COLUMN IF NOT EXISTS ${col}`);
+        } catch (e) {}
+      }
+
+      // Check if categories exist; if empty, seed baseline categories
+      const countRes = await pool.query('SELECT COUNT(*) FROM freshmart_categories');
+      if (parseInt(countRes.rows[0].count, 10) === 0) {
+        const baseline = [
+          { id: 'cat_vegetables', name: 'Fresh Vegetables', slug: 'vegetables', icon: '🥬', image: 'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=600&q=80', description: 'Crisp leafy greens, roots, organic vegetables & daily staples', display_order: 1, status: 'ACTIVE' },
+          { id: 'cat_fruits', name: 'Farm-Fresh Fruits', slug: 'fruits', icon: '🍎', image: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=80', description: 'Naturally ripened seasonal fruits, citrus, berries & melons', display_order: 2, status: 'ACTIVE' },
+          { id: 'cat_grocery', name: 'Daily Groceries & Staples', slug: 'grocery', icon: '🌾', image: 'https://images.unsplash.com/photo-1588964895597-cfccd6e2dbf9?auto=format&fit=crop&w=600&q=80', description: 'Stone-ground atta, cold-pressed oils, unpolished pulses & kitchen essentials', display_order: 3, status: 'ACTIVE' },
+          { id: 'cat_herbs', name: 'Leafy Greens & Herbs', slug: 'leafy-herbs', icon: '🌿', image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80', description: 'Freshly harvested cilantro, mint, spinach, curry leaves & microgreens', display_order: 4, status: 'ACTIVE' },
+          { id: 'cat_dairy', name: 'Pure Dairy & Ghee', slug: 'dairy', icon: '🥛', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80', description: 'Bilona cultured A2 ghee, paneer, and fresh dairy products', display_order: 5, status: 'ACTIVE' },
+          { id: 'cat_honey', name: 'Natural Sweeteners & Honey', slug: 'sweeteners', icon: '🍯', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=600&q=80', description: 'Raw forest honey, organic jaggery powder, and natural syrups', display_order: 6, status: 'ACTIVE' }
+        ];
+
+        for (const c of baseline) {
+          await pool.query(`
+            INSERT INTO freshmart_categories (id, name, slug, icon, image, description, display_order, status, data)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            ON CONFLICT (id) DO UPDATE SET
+              name = EXCLUDED.name,
+              slug = EXCLUDED.slug,
+              icon = EXCLUDED.icon,
+              image = EXCLUDED.image,
+              description = EXCLUDED.description,
+              display_order = EXCLUDED.display_order,
+              status = EXCLUDED.status;
+          `, [c.id, c.name, c.slug, c.icon, c.image, c.description, c.display_order, c.status, JSON.stringify(c)]);
+        }
+      }
+    } catch (err) {
+      console.warn('ensureCategoriesSchema warning:', err.message);
+    }
+  }
+
 
   async _seedInitialData(client, seedData) {
     try {
@@ -1871,8 +1943,232 @@ class PostgresAdapter {
       client.release();
     }
   }
+
+  async getAllCategoriesWithCountsAsync(onlyActive = false) {
+    await this.init();
+    try {
+      const activeFilter = onlyActive ? "WHERE c.status = 'ACTIVE'" : "";
+      const res = await this.query(`
+        SELECT 
+          c.id,
+          c.name,
+          c.slug,
+          c.icon,
+          c.image,
+          c.description,
+          COALESCE(c.display_order, 0) as display_order,
+          COALESCE(c.status, 'ACTIVE') as status,
+          c.created_at,
+          c.updated_at,
+          c.data,
+          COUNT(p.id) FILTER (WHERE p.status != 'DELETED' AND p.status != 'ARCHIVED') as total_product_count,
+          COUNT(p.id) FILTER (WHERE p.status = 'ACTIVE') as active_product_count,
+          COUNT(p.id) FILTER (WHERE p.status = 'ACTIVE' AND p.stock > 0) as in_stock_active_count,
+          COUNT(p.id) FILTER (WHERE p.status = 'ACTIVE' AND p.stock <= 0) as out_of_stock_count
+        FROM freshmart_categories c
+        LEFT JOIN freshmart_products p ON (
+          p.data->>'categoryId' = c.id
+          OR LOWER(TRIM(p.category)) = LOWER(TRIM(c.name))
+          OR LOWER(TRIM(p.category)) = LOWER(TRIM(c.slug))
+          OR (c.slug = 'vegetables' AND (LOWER(p.category) LIKE '%veg%' OR LOWER(p.subcategory) LIKE '%veg%'))
+          OR (c.slug = 'fruits' AND (LOWER(p.category) LIKE '%fruit%' OR LOWER(p.subcategory) LIKE '%fruit%'))
+          OR (c.slug = 'grocery' AND (LOWER(p.category) LIKE '%groc%' OR LOWER(p.category) LIKE '%pant%' OR LOWER(p.category) LIKE '%staple%'))
+          OR (c.slug = 'leafy-herbs' AND (LOWER(p.category) LIKE '%herb%' OR LOWER(p.category) LIKE '%leaf%'))
+          OR (c.slug = 'dairy' AND (LOWER(p.category) LIKE '%dairy%' OR LOWER(p.name) LIKE '%ghee%'))
+          OR (c.slug = 'sweeteners' AND (LOWER(p.category) LIKE '%sweet%' OR LOWER(p.name) LIKE '%honey%'))
+        )
+        ${activeFilter}
+        GROUP BY c.id, c.name, c.slug, c.icon, c.image, c.description, c.display_order, c.status, c.created_at, c.updated_at, c.data
+        ORDER BY COALESCE(c.display_order, 999) ASC, c.name ASC;
+      `);
+
+      return res.rows.map(r => {
+        const dataObj = typeof r.data === 'object' ? (r.data || {}) : JSON.parse(r.data || '{}');
+        const activeCount = parseInt(r.active_product_count || 0, 10);
+        const totalCount = parseInt(r.total_product_count || 0, 10);
+        return {
+          ...dataObj,
+          id: r.id,
+          name: r.name,
+          slug: r.slug,
+          icon: r.icon || dataObj.icon || '🥬',
+          image: r.image || dataObj.image || '',
+          description: r.description || dataObj.description || '',
+          displayOrder: Number(r.display_order) || 0,
+          display_order: Number(r.display_order) || 0,
+          status: r.status || 'ACTIVE',
+          active: (r.status || 'ACTIVE') === 'ACTIVE',
+          productCount: activeCount,
+          activeProductCount: activeCount,
+          totalProductCount: totalCount,
+          inStockActiveCount: parseInt(r.in_stock_active_count || 0, 10),
+          outOfStockCount: parseInt(r.out_of_stock_count || 0, 10),
+          createdAt: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString(),
+          updatedAt: r.updated_at ? new Date(r.updated_at).toISOString() : new Date().toISOString()
+        };
+      });
+    } catch (err) {
+      console.error('getAllCategoriesWithCountsAsync error:', err.message);
+      return [];
+    }
+  }
+
+  async createCategoryAsync(categoryData) {
+    await this.init();
+    const id = categoryData.id || ('cat_' + Date.now() + '_' + Math.floor(Math.random() * 1000));
+    const name = String(categoryData.name || '').trim() || 'New Category';
+    const slug = (categoryData.slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')).trim();
+    const icon = categoryData.icon || '🥬';
+    const image = categoryData.image || '';
+    const description = categoryData.description || '';
+    const displayOrder = Number(categoryData.displayOrder || categoryData.display_order || 0);
+    const status = (categoryData.status || (categoryData.active === false ? 'SUSPENDED' : 'ACTIVE')).toUpperCase();
+
+    const dataObj = {
+      id,
+      name,
+      slug,
+      icon,
+      image,
+      description,
+      displayOrder,
+      display_order: displayOrder,
+      status,
+      active: status === 'ACTIVE',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      ...(categoryData.data || {})
+    };
+
+    const res = await this.query(`
+      INSERT INTO freshmart_categories (id, name, slug, icon, image, description, display_order, status, created_at, updated_at, data)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW(), $9)
+      RETURNING *;
+    `, [id, name, slug, icon, image, description, displayOrder, status, JSON.stringify(dataObj)]);
+
+    return {
+      success: true,
+      category: {
+        ...dataObj,
+        productCount: 0,
+        activeProductCount: 0,
+        totalProductCount: 0
+      }
+    };
+  }
+
+  async updateCategoryAsync(categoryId, updateData) {
+    await this.init();
+    const existingRes = await this.query('SELECT * FROM freshmart_categories WHERE id = $1', [String(categoryId)]);
+    if (existingRes.rows.length === 0) {
+      return { success: false, error: 'Category not found' };
+    }
+
+    const row = existingRes.rows[0];
+    const dataObj = typeof row.data === 'object' ? (row.data || {}) : JSON.parse(row.data || '{}');
+
+    const name = updateData.name !== undefined ? String(updateData.name).trim() : row.name;
+    const slug = updateData.slug !== undefined ? String(updateData.slug).trim() : row.slug;
+    const icon = updateData.icon !== undefined ? updateData.icon : row.icon;
+    const image = updateData.image !== undefined ? updateData.image : row.image;
+    const description = updateData.description !== undefined ? updateData.description : row.description;
+    const displayOrder = updateData.displayOrder !== undefined ? Number(updateData.displayOrder) : (updateData.display_order !== undefined ? Number(updateData.display_order) : row.display_order);
+    
+    let status = row.status || 'ACTIVE';
+    if (updateData.status !== undefined) {
+      status = String(updateData.status).toUpperCase();
+    } else if (updateData.active !== undefined) {
+      status = updateData.active ? 'ACTIVE' : 'SUSPENDED';
+    }
+
+    const updatedData = {
+      ...dataObj,
+      name,
+      slug,
+      icon,
+      image,
+      description,
+      displayOrder,
+      display_order: displayOrder,
+      status,
+      active: status === 'ACTIVE',
+      updatedAt: new Date().toISOString()
+    };
+
+    await this.query(`
+      UPDATE freshmart_categories
+      SET name = $1,
+          slug = $2,
+          icon = $3,
+          image = $4,
+          description = $5,
+          display_order = $6,
+          status = $7,
+          updated_at = NOW(),
+          data = $8
+      WHERE id = $9;
+    `, [name, slug, icon, image, description, displayOrder, status, JSON.stringify(updatedData), String(categoryId)]);
+
+    return {
+      success: true,
+      category: {
+        id: row.id,
+        ...updatedData
+      }
+    };
+  }
+
+  async toggleCategoryStatusAsync(categoryId, targetStatus = null) {
+    await this.init();
+    const existingRes = await this.query('SELECT * FROM freshmart_categories WHERE id = $1', [String(categoryId)]);
+    if (existingRes.rows.length === 0) {
+      return { success: false, error: 'Category not found' };
+    }
+
+    const row = existingRes.rows[0];
+    const newStatus = targetStatus ? String(targetStatus).toUpperCase() : (row.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE');
+    return this.updateCategoryAsync(categoryId, { status: newStatus });
+  }
+
+  async deleteCategoryAsync(categoryId) {
+    await this.init();
+    const existingRes = await this.query('SELECT * FROM freshmart_categories WHERE id = $1', [String(categoryId)]);
+    if (existingRes.rows.length === 0) {
+      return { success: false, error: 'Category not found' };
+    }
+
+    const catRow = existingRes.rows[0];
+
+    // Check if category has any active products
+    const prodCountRes = await this.query(`
+      SELECT COUNT(*) as count 
+      FROM freshmart_products p
+      WHERE (
+        p.data->>'categoryId' = $1
+        OR LOWER(TRIM(p.category)) = LOWER(TRIM($2))
+        OR LOWER(TRIM(p.category)) = LOWER(TRIM($3))
+        OR ($3 = 'vegetables' AND (LOWER(p.category) LIKE '%veg%' OR LOWER(p.subcategory) LIKE '%veg%'))
+        OR ($3 = 'fruits' AND (LOWER(p.category) LIKE '%fruit%' OR LOWER(p.subcategory) LIKE '%fruit%'))
+        OR ($3 = 'grocery' AND (LOWER(p.category) LIKE '%groc%' OR LOWER(p.category) LIKE '%pant%'))
+      ) AND p.status != 'DELETED';
+    `, [String(categoryId), catRow.name, catRow.slug]);
+
+    const count = parseInt(prodCountRes.rows[0]?.count || 0, 10);
+    if (count > 0) {
+      return {
+        success: false,
+        error: `Cannot delete category "${catRow.name}" because ${count} product(s) are currently assigned to it. Please move or reassign the products first, or suspend the category.`,
+        productCount: count,
+        blocked: true
+      };
+    }
+
+    await this.query('DELETE FROM freshmart_categories WHERE id = $1', [String(categoryId)]);
+    return { success: true, message: `Category "${catRow.name}" deleted successfully.` };
+  }
 }
 
 module.exports = PostgresAdapter;
+
 
 

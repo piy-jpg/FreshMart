@@ -2350,6 +2350,16 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (pathname === '/api/categories' && method === 'GET') {
+      const pg = db.postgres || db.pgAdapter;
+      if (pg && pg.isAvailable()) {
+        try {
+          const activeCategories = await pg.getAllCategoriesWithCountsAsync(true);
+          return sendJson(res, 200, activeCategories);
+        } catch (e) {
+          console.warn('Postgres getAllCategoriesWithCountsAsync error, falling back:', e.message);
+        }
+      }
+
       const categories = db.getAll('categories') || [];
       const products = db.getAll('products') || [];
       const activeProducts = products.filter(p => {
@@ -2357,7 +2367,7 @@ const server = http.createServer(async (req, res) => {
         return !['SUSPENDED', 'INACTIVE', 'DRAFT', 'DELETED', 'ARCHIVED', 'UNPUBLISHED'].includes(s);
       });
 
-      const enriched = categories.map(cat => {
+      const enriched = categories.filter(c => (c.status || 'ACTIVE') !== 'SUSPENDED' && (c.active !== false)).map(cat => {
         const slug = (cat.slug || cat.id || cat.name || '').toLowerCase();
         let count = 0;
         if (slug.includes('veg')) {
@@ -2383,6 +2393,7 @@ const server = http.createServer(async (req, res) => {
       });
       return sendJson(res, 200, enriched);
     }
+
 
     // ----------------------------------------------------
     // Store Status (Live / Offline) Endpoints
@@ -5565,50 +5576,121 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 200, { success: true, message: 'Customer account deactivated.' });
       }
 
-      // 6.1 Categories Management
+      // 6.1 Categories Management (Neon PostgreSQL as Single Source of Truth)
       if (pathname === '/api/owner/categories' && method === 'GET') {
+        const pg = db.postgres || db.pgAdapter;
+        if (pg && pg.isAvailable()) {
+          try {
+            const categories = await pg.getAllCategoriesWithCountsAsync(false);
+            return sendJson(res, 200, categories);
+          } catch (e) {
+            console.warn('Postgres getAllCategoriesWithCountsAsync error, falling back:', e.message);
+          }
+        }
         const categories = db.getAll('categories') || [];
         return sendJson(res, 200, categories);
       }
 
       if (pathname === '/api/owner/categories' && method === 'POST') {
         const body = await parseBody(req);
-        const name = body.name || body.title || 'New Category';
+        const name = String(body.name || body.title || 'New Category').trim();
+        const pg = db.postgres || db.pgAdapter;
+
+        if (pg && pg.isAvailable()) {
+          try {
+            const result = await pg.createCategoryAsync(body);
+            if (!result.success) {
+              return sendJson(res, 400, { error: result.error || 'Failed to create category' });
+            }
+            await db.logActivityAsync(owner.name, 'CATEGORY_CREATED', 'Categories', result.category.id, `Created category "${result.category.name}"`);
+            broadcastEvent('CATEGORY_CREATED', result.category);
+            return sendJson(res, 201, result);
+          } catch (err) {
+            return sendJson(res, 500, { error: err.message });
+          }
+        }
+
         const newCat = {
           id: body.id || 'cat_' + Date.now(),
           name,
           slug: body.slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
           icon: body.icon || '🥬',
+          image: body.image || '',
+          description: body.description || '',
+          displayOrder: Number(body.displayOrder || body.display_order || 0),
+          status: body.status || (body.active === false ? 'SUSPENDED' : 'ACTIVE'),
           active: body.active !== undefined ? Boolean(body.active) : true,
           productCount: 0,
           createdAt: new Date().toISOString()
         };
         db.insert('categories', newCat);
         db.logActivity(owner.name, 'CATEGORY_CREATED', 'Categories', newCat.id, `Created category "${newCat.name}"`);
+        broadcastEvent('CATEGORY_CREATED', newCat);
         return sendJson(res, 201, { success: true, category: newCat });
       }
 
       if (pathname.startsWith('/api/owner/categories/') && (method === 'PATCH' || method === 'PUT')) {
         const id = pathname.replace('/api/owner/categories/', '');
+        const body = await parseBody(req);
+        const pg = db.postgres || db.pgAdapter;
+
+        if (pg && pg.isAvailable()) {
+          try {
+            const result = await pg.updateCategoryAsync(id, body);
+            if (!result.success) {
+              return sendJson(res, 404, { error: result.error || 'Category not found' });
+            }
+            await db.logActivityAsync(owner.name, 'CATEGORY_UPDATED', 'Categories', id, `Updated category "${result.category.name}"`);
+            broadcastEvent('CATEGORY_UPDATED', result.category);
+            return sendJson(res, 200, result);
+          } catch (err) {
+            return sendJson(res, 500, { error: err.message });
+          }
+        }
+
         const cat = db.getById('categories', id);
         if (!cat) return sendJson(res, 404, { error: 'Category not found' });
-        const body = await parseBody(req);
         if (body.name) cat.name = body.name;
+        if (body.slug) cat.slug = body.slug;
         if (body.icon) cat.icon = body.icon;
+        if (body.image) cat.image = body.image;
+        if (body.description) cat.description = body.description;
+        if (body.displayOrder !== undefined) cat.displayOrder = Number(body.displayOrder);
+        if (body.status) cat.status = body.status;
         if (body.active !== undefined) cat.active = Boolean(body.active);
         cat.updatedAt = new Date().toISOString();
         db.save();
         db.logActivity(owner.name, 'CATEGORY_UPDATED', 'Categories', id, `Updated category "${cat.name}"`);
+        broadcastEvent('CATEGORY_UPDATED', cat);
         return sendJson(res, 200, { success: true, category: cat });
       }
 
       if (pathname.startsWith('/api/owner/categories/') && method === 'DELETE') {
         const id = pathname.replace('/api/owner/categories/', '');
+        const pg = db.postgres || db.pgAdapter;
+
+        if (pg && pg.isAvailable()) {
+          try {
+            const result = await pg.deleteCategoryAsync(id);
+            if (!result.success) {
+              return sendJson(res, 400, { error: result.error, productCount: result.productCount, blocked: true });
+            }
+            await db.logActivityAsync(owner.name, 'CATEGORY_DELETED', 'Categories', id, `Deleted category`);
+            broadcastEvent('CATEGORY_DELETED', { id });
+            return sendJson(res, 200, result);
+          } catch (err) {
+            return sendJson(res, 500, { error: err.message });
+          }
+        }
+
+        const cat = db.getById('categories', id);
+        if (!cat) return sendJson(res, 404, { error: 'Category not found' });
         const deleted = db.delete('categories', id);
-        if (!deleted) return sendJson(res, 404, { error: 'Category not found' });
         db.logActivity(owner.name, 'CATEGORY_DELETED', 'Categories', id, `Deleted category`);
+        broadcastEvent('CATEGORY_DELETED', { id });
         return sendJson(res, 200, { success: true, message: 'Category deleted successfully.' });
       }
+
 
       // 7. Farmers & Procurements
       if (pathname === '/api/owner/farmers' && method === 'GET') {

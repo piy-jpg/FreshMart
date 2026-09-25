@@ -930,18 +930,85 @@
 
       <!-- ================= TAB 5: CATEGORIES ================= -->
       <section id="tab-categories" class="tab-pane space-y-6">
-        <div class="flex items-center justify-between">
+        <!-- Top Bar -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 class="font-heading font-black text-xl text-white">Farm Product Categories</h2>
-            <p class="text-xs text-slate-400">Organize vegetables, leafy greens, exotic fruits, and organic staples.</p>
+            <div class="flex items-center gap-2">
+              <span class="text-xl">🏷️</span>
+              <h2 class="font-heading font-black text-xl text-white">Farm Product Categories</h2>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">Neon PostgreSQL</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">
+              Single source of truth for categories. Product counts are dynamically computed from active PostgreSQL inventory.
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="loadCategories()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer">
+              <span>🔄</span> Refresh
+            </button>
+            <button onclick="openAddCategoryModal()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer">
+              <span>➕</span> Add New Category
+            </button>
           </div>
         </div>
 
-        <div id="categories-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- Injected dynamically -->
-          <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-slate-500 text-center">Loading categories...</div>
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm">
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Total Categories</span>
+            <span id="owner-cat-total" class="text-2xl font-mono font-black text-white mt-1 block">...</span>
+            <span class="text-[10px] text-emerald-400 font-semibold mt-0.5 block">100% Live DB Synchronized</span>
+          </div>
+          <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm">
+            <span class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block">Active Categories</span>
+            <span id="owner-cat-active" class="text-2xl font-mono font-black text-emerald-400 mt-1 block">...</span>
+            <span class="text-[10px] text-slate-400 mt-0.5 block">Visible to Customers</span>
+          </div>
+          <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm">
+            <span class="text-[11px] font-bold text-amber-400 uppercase tracking-wider block">Assigned Products</span>
+            <span id="owner-cat-products" class="text-2xl font-mono font-black text-amber-400 mt-1 block">...</span>
+            <span class="text-[10px] text-slate-400 mt-0.5 block">Across Active Catalog</span>
+          </div>
+          <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm">
+            <span class="text-[11px] font-bold text-rose-400 uppercase tracking-wider block">Suspended / Inactive</span>
+            <span id="owner-cat-suspended" class="text-2xl font-mono font-black text-rose-400 mt-1 block">...</span>
+            <span class="text-[10px] text-slate-400 mt-0.5 block">Hidden from Website</span>
+          </div>
+        </div>
+
+        <!-- Filters & View Switcher -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 rounded-2xl bg-slate-900 border border-slate-800">
+          <div class="flex items-center gap-2 flex-1 max-w-md">
+            <div class="relative w-full">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">🔍</span>
+              <input 
+                type="text" 
+                id="cat-search-input" 
+                oninput="handleCategorySearch(this.value)" 
+                placeholder="Search category name, slug, description..." 
+                class="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition"
+              />
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <select 
+              id="cat-status-filter" 
+              onchange="handleCategoryStatusFilter(this.value)" 
+              class="px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-200 font-bold focus:outline-none focus:border-amber-500 transition"
+            >
+              <option value="ALL">All Statuses</option>
+              <option value="ACTIVE">🟢 Active Only</option>
+              <option value="SUSPENDED">🔴 Suspended Only</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Categories Cards Grid -->
+        <div id="categories-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div class="col-span-full py-12 text-center text-slate-500 font-medium">Loading categories from Neon PostgreSQL...</div>
         </div>
       </section>
+
 
       <!-- ================= TAB 6: FARMERS & PROCUREMENT ================= -->
       <section id="tab-farmers" class="tab-pane space-y-6">
@@ -2409,8 +2476,233 @@
     </div>
   </div>
 
+  <!-- Modal: Add Category -->
+  <div id="modal-add-category" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 rounded-3xl border border-slate-700/80 p-6 sm:p-7 max-w-lg w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3.5 border-b border-slate-800 mb-5">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-base">
+            🏷️
+          </div>
+          <div>
+            <h3 class="font-heading font-black text-base text-white">Create New Category</h3>
+            <p class="text-[11px] text-slate-400">Add to Neon PostgreSQL and live customer navigation</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeAddCategoryModal()" class="text-slate-400 hover:text-white text-lg font-bold p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer">&times;</button>
+      </div>
+
+      <form id="add-category-form" onsubmit="submitAddCategory(event)" class="space-y-4">
+        <!-- 1. Category Name -->
+        <div>
+          <label for="new-cat-name" class="block text-xs font-bold text-slate-300 mb-1">Category Name <span class="text-amber-400">*</span></label>
+          <input 
+            id="new-cat-name" 
+            type="text" 
+            required 
+            placeholder="e.g. Exotic Herbs & Microgreens" 
+            oninput="autoGenerateCategorySlug(this.value, 'new-cat-slug')" 
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- 2. Slug -->
+          <div>
+            <label for="new-cat-slug" class="block text-xs font-bold text-slate-300 mb-1">URL Slug <span class="text-amber-400">*</span></label>
+            <input 
+              id="new-cat-slug" 
+              type="text" 
+              required 
+              placeholder="e.g. exotic-herbs" 
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:border-amber-500 transition"
+            />
+          </div>
+          <!-- 3. Icon / Emoji -->
+          <div>
+            <label for="new-cat-icon" class="block text-xs font-bold text-slate-300 mb-1">Icon / Emoji</label>
+            <input 
+              id="new-cat-icon" 
+              type="text" 
+              placeholder="e.g. 🌿" 
+              value="🌿" 
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition"
+            />
+          </div>
+        </div>
+
+        <!-- 4. Image URL -->
+        <div>
+          <label for="new-cat-image" class="block text-xs font-bold text-slate-300 mb-1">Cover Image URL</label>
+          <input 
+            id="new-cat-image" 
+            type="url" 
+            placeholder="https://images.unsplash.com/photo-..." 
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition"
+          />
+        </div>
+
+        <!-- 5. Description -->
+        <div>
+          <label for="new-cat-desc" class="block text-xs font-bold text-slate-300 mb-1">Description</label>
+          <textarea 
+            id="new-cat-desc" 
+            rows="2" 
+            placeholder="Brief description displayed on storefront and category cards..." 
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition"
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- 6. Display Order -->
+          <div>
+            <label for="new-cat-order" class="block text-xs font-bold text-slate-300 mb-1">Display Order</label>
+            <input 
+              id="new-cat-order" 
+              type="number" 
+              value="1" 
+              min="0" 
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white font-mono focus:outline-none focus:border-amber-500 transition"
+            />
+          </div>
+          <!-- 7. Status -->
+          <div>
+            <label for="new-cat-status" class="block text-xs font-bold text-slate-300 mb-1">Initial Status</label>
+            <select 
+              id="new-cat-status" 
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white font-bold focus:outline-none focus:border-amber-500 transition"
+            >
+              <option value="ACTIVE">🟢 Active (Visible Online)</option>
+              <option value="SUSPENDED">🔴 Suspended (Hidden)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="pt-4 border-t border-slate-800 flex items-center justify-end gap-2.5">
+          <button type="button" onclick="closeAddCategoryModal()" class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition cursor-pointer">
+            Cancel
+          </button>
+          <button type="submit" id="btn-submit-add-cat" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md transition cursor-pointer">
+            Create Category
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Edit Category -->
+  <div id="modal-edit-category" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 rounded-3xl border border-slate-700/80 p-6 sm:p-7 max-w-lg w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3.5 border-b border-slate-800 mb-5">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-base">
+            ✏️
+          </div>
+          <div>
+            <h3 class="font-heading font-black text-base text-white">Edit Category</h3>
+            <p class="text-[11px] text-slate-400">Update category details and live status</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeEditCategoryModal()" class="text-slate-400 hover:text-white text-lg font-bold p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer">&times;</button>
+      </div>
+
+      <form id="edit-category-form" onsubmit="submitEditCategory(event)" class="space-y-4">
+        <input type="hidden" id="edit-cat-id" />
+
+        <!-- 1. Category Name -->
+        <div>
+          <label for="edit-cat-name" class="block text-xs font-bold text-slate-300 mb-1">Category Name <span class="text-amber-400">*</span></label>
+          <input 
+            id="edit-cat-name" 
+            type="text" 
+            required 
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- 2. Slug -->
+          <div>
+            <label for="edit-cat-slug" class="block text-xs font-bold text-slate-300 mb-1">URL Slug <span class="text-amber-400">*</span></label>
+            <input 
+              id="edit-cat-slug" 
+              type="text" 
+              required 
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:border-amber-500 transition"
+            />
+          </div>
+          <!-- 3. Icon / Emoji -->
+          <div>
+            <label for="edit-cat-icon" class="block text-xs font-bold text-slate-300 mb-1">Icon / Emoji</label>
+            <input 
+              id="edit-cat-icon" 
+              type="text" 
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition"
+            />
+          </div>
+        </div>
+
+        <!-- 4. Image URL -->
+        <div>
+          <label for="edit-cat-image" class="block text-xs font-bold text-slate-300 mb-1">Cover Image URL</label>
+          <input 
+            id="edit-cat-image" 
+            type="url" 
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition"
+          />
+        </div>
+
+        <!-- 5. Description -->
+        <div>
+          <label for="edit-cat-desc" class="block text-xs font-bold text-slate-300 mb-1">Description</label>
+          <textarea 
+            id="edit-cat-desc" 
+            rows="2" 
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition"
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- 6. Display Order -->
+          <div>
+            <label for="edit-cat-order" class="block text-xs font-bold text-slate-300 mb-1">Display Order</label>
+            <input 
+              id="edit-cat-order" 
+              type="number" 
+              min="0" 
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white font-mono focus:outline-none focus:border-amber-500 transition"
+            />
+          </div>
+          <!-- 7. Status -->
+          <div>
+            <label for="edit-cat-status" class="block text-xs font-bold text-slate-300 mb-1">Status</label>
+            <select 
+              id="edit-cat-status" 
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white font-bold focus:outline-none focus:border-amber-500 transition"
+            >
+              <option value="ACTIVE">🟢 Active (Visible Online)</option>
+              <option value="SUSPENDED">🔴 Suspended (Hidden)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="pt-4 border-t border-slate-800 flex items-center justify-end gap-2.5">
+          <button type="button" onclick="closeEditCategoryModal()" class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition cursor-pointer">
+            Cancel
+          </button>
+          <button type="submit" id="btn-submit-edit-cat" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md transition cursor-pointer">
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Modal 3: Add Staff Member -->
   <div id="modal-add-staff" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+
     <div class="bg-slate-900 rounded-3xl border border-slate-700/80 p-6 sm:p-7 max-w-md w-full shadow-2xl relative">
       <div class="flex items-center justify-between pb-3.5 border-b border-slate-800 mb-5">
         <div class="flex items-center gap-2.5">
@@ -3207,8 +3499,11 @@
                 const isLive = statusData.status === 'LIVE' || statusData.isOpen === true;
                 showToast(isLive ? '🟢 Store is now LIVE!' : '🔴 Store is now OFFLINE', isLive ? 'success' : 'info');
               }
+            } else if (data.type === 'CATEGORY_CREATED' || data.type === 'CATEGORY_UPDATED' || data.type === 'CATEGORY_DELETED') {
+              loadCategories();
             }
           } catch (e) {}
+
         };
 
         sse.onerror = () => {
@@ -3589,7 +3884,9 @@
       await loadOrders();
       await loadProducts();
       await loadInventory();
+      await loadCategories();
       await loadStaff();
+
       await loadRoles();
       await loadFarmers();
       await loadHubs();
@@ -3709,11 +4006,13 @@
 
       // Lazy refresh tab data when activated
       if (tabId === 'staff') loadStaff();
+      else if (tabId === 'categories') loadCategories();
       else if (tabId === 'roles') loadRoles();
       else if (tabId === 'reviews') loadReviews();
       else if (tabId === 'audit') loadAuditLogs();
       else if (tabId === 'settings') loadSettings();
       else if (tabId === 'health') loadHealthTelemetry();
+
     }
 
     // Toast Notification System
@@ -5967,8 +6266,326 @@
     }
 
     // ==========================================
+    // CATEGORIES MANAGEMENT (Neon PostgreSQL Single Source of Truth)
+    // ==========================================
+    let categorySearchQuery = '';
+    let categoryStatusFilter = 'ALL';
+
+    async function loadCategories() {
+      try {
+        const res = await fetch('/api/owner/categories', { credentials: 'include' });
+        if (!res.ok) throw new Error('Failed to fetch categories from PostgreSQL');
+        const categories = await res.json();
+        state.categories = Array.isArray(categories) ? categories : [];
+
+        // KPI Calculations
+        const total = state.categories.length;
+        const active = state.categories.filter(c => (c.status || 'ACTIVE') === 'ACTIVE' && c.active !== false).length;
+        const suspended = state.categories.filter(c => (c.status || '').toUpperCase() === 'SUSPENDED' || c.active === false).length;
+        const assignedProds = state.categories.reduce((sum, c) => sum + (Number(c.productCount || c.activeProductCount) || 0), 0);
+
+        const totalEl = document.getElementById('owner-cat-total');
+        const activeEl = document.getElementById('owner-cat-active');
+        const prodsEl = document.getElementById('owner-cat-products');
+        const suspEl = document.getElementById('owner-cat-suspended');
+
+        if (totalEl) totalEl.textContent = `${total} Categories`;
+        if (activeEl) activeEl.textContent = `${active} Active`;
+        if (prodsEl) prodsEl.textContent = `${assignedProds} Products`;
+        if (suspEl) suspEl.textContent = `${suspended} Suspended`;
+
+        renderCategories();
+      } catch (err) {
+        console.error('loadCategories error:', err);
+        const grid = document.getElementById('categories-grid');
+        if (grid) grid.innerHTML = `<div class="col-span-full p-8 text-center text-rose-400 font-bold bg-rose-500/10 rounded-2xl border border-rose-500/20">Error loading categories: ${err.message}</div>`;
+      }
+    }
+
+    function handleCategorySearch(val) {
+      categorySearchQuery = (val || '').toLowerCase().trim();
+      renderCategories();
+    }
+
+    function handleCategoryStatusFilter(val) {
+      categoryStatusFilter = val || 'ALL';
+      renderCategories();
+    }
+
+    function renderCategories() {
+      const grid = document.getElementById('categories-grid');
+      if (!grid) return;
+
+      let list = state.categories || [];
+
+      if (categoryStatusFilter === 'ACTIVE') {
+        list = list.filter(c => (c.status || 'ACTIVE') === 'ACTIVE' && c.active !== false);
+      } else if (categoryStatusFilter === 'SUSPENDED') {
+        list = list.filter(c => (c.status || '').toUpperCase() === 'SUSPENDED' || c.active === false);
+      }
+
+      if (categorySearchQuery) {
+        list = list.filter(c => 
+          (c.name && c.name.toLowerCase().includes(categorySearchQuery)) ||
+          (c.slug && c.slug.toLowerCase().includes(categorySearchQuery)) ||
+          (c.description && c.description.toLowerCase().includes(categorySearchQuery))
+        );
+      }
+
+      if (!list.length) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 text-center text-slate-500 bg-slate-900 rounded-2xl border border-slate-800">
+            <span class="text-3xl block mb-2">🏷️</span>
+            <p class="font-bold text-slate-300">No categories match your filter or search.</p>
+            <p class="text-xs text-slate-500 mt-1">Try clearing your filters or create a new category above.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = list.map(cat => {
+        const isSuspended = (cat.status || '').toUpperCase() === 'SUSPENDED' || cat.active === false;
+        const statusBadge = isSuspended 
+          ? '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">🔴 SUSPENDED</span>'
+          : '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">🟢 ACTIVE</span>';
+
+        const prodCount = Number(cat.productCount || cat.activeProductCount || 0);
+        const totalCount = Number(cat.totalProductCount || prodCount);
+
+        const imgHtml = cat.image 
+          ? `<img src="${cat.image}" alt="${cat.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80'" />`
+          : `<div class="w-full h-full flex items-center justify-center text-3xl bg-slate-800/80">${cat.icon || '🏷️'}</div>`;
+
+        return `
+          <div class="rounded-3xl bg-slate-900 border border-slate-800 hover:border-slate-700 p-5 flex flex-col justify-between transition-all duration-200 shadow-sm relative group">
+            <div>
+              <!-- Top Row: Icon & Status -->
+              <div class="flex items-center justify-between gap-2 mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="w-9 h-9 rounded-2xl bg-slate-800 text-lg flex items-center justify-center shadow-inner border border-slate-700/60">${cat.icon || '🏷️'}</span>
+                  <div>
+                    <span class="font-mono text-[10px] text-amber-400 font-bold uppercase tracking-wider block">Order #${cat.displayOrder !== undefined ? cat.displayOrder : (cat.display_order || 0)}</span>
+                    <span class="font-mono text-[10px] text-slate-400">/${cat.slug || cat.id}</span>
+                  </div>
+                </div>
+                ${statusBadge}
+              </div>
+
+              <!-- Cover Image Thumbnail -->
+              <div class="w-full h-32 rounded-2xl overflow-hidden bg-slate-800 border border-slate-800/80 mb-3 relative">
+                ${imgHtml}
+              </div>
+
+              <!-- Title & Description -->
+              <h3 class="font-heading font-black text-base text-white group-hover:text-amber-400 transition-colors">${cat.name}</h3>
+              <p class="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed min-h-[36px]">${cat.description || 'No description provided.'}</p>
+
+              <!-- Live Product Count Bar -->
+              <div class="mt-4 p-3 rounded-2xl bg-slate-800/70 border border-slate-700/60 flex items-center justify-between text-xs">
+                <span class="text-slate-400 font-semibold">Active Products:</span>
+                <span class="font-mono font-black text-emerald-400">${prodCount} SKUs</span>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
+              <button onclick="openEditCategoryModal('${cat.id}')" class="flex-1 py-1.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white font-bold text-xs transition cursor-pointer text-center">
+                ✏️ Edit
+              </button>
+              <button onclick="toggleCategoryStatus('${cat.id}')" class="py-1.5 px-3 rounded-xl ${isSuspended ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30'} font-bold text-xs transition cursor-pointer">
+                ${isSuspended ? '🟢 Activate' : '⏸️ Suspend'}
+              </button>
+              <button onclick="deleteCategory('${cat.id}', '${cat.name.replace(/'/g, "\\'")}', ${totalCount})" class="py-1.5 px-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold text-xs transition cursor-pointer" title="Delete category">
+                🗑️
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function autoGenerateCategorySlug(name, targetId) {
+      const slugInput = document.getElementById(targetId);
+      if (!slugInput) return;
+      const slug = (name || '').toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      slugInput.value = slug;
+    }
+
+    function openAddCategoryModal() {
+      document.getElementById('add-category-form')?.reset();
+      const orderInput = document.getElementById('new-cat-order');
+      if (orderInput && state.categories) {
+        orderInput.value = (state.categories.length + 1);
+      }
+      document.getElementById('modal-add-category')?.classList.remove('hidden');
+      setTimeout(() => document.getElementById('new-cat-name')?.focus(), 50);
+    }
+
+    function closeAddCategoryModal() {
+      document.getElementById('modal-add-category')?.classList.add('hidden');
+    }
+
+    function openEditCategoryModal(catId) {
+      const cat = (state.categories || []).find(c => c.id === catId);
+      if (!cat) {
+        showToast('Category not found', 'error');
+        return;
+      }
+      document.getElementById('edit-cat-id').value = cat.id;
+      document.getElementById('edit-cat-name').value = cat.name || '';
+      document.getElementById('edit-cat-slug').value = cat.slug || '';
+      document.getElementById('edit-cat-icon').value = cat.icon || '🥬';
+      document.getElementById('edit-cat-image').value = cat.image || '';
+      document.getElementById('edit-cat-desc').value = cat.description || '';
+      document.getElementById('edit-cat-order').value = cat.displayOrder !== undefined ? cat.displayOrder : (cat.display_order || 0);
+      document.getElementById('edit-cat-status').value = (cat.status || 'ACTIVE').toUpperCase();
+
+      document.getElementById('modal-edit-category')?.classList.remove('hidden');
+    }
+
+    function closeEditCategoryModal() {
+      document.getElementById('modal-edit-category')?.classList.add('hidden');
+    }
+
+    async function submitAddCategory(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('btn-submit-add-cat');
+      const origText = submitBtn ? submitBtn.innerHTML : 'Create Category';
+      try {
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = 'Creating in PostgreSQL...';
+        }
+
+        const name = document.getElementById('new-cat-name').value.trim();
+        const slug = document.getElementById('new-cat-slug').value.trim();
+        const icon = document.getElementById('new-cat-icon').value.trim() || '🥬';
+        const image = document.getElementById('new-cat-image').value.trim();
+        const description = document.getElementById('new-cat-desc').value.trim();
+        const displayOrder = Number(document.getElementById('new-cat-order').value) || 0;
+        const status = document.getElementById('new-cat-status').value;
+
+        const res = await fetch('/api/owner/categories', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, slug, icon, image, description, displayOrder, status })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Failed to create category');
+        }
+
+        showToast(`Category "${name}" saved to PostgreSQL! 🏷️`, 'success');
+        closeAddCategoryModal();
+        await loadCategories();
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = origText;
+        }
+      }
+    }
+
+    async function submitEditCategory(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('btn-submit-edit-cat');
+      const origText = submitBtn ? submitBtn.innerHTML : 'Save Changes';
+      try {
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = 'Updating in PostgreSQL...';
+        }
+
+        const catId = document.getElementById('edit-cat-id').value;
+        const name = document.getElementById('edit-cat-name').value.trim();
+        const slug = document.getElementById('edit-cat-slug').value.trim();
+        const icon = document.getElementById('edit-cat-icon').value.trim() || '🥬';
+        const image = document.getElementById('edit-cat-image').value.trim();
+        const description = document.getElementById('edit-cat-desc').value.trim();
+        const displayOrder = Number(document.getElementById('edit-cat-order').value) || 0;
+        const status = document.getElementById('edit-cat-status').value;
+
+        const res = await fetch(`/api/owner/categories/${catId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, slug, icon, image, description, displayOrder, status })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Failed to update category');
+        }
+
+        showToast(`Category "${name}" updated successfully! 🏷️`, 'success');
+        closeEditCategoryModal();
+        await loadCategories();
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = origText;
+        }
+      }
+    }
+
+    async function toggleCategoryStatus(catId) {
+      const cat = (state.categories || []).find(c => c.id === catId);
+      if (!cat) return;
+      const isSuspended = (cat.status || '').toUpperCase() === 'SUSPENDED' || cat.active === false;
+      const targetStatus = isSuspended ? 'ACTIVE' : 'SUSPENDED';
+
+      try {
+        const res = await fetch(`/api/owner/categories/${catId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: targetStatus, active: targetStatus === 'ACTIVE' })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Failed to toggle status');
+
+        showToast(`Category "${cat.name}" is now ${targetStatus}!`, 'success');
+        await loadCategories();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function deleteCategory(catId, catName, prodCount) {
+      if (prodCount > 0) {
+        showToast(`Cannot delete "${catName}": ${prodCount} product(s) are assigned to it. Move products first or Suspend the category.`, 'error');
+        return;
+      }
+
+      if (!confirm(`Are you sure you want to delete category "${catName}" permanently from Neon PostgreSQL?`)) {
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/owner/categories/${catId}`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Failed to delete category');
+        }
+
+        showToast(`Category "${catName}" deleted permanently! 🗑️`, 'success');
+        await loadCategories();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // ==========================================
     // STAFF & SUB-ADMINS MANAGEMENT
     // ==========================================
+
     let currentViewingStaffId = null;
     let staffSearchQuery = '';
     let staffActiveFilter = 'ALL';
@@ -7936,9 +8553,23 @@
     window.openAddStaffModal = openAddStaffModal;
     window.closeAddStaffModal = closeAddStaffModal;
     window.toggleOwnerSound = toggleOwnerSound;
+
     window.refreshCurrentTab = refreshCurrentTab;
     window.populateAdjustStockDropdown = function() {};
+    window.loadCategories = loadCategories;
+    window.openAddCategoryModal = openAddCategoryModal;
+    window.closeAddCategoryModal = closeAddCategoryModal;
+    window.openEditCategoryModal = openEditCategoryModal;
+    window.closeEditCategoryModal = closeEditCategoryModal;
+    window.autoGenerateCategorySlug = autoGenerateCategorySlug;
+    window.submitAddCategory = submitAddCategory;
+    window.submitEditCategory = submitEditCategory;
+    window.toggleCategoryStatus = toggleCategoryStatus;
+    window.deleteCategory = deleteCategory;
+    window.handleCategorySearch = handleCategorySearch;
+    window.handleCategoryStatusFilter = handleCategoryStatusFilter;
   </script>
+
 
 </body>
 </html>
