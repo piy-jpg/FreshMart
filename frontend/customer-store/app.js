@@ -3090,6 +3090,7 @@ window.applyStoreStatusToUI = applyStoreStatusToUI;
 
 // Automatic interval polling as fallback for serverless SSE disconnects
 try {
+  fetchStoreStatus();
   setInterval(fetchStoreStatus, 10000);
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) fetchStoreStatus();
@@ -3267,7 +3268,7 @@ function updateStorefrontSubnavs() {
 window.updateStorefrontSubnavs = updateStorefrontSubnavs;
 
 // Initialize App
-document.addEventListener('DOMContentLoaded', () => {
+function initCustomerApp() {
   if (document.getElementById('product-details-page')) {
     initProductDetailsPage();
   } else if (document.getElementById('veg-products-grid')) {
@@ -3307,7 +3308,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }, 400);
   }
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initCustomerApp);
+} else {
+  initCustomerApp();
+}
 
 // Global Server-Sent Events Listener for Live Tracking & Catalog Updates
 let globalOrderSseInstance = null;

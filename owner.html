@@ -6243,10 +6243,11 @@
       try {
         const res = await fetch('/api/owner/farmers', { credentials: 'include' });
         if (!res.ok) throw new Error('Failed to fetch farmers');
-        state.farmers = await res.json();
+        const raw = await res.json();
+        state.farmers = Array.isArray(raw) ? raw : (raw?.data || raw?.farmers || []);
 
         const tbody = document.getElementById('farmers-table');
-        if (tbody) {
+        if (tbody && Array.isArray(state.farmers)) {
           tbody.innerHTML = state.farmers.map(f => `
             <tr class="hover:bg-slate-800/40 transition">
               <td class="py-3.5 px-4 font-bold text-white">${f.name}</td>
@@ -6361,10 +6362,11 @@
       try {
         const res = await fetch('/api/owner/payments', { credentials: 'include' });
         if (!res.ok) throw new Error('Failed to fetch payments');
-        state.payments = await res.json();
+        const raw = await res.json();
+        state.payments = Array.isArray(raw) ? raw : (raw?.data || raw?.payments || []);
 
         const tbody = document.getElementById('payments-table');
-        if (tbody) {
+        if (tbody && Array.isArray(state.payments)) {
           tbody.innerHTML = state.payments.map(p => `
             <tr class="hover:bg-slate-800/40 transition">
               <td class="py-3.5 px-4 font-mono text-amber-400 font-bold">${p.transactionId || p.id}</td>
