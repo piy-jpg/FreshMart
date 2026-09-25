@@ -9662,136 +9662,7 @@ function getInitialSeeds() {
       }
     ],
 
-    orders: [
-      {
-        id: 'SJH10248',
-        orderId: 'SJH10248',
-        customerId: 'usr_customer_1',
-        customerName: 'Rahul Sharma',
-        customerPhone: '+91 98450 12345',
-        hubId: 'hub_blr_indiranagar',
-        hubName: 'Indiranagar Central Hub',
-        deliveryPartnerId: 'rider_1',
-        deliveryPartnerName: 'Ramesh K.',
-        deliveryPartnerPhone: '+91 98765 43210',
-        deliveryPartnerVehicle: 'Ather 450X EV Pilot #42',
-        deliveryPartnerRating: 4.9,
-        deliveryAddress: {
-          tag: 'Home',
-          fullName: 'Rahul Sharma',
-          phone: '+91 98450 12345',
-          flat: 'Flat 402, Green Glen Towers',
-          street: '12th Main Road, HAL 2nd Stage',
-          city: 'Indiranagar, Bengaluru',
-          pincode: '560038'
-        },
-        deliveryOption: 'EXPRESS_90_MIN',
-        deliverySlot: 'Express Delivery (30–90 Mins)',
-        items: [
-          {
-            id: 'prod_potato',
-            name: 'Pahadi Potato',
-            weightLabel: '1 kg',
-            price: 35,
-            originalPrice: 45,
-            qty: 1,
-            image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=300&q=80',
-            status: 'AVAILABLE',
-            origin: 'Hassan, Karnataka'
-          },
-          {
-            id: 'prod_onion',
-            name: 'Nashik Onion',
-            weightLabel: '1 kg',
-            price: 28,
-            originalPrice: 36,
-            qty: 1,
-            image: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=300&q=80',
-            status: 'AVAILABLE',
-            origin: 'Bellary / Nashik'
-          },
-          {
-            id: 'prod_tomato',
-            name: 'Fresh Tomato',
-            weightLabel: '1 kg',
-            price: 40,
-            originalPrice: 50,
-            qty: 1,
-            image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=300&q=80',
-            status: 'AVAILABLE',
-            origin: 'Kolar, Karnataka'
-          }
-        ],
-        subtotal: 103,
-        discount: 0,
-        couponCode: null,
-        deliveryFee: 0,
-        totalAmount: 103,
-        paymentMethod: 'UPI (Google Pay)',
-        paymentStatus: 'PAID',
-        orderStatus: 'OUT_FOR_DELIVERY',
-        qualityCheck: {
-          passed: true,
-          inspectedBy: 'QC Lead Anand Verma',
-          checklist: ['Freshness', 'Correct Product', 'Correct Quantity', 'Correct Weight', 'No Visible Damage'],
-          timestamp: new Date(Date.now() - 35 * 60 * 1000).toISOString()
-        },
-        packaging: {
-          type: 'Plastic-Free Cornstarch & Kraft Bag',
-          status: 'PACKED'
-        },
-        deliveryOtp: '4821',
-        timeline: [
-          {
-            status: 'CONFIRMED',
-            title: 'Order Confirmed',
-            desc: 'Order received and payment verified via UPI.',
-            time: new Date(Date.now() - 75 * 60 * 1000).toISOString()
-          },
-          {
-            status: 'ACCEPTED_BY_HUB',
-            title: 'Accepted by Hub',
-            desc: 'Indiranagar Hub accepted order for morning harvest dispatch.',
-            time: new Date(Date.now() - 65 * 60 * 1000).toISOString()
-          },
-          {
-            status: 'PICKING',
-            title: 'Fresh Harvest Picking',
-            desc: 'Plucked at dawn from Kolar kisan fields. Items verified.',
-            time: new Date(Date.now() - 50 * 60 * 1000).toISOString()
-          },
-          {
-            status: 'QUALITY_CHECK',
-            title: 'Quality Inspected',
-            desc: 'Bubble-washed with ozonated water; 5-point quality check cleared.',
-            time: new Date(Date.now() - 35 * 60 * 1000).toISOString()
-          },
-          {
-            status: 'PACKED',
-            title: 'Packed in Biodegradable Carrier',
-            desc: 'Zero-plastic eco bag sealed and staged for rider dispatch.',
-            time: new Date(Date.now() - 25 * 60 * 1000).toISOString()
-          },
-          {
-            status: 'PICKED_UP',
-            title: 'Picked Up by EV Pilot',
-            desc: 'Rider Ramesh K. picked up order from Indiranagar Hub.',
-            time: new Date(Date.now() - 15 * 60 * 1000).toISOString()
-          },
-          {
-            status: 'OUT_FOR_DELIVERY',
-            title: 'Out for Delivery',
-            desc: 'Courier is 2.1 km away on Ather 450X EV. Approaching Indiranagar.',
-            time: new Date(Date.now() - 10 * 60 * 1000).toISOString()
-          }
-        ],
-        estimatedDeliveryTime: '18 Minutes',
-        createdAt: new Date(Date.now() - 75 * 60 * 1000).toISOString(),
-        updatedAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
-        deliveredAt: null,
-        reviews: null
-      }
-    ],
+    orders: [],
 
     notifications: [
       {
@@ -9857,7 +9728,7 @@ class Database {
     const results = await Promise.allSettled(collections.map(coll => this.postgres.getAll(coll)));
     results.forEach((res, idx) => {
       const coll = collections[idx];
-      if (res.status === 'fulfilled' && Array.isArray(res.value) && res.value.length > 0) {
+      if (res.status === 'fulfilled' && Array.isArray(res.value)) {
         this.data[coll] = res.value;
       }
     });
@@ -11350,8 +11221,8 @@ class Database {
     });
   }
 
-  getOwnerDashboardKPIs() {
-    const orders = this.getAll('orders') || [];
+  getOwnerDashboardKPIs(ordersOverride = null) {
+    const orders = ordersOverride || this.getAll('orders') || [];
     const products = this.getAll('products') || [];
     const users = this.getAll('users') || [];
     const hubs = this.getAll('hubs') || [];
@@ -11361,22 +11232,22 @@ class Database {
 
     const todayStr = new Date().toISOString().slice(0, 10);
     const todayOrders = orders.filter(o => (o.createdAt || '').startsWith(todayStr));
-    const totalGMV = orders.reduce((sum, o) => sum + (Number(o.total || o.totalAmount || o.finalAmount) || 0), 0);
-    const todayRevenue = todayOrders.reduce((sum, o) => sum + (Number(o.total || o.totalAmount || o.finalAmount) || 0), 0);
-    const pendingOrders = orders.filter(o => ['CONFIRMED', 'ACCEPTED_BY_HUB', 'PICKING', 'QUALITY_CHECK', 'PACKED', 'ORDER_PLACED'].includes((o.orderStatus || o.status || '').toUpperCase())).length;
-    const outForDelivery = orders.filter(o => ['READY_FOR_PICKUP', 'PICKED_UP', 'OUT_FOR_DELIVERY'].includes((o.orderStatus || o.status || '').toUpperCase())).length;
+    const totalGMV = orders.reduce((sum, o) => sum + (Number(o.total || o.totalAmount || o.finalTotal || o.finalAmount) || 0), 0);
+    const todayRevenue = todayOrders.reduce((sum, o) => sum + (Number(o.total || o.totalAmount || o.finalTotal || o.finalAmount) || 0), 0);
+    const pendingOrders = orders.filter(o => ['CONFIRMED', 'ACCEPTED_BY_HUB', 'PICKING', 'QUALITY_CHECK', 'PACKED', 'ORDER_PLACED', 'ORDER_CONFIRMED'].includes((o.orderStatus || o.status || '').toUpperCase())).length;
+    const outForDelivery = orders.filter(o => ['READY_FOR_PICKUP', 'PICKED_UP', 'OUT_FOR_DELIVERY', 'READY_FOR_HANDOVER', 'HANDED_TO_DELIVERY_BOY', 'DELIVERY_BOY_ACCEPTED', 'ARRIVED', 'CUSTOMER_VERIFIED'].includes((o.orderStatus || o.status || '').toUpperCase())).length;
     const deliveredOrders = orders.filter(o => (o.orderStatus || o.status || '').toUpperCase() === 'DELIVERED').length;
     
     const lowStockCount = ledger.filter(p => p.status === 'LOW_STOCK').length;
     const outOfStockCount = ledger.filter(p => p.status === 'OUT_OF_STOCK').length;
-    const totalInventoryValue = ledger.reduce((sum, p) => sum + (p.currentStock * p.price), 0);
+    const totalInventoryValue = ledger.reduce((sum, p) => sum + ((p.currentStock || p.stock || 0) * (p.price || p.sellingPrice || 0)), 0);
     const activeCustomers = users.filter(u => u.role === 'CUSTOMER' && u.status !== 'BLOCKED').length;
 
     return {
-      totalGMV: totalGMV > 0 ? totalGMV : 185420,
-      todayRevenue: todayRevenue > 0 ? todayRevenue : 48520,
-      totalOrders: orders.length > 0 ? orders.length : 142,
-      todayOrdersCount: todayOrders.length > 0 ? todayOrders.length : 42,
+      totalGMV,
+      todayRevenue,
+      totalOrders: orders.length,
+      todayOrdersCount: todayOrders.length,
       activeOrders: pendingOrders + outForDelivery,
       pendingOrders,
       outForDelivery,
@@ -11384,13 +11255,27 @@ class Database {
       lowStockItems: lowStockCount,
       lowStockCount,
       outOfStockCount,
-      inventoryAssetValue: totalInventoryValue > 0 ? totalInventoryValue : 324500,
-      totalInventoryValue: totalInventoryValue > 0 ? totalInventoryValue : 324500,
-      activeCustomers: activeCustomers || 1240,
+      inventoryAssetValue: totalInventoryValue,
+      totalInventoryValue: totalInventoryValue,
+      activeCustomers: activeCustomers || users.filter(u => u.role === 'CUSTOMER').length,
       activeDeliveryPartners: riders.filter(r => r.status === 'ONLINE' || r.active).length || riders.length,
-      activeFarmers: farmers.length || 8,
+      activeFarmers: farmers.length,
       totalHubs: hubs.length || 4
     };
+  }
+
+  async getOwnerDashboardKPIsAsync() {
+    let orders = [];
+    if (this.postgres && this.postgres.isAvailable()) {
+      try {
+        orders = await this.postgres.getAll('orders');
+      } catch (e) {
+        orders = this.getAll('orders') || [];
+      }
+    } else {
+      orders = this.getAll('orders') || [];
+    }
+    return this.getOwnerDashboardKPIs(orders);
   }
 }
 

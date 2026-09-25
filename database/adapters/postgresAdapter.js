@@ -9,12 +9,12 @@ const path = require('path');
 
 function loadLocalEnvFiles() {
   const envFiles = [
-    path.join(process.cwd(), '.env.production.local'),
     path.join(process.cwd(), '.env.local'),
     path.join(process.cwd(), '.env'),
-    path.join(__dirname, '..', '..', '.env.production.local'),
+    path.join(process.cwd(), '.env.production.local'),
     path.join(__dirname, '..', '..', '.env.local'),
-    path.join(__dirname, '..', '..', '.env')
+    path.join(__dirname, '..', '..', '.env'),
+    path.join(__dirname, '..', '..', '.env.production.local')
   ];
   for (const f of envFiles) {
     if (fs.existsSync(f)) {
@@ -30,8 +30,11 @@ function loadLocalEnvFiles() {
             if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
               val = val.slice(1, -1);
             }
-            if (!process.env[key]) {
-              process.env[key] = val;
+            const isPlaceholder = !val || val === '[SENSITIVE]' || val.includes('@HOST') || val.includes('USERNAME:PASSWORD') || val.includes('example.com');
+            if (!isPlaceholder) {
+              if (!process.env[key] || process.env[key] === '[SENSITIVE]' || process.env[key].includes('@HOST') || process.env[key].includes('USERNAME:PASSWORD')) {
+                process.env[key] = val;
+              }
             }
           }
         });
@@ -360,6 +363,10 @@ class PostgresAdapter {
     if (table) {
       if (collection === 'audit_logs' || collection === 'activity_logs') {
         const res = await this.query(`SELECT data FROM ${table} ORDER BY timestamp DESC LIMIT 500`);
+        return res.rows.map(r => r.data);
+      }
+      if (collection === 'orders') {
+        const res = await this.query(`SELECT data FROM ${table} ORDER BY created_at DESC`);
         return res.rows.map(r => r.data);
       }
       const res = await this.query(`SELECT data FROM ${table}`);

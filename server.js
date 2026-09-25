@@ -2813,7 +2813,16 @@ const server = http.createServer(async (req, res) => {
 
     // 7. Orders: List and Create
     if ((pathname === '/api/orders' || pathname === '/api/delivery/orders' || pathname === '/api/delivery/history') && method === 'GET') {
-      const orders = db.getAll('orders') || [];
+      let orders = [];
+      if (db.postgres && db.postgres.isAvailable()) {
+        try {
+          orders = await db.postgres.getAll('orders');
+        } catch (e) {
+          orders = db.getAll('orders') || [];
+        }
+      } else {
+        orders = db.getAll('orders') || [];
+      }
       const auth = extractUserSession(req);
       const currentUser = auth?.user ? (db.getById('users', auth.user.id) || auth.user) : null;
       const { status, hubId, riderId } = parsedUrl.query;
@@ -3103,9 +3112,15 @@ const server = http.createServer(async (req, res) => {
     // 8. Single Order Lookup
     const orderMatch = pathname.match(/^\/api\/orders\/([A-Za-z0-9_-]+)$/);
     if (orderMatch && method === 'GET') {
-      const order = db.getById('orders', orderMatch[1]);
+      let order = null;
+      if (db.postgres && db.postgres.isAvailable()) {
+        try {
+          order = await db.postgres.getById('orders', orderMatch[1]);
+        } catch (e) {}
+      }
+      if (!order) order = db.getById('orders', orderMatch[1]);
       if (!order) return sendJson(res, 404, { error: 'Order not found' });
-      const totalVal = order.total !== undefined ? Number(order.total) : (order.totalAmount !== undefined ? Number(order.totalAmount) : 0);
+      const totalVal = order.total !== undefined ? Number(order.total) : (order.totalAmount !== undefined ? Number(order.totalAmount) : (order.finalTotal !== undefined ? Number(order.finalTotal) : 0));
       const st = order.status || order.orderStatus || 'CONFIRMED';
       return sendJson(res, 200, {
         ...order,
@@ -3121,7 +3136,13 @@ const server = http.createServer(async (req, res) => {
     // 9. Order Cancellation
     const cancelMatch = pathname.match(/^\/api\/orders\/([A-Za-z0-9_-]+)\/cancel$/);
     if (cancelMatch && method === 'POST') {
-      const order = db.getById('orders', cancelMatch[1]);
+      let order = null;
+      if (db.postgres && db.postgres.isAvailable()) {
+        try {
+          order = await db.postgres.getById('orders', cancelMatch[1]);
+        } catch (e) {}
+      }
+      if (!order) order = db.getById('orders', cancelMatch[1]);
       if (!order) return sendJson(res, 404, { error: 'Order not found' });
       if (['PICKED_UP', 'OUT_FOR_DELIVERY', 'ARRIVED', 'DELIVERED'].includes(order.orderStatus)) {
         return sendJson(res, 400, { error: 'Cannot cancel order that is already in transit or delivered' });
@@ -4342,8 +4363,17 @@ const server = http.createServer(async (req, res) => {
 
       // 1. Executive Dashboard KPIs & Live Summary
       if (pathname === '/api/owner/dashboard' && method === 'GET') {
-        const kpis = db.getOwnerDashboardKPIs();
-        const orders = db.getAll('orders') || [];
+        let orders = [];
+        if (db.postgres && db.postgres.isAvailable()) {
+          try {
+            orders = await db.postgres.getAll('orders');
+          } catch (e) {
+            orders = db.getAll('orders') || [];
+          }
+        } else {
+          orders = db.getAll('orders') || [];
+        }
+        const kpis = db.getOwnerDashboardKPIs(orders);
         const recentOrders = orders.slice(0, 8);
         const ledger = db.getInventoryLedger();
         const lowStock = ledger.filter(p => p.status !== 'IN_STOCK').slice(0, 8);
@@ -4366,7 +4396,16 @@ const server = http.createServer(async (req, res) => {
 
       // 2. Orders Management
       if (pathname === '/api/owner/orders' && method === 'GET') {
-        let orders = db.getAll('orders') || [];
+        let orders = [];
+        if (db.postgres && db.postgres.isAvailable()) {
+          try {
+            orders = await db.postgres.getAll('orders');
+          } catch (e) {
+            orders = db.getAll('orders') || [];
+          }
+        } else {
+          orders = db.getAll('orders') || [];
+        }
         const status = parsedUrl.query.status;
         const search = (parsedUrl.query.search || '').toLowerCase();
 
@@ -4395,8 +4434,16 @@ const server = http.createServer(async (req, res) => {
       const singleOwnerOrderMatch = pathname.match(/^\/api\/owner\/orders\/([A-Za-z0-9_-]+)$/);
       if (singleOwnerOrderMatch && method === 'GET') {
         const orderId = singleOwnerOrderMatch[1];
-        const orders = db.getAll('orders') || [];
-        const order = orders.find(o => o.id === orderId || o.orderId === orderId);
+        let order = null;
+        if (db.postgres && db.postgres.isAvailable()) {
+          try {
+            order = await db.postgres.getById('orders', orderId);
+          } catch (e) {}
+        }
+        if (!order) {
+          const orders = db.getAll('orders') || [];
+          order = orders.find(o => o.id === orderId || o.orderId === orderId);
+        }
         if (!order) return sendJson(res, 404, { error: 'Order not found' });
         return sendJson(res, 200, {
           ...order,
@@ -4412,8 +4459,16 @@ const server = http.createServer(async (req, res) => {
           .replace(/\/status\/?$/, '')
           .replace(/\/handover\/?$/, '')
           .replace(/\/assign-delivery-boy\/?$/, '');
-        const orders = db.getAll('orders') || [];
-        const order = orders.find(o => o.id === orderId || o.orderId === orderId);
+        let order = null;
+        if (db.postgres && db.postgres.isAvailable()) {
+          try {
+            order = await db.postgres.getById('orders', orderId);
+          } catch (e) {}
+        }
+        if (!order) {
+          const orders = db.getAll('orders') || [];
+          order = orders.find(o => o.id === orderId || o.orderId === orderId);
+        }
         if (!order) return sendJson(res, 404, { error: 'Order not found' });
 
         const body = await parseBody(req);

@@ -3178,6 +3178,17 @@
       await loadHealthTelemetry();
       initOwnerSSE();
 
+      // Background real-time polling to ensure instant updates even across cold starts
+      setInterval(async () => {
+        try {
+          if (state.currentTab === 'orders') {
+            await loadOrders();
+          } else if (state.currentTab === 'dashboard') {
+            await loadDashboard();
+          }
+        } catch (e) {}
+      }, 5000);
+
       // Check initial route / tab from URL or query
       const urlParams = new URLSearchParams(window.location.search);
       const requestedTab = urlParams.get('tab') || (window.location.pathname === '/staff' ? 'staff' : (window.location.hash ? window.location.hash.replace('#', '') : null));
@@ -3280,25 +3291,25 @@
 
         // Populate KPIs
         const gmvEl = document.getElementById('kpi-gmv');
-        if (gmvEl) gmvEl.textContent = `₹${(data.kpis?.totalGMV || 185420).toLocaleString('en-IN')}`;
+        if (gmvEl) gmvEl.textContent = `₹${(data.kpis?.totalGMV || 0).toLocaleString('en-IN')}`;
         
         const ordersEl = document.getElementById('kpi-orders');
-        if (ordersEl) ordersEl.textContent = data.kpis?.totalOrders || (state.orders?.length || 142);
+        if (ordersEl) ordersEl.textContent = data.kpis?.totalOrders ?? (state.orders?.length || 0);
         
         const ordersSubEl = document.getElementById('kpi-orders-sub');
-        if (ordersSubEl) ordersSubEl.textContent = `${data.kpis?.activeOrders || 3} active in fulfillment`;
+        if (ordersSubEl) ordersSubEl.textContent = `${data.kpis?.activeOrders || 0} active in fulfillment`;
         
         const invEl = document.getElementById('kpi-inventory-val');
-        if (invEl) invEl.textContent = `₹${(data.kpis?.inventoryAssetValue || 324500).toLocaleString('en-IN')}`;
+        if (invEl) invEl.textContent = `₹${(data.kpis?.inventoryAssetValue || 0).toLocaleString('en-IN')}`;
         
         const custEl = document.getElementById('kpi-customers');
-        if (custEl) custEl.textContent = data.kpis?.activeCustomers || (state.customers?.length || 1240);
+        if (custEl) custEl.textContent = data.kpis?.activeCustomers ?? (state.customers?.length || 0);
         
         const hubsKpiEl = document.getElementById('kpi-hubs');
-        if (hubsKpiEl) hubsKpiEl.textContent = `${data.kpis?.totalHubs || 4} / 4`;
+        if (hubsKpiEl) hubsKpiEl.textContent = `${data.kpis?.totalHubs || 0} / 4`;
         
         const fleetKpiEl = document.getElementById('kpi-fleet');
-        if (fleetKpiEl) fleetKpiEl.textContent = data.kpis?.activeDeliveryPartners || (state.fleet?.length || 12);
+        if (fleetKpiEl) fleetKpiEl.textContent = data.kpis?.activeDeliveryPartners ?? (state.fleet?.length || 0);
         
         const marginEl = document.getElementById('kpi-margin');
         if (marginEl) marginEl.textContent = '32.4%';
