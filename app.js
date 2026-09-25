@@ -2992,34 +2992,26 @@ async function syncStorefrontCategoriesWithBackend() {
 
     const activeCats = categories.filter(c => (c.status || 'ACTIVE') === 'ACTIVE');
 
-    // 1. Update Mobile Header Category Pills
-    const mobilePillsContainer = document.querySelector('.md\\:hidden .flex.items-center.gap-2.overflow-x-auto');
-    if (mobilePillsContainer) {
-      mobilePillsContainer.innerHTML = activeCats.map(c => `
-        <a href="/category/${c.slug || c.name.toLowerCase()}" class="px-3 py-1 rounded-full text-stone-600 hover:bg-stone-50 whitespace-nowrap flex items-center gap-1 font-semibold">
-          <span>${c.icon || '📁'}</span>
-          <span>${c.name}</span>
-        </a>
-      `).join('');
-    }
+    // Keep Desktop Sidebar Navigation intact as previous; gently update category badges if present
+    const vegCat = activeCats.find(c => (c.slug || '').toLowerCase() === 'vegetables' || (c.name || '').toLowerCase().includes('veg'));
+    const fruitCat = activeCats.find(c => (c.slug || '').toLowerCase() === 'fruits' || (c.name || '').toLowerCase().includes('fruit'));
+    const grocCat = activeCats.find(c => (c.slug || '').toLowerCase() === 'grocery' || (c.name || '').toLowerCase().includes('groc') || (c.name || '').toLowerCase().includes('pant'));
 
-    // 2. Update Desktop Sidebar Navigation
-    const sidebarNav = document.querySelector('.sidebar-nav-card nav');
-    if (sidebarNav) {
-      const homeLink = '<a href="/" class="sidebar-link active group"><div class="sidebar-icon-wrapper icon-emerald"><i data-lucide="home" class="w-4 h-4"></i></div><span class="flex-1">Home</span><i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i></a>';
-      const catLinks = activeCats.map(c => {
-        const count = c.productCount || c.activeProductCount || 0;
-        return `
-          <a href="/category/${c.slug || c.name.toLowerCase()}" class="sidebar-link group">
-            <div class="sidebar-icon-wrapper icon-emerald"><span class="text-sm">${c.icon || '📁'}</span></div>
-            <span class="flex-1 font-medium">${c.name}</span>
-            <span class="text-[9.5px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">${count} Fresh</span>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5 sidebar-chevron"></i>
-          </a>
-        `;
-      }).join('');
-      sidebarNav.innerHTML = homeLink + catLinks;
-    }
+    document.querySelectorAll('a[href="vegetables.html"] span.rounded-full, a[href="/vegetables"] span.rounded-full').forEach(badge => {
+      if (vegCat && (vegCat.productCount || vegCat.activeProductCount)) {
+        badge.textContent = `${vegCat.productCount || vegCat.activeProductCount} Fresh`;
+      }
+    });
+    document.querySelectorAll('a[href="fruits.html"] span.rounded-full, a[href="/fruits"] span.rounded-full').forEach(badge => {
+      if (fruitCat && (fruitCat.productCount || fruitCat.activeProductCount)) {
+        badge.textContent = `${fruitCat.productCount || fruitCat.activeProductCount} Orchard`;
+      }
+    });
+    document.querySelectorAll('a[href="grocery.html"] span.rounded-full, a[href="/grocery"] span.rounded-full').forEach(badge => {
+      if (grocCat && (grocCat.productCount || grocCat.activeProductCount)) {
+        badge.textContent = `${grocCat.productCount || grocCat.activeProductCount} Pantry`;
+      }
+    });
 
     // 3. Update "Shop by Category" Grid
     const catGrid = document.querySelector('#categories .grid');
