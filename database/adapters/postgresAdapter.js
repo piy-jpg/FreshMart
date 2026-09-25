@@ -598,7 +598,8 @@ class PostgresAdapter {
   async query(text, params = []) {
     const pool = this.getPool();
     if (!pool) throw new Error('PostgreSQL Pool is not configured');
-    return pool.query(text, params);
+    const safeParams = Array.isArray(params) ? params.map(p => p === undefined ? null : p) : [];
+    return pool.query(text, safeParams);
   }
 
   // Collection to Table Name mapping
@@ -2565,8 +2566,8 @@ class PostgresAdapter {
               )
           WHERE category_id = $2
              OR data->>'categoryId' = $2
-             OR LOWER(TRIM(category)) = LOWER(TRIM($4))
-             OR LOWER(TRIM(category)) = LOWER(TRIM($5));
+             OR LOWER(TRIM(COALESCE(category, ''))) = LOWER(TRIM($4))
+             OR LOWER(TRIM(COALESCE(category, ''))) = LOWER(TRIM($5));
         `, [name, String(categoryId), slug, row.name, row.slug]);
       } catch (cascadeErr) {
         console.warn('Cascade update products on category rename warning:', cascadeErr.message);

@@ -4902,6 +4902,26 @@ const server = http.createServer(async (req, res) => {
         const initialStatus = body.status || (stock > 0 ? (stock <= lowStockLimit ? 'LOW_STOCK' : 'ACTIVE') : 'OUT_OF_STOCK');
         const sku = body.sku || `SJH-${(body.category || 'VEG').substring(0, 3).toUpperCase()}-${name.substring(0, 3).toUpperCase()}-${Math.floor(10 + Math.random() * 90)}`;
 
+        let catId = body.categoryId || body.category_id || undefined;
+        let catSlug = body.categorySlug || body.category_slug || undefined;
+        let catName = body.category || 'Vegetables';
+
+        const pg = db.postgres || db.pgAdapter;
+        if (pg && pg.isAvailable()) {
+          try {
+            const catLookup = await pg.query(`
+              SELECT id, name, slug FROM freshmart_categories
+              WHERE id = $1 OR LOWER(name) = LOWER($2) OR LOWER(slug) = LOWER($2) OR LOWER(slug) = LOWER($3)
+              LIMIT 1;
+            `, [catId || '', catName || '', catSlug || '']);
+            if (catLookup && catLookup.rows.length > 0) {
+              catId = catLookup.rows[0].id;
+              catName = catLookup.rows[0].name;
+              catSlug = catLookup.rows[0].slug;
+            }
+          } catch (e) {}
+        }
+
         const newProduct = {
           id: body.id || ('prod_' + Date.now()),
           storefrontId: (body.storefrontId || name.toLowerCase().replace(/[^a-z0-9]/g, '_')),
@@ -4909,9 +4929,9 @@ const server = http.createServer(async (req, res) => {
           hindiName: body.hindiName || '',
           sku,
           barcode: body.barcode || ('8901234' + String(Date.now()).slice(-5)),
-          category: body.category || 'Vegetables',
-          categoryId: body.categoryId || body.category_id || undefined,
-          categorySlug: body.categorySlug || body.category_slug || (body.category ? body.category.toLowerCase().replace(/[^a-z0-9]+/g, '-') : undefined),
+          category: catName,
+          categoryId: catId,
+          categorySlug: catSlug,
           subcategory: body.subcategory || 'Daily Fresh',
           price,
           sellingPrice: price,
@@ -5086,13 +5106,33 @@ const server = http.createServer(async (req, res) => {
           }];
         }
 
+        let catId = body.categoryId !== undefined ? body.categoryId : (body.category_id !== undefined ? body.category_id : prod.categoryId);
+        let catSlug = body.categorySlug !== undefined ? body.categorySlug : (body.category_slug !== undefined ? body.category_slug : prod.categorySlug);
+        let catName = body.category || prod.category;
+
+        const pg = db.postgres || db.pgAdapter;
+        if (pg && pg.isAvailable()) {
+          try {
+            const catLookup = await pg.query(`
+              SELECT id, name, slug FROM freshmart_categories
+              WHERE id = $1 OR LOWER(name) = LOWER($2) OR LOWER(slug) = LOWER($2) OR LOWER(slug) = LOWER($3)
+              LIMIT 1;
+            `, [catId || '', catName || '', catSlug || '']);
+            if (catLookup && catLookup.rows.length > 0) {
+              catId = catLookup.rows[0].id;
+              catName = catLookup.rows[0].name;
+              catSlug = catLookup.rows[0].slug;
+            }
+          } catch (e) {}
+        }
+
         const updates = {
           ...body,
           name: body.name || body.title || prod.name,
           hindiName: body.hindiName !== undefined ? body.hindiName : prod.hindiName,
-          category: body.category || prod.category,
-          categoryId: body.categoryId !== undefined ? body.categoryId : (body.category_id !== undefined ? body.category_id : prod.categoryId),
-          categorySlug: body.categorySlug !== undefined ? body.categorySlug : (body.category_slug !== undefined ? body.category_slug : (body.category ? body.category.toLowerCase().replace(/[^a-z0-9]+/g, '-') : prod.categorySlug)),
+          category: catName,
+          categoryId: catId,
+          categorySlug: catSlug,
           subcategory: body.subcategory || prod.subcategory,
           unit: body.unit || prod.unit,
           price,
