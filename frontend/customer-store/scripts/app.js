@@ -3126,8 +3126,55 @@ function applyStoreStatusToUI(statusData) {
       drawerCheckoutBtn.innerHTML = `<span>Proceed to Checkout</span> <span class="ml-1">→</span>`;
     }
   }
+
+  // 4. Update Promo bar Live status pill
+  const promoLivePill = document.getElementById('promo-store-live-pill');
+  if (promoLivePill) {
+    if (isOffline) {
+      promoLivePill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-400/40 text-rose-300 font-extrabold uppercase tracking-wider text-[9.5px] shadow-2xs transition-all duration-300';
+      promoLivePill.innerHTML = `
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-400"></span>
+        </span>
+        <span id="promo-store-live-text">🔴 Orders Paused</span>
+      `;
+    } else {
+      promoLivePill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/35 text-emerald-300 font-extrabold uppercase tracking-wider text-[9.5px] shadow-2xs transition-all duration-300';
+      promoLivePill.innerHTML = `
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+        </span>
+        <span id="promo-store-live-text">🌱 Store Live & Delivering (90 Mins)</span>
+      `;
+    }
+  }
 }
 window.applyStoreStatusToUI = applyStoreStatusToUI;
+
+// Subtle 3D Navbar Parallax & Spotlight
+function initNavbar3DParallax() {
+  const header = document.getElementById('sticky-header');
+  if (!header) return;
+
+  if (!header.querySelector('.navbar-spotlight')) {
+    const spotlight = document.createElement('div');
+    spotlight.className = 'navbar-spotlight';
+    header.insertBefore(spotlight, header.firstChild);
+  }
+
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  header.addEventListener('mousemove', (e) => {
+    const rect = header.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    header.style.setProperty('--mouse-x', `${x}px`);
+    header.style.setProperty('--mouse-y', `${y}px`);
+  });
+}
+window.initNavbar3DParallax = initNavbar3DParallax;
 
 // Automatic interval polling as fallback for serverless SSE disconnects
 try {
@@ -3329,6 +3376,7 @@ function initCustomerApp() {
   updateHeaderLocationUI();
   updateStorefrontSubnavs();
   initScrollAnimations();
+  initNavbar3DParallax();
   if (window.lucide) window.lucide.createIcons();
   setupGlobalListeners();
   initGlobalOrderSSE();
