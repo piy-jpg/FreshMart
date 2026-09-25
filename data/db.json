@@ -341,8 +341,8 @@
       "walletBalance": 10000,
       "provider": "local",
       "createdAt": "2026-09-12T11:54:26.481Z",
-      "updatedAt": "2026-09-25T04:29:28.021Z",
-      "lastLoginAt": "2026-09-25T04:29:28.019Z",
+      "updatedAt": "2026-09-25T04:58:17.663Z",
+      "lastLoginAt": "2026-09-25T04:58:17.613Z",
       "googleSub": "google_sub_owner_730929",
       "profileImage": "https://lh3.googleusercontent.com/a/owner-pic",
       "active": true,
@@ -351,8 +351,8 @@
       "passwordSalt": "a1b2c3d4e5f67890",
       "failedLoginAttempts": 0,
       "lockUntil": null,
-      "totalOrdersCount": 7,
-      "totalSpent": 700
+      "totalOrdersCount": 9,
+      "totalSpent": 780
     },
     {
       "id": "usr_g_1789213219865_499",
@@ -903,6 +903,194 @@
     }
   ],
   "orders": [
+    {
+      "id": "SJH71764",
+      "orderId": "SJH71764",
+      "customerId": "usr_owner_1789214066481",
+      "userId": "usr_owner_1789214066481",
+      "customerName": "Piyush Verma",
+      "customerPhone": "+91 98765 00001",
+      "customerEmail": "piyushverma730929@gmail.com",
+      "customer": {
+        "id": "usr_owner_1789214066481",
+        "name": "Piyush Verma",
+        "phone": "+91 98765 00001",
+        "email": "piyushverma730929@gmail.com"
+      },
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "deliveryBoyId": null,
+      "deliveryBoyName": null,
+      "deliveryBoyPhone": null,
+      "deliveryPartnerId": null,
+      "deliveryPartnerName": null,
+      "deliveryPartnerPhone": null,
+      "deliveryPartnerVehicle": null,
+      "deliveryPartnerRating": null,
+      "deliveryAddress": {
+        "tag": "Home",
+        "fullName": "Test Customer",
+        "phone": "9876543210",
+        "flat": "101",
+        "street": "Main Road",
+        "city": "Bengaluru",
+        "pincode": "560001"
+      },
+      "deliveryLatitude": 12.9784,
+      "deliveryLongitude": 77.6408,
+      "deliveryInstructions": "",
+      "deliveryOption": "EXPRESS_90_MIN",
+      "deliverySlot": "Express Delivery (30–90 Mins)",
+      "items": [
+        {
+          "id": "tomato",
+          "name": "Fresh Tomato",
+          "price": 10,
+          "qty": 1,
+          "weightLabel": "1 kg",
+          "status": "AVAILABLE"
+        }
+      ],
+      "subtotal": 10,
+      "discount": 0,
+      "couponCode": null,
+      "deliveryFee": 30,
+      "totalAmount": 40,
+      "paymentMethod": "Cash on Delivery",
+      "paymentStatus": "PENDING",
+      "orderStatus": "ORDER_PLACED",
+      "status": "ORDER_PLACED",
+      "deliveryStatus": "UNASSIGNED",
+      "qualityCheck": {
+        "passed": false,
+        "checklist": []
+      },
+      "packaging": {
+        "type": "Plastic-Free / Biodegradable Bag",
+        "status": "PENDING"
+      },
+      "deliveryOtp": "5190",
+      "deliveryOtpVerified": false,
+      "assignedAt": null,
+      "acceptedAt": null,
+      "pickedUpAt": null,
+      "outForDeliveryAt": null,
+      "arrivedAt": null,
+      "deliveredAt": null,
+      "deliveredBy": null,
+      "failedAt": null,
+      "failedBy": null,
+      "failureReason": null,
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "cancellationReason": null,
+      "timeline": [
+        {
+          "status": "ORDER_PLACED",
+          "title": "Order Placed",
+          "desc": "Order received successfully via Cash on Delivery. Routing to Indiranagar Central Hub.",
+          "time": "2026-09-25T04:58:17.659Z"
+        }
+      ],
+      "estimatedDeliveryTime": "90 Minutes",
+      "createdAt": "2026-09-25T04:58:17.659Z",
+      "updatedAt": "2026-09-25T04:58:17.659Z",
+      "reviews": null
+    },
+    {
+      "id": "SJH99160",
+      "orderId": "SJH99160",
+      "customerId": "usr_owner_1789214066481",
+      "userId": "usr_owner_1789214066481",
+      "customerName": "Piyush Verma",
+      "customerPhone": "+91 98765 00001",
+      "customerEmail": "piyushverma730929@gmail.com",
+      "customer": {
+        "id": "usr_owner_1789214066481",
+        "name": "Piyush Verma",
+        "phone": "+91 98765 00001",
+        "email": "piyushverma730929@gmail.com"
+      },
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "deliveryBoyId": null,
+      "deliveryBoyName": null,
+      "deliveryBoyPhone": null,
+      "deliveryPartnerId": null,
+      "deliveryPartnerName": null,
+      "deliveryPartnerPhone": null,
+      "deliveryPartnerVehicle": null,
+      "deliveryPartnerRating": null,
+      "deliveryAddress": {
+        "tag": "Home",
+        "fullName": "Test Customer",
+        "phone": "9876543210",
+        "flat": "101",
+        "street": "Main Road",
+        "city": "Bengaluru",
+        "pincode": "560001"
+      },
+      "deliveryLatitude": 12.9784,
+      "deliveryLongitude": 77.6408,
+      "deliveryInstructions": "",
+      "deliveryOption": "EXPRESS_90_MIN",
+      "deliverySlot": "Express Delivery (30–90 Mins)",
+      "items": [
+        {
+          "id": "tomato",
+          "name": "Fresh Tomato",
+          "price": 10,
+          "qty": 1,
+          "weightLabel": "1 kg",
+          "status": "AVAILABLE"
+        }
+      ],
+      "subtotal": 10,
+      "discount": 0,
+      "couponCode": null,
+      "deliveryFee": 30,
+      "totalAmount": 40,
+      "paymentMethod": "Cash on Delivery",
+      "paymentStatus": "PENDING",
+      "orderStatus": "ORDER_PLACED",
+      "status": "ORDER_PLACED",
+      "deliveryStatus": "UNASSIGNED",
+      "qualityCheck": {
+        "passed": false,
+        "checklist": []
+      },
+      "packaging": {
+        "type": "Plastic-Free / Biodegradable Bag",
+        "status": "PENDING"
+      },
+      "deliveryOtp": "4129",
+      "deliveryOtpVerified": false,
+      "assignedAt": null,
+      "acceptedAt": null,
+      "pickedUpAt": null,
+      "outForDeliveryAt": null,
+      "arrivedAt": null,
+      "deliveredAt": null,
+      "deliveredBy": null,
+      "failedAt": null,
+      "failedBy": null,
+      "failureReason": null,
+      "cancelledAt": null,
+      "cancelledBy": null,
+      "cancellationReason": null,
+      "timeline": [
+        {
+          "status": "ORDER_PLACED",
+          "title": "Order Placed",
+          "desc": "Order received successfully via Cash on Delivery. Routing to Indiranagar Central Hub.",
+          "time": "2026-09-25T04:57:37.093Z"
+        }
+      ],
+      "estimatedDeliveryTime": "90 Minutes",
+      "createdAt": "2026-09-25T04:57:37.093Z",
+      "updatedAt": "2026-09-25T04:57:37.093Z",
+      "reviews": null
+    },
     {
       "id": "SJH72679",
       "orderId": "SJH72679",
@@ -10910,6 +11098,24 @@
   ],
   "notifications": [
     {
+      "id": "notif_1790312297671",
+      "userId": "usr_owner_1789214066481",
+      "title": "Order #SJH71764 Confirmed!",
+      "message": "Your farm produce is queued for picking at Indiranagar Central Hub. Delivery in ~90 mins.",
+      "type": "ORDER",
+      "read": false,
+      "createdAt": "2026-09-25T04:58:17.671Z"
+    },
+    {
+      "id": "notif_1790312257108",
+      "userId": "usr_owner_1789214066481",
+      "title": "Order #SJH99160 Confirmed!",
+      "message": "Your farm produce is queued for picking at Indiranagar Central Hub. Delivery in ~90 mins.",
+      "type": "ORDER",
+      "read": false,
+      "createdAt": "2026-09-25T04:57:37.108Z"
+    },
+    {
       "id": "notif_1790309405721",
       "userId": "usr_cust_live_test",
       "title": "Order #SJH72679 Confirmed!",
@@ -11570,48 +11776,49 @@
       "hindiName": "बैंगनी पत्तागोभी",
       "sku": "SJH-VEG-HYD-59",
       "barcode": "890123454976",
-      "category": "Vegetables",
-      "subcategory": "Exotics",
-      "price": 80,
-      "sellingPrice": 80,
-      "mrp": 110,
-      "originalPrice": 110,
-      "discountPercent": 27,
-      "costPrice": 50,
-      "stock": 45,
+      "category": "Certified Organic",
+      "subcategory": "Organic Premium",
+      "price": 135,
+      "sellingPrice": 135,
+      "mrp": 199,
+      "originalPrice": 199,
+      "discountPercent": 32,
+      "costPrice": 95,
+      "stock": 520,
       "unit": "500 g",
-      "lowStockLimit": 10,
+      "lowStockLimit": 20,
       "reorderLevel": 20,
       "status": "ACTIVE",
-      "farmer": "Nilgiri Hydroponic Hub",
+      "farmer": "Coorg Organic Valley",
       "hubId": "hub_blr_indiranagar",
       "expressEligible": true,
       "harvestDate": "2026-09-25",
       "freshnessDays": 5,
-      "image": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=700&q=80",
-      "description": "Fresh crisp purple cabbage rich in anthocyanins.",
+      "image": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+      "description": "Freshly updated by Owner from dashboard on Vercel with verified organic certification.",
       "variants": [
         {
           "sku": "SJH-VEG-HYD-59-1KG",
           "weightLabel": "500 g",
-          "price": 80,
-          "mrp": 110,
-          "costPrice": 50,
+          "price": 149,
+          "mrp": 199,
+          "costPrice": 95,
           "stock": 45
         }
       ],
       "weights": [
         {
           "label": "500 g",
-          "price": 80,
-          "originalPrice": 110,
-          "discount": "27% OFF",
-          "savings": 30
+          "price": 149,
+          "originalPrice": 199,
+          "discount": "25% OFF",
+          "savings": 50
         }
       ],
       "createdAt": "2026-09-25T04:29:14.976Z",
-      "updatedAt": "2026-09-25T04:29:14.991Z",
-      "imageUrl": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=700&q=80"
+      "updatedAt": "2026-09-25T04:35:48.661Z",
+      "imageUrl": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=700&q=80",
+      "title": "Hydroponic Purple Cabbage 1790310554975"
     },
     {
       "id": "prod_1789281599055",
@@ -11844,7 +12051,7 @@
       "originalPrice": 299,
       "discountPercent": 16,
       "costPrice": 20,
-      "stock": 278,
+      "stock": 276,
       "lowStockLimit": 25,
       "reorderLevel": 50,
       "farmer": "Kolar Organic Farms, Karnataka",
@@ -11958,7 +12165,7 @@
           "stock": 28
         }
       ],
-      "updatedAt": "2026-09-25T04:10:05.703Z"
+      "updatedAt": "2026-09-25T04:58:17.646Z"
     },
     {
       "id": "prod_potato",
@@ -19945,6 +20152,66 @@
   ],
   "inventory_movements": [
     {
+      "id": "mov_1790312297653_123",
+      "date": "2026-09-25T04:58:17.653Z",
+      "productId": "prod_tomato",
+      "productName": "Fresh Organic Desi Tomato",
+      "sku": "SJH-VEG-TOM-01",
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "type": "SALE",
+      "quantity": -1,
+      "before": 277,
+      "after": 276,
+      "reason": "Reserved for Customer Order #SJH71764",
+      "user": "System Order Engine"
+    },
+    {
+      "id": "mov_1790312257089_95",
+      "date": "2026-09-25T04:57:37.089Z",
+      "productId": "prod_tomato",
+      "productName": "Fresh Organic Desi Tomato",
+      "sku": "SJH-VEG-TOM-01",
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "type": "SALE",
+      "quantity": -1,
+      "before": 278,
+      "after": 277,
+      "reason": "Reserved for Customer Order #SJH99160",
+      "user": "System Order Engine"
+    },
+    {
+      "id": "mov_1790310942957",
+      "date": "2026-09-25T04:35:42.957Z",
+      "productId": "prod_1790310942918",
+      "productName": "Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)",
+      "sku": "SJH-FRU-FRE-43",
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "type": "HARVEST",
+      "quantity": 20,
+      "before": 45,
+      "after": 65,
+      "reason": "Fresh Morning Farm Restock",
+      "user": "Piyush Verma (OWNER)"
+    },
+    {
+      "id": "mov_1790310942923",
+      "date": "2026-09-25T04:35:42.923Z",
+      "productId": "prod_1790310942918",
+      "productName": "Fresh Organic Dragon Fruit 1790310942912",
+      "sku": "SJH-FRU-FRE-43",
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "type": "HARVEST",
+      "quantity": 60,
+      "before": 0,
+      "after": 60,
+      "reason": "Initial catalog intake from Kaveri Valley Exotic Fruit Farms, KA (QC Passed)",
+      "user": "Piyush Verma (Owner)"
+    },
+    {
       "id": "mov_1790310568043",
       "date": "2026-09-25T04:29:28.043Z",
       "productId": "prod_1790310568038",
@@ -24123,6 +24390,28 @@
   ],
   "payments": [
     {
+      "id": "pay_1790312297667",
+      "transactionId": "TXN_1790312297667",
+      "orderId": "SJH71764",
+      "customerId": "usr_owner_1789214066481",
+      "customerName": "Piyush Verma",
+      "amount": 40,
+      "paymentMethod": "Cash on Delivery",
+      "status": "PENDING",
+      "date": "2026-09-25T04:58:17.667Z"
+    },
+    {
+      "id": "pay_1790312257104",
+      "transactionId": "TXN_1790312257104",
+      "orderId": "SJH99160",
+      "customerId": "usr_owner_1789214066481",
+      "customerName": "Piyush Verma",
+      "amount": 40,
+      "paymentMethod": "Cash on Delivery",
+      "status": "PENDING",
+      "date": "2026-09-25T04:57:37.104Z"
+    },
+    {
       "id": "pay_1790309405717",
       "transactionId": "TXN_1790309405717",
       "orderId": "SJH72679",
@@ -24736,6 +25025,1002 @@
     }
   ],
   "activity_logs": [
+    {
+      "id": "log_1790312297674_463",
+      "timestamp": "2026-09-25T04:58:17.674Z",
+      "user": "System Order Engine",
+      "operatorEmail": "System Order Engine",
+      "action": "ORDER_CREATED",
+      "entity": "Order",
+      "target": "Order",
+      "entityId": "SJH71764",
+      "details": "New order created for ₹40 by Piyush Verma",
+      "changes": {},
+      "data": {
+        "operatorEmail": "System Order Engine",
+        "action": "ORDER_CREATED",
+        "entity": "Order",
+        "entityId": "SJH71764",
+        "details": "New order created for ₹40 by Piyush Verma",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790312297641_65",
+      "timestamp": "2026-09-25T04:58:17.641Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STORE_STATUS",
+      "entity": "Settings",
+      "target": "Settings",
+      "entityId": "STORE_STATUS",
+      "details": "Changed store status from OFFLINE to LIVE",
+      "changes": {
+        "oldStatus": "OFFLINE",
+        "newStatus": "LIVE",
+        "operator": "Piyush Verma",
+        "timestamp": "2026-09-25T04:58:17.641Z"
+      },
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "STORE_STATUS",
+        "entity": "Settings",
+        "entityId": "STORE_STATUS",
+        "details": "Changed store status from OFFLINE to LIVE",
+        "changes": {
+          "oldStatus": "OFFLINE",
+          "newStatus": "LIVE",
+          "operator": "Piyush Verma",
+          "timestamp": "2026-09-25T04:58:17.641Z"
+        }
+      }
+    },
+    {
+      "id": "log_1790312297631_822",
+      "timestamp": "2026-09-25T04:58:17.631Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STORE_STATUS",
+      "entity": "Settings",
+      "target": "Settings",
+      "entityId": "STORE_STATUS",
+      "details": "Changed store status from OFFLINE to OFFLINE",
+      "changes": {
+        "oldStatus": "OFFLINE",
+        "newStatus": "OFFLINE",
+        "operator": "Piyush Verma",
+        "timestamp": "2026-09-25T04:58:17.631Z"
+      },
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "STORE_STATUS",
+        "entity": "Settings",
+        "entityId": "STORE_STATUS",
+        "details": "Changed store status from OFFLINE to OFFLINE",
+        "changes": {
+          "oldStatus": "OFFLINE",
+          "newStatus": "OFFLINE",
+          "operator": "Piyush Verma",
+          "timestamp": "2026-09-25T04:58:17.631Z"
+        }
+      }
+    },
+    {
+      "id": "log_1790312297622_357",
+      "timestamp": "2026-09-25T04:58:17.622Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "OWNER_LOGIN",
+        "entity": "Users",
+        "entityId": "usr_owner_1789214066481",
+        "details": "Session created for role OWNER",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790312257111_13",
+      "timestamp": "2026-09-25T04:57:37.111Z",
+      "user": "System Order Engine",
+      "operatorEmail": "System Order Engine",
+      "action": "ORDER_CREATED",
+      "entity": "Order",
+      "target": "Order",
+      "entityId": "SJH99160",
+      "details": "New order created for ₹40 by Piyush Verma",
+      "changes": {},
+      "data": {
+        "operatorEmail": "System Order Engine",
+        "action": "ORDER_CREATED",
+        "entity": "Order",
+        "entityId": "SJH99160",
+        "details": "New order created for ₹40 by Piyush Verma",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790312257079_972",
+      "timestamp": "2026-09-25T04:57:37.079Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STORE_STATUS",
+      "entity": "Settings",
+      "target": "Settings",
+      "entityId": "STORE_STATUS",
+      "details": "Changed store status from OFFLINE to OFFLINE",
+      "changes": {
+        "oldStatus": "OFFLINE",
+        "newStatus": "OFFLINE",
+        "operator": "Piyush Verma",
+        "timestamp": "2026-09-25T04:57:37.079Z"
+      },
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "STORE_STATUS",
+        "entity": "Settings",
+        "entityId": "STORE_STATUS",
+        "details": "Changed store status from OFFLINE to OFFLINE",
+        "changes": {
+          "oldStatus": "OFFLINE",
+          "newStatus": "OFFLINE",
+          "operator": "Piyush Verma",
+          "timestamp": "2026-09-25T04:57:37.079Z"
+        }
+      }
+    },
+    {
+      "id": "log_1790312257045_784",
+      "timestamp": "2026-09-25T04:57:37.045Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "OWNER_LOGIN",
+        "entity": "Users",
+        "entityId": "usr_owner_1789214066481",
+        "details": "Session created for role OWNER",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790312242108_845",
+      "timestamp": "2026-09-25T04:57:22.108Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STORE_STATUS",
+      "entity": "Settings",
+      "target": "Settings",
+      "entityId": "STORE_STATUS",
+      "details": "Changed store status from LIVE to OFFLINE",
+      "changes": {
+        "oldStatus": "LIVE",
+        "newStatus": "OFFLINE",
+        "operator": "Piyush Verma",
+        "timestamp": "2026-09-25T04:57:22.108Z"
+      },
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "STORE_STATUS",
+        "entity": "Settings",
+        "entityId": "STORE_STATUS",
+        "details": "Changed store status from LIVE to OFFLINE",
+        "changes": {
+          "oldStatus": "LIVE",
+          "newStatus": "OFFLINE",
+          "operator": "Piyush Verma",
+          "timestamp": "2026-09-25T04:57:22.108Z"
+        }
+      }
+    },
+    {
+      "id": "log_1790312242098_305",
+      "timestamp": "2026-09-25T04:57:22.098Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "OWNER_LOGIN",
+        "entity": "Users",
+        "entityId": "usr_owner_1789214066481",
+        "details": "Session created for role OWNER",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790312184884_301",
+      "timestamp": "2026-09-25T04:56:24.884Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "OWNER_LOGIN",
+        "entity": "Users",
+        "entityId": "usr_owner_1789214066481",
+        "details": "Session created for role OWNER",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310948669_21",
+      "timestamp": "2026-09-25T04:35:48.669Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_ACTIVATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310554976",
+      "details": "Activated \"Hydroponic Purple Cabbage 1790310554975\"",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "PRODUCT_ACTIVATED",
+        "entity": "Products",
+        "entityId": "prod_1790310554976",
+        "details": "Activated \"Hydroponic Purple Cabbage 1790310554975\"",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310948665_371",
+      "timestamp": "2026-09-25T04:35:48.665Z",
+      "user": "Owner",
+      "operatorEmail": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310554976",
+      "details": "Updated products \"Hydroponic Purple Cabbage 1790310554975\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
+      "changes": {
+        "status": {
+          "field": "status",
+          "oldValue": "SUSPENDED",
+          "newValue": "ACTIVE",
+          "old_value": "SUSPENDED",
+          "new_value": "ACTIVE"
+        }
+      },
+      "data": {
+        "operatorEmail": "Owner",
+        "action": "UPDATE",
+        "entity": "Products",
+        "entityId": "prod_1790310554976",
+        "details": "Updated products \"Hydroponic Purple Cabbage 1790310554975\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
+        "changes": {
+          "status": {
+            "field": "status",
+            "oldValue": "SUSPENDED",
+            "newValue": "ACTIVE",
+            "old_value": "SUSPENDED",
+            "new_value": "ACTIVE"
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790310948656_153",
+      "timestamp": "2026-09-25T04:35:48.656Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310554976",
+      "details": "Suspended \"Hydroponic Purple Cabbage 1790310554975\"",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "PRODUCT_SUSPENDED",
+        "entity": "Products",
+        "entityId": "prod_1790310554976",
+        "details": "Suspended \"Hydroponic Purple Cabbage 1790310554975\"",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310948652_942",
+      "timestamp": "2026-09-25T04:35:48.652Z",
+      "user": "Owner",
+      "operatorEmail": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310554976",
+      "details": "Updated products \"Hydroponic Purple Cabbage 1790310554975\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
+      "changes": {
+        "status": {
+          "field": "status",
+          "oldValue": "ACTIVE",
+          "newValue": "SUSPENDED",
+          "old_value": "ACTIVE",
+          "new_value": "SUSPENDED"
+        }
+      },
+      "data": {
+        "operatorEmail": "Owner",
+        "action": "UPDATE",
+        "entity": "Products",
+        "entityId": "prod_1790310554976",
+        "details": "Updated products \"Hydroponic Purple Cabbage 1790310554975\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
+        "changes": {
+          "status": {
+            "field": "status",
+            "oldValue": "ACTIVE",
+            "newValue": "SUSPENDED",
+            "old_value": "ACTIVE",
+            "new_value": "SUSPENDED"
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790310948643_525",
+      "timestamp": "2026-09-25T04:35:48.643Z",
+      "user": "Owner",
+      "operatorEmail": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310554976",
+      "details": "Updated products \"Hydroponic Purple Cabbage 1790310554975\" (price: 149 -> 135, sellingPrice: 149 -> 135)",
+      "changes": {
+        "price": {
+          "field": "price",
+          "oldValue": 149,
+          "newValue": 135,
+          "old_value": 149,
+          "new_value": 135
+        },
+        "sellingPrice": {
+          "field": "sellingPrice",
+          "oldValue": 149,
+          "newValue": 135,
+          "old_value": 149,
+          "new_value": 135
+        }
+      },
+      "data": {
+        "operatorEmail": "Owner",
+        "action": "UPDATE",
+        "entity": "Products",
+        "entityId": "prod_1790310554976",
+        "details": "Updated products \"Hydroponic Purple Cabbage 1790310554975\" (price: 149 -> 135, sellingPrice: 149 -> 135)",
+        "changes": {
+          "price": {
+            "field": "price",
+            "oldValue": 149,
+            "newValue": 135,
+            "old_value": 149,
+            "new_value": 135
+          },
+          "sellingPrice": {
+            "field": "sellingPrice",
+            "oldValue": 149,
+            "newValue": 135,
+            "old_value": 149,
+            "new_value": 135
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790310948634_802",
+      "timestamp": "2026-09-25T04:35:48.634Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310554976",
+      "details": "Updated product \"Hydroponic Purple Cabbage 1790310554975\" (SJH-VEG-HYD-59)",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "PRODUCT_UPDATED",
+        "entity": "Products",
+        "entityId": "prod_1790310554976",
+        "details": "Updated product \"Hydroponic Purple Cabbage 1790310554975\" (SJH-VEG-HYD-59)",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310948625_65",
+      "timestamp": "2026-09-25T04:35:48.625Z",
+      "user": "Owner",
+      "operatorEmail": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310554976",
+      "details": "Updated products \"Hydroponic Purple Cabbage 1790310554975\" (price: 80 -> 149, sellingPrice: 80 -> 149, stock: 45 -> 520, category: \"Vegetables\" -> \"Certified Organic\", description: \"Fresh crisp purple cabbage rich in anthocyanins.\" -> \"Freshly updated by Owner from dashboard on Vercel with verified organic certification.\", image: \"https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=700&q=80\" -> \"https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80\", mrp: 110 -> 199, costPrice: 50 -> 95)",
+      "changes": {
+        "price": {
+          "field": "price",
+          "oldValue": 80,
+          "newValue": 149,
+          "old_value": 80,
+          "new_value": 149
+        },
+        "sellingPrice": {
+          "field": "sellingPrice",
+          "oldValue": 80,
+          "newValue": 149,
+          "old_value": 80,
+          "new_value": 149
+        },
+        "stock": {
+          "field": "stock",
+          "oldValue": 45,
+          "newValue": 520,
+          "old_value": 45,
+          "new_value": 520
+        },
+        "category": {
+          "field": "category",
+          "oldValue": "Vegetables",
+          "newValue": "Certified Organic",
+          "old_value": "Vegetables",
+          "new_value": "Certified Organic"
+        },
+        "description": {
+          "field": "description",
+          "oldValue": "Fresh crisp purple cabbage rich in anthocyanins.",
+          "newValue": "Freshly updated by Owner from dashboard on Vercel with verified organic certification.",
+          "old_value": "Fresh crisp purple cabbage rich in anthocyanins.",
+          "new_value": "Freshly updated by Owner from dashboard on Vercel with verified organic certification."
+        },
+        "image": {
+          "field": "image",
+          "oldValue": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=700&q=80",
+          "newValue": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+          "old_value": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=700&q=80",
+          "new_value": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80"
+        },
+        "mrp": {
+          "field": "mrp",
+          "oldValue": 110,
+          "newValue": 199,
+          "old_value": 110,
+          "new_value": 199
+        },
+        "costPrice": {
+          "field": "costPrice",
+          "oldValue": 50,
+          "newValue": 95,
+          "old_value": 50,
+          "new_value": 95
+        }
+      },
+      "data": {
+        "operatorEmail": "Owner",
+        "action": "UPDATE",
+        "entity": "Products",
+        "entityId": "prod_1790310554976",
+        "details": "Updated products \"Hydroponic Purple Cabbage 1790310554975\" (price: 80 -> 149, sellingPrice: 80 -> 149, stock: 45 -> 520, category: \"Vegetables\" -> \"Certified Organic\", description: \"Fresh crisp purple cabbage rich in anthocyanins.\" -> \"Freshly updated by Owner from dashboard on Vercel with verified organic certification.\", image: \"https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=700&q=80\" -> \"https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80\", mrp: 110 -> 199, costPrice: 50 -> 95)",
+        "changes": {
+          "price": {
+            "field": "price",
+            "oldValue": 80,
+            "newValue": 149,
+            "old_value": 80,
+            "new_value": 149
+          },
+          "sellingPrice": {
+            "field": "sellingPrice",
+            "oldValue": 80,
+            "newValue": 149,
+            "old_value": 80,
+            "new_value": 149
+          },
+          "stock": {
+            "field": "stock",
+            "oldValue": 45,
+            "newValue": 520,
+            "old_value": 45,
+            "new_value": 520
+          },
+          "category": {
+            "field": "category",
+            "oldValue": "Vegetables",
+            "newValue": "Certified Organic",
+            "old_value": "Vegetables",
+            "new_value": "Certified Organic"
+          },
+          "description": {
+            "field": "description",
+            "oldValue": "Fresh crisp purple cabbage rich in anthocyanins.",
+            "newValue": "Freshly updated by Owner from dashboard on Vercel with verified organic certification.",
+            "old_value": "Fresh crisp purple cabbage rich in anthocyanins.",
+            "new_value": "Freshly updated by Owner from dashboard on Vercel with verified organic certification."
+          },
+          "image": {
+            "field": "image",
+            "oldValue": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=700&q=80",
+            "newValue": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+            "old_value": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=700&q=80",
+            "new_value": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80"
+          },
+          "mrp": {
+            "field": "mrp",
+            "oldValue": 110,
+            "newValue": 199,
+            "old_value": 110,
+            "new_value": 199
+          },
+          "costPrice": {
+            "field": "costPrice",
+            "oldValue": 50,
+            "newValue": 95,
+            "old_value": 50,
+            "new_value": 95
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790310948614_590",
+      "timestamp": "2026-09-25T04:35:48.614Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "OWNER_LOGIN",
+        "entity": "Users",
+        "entityId": "usr_owner_1789214066481",
+        "details": "Session created for role OWNER",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310943001_798",
+      "timestamp": "2026-09-25T04:35:43.001Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_DELETED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Deleted product \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (prod_1790310942918)",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "PRODUCT_DELETED",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Deleted product \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (prod_1790310942918)",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310942997_891",
+      "timestamp": "2026-09-25T04:35:42.997Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "DELETE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Deleted products \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\"",
+      "changes": {
+        "action": "DELETE",
+        "deletedItem": {
+          "id": "prod_1790310942918",
+          "storefrontId": "fresh_organic_dragon_fruit_1790310942912",
+          "name": "Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)",
+          "hindiName": "ड्रैगन फ्रूट",
+          "sku": "SJH-FRU-FRE-43",
+          "barcode": "890123442918",
+          "category": "Fruits",
+          "subcategory": "Exotic Fruits",
+          "price": 155,
+          "sellingPrice": 155,
+          "mrp": 200,
+          "originalPrice": 200,
+          "discountPercent": 23,
+          "costPrice": 95,
+          "stock": 65,
+          "unit": "500 g",
+          "lowStockLimit": 10,
+          "reorderLevel": 30,
+          "status": "ACTIVE",
+          "farmer": "Kaveri Valley Certified Organic Orchards",
+          "hubId": "hub_blr_indiranagar",
+          "expressEligible": true,
+          "harvestDate": "2026-09-25",
+          "freshnessDays": 7,
+          "image": "https://images.unsplash.com/photo-1527325678964-54921661f888?auto=format&fit=crop&w=400&q=80",
+          "description": "Ruby-red, antioxidant-rich fresh organic dragon fruit with crisp sweet flesh.",
+          "variants": [
+            {
+              "sku": "SJH-FRU-FRE-43-1KG",
+              "weightLabel": "500 g",
+              "price": 155,
+              "mrp": 200,
+              "costPrice": 95,
+              "stock": 60
+            }
+          ],
+          "weights": [
+            {
+              "label": "500 g",
+              "price": 155,
+              "originalPrice": 200,
+              "discount": "23% OFF",
+              "savings": 45
+            }
+          ],
+          "createdAt": "2026-09-25T04:35:42.918Z",
+          "updatedAt": "2026-09-25T04:35:42.981Z"
+        }
+      },
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "DELETE",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Deleted products \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\"",
+        "changes": {
+          "action": "DELETE",
+          "deletedItem": {
+            "id": "prod_1790310942918",
+            "storefrontId": "fresh_organic_dragon_fruit_1790310942912",
+            "name": "Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)",
+            "hindiName": "ड्रैगन फ्रूट",
+            "sku": "SJH-FRU-FRE-43",
+            "barcode": "890123442918",
+            "category": "Fruits",
+            "subcategory": "Exotic Fruits",
+            "price": 155,
+            "sellingPrice": 155,
+            "mrp": 200,
+            "originalPrice": 200,
+            "discountPercent": 23,
+            "costPrice": 95,
+            "stock": 65,
+            "unit": "500 g",
+            "lowStockLimit": 10,
+            "reorderLevel": 30,
+            "status": "ACTIVE",
+            "farmer": "Kaveri Valley Certified Organic Orchards",
+            "hubId": "hub_blr_indiranagar",
+            "expressEligible": true,
+            "harvestDate": "2026-09-25",
+            "freshnessDays": 7,
+            "image": "https://images.unsplash.com/photo-1527325678964-54921661f888?auto=format&fit=crop&w=400&q=80",
+            "description": "Ruby-red, antioxidant-rich fresh organic dragon fruit with crisp sweet flesh.",
+            "variants": [
+              {
+                "sku": "SJH-FRU-FRE-43-1KG",
+                "weightLabel": "500 g",
+                "price": 155,
+                "mrp": 200,
+                "costPrice": 95,
+                "stock": 60
+              }
+            ],
+            "weights": [
+              {
+                "label": "500 g",
+                "price": 155,
+                "originalPrice": 200,
+                "discount": "23% OFF",
+                "savings": 45
+              }
+            ],
+            "createdAt": "2026-09-25T04:35:42.918Z",
+            "updatedAt": "2026-09-25T04:35:42.981Z"
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790310942988_846",
+      "timestamp": "2026-09-25T04:35:42.988Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_ACTIVATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Activated \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\"",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "PRODUCT_ACTIVATED",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Activated \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\"",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310942984_351",
+      "timestamp": "2026-09-25T04:35:42.984Z",
+      "user": "Owner",
+      "operatorEmail": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Updated products \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
+      "changes": {
+        "status": {
+          "field": "status",
+          "oldValue": "SUSPENDED",
+          "newValue": "ACTIVE",
+          "old_value": "SUSPENDED",
+          "new_value": "ACTIVE"
+        }
+      },
+      "data": {
+        "operatorEmail": "Owner",
+        "action": "UPDATE",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Updated products \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
+        "changes": {
+          "status": {
+            "field": "status",
+            "oldValue": "SUSPENDED",
+            "newValue": "ACTIVE",
+            "old_value": "SUSPENDED",
+            "new_value": "ACTIVE"
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790310942975_318",
+      "timestamp": "2026-09-25T04:35:42.975Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Suspended \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\"",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "PRODUCT_SUSPENDED",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Suspended \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\"",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310942970_690",
+      "timestamp": "2026-09-25T04:35:42.970Z",
+      "user": "Owner",
+      "operatorEmail": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Updated products \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
+      "changes": {
+        "status": {
+          "field": "status",
+          "oldValue": "ACTIVE",
+          "newValue": "SUSPENDED",
+          "old_value": "ACTIVE",
+          "new_value": "SUSPENDED"
+        }
+      },
+      "data": {
+        "operatorEmail": "Owner",
+        "action": "UPDATE",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Updated products \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
+        "changes": {
+          "status": {
+            "field": "status",
+            "oldValue": "ACTIVE",
+            "newValue": "SUSPENDED",
+            "old_value": "ACTIVE",
+            "new_value": "SUSPENDED"
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790310942962_713",
+      "timestamp": "2026-09-25T04:35:42.962Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STOCK_ADJUSTED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Stock adjusted by +20 (undefined: Fresh Morning Farm Restock)",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "STOCK_ADJUSTED",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Stock adjusted by +20 (undefined: Fresh Morning Farm Restock)",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310942948_390",
+      "timestamp": "2026-09-25T04:35:42.948Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Updated product \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (SJH-FRU-FRE-43)",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "PRODUCT_UPDATED",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Updated product \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (SJH-FRU-FRE-43)",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310942940_435",
+      "timestamp": "2026-09-25T04:35:42.940Z",
+      "user": "Owner",
+      "operatorEmail": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Updated products \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (price: 140 -> 155, sellingPrice: 140 -> 155, stock: 60 -> 45, name: \"Fresh Organic Dragon Fruit 1790310942912\" -> \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\", mrp: 180 -> 200, costPrice: 90 -> 95)",
+      "changes": {
+        "price": {
+          "field": "price",
+          "oldValue": 140,
+          "newValue": 155,
+          "old_value": 140,
+          "new_value": 155
+        },
+        "sellingPrice": {
+          "field": "sellingPrice",
+          "oldValue": 140,
+          "newValue": 155,
+          "old_value": 140,
+          "new_value": 155
+        },
+        "stock": {
+          "field": "stock",
+          "oldValue": 60,
+          "newValue": 45,
+          "old_value": 60,
+          "new_value": 45
+        },
+        "name": {
+          "field": "name",
+          "oldValue": "Fresh Organic Dragon Fruit 1790310942912",
+          "newValue": "Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)",
+          "old_value": "Fresh Organic Dragon Fruit 1790310942912",
+          "new_value": "Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)"
+        },
+        "mrp": {
+          "field": "mrp",
+          "oldValue": 180,
+          "newValue": 200,
+          "old_value": 180,
+          "new_value": 200
+        },
+        "costPrice": {
+          "field": "costPrice",
+          "oldValue": 90,
+          "newValue": 95,
+          "old_value": 90,
+          "new_value": 95
+        }
+      },
+      "data": {
+        "operatorEmail": "Owner",
+        "action": "UPDATE",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Updated products \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (price: 140 -> 155, sellingPrice: 140 -> 155, stock: 60 -> 45, name: \"Fresh Organic Dragon Fruit 1790310942912\" -> \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\", mrp: 180 -> 200, costPrice: 90 -> 95)",
+        "changes": {
+          "price": {
+            "field": "price",
+            "oldValue": 140,
+            "newValue": 155,
+            "old_value": 140,
+            "new_value": 155
+          },
+          "sellingPrice": {
+            "field": "sellingPrice",
+            "oldValue": 140,
+            "newValue": 155,
+            "old_value": 140,
+            "new_value": 155
+          },
+          "stock": {
+            "field": "stock",
+            "oldValue": 60,
+            "newValue": 45,
+            "old_value": 60,
+            "new_value": 45
+          },
+          "name": {
+            "field": "name",
+            "oldValue": "Fresh Organic Dragon Fruit 1790310942912",
+            "newValue": "Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)",
+            "old_value": "Fresh Organic Dragon Fruit 1790310942912",
+            "new_value": "Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)"
+          },
+          "mrp": {
+            "field": "mrp",
+            "oldValue": 180,
+            "newValue": 200,
+            "old_value": 180,
+            "new_value": 200
+          },
+          "costPrice": {
+            "field": "costPrice",
+            "oldValue": 90,
+            "newValue": 95,
+            "old_value": 90,
+            "new_value": 95
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790310942930_226",
+      "timestamp": "2026-09-25T04:35:42.930Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_CREATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Created product \"Fresh Organic Dragon Fruit 1790310942912\" (SKU: SJH-FRU-FRE-43)",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "PRODUCT_CREATED",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Created product \"Fresh Organic Dragon Fruit 1790310942912\" (SKU: SJH-FRU-FRE-43)",
+        "changes": {}
+      }
+    },
     {
       "id": "log_1790310568145_722",
       "timestamp": "2026-09-25T04:29:28.145Z",
@@ -27609,9 +28894,71 @@
     "supportEmail": "support@freshmart.in",
     "supportPhone": "+91 80 4000 9000",
     "deliverySLA": "12-15 mins",
-    "updatedAt": "2026-09-25T04:10:05.686Z"
+    "updatedAt": "2026-09-25T04:10:05.686Z",
+    "storeStatus": "LIVE",
+    "isStoreOpen": true
   },
   "sessions": [
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzk4Njk3NjE4LCJpYXQiOjE3OTAzMTIyOTc2MTgsInJuZCI6IjM0NjM1MmViYWMxNWY4MzYifQ.wk9Vy5Y-eumFHCy8c3rmSbJGeeGT3OGrHEOt6eEddgI",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": false,
+      "createdAt": "2026-09-25T04:58:17.618Z",
+      "expiresAt": "2026-09-26T04:58:17.618Z",
+      "userAgent": "Unknown Device",
+      "ip": "::1"
+    },
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzk4NjU3MDQxLCJpYXQiOjE3OTAzMTIyNTcwNDEsInJuZCI6IjdiNmRmNzdlYzdmMGU3YjgifQ.FHa_LMyF1uX7rv1qPfz1N0HDmlAMhQBFltmK5WT86RY",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": false,
+      "createdAt": "2026-09-25T04:57:37.041Z",
+      "expiresAt": "2026-09-26T04:57:37.041Z",
+      "userAgent": "Unknown Device",
+      "ip": "::1"
+    },
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzk4NjQyMDkzLCJpYXQiOjE3OTAzMTIyNDIwOTMsInJuZCI6IjQ2NDRhNzgzNDljNGRhNDAifQ.oVAKZhcJRmBg6GW_jk7k2kbayYcNLMQOhhcDHLDqwto",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": false,
+      "createdAt": "2026-09-25T04:57:22.093Z",
+      "expiresAt": "2026-09-26T04:57:22.093Z",
+      "userAgent": "Unknown Device",
+      "ip": "::1"
+    },
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzk4NTg0ODc4LCJpYXQiOjE3OTAzMTIxODQ4NzgsInJuZCI6ImZjMTkxMmRjYWYxYzljMWMifQ.PribntkNAidTJa6cSoQykI_NgllyNzVcUo9urEvZk8Q",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": false,
+      "createdAt": "2026-09-25T04:56:24.878Z",
+      "expiresAt": "2026-09-26T04:56:24.878Z",
+      "userAgent": "Unknown Device",
+      "ip": "::1"
+    },
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzk3MzQ4NjEwLCJpYXQiOjE3OTAzMTA5NDg2MTAsInJuZCI6IjI3ZDhhYmIzZjZkZDJhNjQifQ.wREK8M8CQraFHfXxC4CoqoEYvw5zvQgw93LUeJqWghY",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": false,
+      "createdAt": "2026-09-25T04:35:48.610Z",
+      "expiresAt": "2026-09-26T04:35:48.610Z",
+      "userAgent": "Unknown Device",
+      "ip": "127.0.0.1"
+    },
+    {
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkyOTAyOTQyOTA2LCJpYXQiOjE3OTAzMTA5NDI5MDYsInJuZCI6ImFhYzhmMjllY2JlYmI3YzUifQ.oJ4g1t6UI46A4PkmOB8tr37okq7EqU6EI8Xn0Wy2Ljk",
+      "userId": "usr_owner_1789214066481",
+      "role": "OWNER",
+      "rememberMe": true,
+      "createdAt": "2026-09-25T04:35:42.906Z",
+      "expiresAt": "2026-10-25T04:35:42.906Z",
+      "userAgent": "Unknown Device",
+      "ip": "127.0.0.1"
+    },
     {
       "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwMzk2OTY4MDI1LCJpYXQiOjE3OTAzMTA1NjgwMjUsInJuZCI6IjdkNGJmN2ZiZmI3OTQzNTIifQ.D_6s1g3xfRsyFLJaLOy5Wvc13yxWRgFRqeVfcrgN-DE",
       "userId": "usr_owner_1789214066481",
@@ -30385,6 +31732,1002 @@
     }
   ],
   "audit_logs": [
+    {
+      "id": "log_1790312297674_463",
+      "timestamp": "2026-09-25T04:58:17.674Z",
+      "user": "System Order Engine",
+      "operatorEmail": "System Order Engine",
+      "action": "ORDER_CREATED",
+      "entity": "Order",
+      "target": "Order",
+      "entityId": "SJH71764",
+      "details": "New order created for ₹40 by Piyush Verma",
+      "changes": {},
+      "data": {
+        "operatorEmail": "System Order Engine",
+        "action": "ORDER_CREATED",
+        "entity": "Order",
+        "entityId": "SJH71764",
+        "details": "New order created for ₹40 by Piyush Verma",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790312297641_65",
+      "timestamp": "2026-09-25T04:58:17.641Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STORE_STATUS",
+      "entity": "Settings",
+      "target": "Settings",
+      "entityId": "STORE_STATUS",
+      "details": "Changed store status from OFFLINE to LIVE",
+      "changes": {
+        "oldStatus": "OFFLINE",
+        "newStatus": "LIVE",
+        "operator": "Piyush Verma",
+        "timestamp": "2026-09-25T04:58:17.641Z"
+      },
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "STORE_STATUS",
+        "entity": "Settings",
+        "entityId": "STORE_STATUS",
+        "details": "Changed store status from OFFLINE to LIVE",
+        "changes": {
+          "oldStatus": "OFFLINE",
+          "newStatus": "LIVE",
+          "operator": "Piyush Verma",
+          "timestamp": "2026-09-25T04:58:17.641Z"
+        }
+      }
+    },
+    {
+      "id": "log_1790312297631_822",
+      "timestamp": "2026-09-25T04:58:17.631Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STORE_STATUS",
+      "entity": "Settings",
+      "target": "Settings",
+      "entityId": "STORE_STATUS",
+      "details": "Changed store status from OFFLINE to OFFLINE",
+      "changes": {
+        "oldStatus": "OFFLINE",
+        "newStatus": "OFFLINE",
+        "operator": "Piyush Verma",
+        "timestamp": "2026-09-25T04:58:17.631Z"
+      },
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "STORE_STATUS",
+        "entity": "Settings",
+        "entityId": "STORE_STATUS",
+        "details": "Changed store status from OFFLINE to OFFLINE",
+        "changes": {
+          "oldStatus": "OFFLINE",
+          "newStatus": "OFFLINE",
+          "operator": "Piyush Verma",
+          "timestamp": "2026-09-25T04:58:17.631Z"
+        }
+      }
+    },
+    {
+      "id": "log_1790312297622_357",
+      "timestamp": "2026-09-25T04:58:17.622Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "OWNER_LOGIN",
+        "entity": "Users",
+        "entityId": "usr_owner_1789214066481",
+        "details": "Session created for role OWNER",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790312257111_13",
+      "timestamp": "2026-09-25T04:57:37.111Z",
+      "user": "System Order Engine",
+      "operatorEmail": "System Order Engine",
+      "action": "ORDER_CREATED",
+      "entity": "Order",
+      "target": "Order",
+      "entityId": "SJH99160",
+      "details": "New order created for ₹40 by Piyush Verma",
+      "changes": {},
+      "data": {
+        "operatorEmail": "System Order Engine",
+        "action": "ORDER_CREATED",
+        "entity": "Order",
+        "entityId": "SJH99160",
+        "details": "New order created for ₹40 by Piyush Verma",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790312257079_972",
+      "timestamp": "2026-09-25T04:57:37.079Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STORE_STATUS",
+      "entity": "Settings",
+      "target": "Settings",
+      "entityId": "STORE_STATUS",
+      "details": "Changed store status from OFFLINE to OFFLINE",
+      "changes": {
+        "oldStatus": "OFFLINE",
+        "newStatus": "OFFLINE",
+        "operator": "Piyush Verma",
+        "timestamp": "2026-09-25T04:57:37.079Z"
+      },
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "STORE_STATUS",
+        "entity": "Settings",
+        "entityId": "STORE_STATUS",
+        "details": "Changed store status from OFFLINE to OFFLINE",
+        "changes": {
+          "oldStatus": "OFFLINE",
+          "newStatus": "OFFLINE",
+          "operator": "Piyush Verma",
+          "timestamp": "2026-09-25T04:57:37.079Z"
+        }
+      }
+    },
+    {
+      "id": "log_1790312257045_784",
+      "timestamp": "2026-09-25T04:57:37.045Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "OWNER_LOGIN",
+        "entity": "Users",
+        "entityId": "usr_owner_1789214066481",
+        "details": "Session created for role OWNER",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790312242108_845",
+      "timestamp": "2026-09-25T04:57:22.108Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STORE_STATUS",
+      "entity": "Settings",
+      "target": "Settings",
+      "entityId": "STORE_STATUS",
+      "details": "Changed store status from LIVE to OFFLINE",
+      "changes": {
+        "oldStatus": "LIVE",
+        "newStatus": "OFFLINE",
+        "operator": "Piyush Verma",
+        "timestamp": "2026-09-25T04:57:22.108Z"
+      },
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "STORE_STATUS",
+        "entity": "Settings",
+        "entityId": "STORE_STATUS",
+        "details": "Changed store status from LIVE to OFFLINE",
+        "changes": {
+          "oldStatus": "LIVE",
+          "newStatus": "OFFLINE",
+          "operator": "Piyush Verma",
+          "timestamp": "2026-09-25T04:57:22.108Z"
+        }
+      }
+    },
+    {
+      "id": "log_1790312242098_305",
+      "timestamp": "2026-09-25T04:57:22.098Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "OWNER_LOGIN",
+        "entity": "Users",
+        "entityId": "usr_owner_1789214066481",
+        "details": "Session created for role OWNER",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790312184884_301",
+      "timestamp": "2026-09-25T04:56:24.884Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "OWNER_LOGIN",
+        "entity": "Users",
+        "entityId": "usr_owner_1789214066481",
+        "details": "Session created for role OWNER",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310948669_21",
+      "timestamp": "2026-09-25T04:35:48.669Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_ACTIVATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310554976",
+      "details": "Activated \"Hydroponic Purple Cabbage 1790310554975\"",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "PRODUCT_ACTIVATED",
+        "entity": "Products",
+        "entityId": "prod_1790310554976",
+        "details": "Activated \"Hydroponic Purple Cabbage 1790310554975\"",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310948665_371",
+      "timestamp": "2026-09-25T04:35:48.665Z",
+      "user": "Owner",
+      "operatorEmail": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310554976",
+      "details": "Updated products \"Hydroponic Purple Cabbage 1790310554975\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
+      "changes": {
+        "status": {
+          "field": "status",
+          "oldValue": "SUSPENDED",
+          "newValue": "ACTIVE",
+          "old_value": "SUSPENDED",
+          "new_value": "ACTIVE"
+        }
+      },
+      "data": {
+        "operatorEmail": "Owner",
+        "action": "UPDATE",
+        "entity": "Products",
+        "entityId": "prod_1790310554976",
+        "details": "Updated products \"Hydroponic Purple Cabbage 1790310554975\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
+        "changes": {
+          "status": {
+            "field": "status",
+            "oldValue": "SUSPENDED",
+            "newValue": "ACTIVE",
+            "old_value": "SUSPENDED",
+            "new_value": "ACTIVE"
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790310948656_153",
+      "timestamp": "2026-09-25T04:35:48.656Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310554976",
+      "details": "Suspended \"Hydroponic Purple Cabbage 1790310554975\"",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "PRODUCT_SUSPENDED",
+        "entity": "Products",
+        "entityId": "prod_1790310554976",
+        "details": "Suspended \"Hydroponic Purple Cabbage 1790310554975\"",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310948652_942",
+      "timestamp": "2026-09-25T04:35:48.652Z",
+      "user": "Owner",
+      "operatorEmail": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310554976",
+      "details": "Updated products \"Hydroponic Purple Cabbage 1790310554975\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
+      "changes": {
+        "status": {
+          "field": "status",
+          "oldValue": "ACTIVE",
+          "newValue": "SUSPENDED",
+          "old_value": "ACTIVE",
+          "new_value": "SUSPENDED"
+        }
+      },
+      "data": {
+        "operatorEmail": "Owner",
+        "action": "UPDATE",
+        "entity": "Products",
+        "entityId": "prod_1790310554976",
+        "details": "Updated products \"Hydroponic Purple Cabbage 1790310554975\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
+        "changes": {
+          "status": {
+            "field": "status",
+            "oldValue": "ACTIVE",
+            "newValue": "SUSPENDED",
+            "old_value": "ACTIVE",
+            "new_value": "SUSPENDED"
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790310948643_525",
+      "timestamp": "2026-09-25T04:35:48.643Z",
+      "user": "Owner",
+      "operatorEmail": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310554976",
+      "details": "Updated products \"Hydroponic Purple Cabbage 1790310554975\" (price: 149 -> 135, sellingPrice: 149 -> 135)",
+      "changes": {
+        "price": {
+          "field": "price",
+          "oldValue": 149,
+          "newValue": 135,
+          "old_value": 149,
+          "new_value": 135
+        },
+        "sellingPrice": {
+          "field": "sellingPrice",
+          "oldValue": 149,
+          "newValue": 135,
+          "old_value": 149,
+          "new_value": 135
+        }
+      },
+      "data": {
+        "operatorEmail": "Owner",
+        "action": "UPDATE",
+        "entity": "Products",
+        "entityId": "prod_1790310554976",
+        "details": "Updated products \"Hydroponic Purple Cabbage 1790310554975\" (price: 149 -> 135, sellingPrice: 149 -> 135)",
+        "changes": {
+          "price": {
+            "field": "price",
+            "oldValue": 149,
+            "newValue": 135,
+            "old_value": 149,
+            "new_value": 135
+          },
+          "sellingPrice": {
+            "field": "sellingPrice",
+            "oldValue": 149,
+            "newValue": 135,
+            "old_value": 149,
+            "new_value": 135
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790310948634_802",
+      "timestamp": "2026-09-25T04:35:48.634Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310554976",
+      "details": "Updated product \"Hydroponic Purple Cabbage 1790310554975\" (SJH-VEG-HYD-59)",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "PRODUCT_UPDATED",
+        "entity": "Products",
+        "entityId": "prod_1790310554976",
+        "details": "Updated product \"Hydroponic Purple Cabbage 1790310554975\" (SJH-VEG-HYD-59)",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310948625_65",
+      "timestamp": "2026-09-25T04:35:48.625Z",
+      "user": "Owner",
+      "operatorEmail": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310554976",
+      "details": "Updated products \"Hydroponic Purple Cabbage 1790310554975\" (price: 80 -> 149, sellingPrice: 80 -> 149, stock: 45 -> 520, category: \"Vegetables\" -> \"Certified Organic\", description: \"Fresh crisp purple cabbage rich in anthocyanins.\" -> \"Freshly updated by Owner from dashboard on Vercel with verified organic certification.\", image: \"https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=700&q=80\" -> \"https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80\", mrp: 110 -> 199, costPrice: 50 -> 95)",
+      "changes": {
+        "price": {
+          "field": "price",
+          "oldValue": 80,
+          "newValue": 149,
+          "old_value": 80,
+          "new_value": 149
+        },
+        "sellingPrice": {
+          "field": "sellingPrice",
+          "oldValue": 80,
+          "newValue": 149,
+          "old_value": 80,
+          "new_value": 149
+        },
+        "stock": {
+          "field": "stock",
+          "oldValue": 45,
+          "newValue": 520,
+          "old_value": 45,
+          "new_value": 520
+        },
+        "category": {
+          "field": "category",
+          "oldValue": "Vegetables",
+          "newValue": "Certified Organic",
+          "old_value": "Vegetables",
+          "new_value": "Certified Organic"
+        },
+        "description": {
+          "field": "description",
+          "oldValue": "Fresh crisp purple cabbage rich in anthocyanins.",
+          "newValue": "Freshly updated by Owner from dashboard on Vercel with verified organic certification.",
+          "old_value": "Fresh crisp purple cabbage rich in anthocyanins.",
+          "new_value": "Freshly updated by Owner from dashboard on Vercel with verified organic certification."
+        },
+        "image": {
+          "field": "image",
+          "oldValue": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=700&q=80",
+          "newValue": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+          "old_value": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=700&q=80",
+          "new_value": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80"
+        },
+        "mrp": {
+          "field": "mrp",
+          "oldValue": 110,
+          "newValue": 199,
+          "old_value": 110,
+          "new_value": 199
+        },
+        "costPrice": {
+          "field": "costPrice",
+          "oldValue": 50,
+          "newValue": 95,
+          "old_value": 50,
+          "new_value": 95
+        }
+      },
+      "data": {
+        "operatorEmail": "Owner",
+        "action": "UPDATE",
+        "entity": "Products",
+        "entityId": "prod_1790310554976",
+        "details": "Updated products \"Hydroponic Purple Cabbage 1790310554975\" (price: 80 -> 149, sellingPrice: 80 -> 149, stock: 45 -> 520, category: \"Vegetables\" -> \"Certified Organic\", description: \"Fresh crisp purple cabbage rich in anthocyanins.\" -> \"Freshly updated by Owner from dashboard on Vercel with verified organic certification.\", image: \"https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=700&q=80\" -> \"https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80\", mrp: 110 -> 199, costPrice: 50 -> 95)",
+        "changes": {
+          "price": {
+            "field": "price",
+            "oldValue": 80,
+            "newValue": 149,
+            "old_value": 80,
+            "new_value": 149
+          },
+          "sellingPrice": {
+            "field": "sellingPrice",
+            "oldValue": 80,
+            "newValue": 149,
+            "old_value": 80,
+            "new_value": 149
+          },
+          "stock": {
+            "field": "stock",
+            "oldValue": 45,
+            "newValue": 520,
+            "old_value": 45,
+            "new_value": 520
+          },
+          "category": {
+            "field": "category",
+            "oldValue": "Vegetables",
+            "newValue": "Certified Organic",
+            "old_value": "Vegetables",
+            "new_value": "Certified Organic"
+          },
+          "description": {
+            "field": "description",
+            "oldValue": "Fresh crisp purple cabbage rich in anthocyanins.",
+            "newValue": "Freshly updated by Owner from dashboard on Vercel with verified organic certification.",
+            "old_value": "Fresh crisp purple cabbage rich in anthocyanins.",
+            "new_value": "Freshly updated by Owner from dashboard on Vercel with verified organic certification."
+          },
+          "image": {
+            "field": "image",
+            "oldValue": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=700&q=80",
+            "newValue": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+            "old_value": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=700&q=80",
+            "new_value": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80"
+          },
+          "mrp": {
+            "field": "mrp",
+            "oldValue": 110,
+            "newValue": 199,
+            "old_value": 110,
+            "new_value": 199
+          },
+          "costPrice": {
+            "field": "costPrice",
+            "oldValue": 50,
+            "newValue": 95,
+            "old_value": 50,
+            "new_value": 95
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790310948614_590",
+      "timestamp": "2026-09-25T04:35:48.614Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1789214066481",
+      "details": "Session created for role OWNER",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "OWNER_LOGIN",
+        "entity": "Users",
+        "entityId": "usr_owner_1789214066481",
+        "details": "Session created for role OWNER",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310943001_798",
+      "timestamp": "2026-09-25T04:35:43.001Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_DELETED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Deleted product \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (prod_1790310942918)",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "PRODUCT_DELETED",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Deleted product \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (prod_1790310942918)",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310942997_891",
+      "timestamp": "2026-09-25T04:35:42.997Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "DELETE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Deleted products \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\"",
+      "changes": {
+        "action": "DELETE",
+        "deletedItem": {
+          "id": "prod_1790310942918",
+          "storefrontId": "fresh_organic_dragon_fruit_1790310942912",
+          "name": "Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)",
+          "hindiName": "ड्रैगन फ्रूट",
+          "sku": "SJH-FRU-FRE-43",
+          "barcode": "890123442918",
+          "category": "Fruits",
+          "subcategory": "Exotic Fruits",
+          "price": 155,
+          "sellingPrice": 155,
+          "mrp": 200,
+          "originalPrice": 200,
+          "discountPercent": 23,
+          "costPrice": 95,
+          "stock": 65,
+          "unit": "500 g",
+          "lowStockLimit": 10,
+          "reorderLevel": 30,
+          "status": "ACTIVE",
+          "farmer": "Kaveri Valley Certified Organic Orchards",
+          "hubId": "hub_blr_indiranagar",
+          "expressEligible": true,
+          "harvestDate": "2026-09-25",
+          "freshnessDays": 7,
+          "image": "https://images.unsplash.com/photo-1527325678964-54921661f888?auto=format&fit=crop&w=400&q=80",
+          "description": "Ruby-red, antioxidant-rich fresh organic dragon fruit with crisp sweet flesh.",
+          "variants": [
+            {
+              "sku": "SJH-FRU-FRE-43-1KG",
+              "weightLabel": "500 g",
+              "price": 155,
+              "mrp": 200,
+              "costPrice": 95,
+              "stock": 60
+            }
+          ],
+          "weights": [
+            {
+              "label": "500 g",
+              "price": 155,
+              "originalPrice": 200,
+              "discount": "23% OFF",
+              "savings": 45
+            }
+          ],
+          "createdAt": "2026-09-25T04:35:42.918Z",
+          "updatedAt": "2026-09-25T04:35:42.981Z"
+        }
+      },
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "DELETE",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Deleted products \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\"",
+        "changes": {
+          "action": "DELETE",
+          "deletedItem": {
+            "id": "prod_1790310942918",
+            "storefrontId": "fresh_organic_dragon_fruit_1790310942912",
+            "name": "Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)",
+            "hindiName": "ड्रैगन फ्रूट",
+            "sku": "SJH-FRU-FRE-43",
+            "barcode": "890123442918",
+            "category": "Fruits",
+            "subcategory": "Exotic Fruits",
+            "price": 155,
+            "sellingPrice": 155,
+            "mrp": 200,
+            "originalPrice": 200,
+            "discountPercent": 23,
+            "costPrice": 95,
+            "stock": 65,
+            "unit": "500 g",
+            "lowStockLimit": 10,
+            "reorderLevel": 30,
+            "status": "ACTIVE",
+            "farmer": "Kaveri Valley Certified Organic Orchards",
+            "hubId": "hub_blr_indiranagar",
+            "expressEligible": true,
+            "harvestDate": "2026-09-25",
+            "freshnessDays": 7,
+            "image": "https://images.unsplash.com/photo-1527325678964-54921661f888?auto=format&fit=crop&w=400&q=80",
+            "description": "Ruby-red, antioxidant-rich fresh organic dragon fruit with crisp sweet flesh.",
+            "variants": [
+              {
+                "sku": "SJH-FRU-FRE-43-1KG",
+                "weightLabel": "500 g",
+                "price": 155,
+                "mrp": 200,
+                "costPrice": 95,
+                "stock": 60
+              }
+            ],
+            "weights": [
+              {
+                "label": "500 g",
+                "price": 155,
+                "originalPrice": 200,
+                "discount": "23% OFF",
+                "savings": 45
+              }
+            ],
+            "createdAt": "2026-09-25T04:35:42.918Z",
+            "updatedAt": "2026-09-25T04:35:42.981Z"
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790310942988_846",
+      "timestamp": "2026-09-25T04:35:42.988Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_ACTIVATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Activated \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\"",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "PRODUCT_ACTIVATED",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Activated \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\"",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310942984_351",
+      "timestamp": "2026-09-25T04:35:42.984Z",
+      "user": "Owner",
+      "operatorEmail": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Updated products \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
+      "changes": {
+        "status": {
+          "field": "status",
+          "oldValue": "SUSPENDED",
+          "newValue": "ACTIVE",
+          "old_value": "SUSPENDED",
+          "new_value": "ACTIVE"
+        }
+      },
+      "data": {
+        "operatorEmail": "Owner",
+        "action": "UPDATE",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Updated products \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
+        "changes": {
+          "status": {
+            "field": "status",
+            "oldValue": "SUSPENDED",
+            "newValue": "ACTIVE",
+            "old_value": "SUSPENDED",
+            "new_value": "ACTIVE"
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790310942975_318",
+      "timestamp": "2026-09-25T04:35:42.975Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Suspended \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\"",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "PRODUCT_SUSPENDED",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Suspended \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\"",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310942970_690",
+      "timestamp": "2026-09-25T04:35:42.970Z",
+      "user": "Owner",
+      "operatorEmail": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Updated products \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
+      "changes": {
+        "status": {
+          "field": "status",
+          "oldValue": "ACTIVE",
+          "newValue": "SUSPENDED",
+          "old_value": "ACTIVE",
+          "new_value": "SUSPENDED"
+        }
+      },
+      "data": {
+        "operatorEmail": "Owner",
+        "action": "UPDATE",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Updated products \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
+        "changes": {
+          "status": {
+            "field": "status",
+            "oldValue": "ACTIVE",
+            "newValue": "SUSPENDED",
+            "old_value": "ACTIVE",
+            "new_value": "SUSPENDED"
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790310942962_713",
+      "timestamp": "2026-09-25T04:35:42.962Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "STOCK_ADJUSTED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Stock adjusted by +20 (undefined: Fresh Morning Farm Restock)",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "STOCK_ADJUSTED",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Stock adjusted by +20 (undefined: Fresh Morning Farm Restock)",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310942948_390",
+      "timestamp": "2026-09-25T04:35:42.948Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Updated product \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (SJH-FRU-FRE-43)",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "PRODUCT_UPDATED",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Updated product \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (SJH-FRU-FRE-43)",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790310942940_435",
+      "timestamp": "2026-09-25T04:35:42.940Z",
+      "user": "Owner",
+      "operatorEmail": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Updated products \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (price: 140 -> 155, sellingPrice: 140 -> 155, stock: 60 -> 45, name: \"Fresh Organic Dragon Fruit 1790310942912\" -> \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\", mrp: 180 -> 200, costPrice: 90 -> 95)",
+      "changes": {
+        "price": {
+          "field": "price",
+          "oldValue": 140,
+          "newValue": 155,
+          "old_value": 140,
+          "new_value": 155
+        },
+        "sellingPrice": {
+          "field": "sellingPrice",
+          "oldValue": 140,
+          "newValue": 155,
+          "old_value": 140,
+          "new_value": 155
+        },
+        "stock": {
+          "field": "stock",
+          "oldValue": 60,
+          "newValue": 45,
+          "old_value": 60,
+          "new_value": 45
+        },
+        "name": {
+          "field": "name",
+          "oldValue": "Fresh Organic Dragon Fruit 1790310942912",
+          "newValue": "Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)",
+          "old_value": "Fresh Organic Dragon Fruit 1790310942912",
+          "new_value": "Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)"
+        },
+        "mrp": {
+          "field": "mrp",
+          "oldValue": 180,
+          "newValue": 200,
+          "old_value": 180,
+          "new_value": 200
+        },
+        "costPrice": {
+          "field": "costPrice",
+          "oldValue": 90,
+          "newValue": 95,
+          "old_value": 90,
+          "new_value": 95
+        }
+      },
+      "data": {
+        "operatorEmail": "Owner",
+        "action": "UPDATE",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Updated products \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\" (price: 140 -> 155, sellingPrice: 140 -> 155, stock: 60 -> 45, name: \"Fresh Organic Dragon Fruit 1790310942912\" -> \"Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)\", mrp: 180 -> 200, costPrice: 90 -> 95)",
+        "changes": {
+          "price": {
+            "field": "price",
+            "oldValue": 140,
+            "newValue": 155,
+            "old_value": 140,
+            "new_value": 155
+          },
+          "sellingPrice": {
+            "field": "sellingPrice",
+            "oldValue": 140,
+            "newValue": 155,
+            "old_value": 140,
+            "new_value": 155
+          },
+          "stock": {
+            "field": "stock",
+            "oldValue": 60,
+            "newValue": 45,
+            "old_value": 60,
+            "new_value": 45
+          },
+          "name": {
+            "field": "name",
+            "oldValue": "Fresh Organic Dragon Fruit 1790310942912",
+            "newValue": "Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)",
+            "old_value": "Fresh Organic Dragon Fruit 1790310942912",
+            "new_value": "Fresh Organic Dragon Fruit 1790310942912 (Premium Grade A)"
+          },
+          "mrp": {
+            "field": "mrp",
+            "oldValue": 180,
+            "newValue": 200,
+            "old_value": 180,
+            "new_value": 200
+          },
+          "costPrice": {
+            "field": "costPrice",
+            "oldValue": 90,
+            "newValue": 95,
+            "old_value": 90,
+            "new_value": 95
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790310942930_226",
+      "timestamp": "2026-09-25T04:35:42.930Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_CREATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_1790310942918",
+      "details": "Created product \"Fresh Organic Dragon Fruit 1790310942912\" (SKU: SJH-FRU-FRE-43)",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "PRODUCT_CREATED",
+        "entity": "Products",
+        "entityId": "prod_1790310942918",
+        "details": "Created product \"Fresh Organic Dragon Fruit 1790310942912\" (SKU: SJH-FRU-FRE-43)",
+        "changes": {}
+      }
+    },
     {
       "id": "log_1790310568145_722",
       "timestamp": "2026-09-25T04:29:28.145Z",

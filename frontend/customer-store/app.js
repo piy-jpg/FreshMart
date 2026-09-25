@@ -2988,6 +2988,92 @@ function debouncedSyncStorefront() {
 }
 window.debouncedSyncStorefront = debouncedSyncStorefront;
 
+// ================= STORE LIVE / OFFLINE STATUS MANAGEMENT =================
+let currentStoreStatus = { isOpen: true, status: 'LIVE', message: '' };
+window.__freshmart_store_offline = false;
+
+async function fetchStoreStatus() {
+  try {
+    const res = await fetch('/api/store/status?_t=' + Date.now(), {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data && data.success) {
+      applyStoreStatusToUI(data);
+    }
+  } catch (err) {
+    console.warn('Store status fetch notice:', err);
+  }
+}
+window.fetchStoreStatus = fetchStoreStatus;
+
+function applyStoreStatusToUI(statusData) {
+  if (!statusData) return;
+  const isOffline = (statusData.status === 'OFFLINE' || statusData.isOpen === false);
+  currentStoreStatus = {
+    isOpen: !isOffline,
+    status: isOffline ? 'OFFLINE' : 'LIVE',
+    message: statusData.message || (isOffline ? "We're currently not accepting orders. Please check back soon." : "Store is open for orders.")
+  };
+  window.__freshmart_store_offline = isOffline;
+
+  // 1. Manage persistent top banner across pages
+  let banner = document.getElementById('store-offline-banner');
+  if (isOffline) {
+    const msg = currentStoreStatus.message || "We're currently not accepting orders. Please check back soon.";
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'store-offline-banner';
+      banner.className = 'sticky top-0 z-[100] w-full bg-gradient-to-r from-rose-900 via-rose-800 to-red-900 text-white border-b-2 border-rose-500/80 px-4 py-2.5 shadow-xl transition-all duration-300';
+      if (document.body && document.body.firstChild) {
+        document.body.insertBefore(banner, document.body.firstChild);
+      } else if (document.body) {
+        document.body.appendChild(banner);
+      }
+    }
+    if (banner) {
+      banner.innerHTML = `
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-3 text-xs sm:text-sm font-semibold">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-400 animate-ping shrink-0"></span>
+            <span class="text-rose-200 font-black tracking-wide uppercase text-xs sm:text-sm whitespace-nowrap">🔴 Store Temporarily Offline</span>
+            <span class="hidden sm:inline text-rose-100 font-normal">— ${msg}</span>
+          </div>
+          <div class="hidden md:flex items-center gap-1.5 text-[11px] bg-rose-950/60 border border-rose-400/30 px-2.5 py-1 rounded-full text-rose-200 shrink-0">
+            <span>Orders Paused</span>
+          </div>
+        </div>
+        <div class="sm:hidden text-[11px] text-rose-100 mt-1 pl-5">${msg}</div>
+      `;
+      banner.classList.remove('hidden');
+    }
+  } else {
+    if (banner) {
+      banner.classList.add('hidden');
+    }
+  }
+
+  // 2. Update Checkout button if on checkout page
+  const placeBtn = document.getElementById('place-order-btn') || document.getElementById('cta-pay-btn') || document.querySelector('button[onclick="submitCheckoutOrder()"]');
+  if (placeBtn) {
+    if (isOffline) {
+      placeBtn.disabled = true;
+      placeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      placeBtn.setAttribute('title', 'Store is temporarily offline. Orders are paused.');
+    } else {
+      placeBtn.disabled = false;
+      placeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      placeBtn.removeAttribute('title');
+    }
+  }
+}
+window.applyStoreStatusToUI = applyStoreStatusToUI;
+
 try { debouncedSyncStorefront(); } catch (e) {}
 
 // -------------------------------------------------------------
@@ -3182,6 +3268,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.lucide) window.lucide.createIcons();
   setupGlobalListeners();
   initGlobalOrderSSE();
+  fetchStoreStatus();
   syncStorefrontCatalogWithBackend();
 
   // Check URL params for direct live tracking (e.g. ?trackOrder=SJH10248)
@@ -3302,6 +3389,11 @@ function initGlobalOrderSSE() {
           }
           if (typeof syncStorefrontCatalogWithBackend === 'function') {
             syncStorefrontCatalogWithBackend();
+          }
+        } else if (data.type === 'STORE_STATUS_UPDATED') {
+          const statusData = data.payload;
+          if (statusData) {
+            applyStoreStatusToUI(statusData);
           }
         }
       } catch (e) {}
@@ -7692,6 +7784,14 @@ window.showToast = function(message, type = 'success') {
 
 // Checkout Navigation
 window.proceedToCheckout = function() {
+  if (window.__freshmart_store_offline) {
+    if (typeof showToast === 'function') {
+      showToast('🔴 Store is temporarily offline. Orders are currently paused.', 'error');
+    } else {
+      alert("🔴 Store Temporarily Offline: We're currently not accepting orders. Please check back soon.");
+    }
+    return;
+  }
   saveCartState(cart);
   saveStoredState('sabjihub_coupon', appliedCoupon);
   closeCartDrawer();

@@ -627,8 +627,87 @@
 
       await loadAddresses();
       renderCheckoutCart();
+      await checkStoreStatus();
+      initCheckoutSSE();
       if (window.lucide) window.lucide.createIcons();
     });
+
+    let isStoreOffline = false;
+    async function checkStoreStatus() {
+      try {
+        const res = await fetch('/api/store/status?_t=' + Date.now(), { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          applyCheckoutStoreStatus(data);
+        }
+      } catch (e) {}
+    }
+
+    function applyCheckoutStoreStatus(statusData) {
+      if (!statusData) return;
+      isStoreOffline = (statusData.status === 'OFFLINE' || statusData.isOpen === false);
+      window.__freshmart_store_offline = isStoreOffline;
+
+      let banner = document.getElementById('store-offline-banner');
+      if (isStoreOffline) {
+        const msg = statusData.message || "We're currently not accepting orders. Please check back soon.";
+        if (!banner) {
+          banner = document.createElement('div');
+          banner.id = 'store-offline-banner';
+          banner.className = 'sticky top-0 z-50 w-full bg-gradient-to-r from-rose-900 via-rose-800 to-red-900 text-white border-b-2 border-rose-500/80 px-4 py-2.5 shadow-xl transition-all duration-300';
+          if (document.body && document.body.firstChild) {
+            document.body.insertBefore(banner, document.body.firstChild);
+          } else if (document.body) {
+            document.body.appendChild(banner);
+          }
+        }
+        if (banner) {
+          banner.innerHTML = `
+            <div class="max-w-6xl mx-auto flex items-center justify-between gap-3 text-xs sm:text-sm font-semibold">
+              <div class="flex items-center gap-2.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-400 animate-ping shrink-0"></span>
+                <span class="text-rose-200 font-black tracking-wide uppercase text-xs sm:text-sm whitespace-nowrap">🔴 Store Temporarily Offline</span>
+                <span class="hidden sm:inline text-rose-100 font-normal">— ${msg}</span>
+              </div>
+              <div class="text-[11px] bg-rose-950/60 border border-rose-400/30 px-2.5 py-1 rounded-full text-rose-200 shrink-0">
+                <span>Orders Paused</span>
+              </div>
+            </div>
+            <div class="sm:hidden text-[11px] text-rose-100 mt-1 pl-5">${msg}</div>
+          `;
+          banner.classList.remove('hidden');
+        }
+      } else {
+        if (banner) banner.classList.add('hidden');
+      }
+
+      const placeBtn = document.getElementById('place-order-btn');
+      if (placeBtn) {
+        if (isStoreOffline) {
+          placeBtn.disabled = true;
+          placeBtn.classList.add('opacity-50', 'cursor-not-allowed', 'bg-stone-500');
+          placeBtn.classList.remove('bg-emerald-800', 'hover:bg-emerald-900');
+        } else {
+          placeBtn.disabled = false;
+          placeBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-stone-500');
+          placeBtn.classList.add('bg-emerald-800', 'hover:bg-emerald-900');
+        }
+      }
+    }
+
+    function initCheckoutSSE() {
+      try {
+        const sse = new EventSource('/api/events');
+        sse.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'STORE_STATUS_UPDATED') {
+              applyCheckoutStoreStatus(data.payload);
+            }
+          } catch (e) {}
+        };
+      } catch (e) {}
+    }
 
     async function loadAddresses() {
       try {
@@ -971,6 +1050,11 @@
     async function submitOrder() {
       const btn = document.getElementById('place-order-btn');
       if (!btn) return;
+
+      if (isStoreOffline || window.__freshmart_store_offline) {
+        showCheckoutToast("🔴 Store is temporarily offline. We're not accepting orders at this time.", 'error');
+        return;
+      }
 
       const items = Object.values(checkoutCart || {});
       if (!items.length) {

@@ -9862,11 +9862,73 @@ class Database {
       }
     });
     try {
-      const settingsRes = await this.postgres.query("SELECT value FROM freshmart_settings WHERE key = 'global_settings' LIMIT 1");
+      const settingsRes = await this.postgres.query("SELECT key, value FROM freshmart_settings WHERE key IN ('global_settings', 'store_status')");
       if (settingsRes && settingsRes.rows && settingsRes.rows.length > 0) {
-        this.data.settings = settingsRes.rows[0].value;
+        for (const row of settingsRes.rows) {
+          if (row.key === 'global_settings') {
+            this.data.settings = row.value;
+          } else if (row.key === 'store_status') {
+            this._storeStatus = row.value;
+          }
+        }
       }
     } catch (e) {}
+  }
+
+  getStoreStatus() {
+    if (this._storeStatus && typeof this._storeStatus === 'object') {
+      const status = (this._storeStatus.status || (this._storeStatus.isOpen === false ? 'OFFLINE' : 'LIVE')).toUpperCase();
+      const isOpen = status !== 'OFFLINE' && this._storeStatus.isOpen !== false;
+      return {
+        success: true,
+        status,
+        isOpen,
+        message: this._storeStatus.message || (isOpen ? 'Store is open and accepting orders.' : "We're currently not accepting orders. Please check back soon."),
+        updatedAt: this._storeStatus.updatedAt || new Date().toISOString(),
+        updatedBy: this._storeStatus.updatedBy || 'Owner'
+      };
+    }
+    const globalStatus = this.data.settings?.storeStatus || (this.data.settings?.isStoreOpen === false ? 'OFFLINE' : 'LIVE');
+    const isLive = String(globalStatus).toUpperCase() !== 'OFFLINE';
+    return {
+      success: true,
+      status: isLive ? 'LIVE' : 'OFFLINE',
+      isOpen: isLive,
+      message: isLive ? 'Store is open and accepting orders.' : "We're currently not accepting orders. Please check back soon.",
+      updatedAt: new Date().toISOString(),
+      updatedBy: 'System Default'
+    };
+  }
+
+  async setStoreStatusAsync(newStatus, operator = 'Owner') {
+    const norm = String(newStatus).toUpperCase().trim();
+    const isLive = norm === 'LIVE' || norm === 'TRUE' || norm === 'OPEN';
+    const status = isLive ? 'LIVE' : 'OFFLINE';
+    const statusObj = {
+      status,
+      isOpen: isLive,
+      message: isLive 
+        ? 'Store is open and accepting orders.' 
+        : "We're currently not accepting orders. Please check back soon.",
+      updatedAt: new Date().toISOString(),
+      updatedBy: operator || 'Owner'
+    };
+
+    this._storeStatus = statusObj;
+    if (!this.data.settings) this.data.settings = {};
+    this.data.settings.storeStatus = status;
+    this.data.settings.isStoreOpen = isLive;
+
+    if (this.postgres && this.postgres.isAvailable()) {
+      try {
+        await this.postgres.setSetting('store_status', statusObj);
+        await this.postgres.setSetting('global_settings', this.data.settings);
+      } catch (err) {
+        console.warn('Error saving store_status to PostgreSQL:', err.message);
+      }
+    }
+    this.save();
+    return statusObj;
   }
 
   reloadIfModified() {

@@ -2290,6 +2290,51 @@ const server = http.createServer(async (req, res) => {
     }
 
     // ----------------------------------------------------
+    // Store Status (Live / Offline) Endpoints
+    // ----------------------------------------------------
+    if ((pathname === '/api/store/status' || pathname === '/api/store-status' || pathname === '/api/owner/store/status') && method === 'GET') {
+      const storeStatus = db.getStoreStatus ? db.getStoreStatus() : { success: true, isOpen: true, status: 'LIVE' };
+      return sendJson(res, 200, storeStatus);
+    }
+
+    if ((pathname === '/api/owner/store/status' || pathname === '/api/store/status') && (method === 'POST' || method === 'PUT')) {
+      const owner = requireOwner(req, res);
+      if (!owner) return;
+
+      const body = await parseBody(req);
+      const requestedStatus = body.status || (body.isOpen === false ? 'OFFLINE' : (body.isOpen === true ? 'LIVE' : 'LIVE'));
+      const oldStatusObj = db.getStoreStatus ? db.getStoreStatus() : { status: 'LIVE' };
+      const oldStatus = oldStatusObj.status || 'LIVE';
+      const normNewStatus = String(requestedStatus).toUpperCase().trim() === 'OFFLINE' ? 'OFFLINE' : 'LIVE';
+
+      const updatedStatus = await db.setStoreStatusAsync(normNewStatus, owner.name || owner.email || 'Owner');
+
+      // Record in freshmart_audit_logs
+      await db.logActivityAsync(
+        owner.name || owner.email || 'Owner',
+        'STORE_STATUS',
+        'Settings',
+        'STORE_STATUS',
+        `Changed store status from ${oldStatus} to ${normNewStatus}`,
+        {
+          oldStatus,
+          newStatus: normNewStatus,
+          operator: owner.name || owner.email || 'Owner',
+          timestamp: new Date().toISOString()
+        }
+      );
+
+      // Broadcast real-time SSE event to all connected clients
+      broadcastEvent('STORE_STATUS_UPDATED', updatedStatus);
+      broadcastEvent('STORE_STATUS', updatedStatus);
+
+      return sendJson(res, 200, {
+        success: true,
+        ...updatedStatus
+      });
+    }
+
+    // ----------------------------------------------------
     // Product Image Upload & Curated Image Library Endpoints
     // ----------------------------------------------------
     if ((pathname === '/api/upload/image' || pathname === '/api/owner/upload' || pathname === '/api/upload') && method === 'POST') {
@@ -2704,6 +2749,20 @@ const server = http.createServer(async (req, res) => {
     if (pathname === '/api/orders' && method === 'POST') {
       const auth = extractUserSession(req);
       const currentUser = auth?.user ? (db.getById('users', auth.user.id) || auth.user) : null;
+      
+      // Enforce Store Offline Check (Ordering strictly blocked)
+      const storeStatus = db.getStoreStatus ? db.getStoreStatus() : { isOpen: true, status: 'LIVE' };
+      if (!storeStatus.isOpen || storeStatus.status === 'OFFLINE') {
+        return sendJson(res, 403, {
+          success: false,
+          error: "Store is currently OFFLINE. We are not accepting orders at this time.",
+          message: storeStatus.message || "Store Temporarily Offline: We're currently not accepting orders. Please check back soon.",
+          code: 'STORE_OFFLINE',
+          isOpen: false,
+          status: 'OFFLINE'
+        });
+      }
+
       if (db.data.settings?.maintenanceMode) {
         if (!currentUser || (currentUser.role !== 'OWNER' && currentUser.role !== 'ADMIN')) {
           return sendJson(res, 503, { error: 'FreshMart is currently in maintenance mode. Retail checkout is temporarily paused.' });

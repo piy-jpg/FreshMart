@@ -430,6 +430,29 @@ class PostgresAdapter {
     const res = await this.query('DELETE FROM freshmart_kv WHERE collection = $1 AND id = $2', [collection, String(id)]);
     return res.rowCount > 0;
   }
+
+  async getSetting(key) {
+    try {
+      const res = await this.query('SELECT value FROM freshmart_settings WHERE key = $1 LIMIT 1', [key]);
+      return (res && res.rows && res.rows.length > 0) ? res.rows[0].value : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async setSetting(key, value) {
+    try {
+      await this.query(`
+        INSERT INTO freshmart_settings (key, value)
+        VALUES ($1, $2)
+        ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = NOW()
+      `, [key, JSON.stringify(value)]);
+      return value;
+    } catch (e) {
+      console.warn(`PostgreSQL setSetting(${key}) warning:`, e.message);
+      return value;
+    }
+  }
 }
 
 module.exports = PostgresAdapter;
