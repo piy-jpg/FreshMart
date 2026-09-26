@@ -2875,10 +2875,13 @@ function applyProductArrayToStorefront(products, triggerRerender = true) {
 
     const mapped = mapDbProductToStorefront(p);
     const cat = (p.category || '').toLowerCase();
+
     if (cat.includes('fruit')) {
       newFruits.push(mapped);
     } else if (cat.includes('groc') || cat.includes('pant') || cat.includes('staple') || cat.includes('oil') || cat.includes('dal') || cat.includes('atta') || cat.includes('rice') || cat.includes('flour') || cat.includes('spice')) {
       newGrocery.push(mapped);
+    } else if (cat.includes('veg')) {
+      newVeg.push(mapped);
     } else {
       newVeg.push(mapped);
     }
@@ -3022,16 +3025,13 @@ async function syncStorefrontCategoriesWithBackend() {
       sessionStorage.setItem('freshmart_category_counts', JSON.stringify(window.__categoryCountsMap));
     } catch(e) {}
 
-    const activeCats = categories.filter(c => (c.status || 'ACTIVE') === 'ACTIVE');
-
-    // Keep Desktop & Mobile Navigation Badges strictly synced with Neon PostgreSQL counts
     const vegCat = activeCats.find(c => (c.slug || '').toLowerCase() === 'vegetables' || (c.name || '').toLowerCase().includes('veg'));
     const fruitCat = activeCats.find(c => (c.slug || '').toLowerCase() === 'fruits' || (c.name || '').toLowerCase().includes('fruit'));
     const grocCat = activeCats.find(c => (c.slug || '').toLowerCase() === 'grocery' || (c.name || '').toLowerCase().includes('groc') || (c.name || '').toLowerCase().includes('pant'));
 
-    const vegCount = vegCat ? (vegCat.activeProductCount ?? vegCat.productCount ?? 54) : 54;
-    const fruitCount = fruitCat ? (fruitCat.activeProductCount ?? fruitCat.productCount ?? 26) : 26;
-    const grocCount = grocCat ? (grocCat.activeProductCount ?? grocCat.productCount ?? 21) : 21;
+    const vegCount = vegCat ? (vegCat.activeProductCount ?? vegCat.productCount ?? 0) : (window.__categoryCountsMap?.['vegetables'] ?? 0);
+    const fruitCount = fruitCat ? (fruitCat.activeProductCount ?? fruitCat.productCount ?? 0) : (window.__categoryCountsMap?.['fruits'] ?? 0);
+    const grocCount = grocCat ? (grocCat.activeProductCount ?? grocCat.productCount ?? 0) : (window.__categoryCountsMap?.['grocery'] ?? 0);
 
     document.querySelectorAll('a[href*="vegetables.html"], a[href="/vegetables"]').forEach(a => {
       const badge = a.querySelector('span:last-child') || a.querySelector('.rounded-full') || a.querySelector('span.rounded-full');
@@ -3338,26 +3338,28 @@ window.addEventListener('storage', (e) => {
 // REAL-TIME STOREFRONT SUB-NAVBARS & CATEGORY BADGE SYNCHRONIZATION
 // -------------------------------------------------------------
 function updateGlobalNavBadges() {
-  const isItemActive = (v) => {
+  const isItemListed = (v) => {
     if (!v) return false;
     if (typeof isProductSuspended === 'function' && isProductSuspended(v.id)) return false;
     if (v.storefrontId && typeof isProductSuspended === 'function' && isProductSuspended(v.storefrontId)) return false;
     const s = (v.status || 'ACTIVE').toUpperCase();
-    if (['SUSPENDED', 'INACTIVE', 'DRAFT', 'DELETED', 'ARCHIVED', 'UNPUBLISHED'].includes(s)) return false;
+    if (['SUSPENDED', 'INACTIVE', 'DRAFT', 'DELETED', 'ARCHIVED', 'UNPUBLISHED', 'OUT_OF_STOCK'].includes(s)) return false;
+    if (v.inStock === false) return false;
+    if (v.stock !== undefined && v.stock <= 0 && v.stockCount !== undefined && v.stockCount <= 0) return false;
     return true;
   };
 
   const vegCount = (window.__categoryCountsMap && window.__categoryCountsMap['vegetables'] !== undefined)
     ? window.__categoryCountsMap['vegetables']
-    : ((typeof allVegetablesData !== 'undefined' && Array.isArray(allVegetablesData)) ? allVegetablesData.filter(isItemActive).length : 52);
+    : ((typeof allVegetablesData !== 'undefined' && Array.isArray(allVegetablesData)) ? allVegetablesData.filter(isItemListed).length : 0);
 
   const fruitCount = (window.__categoryCountsMap && window.__categoryCountsMap['fruits'] !== undefined)
     ? window.__categoryCountsMap['fruits']
-    : ((typeof allFruitsData !== 'undefined' && Array.isArray(allFruitsData)) ? allFruitsData.filter(isItemActive).length : 26);
+    : ((typeof allFruitsData !== 'undefined' && Array.isArray(allFruitsData)) ? allFruitsData.filter(isItemListed).length : 0);
 
   const groceryCount = (window.__categoryCountsMap && window.__categoryCountsMap['grocery'] !== undefined)
     ? window.__categoryCountsMap['grocery']
-    : ((typeof allGroceryData !== 'undefined' && Array.isArray(allGroceryData)) ? allGroceryData.filter(isItemActive).length : 21);
+    : ((typeof allGroceryData !== 'undefined' && Array.isArray(allGroceryData)) ? allGroceryData.filter(isItemListed).length : 0);
 
   // Update navbar category links & sidebar links for Vegetables
   document.querySelectorAll('a[href*="vegetables.html"], a[href="/vegetables"]').forEach(a => {
@@ -5385,28 +5387,30 @@ function initVegetablesPage() {
 }
 
 function updateCategoryCounts() {
-  const isItemActive = (v) => {
+  const isItemListed = (v) => {
     if (!v) return false;
     if (typeof isProductSuspended === 'function' && isProductSuspended(v.id)) return false;
     if (v.storefrontId && typeof isProductSuspended === 'function' && isProductSuspended(v.storefrontId)) return false;
     const s = (v.status || 'ACTIVE').toUpperCase();
-    if (['SUSPENDED', 'INACTIVE', 'DRAFT', 'DELETED', 'ARCHIVED', 'UNPUBLISHED'].includes(s)) return false;
+    if (['SUSPENDED', 'INACTIVE', 'DRAFT', 'DELETED', 'ARCHIVED', 'UNPUBLISHED', 'OUT_OF_STOCK'].includes(s)) return false;
+    if (v.inStock === false) return false;
+    if (v.stock !== undefined && v.stock <= 0 && v.stockCount !== undefined && v.stockCount <= 0) return false;
     return true;
   };
 
   const activeVeg = (typeof allVegetablesData !== 'undefined' && Array.isArray(allVegetablesData)) 
-    ? allVegetablesData.filter(isItemActive) 
+    ? allVegetablesData.filter(isItemListed) 
     : [];
   const activeCombos = (typeof combosData !== 'undefined' && Array.isArray(combosData)) 
-    ? combosData.filter(isItemActive) 
+    ? combosData.filter(isItemListed) 
     : [];
 
-  const vegDbCount = (window.__categoryCountsMap && window.__categoryCountsMap['vegetables'] !== undefined)
+  const vegRealCount = (window.__categoryCountsMap && window.__categoryCountsMap['vegetables'] !== undefined)
     ? window.__categoryCountsMap['vegetables']
-    : (activeVeg.length || 52);
+    : (activeVeg.length || 0);
 
   const counts = {
-    all: vegDbCount,
+    all: vegRealCount,
     leafy: activeVeg.filter(v => (v.categories && v.categories.includes('leafy')) || (v.name && /palak|methi|spinach|coriander|mint|lettuce|curry/i.test(v.name))).length,
     root: activeVeg.filter(v => (v.categories && v.categories.includes('root')) || (v.name && /potato|onion|carrot|radish|ginger|garlic|beetroot/i.test(v.name))).length,
     herbs: activeVeg.filter(v => (v.categories && v.categories.includes('herbs')) || (v.name && /coriander|mint|curry|chilli|ginger|garlic|lemongrass|tulsi/i.test(v.name))).length,
@@ -5649,10 +5653,8 @@ function applyFiltersAndRender() {
   if (!container) return;
 
   let filtered = allVegetablesData.filter(v => 
-    (v.status === 'ACTIVE' || v.status === 'LOW_STOCK' || !v.status) &&
-    v.status !== 'SUSPENDED' && v.status !== 'INACTIVE' && v.status !== 'DRAFT' && v.status !== 'DELETED' && v.status !== 'OUT_OF_STOCK' &&
-    (v.stock === undefined || v.stock > 0 || (v.stockCount !== undefined && v.stockCount > 0)) &&
-    !isProductSuspended(v.id)
+    !isProductSuspended(v.id) &&
+    v.status !== 'SUSPENDED' && v.status !== 'INACTIVE' && v.status !== 'DRAFT' && v.status !== 'DELETED'
   );
 
   if (filterState.category !== 'all') {
@@ -5675,21 +5677,26 @@ function applyFiltersAndRender() {
   }
 
   if (filterState.onlyInStock) {
-    filtered = filtered.filter(v => v.inStock === true);
+    filtered = filtered.filter(v => 
+      v.inStock !== false && 
+      v.status !== 'OUT_OF_STOCK' && 
+      (v.stock === undefined || v.stock > 0) &&
+      (v.stockCount === undefined || v.stockCount > 0)
+    );
   }
 
   if (filterState.onlyOffers) {
     filtered = filtered.filter(v => {
-      const w = v.weights[v.selectedWeightIndex];
-      return Boolean(w.discount && w.discount.length > 0);
+      const w = v.weights && v.weights[v.selectedWeightIndex];
+      return Boolean(w && w.discount && w.discount.length > 0);
     });
   }
 
   if (filterState.searchQuery) {
     const q = filterState.searchQuery.toLowerCase();
     filtered = filtered.filter(v => 
-      v.name.toLowerCase().includes(q) ||
-      v.hindiName.toLowerCase().includes(q) ||
+      (v.name && v.name.toLowerCase().includes(q)) ||
+      (v.hindiName && v.hindiName.toLowerCase().includes(q)) ||
       (v.description && v.description.toLowerCase().includes(q))
     );
   }
@@ -5697,15 +5704,15 @@ function applyFiltersAndRender() {
   switch (filterState.sortBy) {
     case 'price-low-high':
       filtered.sort((a, b) => {
-        const priceA = a.weights[a.selectedWeightIndex].price;
-        const priceB = b.weights[b.selectedWeightIndex].price;
+        const priceA = (a.weights && a.weights[a.selectedWeightIndex]) ? a.weights[a.selectedWeightIndex].price : (a.price || 0);
+        const priceB = (b.weights && b.weights[b.selectedWeightIndex]) ? b.weights[b.selectedWeightIndex].price : (b.price || 0);
         return priceA - priceB || a.name.localeCompare(b.name);
       });
       break;
     case 'price-high-low':
       filtered.sort((a, b) => {
-        const priceA = a.weights[a.selectedWeightIndex].price;
-        const priceB = b.weights[b.selectedWeightIndex].price;
+        const priceA = (a.weights && a.weights[a.selectedWeightIndex]) ? a.weights[a.selectedWeightIndex].price : (a.price || 0);
+        const priceB = (b.weights && b.weights[b.selectedWeightIndex]) ? b.weights[b.selectedWeightIndex].price : (b.price || 0);
         return priceB - priceA || a.name.localeCompare(b.name);
       });
       break;
@@ -5799,8 +5806,9 @@ function applyFiltersAndRender() {
   }
 
   container.innerHTML = filtered.map(product => {
-    const activeWeight = product.weights[product.selectedWeightIndex];
-    const cartKey = `${product.id}-${product.selectedWeightIndex}`;
+    const isOut = product.status === 'OUT_OF_STOCK' || product.inStock === false || (product.stock !== undefined && product.stock <= 0 && product.stockCount !== undefined && product.stockCount <= 0);
+    const activeWeight = (product.weights && product.weights[product.selectedWeightIndex || 0]) || { price: product.price || 0, originalPrice: product.originalPrice || product.price || 0, label: '500g', discount: '' };
+    const cartKey = `${product.id}-${product.selectedWeightIndex || 0}`;
     const inCartQty = cart[cartKey] ? cart[cartKey].qty : 0;
     const isWishlisted = wishlist.includes(product.id);
     const detailLink = `product-details.html?id=${encodeURIComponent(product.id)}`;
@@ -5810,12 +5818,14 @@ function applyFiltersAndRender() {
         
         <div class="flex items-center justify-between gap-1.5 mb-2.5">
           <span class="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold ${
-            product.badgeType === 'bestseller' 
-              ? 'bg-amber-100 text-amber-900 border border-amber-300/60' 
-              : 'badge-fresh'
+            isOut
+              ? 'bg-red-50 text-red-700 border border-red-200'
+              : (product.badgeType === 'bestseller' 
+                ? 'bg-amber-100 text-amber-900 border border-amber-300/60' 
+                : 'badge-fresh')
           }">
-            <span class="w-1.5 h-1.5 rounded-full ${product.badgeType === 'bestseller' ? 'bg-amber-500' : 'bg-emerald-600'} animate-pulse"></span>
-            ${product.badge}
+            <span class="w-1.5 h-1.5 rounded-full ${isOut ? 'bg-red-500' : (product.badgeType === 'bestseller' ? 'bg-amber-500' : 'bg-emerald-600')} animate-pulse"></span>
+            ${isOut ? 'Out of Stock' : (product.badge || 'Fresh Harvest')}
           </span>
 
           <button 
@@ -5831,20 +5841,25 @@ function applyFiltersAndRender() {
 
         <a href="${detailLink}" class="relative w-full h-36 sm:h-48 rounded-2xl overflow-hidden bg-stone-50 mb-3 img-zoom-container flex items-center justify-center block">
           <img 
-            src="${product.image}" 
+            src="${product.image || 'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=400&q=80'}" 
             alt="${product.name}" 
             loading="lazy"
-            class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+            class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ${isOut ? 'grayscale-[40%]' : ''}"
+            onerror="this.src='https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=400&q=80'"
           />
           <div class="absolute bottom-1.5 left-1.5 bg-black/45 backdrop-blur-xs px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-medium text-white/90">
-            🌱 ${product.origin.split(',')[0]}
+            🌱 ${product.origin ? product.origin.split(',')[0] : 'Farm Direct'}
           </div>
 
-          ${activeWeight.discount ? `
+          ${isOut ? `
+            <div class="absolute inset-0 bg-stone-900/35 backdrop-blur-[1px] flex items-center justify-center pointer-events-none">
+              <span class="bg-red-600/95 text-white font-black text-[10px] sm:text-xs px-2.5 py-1 rounded-full uppercase tracking-wider shadow-md border border-white/20">Out of Stock</span>
+            </div>
+          ` : (activeWeight.discount ? `
             <div class="absolute top-2 right-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-[9px] sm:text-[10px] uppercase px-2 py-0.5 rounded-full shadow-sm">
               ${activeWeight.discount}
             </div>
-          ` : ''}
+          ` : '')}
 
           <div class="quick-actions-bar absolute inset-x-2 bottom-8 hidden sm:flex justify-center">
             <button 
@@ -5865,16 +5880,16 @@ function applyFiltersAndRender() {
           </a>
           
           <div class="flex items-center justify-between mb-1.5">
-            <span class="text-[11px] text-emerald-700 font-semibold">${product.hindiName}</span>
+            <span class="text-[11px] text-emerald-700 font-semibold">${product.hindiName || ''}</span>
             <div class="flex items-center gap-1 text-[11px] font-bold text-emerald-900 bg-emerald-50 px-1.5 py-0.5 rounded">
               <span class="text-amber-500">★</span>
-              <span>${product.rating}</span>
-              <span class="text-stone-400 font-normal">(${product.reviewsCount})</span>
+              <span>${product.rating || '4.8'}</span>
+              <span class="text-stone-400 font-normal">(${product.reviewsCount || 100})</span>
             </div>
           </div>
 
           <p class="text-[11px] text-stone-500 line-clamp-1 mb-2.5">
-            ${product.description}
+            ${product.description || ''}
           </p>
 
           <div class="flex items-center gap-2 text-[10px] text-emerald-800 font-medium mb-3">
@@ -5884,11 +5899,11 @@ function applyFiltersAndRender() {
 
           <div class="mb-3">
             <div class="flex flex-wrap gap-1">
-              ${product.weights.map((w, idx) => `
+              ${(product.weights || [{ label: '500g', price: product.price || 0 }]).map((w, idx) => `
                 <button 
                   onclick="selectVegWeight('${product.id}', ${idx})" 
                   class="weight-chip px-2 py-0.5 rounded-lg text-[10px] sm:text-xs font-semibold ${
-                    idx === product.selectedWeightIndex ? 'active' : 'bg-stone-50 text-stone-700'
+                    idx === (product.selectedWeightIndex || 0) ? 'active' : 'bg-stone-50 text-stone-700'
                   }"
                 >
                   ${w.label}
@@ -5908,9 +5923,16 @@ function applyFiltersAndRender() {
           </div>
 
           <div class="min-w-[75px] sm:min-w-[90px] flex justify-end">
-            ${inCartQty === 0 ? `
+            ${isOut ? `
               <button 
-                onclick="addToCart('${product.id}', ${product.selectedWeightIndex})" 
+                disabled 
+                class="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl font-bold text-[10px] sm:text-xs bg-stone-100 text-stone-400 cursor-not-allowed border border-stone-200"
+              >
+                <span>Out of Stock</span>
+              </button>
+            ` : (inCartQty === 0 ? `
+              <button 
+                onclick="addToCart('${product.id}', ${product.selectedWeightIndex || 0})" 
                 class="btn-primary flex items-center justify-center gap-1 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl font-bold text-xs shadow-sm shadow-emerald-700/20 active:scale-95"
               >
                 <span>ADD</span>
@@ -5934,7 +5956,7 @@ function applyFiltersAndRender() {
                   +
                 </button>
               </div>
-            `}
+            `)}
           </div>
         </div>
 
@@ -6012,7 +6034,7 @@ function updateFruitCategoryCounts() {
 
   const fruitDbCount = (window.__categoryCountsMap && window.__categoryCountsMap['fruits'] !== undefined)
     ? window.__categoryCountsMap['fruits']
-    : (activeFruits.length || 26);
+    : (activeFruits.length || 0);
 
   const counts = {
     all: fruitDbCount,
@@ -6398,7 +6420,7 @@ function updateGroceryCategoryCounts() {
 
   const groceryDbCount = (window.__categoryCountsMap && window.__categoryCountsMap['grocery'] !== undefined)
     ? window.__categoryCountsMap['grocery']
-    : (activeGrocery.length || 21);
+    : (activeGrocery.length || 0);
 
   const counts = {
     all: groceryDbCount,

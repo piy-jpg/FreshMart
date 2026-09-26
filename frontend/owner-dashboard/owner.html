@@ -4012,6 +4012,8 @@
 
       // Lazy refresh tab data when activated
       if (tabId === 'staff') loadStaff();
+      else if (tabId === 'products') loadProducts();
+      else if (tabId === 'inventory') loadInventory();
       else if (tabId === 'categories') loadCategories();
       else if (tabId === 'roles') loadRoles();
       else if (tabId === 'reviews') loadReviews();
@@ -5065,19 +5067,23 @@
 
     async function loadProducts() {
       try {
-        const res = await fetch('/api/owner/products?_t=' + Date.now(), { 
+        let res = await fetch('/api/owner/products?_t=' + Date.now(), { 
           cache: 'no-store', 
           credentials: 'include' 
         });
+        let backendProducts = null;
         if (res.ok) {
-          const backendProducts = await res.json();
-          if (Array.isArray(backendProducts)) {
-            state.products = backendProducts;
-            applyProductsFilter();
+          backendProducts = await res.json();
+        }
+        if (!backendProducts || !Array.isArray(backendProducts) || backendProducts.length === 0) {
+          const pubRes = await fetch('/api/products?_t=' + Date.now(), { cache: 'no-store' });
+          if (pubRes.ok) {
+            backendProducts = await pubRes.json();
           }
-
-        } else {
-          console.error('Failed to load products from database');
+        }
+        if (Array.isArray(backendProducts) && backendProducts.length > 0) {
+          state.products = backendProducts;
+          applyProductsFilter();
         }
       } catch (err) {
         console.error('loadProducts error:', err);

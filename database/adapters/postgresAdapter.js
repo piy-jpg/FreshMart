@@ -602,6 +602,22 @@ class PostgresAdapter {
     return pool.query(text, safeParams);
   }
 
+  _getFallbackData(collection) {
+    try {
+      if (this.dbInstance && this.dbInstance.data && Array.isArray(this.dbInstance.data[collection]) && this.dbInstance.data[collection].length > 0) {
+        return this.dbInstance.data[collection];
+      }
+      const dbPath = path.join(__dirname, '..', '..', 'data', 'db.json');
+      if (fs.existsSync(dbPath)) {
+        const parsed = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+        if (Array.isArray(parsed[collection]) && parsed[collection].length > 0) {
+          return parsed[collection];
+        }
+      }
+    } catch (e) {}
+    return [];
+  }
+
   // Collection to Table Name mapping
   getTableName(collection) {
     const mapping = {
@@ -622,30 +638,35 @@ class PostgresAdapter {
 
   async getAll(collection) {
     const table = this.getTableName(collection);
-    if (table) {
-      if (collection === 'audit_logs' || collection === 'activity_logs') {
-        const res = await this.query(`SELECT data FROM ${table} ORDER BY timestamp DESC LIMIT 500`);
+    try {
+      if (table) {
+        if (collection === 'audit_logs' || collection === 'activity_logs') {
+          const res = await this.query(`SELECT data FROM ${table} ORDER BY timestamp DESC LIMIT 500`);
+          return res.rows.map(r => r.data);
+        }
+        if (collection === 'reviews') {
+          const res = await this.query(`SELECT data FROM ${table} ORDER BY created_at DESC`);
+          return res.rows.map(r => r.data);
+        }
+        if (collection === 'orders') {
+          const res = await this.query(`
+            SELECT data FROM ${table} 
+            WHERE id NOT IN ('SJH10248', 'SJH10249', 'SJH10250', 'SJH10251')
+              AND (order_id IS NULL OR order_id NOT IN ('SJH10248', 'SJH10249', 'SJH10250', 'SJH10251'))
+              AND (customer_name IS NULL OR customer_name != 'Rahul Sharma' OR customer_phone != '+91 98450 12345')
+            ORDER BY created_at DESC
+          `);
+          return res.rows.map(r => r.data);
+        }
+        const res = await this.query(`SELECT data FROM ${table}`);
         return res.rows.map(r => r.data);
       }
-      if (collection === 'reviews') {
-        const res = await this.query(`SELECT data FROM ${table} ORDER BY created_at DESC`);
-        return res.rows.map(r => r.data);
-      }
-      if (collection === 'orders') {
-        const res = await this.query(`
-          SELECT data FROM ${table} 
-          WHERE id NOT IN ('SJH10248', 'SJH10249', 'SJH10250', 'SJH10251')
-            AND (order_id IS NULL OR order_id NOT IN ('SJH10248', 'SJH10249', 'SJH10250', 'SJH10251'))
-            AND (customer_name IS NULL OR customer_name != 'Rahul Sharma' OR customer_phone != '+91 98450 12345')
-          ORDER BY created_at DESC
-        `);
-        return res.rows.map(r => r.data);
-      }
-      const res = await this.query(`SELECT data FROM ${table}`);
+      const res = await this.query('SELECT data FROM freshmart_kv WHERE collection = $1', [collection]);
       return res.rows.map(r => r.data);
+    } catch (err) {
+      console.warn(`getAll(${collection}) error, falling back to local storage:`, err.message);
+      return this._getFallbackData(collection);
     }
-    const res = await this.query('SELECT data FROM freshmart_kv WHERE collection = $1', [collection]);
-    return res.rows.map(r => r.data);
   }
 
   async getById(collection, id) {
@@ -1697,8 +1718,47 @@ class PostgresAdapter {
 
       return list;
     } catch (err) {
-      console.warn('getAllProductsAsync error:', err.message);
-      return [];
+      console.warn('getAllProductsAsync DB query error, serving from resilient cache/fallback:', err.message);
+      let list = this._getFallbackData('products').map(p => ({
+        ...p,
+        sellingPrice: p.sellingPrice !== undefined ? p.sellingPrice : (p.price || 0),
+        originalPrice: p.originalPrice !== undefined ? p.originalPrice : (p.mrp || p.price || 0),
+        stock: p.stock !== undefined ? p.stock : 50,
+        availableStock: p.availableStock !== undefined ? p.availableStock : (p.stock !== undefined ? p.stock : 50),
+        status: p.status || ((p.stock || 0) <= 0 ? 'OUT_OF_STOCK' : 'ACTIVE')
+      }));
+
+      if (onlyActive) {
+        list = list.filter(p => p.status === 'ACTIVE' || (p.status !== 'SUSPENDED' && p.status !== 'DELETED'));
+      } else if (!includeSuspended && status) {
+        if (status === 'ACTIVE') {
+          list = list.filter(p => p.status === 'ACTIVE' || (p.status !== 'SUSPENDED' && p.status !== 'DELETED'));
+        } else if (status !== 'ALL') {
+          list = list.filter(p => p.status === status);
+        }
+      }
+
+      if (category && category !== 'ALL' && category !== 'all') {
+        const catLower = category.toLowerCase();
+        list = list.filter(p => {
+          const pCat = (p.category || '').toLowerCase();
+          const pSlug = (p.categorySlug || p.category_slug || '').toLowerCase();
+          const pId = (p.categoryId || p.category_id || '').toLowerCase();
+          return pCat === catLower || pSlug === catLower || pId === catLower || pCat.includes(catLower);
+        });
+      }
+
+      if (search) {
+        const q = search.toLowerCase();
+        list = list.filter(p => 
+          (p.name || '').toLowerCase().includes(q) || 
+          (p.sku || '').toLowerCase().includes(q) || 
+          (p.hindiName || '').toLowerCase().includes(q) ||
+          (p.category || '').toLowerCase().includes(q)
+        );
+      }
+
+      return list;
     }
   }
 
@@ -1863,8 +1923,39 @@ class PostgresAdapter {
         };
       });
     } catch (err) {
-      console.warn('getInventoryLedgerAsync query error:', err.message);
-      return [];
+      console.warn('getInventoryLedgerAsync query error, serving from resilient fallback:', err.message);
+      const localProds = this._getFallbackData('products');
+      return localProds.map(p => {
+        const physicalStock = Number(p.physicalStock !== undefined ? p.physicalStock : (p.stock !== undefined ? p.stock : 50));
+        const manualReserved = Number(p.manualReservedStock || 0);
+        const customerReserved = Number(p.customerReservedStock || 0);
+        const reservedStock = manualReserved + customerReserved;
+        const availableStock = Math.max(0, physicalStock - reservedStock);
+        const lowLimit = Number(p.lowStockThreshold || p.lowStockLimit || 15);
+        let computedStatus = p.status || 'ACTIVE';
+        if (computedStatus !== 'SUSPENDED') {
+          if (availableStock === 0) computedStatus = 'OUT_OF_STOCK';
+          else if (availableStock <= lowLimit) computedStatus = 'LOW_STOCK';
+          else computedStatus = 'ACTIVE';
+        }
+        return {
+          ...p,
+          id: p.id,
+          name: p.name,
+          sku: p.sku || `SKU-${p.id}`,
+          category: p.category || 'Fresh Produce',
+          currentStock: physicalStock,
+          physicalStock,
+          stock: availableStock,
+          availableStock,
+          customerReserved,
+          manualReserved,
+          reservedStock,
+          lowStockThreshold: lowLimit,
+          status: computedStatus,
+          lastUpdated: new Date().toISOString()
+        };
+      });
     }
   }
 
@@ -2324,8 +2415,50 @@ class PostgresAdapter {
         };
       });
     } catch (err) {
-      console.error('getAllCategoriesWithCountsAsync error:', err.message);
-      return [];
+      console.warn('getAllCategoriesWithCountsAsync DB error, calculating from resilient fallback:', err.message);
+      const localCats = this._getFallbackData('categories');
+      const localProds = this._getFallbackData('products');
+      
+      const catsList = (localCats && localCats.length > 0) ? localCats : [
+        { id: 'cat_vegetables', name: 'Vegetables', slug: 'vegetables', icon: '🥬', displayOrder: 1 },
+        { id: 'cat_fruits', name: 'Fruits', slug: 'fruits', icon: '🍎', displayOrder: 2 },
+        { id: 'cat_grocery', name: 'Grocery & Pantry', slug: 'grocery', icon: '🌾', displayOrder: 3 }
+      ];
+
+      return catsList.map(c => {
+        const cSlug = (c.slug || c.name || '').toLowerCase();
+        const cName = (c.name || '').toLowerCase();
+        const matchingProds = localProds.filter(p => {
+          const pCat = (p.category || '').toLowerCase();
+          const pSub = (p.subcategory || '').toLowerCase();
+          const pSlug = (p.categorySlug || p.category_slug || '').toLowerCase();
+          const pId = (p.categoryId || p.category_id || '').toLowerCase();
+          if (p.id && (pId === c.id || pSlug === cSlug || pCat === cName || pCat === cSlug)) return true;
+          if (cSlug === 'vegetables') return pCat.includes('veg') || pSub.includes('veg');
+          if (cSlug === 'fruits') return pCat.includes('fruit') || pSub.includes('fruit');
+          if (cSlug === 'grocery') return pCat.includes('groc') || pCat.includes('pant') || pSub.includes('groc');
+          return false;
+        });
+
+        const activeProds = matchingProds.filter(p => p.status === 'ACTIVE' || (p.status !== 'SUSPENDED' && p.status !== 'DELETED'));
+        const inStockProds = activeProds.filter(p => (p.stock || 0) > 0);
+        const outProds = activeProds.filter(p => (p.stock || 0) <= 0);
+
+        return {
+          ...c,
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          icon: c.icon || '📁',
+          status: c.status || 'ACTIVE',
+          active: (c.status || 'ACTIVE') === 'ACTIVE',
+          productCount: matchingProds.length,
+          activeProductCount: activeProds.length,
+          totalProductCount: matchingProds.length,
+          inStockActiveCount: inStockProds.length,
+          outOfStockCount: outProds.length
+        };
+      });
     }
   }
 

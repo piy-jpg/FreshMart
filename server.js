@@ -2369,7 +2369,9 @@ const server = http.createServer(async (req, res) => {
       if (pg && pg.isAvailable()) {
         try {
           const activeCategories = await pg.getAllCategoriesWithCountsAsync(true);
-          return sendJson(res, 200, activeCategories);
+          if (Array.isArray(activeCategories) && activeCategories.length > 0) {
+            return sendJson(res, 200, activeCategories);
+          }
         } catch (e) {
           console.warn('Postgres getAllCategoriesWithCountsAsync error, falling back:', e.message);
         }
@@ -2386,10 +2388,7 @@ const server = http.createServer(async (req, res) => {
         const slug = (cat.slug || cat.id || cat.name || '').toLowerCase();
         let count = 0;
         if (slug.includes('veg')) {
-          count = activeProducts.filter(p => {
-            const c = (p.category || '').toLowerCase();
-            return !c.includes('fruit') && !c.includes('groc') && !c.includes('pant') && !c.includes('staple');
-          }).length;
+          count = activeProducts.filter(p => (p.category || '').toLowerCase().includes('veg')).length;
         } else if (slug.includes('fruit')) {
           count = activeProducts.filter(p => (p.category || '').toLowerCase().includes('fruit')).length;
         } else if (slug.includes('groc') || slug.includes('pant')) {
@@ -2653,13 +2652,19 @@ const server = http.createServer(async (req, res) => {
       const { category, status, search } = parsedUrl.query;
       const pg = db.postgres || db.pgAdapter;
       if (pg && pg.isAvailable()) {
-        const products = await pg.getAllProductsAsync({
-          category,
-          status,
-          search,
-          onlyActive: !status || status === 'ACTIVE'
-        });
-        return sendJson(res, 200, products);
+        try {
+          const products = await pg.getAllProductsAsync({
+            category,
+            status,
+            search,
+            onlyActive: !status || status === 'ACTIVE'
+          });
+          if (Array.isArray(products) && (products.length > 0 || search)) {
+            return sendJson(res, 200, products);
+          }
+        } catch (e) {
+          console.warn('Postgres getAllProductsAsync error, falling back:', e.message);
+        }
       }
       const products = db.getAll('products') || [];
       let filtered = products;
@@ -4899,8 +4904,14 @@ const server = http.createServer(async (req, res) => {
       if (pathname === '/api/owner/products' && method === 'GET') {
         const pg = db.postgres || db.pgAdapter;
         if (pg && pg.isAvailable()) {
-          const products = await pg.getAllProductsAsync({ includeSuspended: true });
-          return sendJson(res, 200, products);
+          try {
+            const products = await pg.getAllProductsAsync({ includeSuspended: true });
+            if (Array.isArray(products) && products.length > 0) {
+              return sendJson(res, 200, products);
+            }
+          } catch (e) {
+            console.warn('Postgres getAllProductsAsync error, falling back:', e.message);
+          }
         }
         const products = db.getAll('products') || [];
         return sendJson(res, 200, products);
