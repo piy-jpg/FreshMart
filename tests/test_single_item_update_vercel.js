@@ -104,6 +104,7 @@ async function testSingleItemUpdateOnVercel() {
 
   const updateRes = await callVercel('PUT', `/api/owner/products/${encodeURIComponent(targetItem.id)}`, {
     ...targetItem,
+    status: 'ACTIVE',
     price: newPrice,
     sellingPrice: newPrice,
     stock: newStock,
@@ -148,10 +149,14 @@ async function testSingleItemUpdateOnVercel() {
   }, { cookie: ownerCookie });
   assert.strictEqual(suspendRes.statusCode, 200);
 
+  const ownerAfterSuspend = await callVercel('GET', '/api/owner/products', null, { cookie: ownerCookie });
+  const ownerSuspendedItem = ownerAfterSuspend.body.find(p => p.id === targetItem.id);
+  assert.strictEqual(ownerSuspendedItem.status, 'SUSPENDED');
+
   const customerAfterSuspend = await callVercel('GET', '/api/products');
   const custSuspendedItem = customerAfterSuspend.body.find(p => p.id === targetItem.id);
-  assert.strictEqual(custSuspendedItem.status, 'SUSPENDED');
-  console.log('  ✅ Storefront reflects SUSPENDED status.');
+  assert.ok(!custSuspendedItem, 'Suspended item must be hidden from customer storefront');
+  console.log('  ✅ Owner catalog reflects SUSPENDED and storefront correctly hides suspended produce.');
 
   const activateRes = await callVercel('PATCH', `/api/owner/products/${encodeURIComponent(targetItem.id)}/status`, {
     status: 'ACTIVE'

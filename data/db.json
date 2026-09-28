@@ -1725,10 +1725,10 @@
       "createdAt": "2026-09-12T11:54:26.481Z",
       "googleSub": "112315908965746679684",
       "lockUntil": null,
-      "updatedAt": "2026-09-28T18:11:14.085Z",
+      "updatedAt": "2026-09-28T18:15:51.767Z",
       "membership": "Executive Owner",
       "totalSpent": 900,
-      "lastLoginAt": "2026-09-28T18:11:14.083Z",
+      "lastLoginAt": "2026-09-28T18:15:51.766Z",
       "passwordHash": "e5a764708087c409ea4addd33f379a065d03fa54145ddf86cc6755267ab4f70f7ac9652f192e9e69522ce7b89f2cac601f893570fc3ca481fe67f0a2dae2f6db",
       "passwordSalt": "a1b2c3d4e5f67890",
       "profileImage": "https://lh3.googleusercontent.com/a/ACg8ocKAVwc4KqMdiQGzlT3C2v2OYvKFS3pMGJ202VZTiwrJXKQegVM=s96-c",
@@ -1890,6 +1890,296 @@
       "originalPrice": 130,
       "discountPercent": 0,
       "expressEligible": true
+    },
+    {
+      "id": "prod_tomato",
+      "hub": "Indiranagar Central Hub",
+      "mrp": 299,
+      "sku": "SJH-VEG-TOM-01",
+      "data": {
+        "id": "prod_tomato",
+        "mrp": 299,
+        "sku": "SJH-VEG-TOM-01",
+        "name": "Fresh Organic Desi Tomato",
+        "unit": "1 kg",
+        "badge": "Farm Fresh",
+        "hubId": "hub_blr_indiranagar",
+        "image": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+        "price": 250,
+        "stock": 273,
+        "farmer": "Kolar Organic Farms, Karnataka",
+        "rating": 4.8,
+        "status": "ACTIVE",
+        "barcode": "890123400001",
+        "gallery": [
+          {
+            "url": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=1200&q=85",
+            "title": "Tomatoes in woven basket"
+          },
+          {
+            "url": "https://images.unsplash.com/photo-1546470427-e26264be0b11?auto=format&fit=crop&w=1200&q=85",
+            "title": "Close-up of fresh red tomatoes"
+          },
+          {
+            "url": "https://images.unsplash.com/photo-1561136594-7f68413baa99?auto=format&fit=crop&w=1200&q=85",
+            "title": "Vine-ripened tomatoes on farm"
+          },
+          {
+            "url": "https://images.unsplash.com/photo-1582284540020-8acbe03f4924?auto=format&fit=crop&w=1200&q=85",
+            "title": "Packed in breathable eco-kraft box"
+          }
+        ],
+        "inStock": true,
+        "weights": [
+          {
+            "label": "250 g",
+            "price": 75,
+            "savings": 21,
+            "discount": "22% OFF",
+            "originalPrice": 96
+          },
+          {
+            "label": "500 g",
+            "price": 145,
+            "savings": 22,
+            "discount": "13% OFF",
+            "originalPrice": 167
+          },
+          {
+            "label": "1 kg",
+            "price": 250,
+            "savings": 49,
+            "discount": "16% OFF",
+            "originalPrice": 299
+          },
+          {
+            "label": "2 kg",
+            "price": 475,
+            "savings": 123,
+            "discount": "21% OFF",
+            "originalPrice": 598
+          },
+          {
+            "label": "5 kg",
+            "price": 1125,
+            "savings": 310,
+            "discount": "22% OFF",
+            "originalPrice": 1435
+          }
+        ],
+        "category": "Vegetables",
+        "variants": [
+          {
+            "mrp": 96,
+            "sku": "SJH-VEG-TOM-01-1",
+            "price": 75,
+            "stock": 28,
+            "costPrice": 6,
+            "weightLabel": "250 g"
+          },
+          {
+            "mrp": 167,
+            "sku": "SJH-VEG-TOM-01-2",
+            "price": 145,
+            "stock": 28,
+            "costPrice": 12,
+            "weightLabel": "500 g"
+          },
+          {
+            "mrp": 299,
+            "sku": "SJH-VEG-TOM-01-3",
+            "price": 250,
+            "stock": 28,
+            "costPrice": 20,
+            "weightLabel": "1 kg"
+          },
+          {
+            "mrp": 598,
+            "sku": "SJH-VEG-TOM-01-4",
+            "price": 475,
+            "stock": 28,
+            "costPrice": 38,
+            "weightLabel": "2 kg"
+          },
+          {
+            "mrp": 1435,
+            "sku": "SJH-VEG-TOM-01-5",
+            "price": 1125,
+            "stock": 28,
+            "costPrice": 90,
+            "weightLabel": "5 kg"
+          }
+        ],
+        "badgeType": "bestseller",
+        "costPrice": 20,
+        "hindiName": "देसी टमाटर",
+        "updatedAt": "2026-09-25T05:34:31.317Z",
+        "categories": [
+          "all",
+          "organic",
+          "seasonal"
+        ],
+        "stockCount": 278,
+        "description": "Farm-fresh organic tomato directly harvested from Mysore belt.",
+        "harvestDate": "2026-09-12",
+        "subcategory": "Tomatoes & Peppers",
+        "reorderLevel": 50,
+        "reviewsCount": 245,
+        "sellingPrice": 250,
+        "storefrontId": "tomato",
+        "freshnessDays": 5,
+        "lowStockLimit": 25,
+        "originalPrice": 299,
+        "discountPercent": 16,
+        "expressEligible": true
+      },
+      "name": "Fresh Organic Desi Tomato",
+      "unit": "1 kg",
+      "badge": "Farm Fresh",
+      "hubId": "hub_blr_indiranagar",
+      "image": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+      "price": 65,
+      "stock": 450,
+      "farmer": "Kolar Organic Farms, Karnataka",
+      "rating": 4.8,
+      "status": "ACTIVE",
+      "barcode": "890123400001",
+      "gallery": [
+        {
+          "url": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=1200&q=85",
+          "title": "Tomatoes in woven basket"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1546470427-e26264be0b11?auto=format&fit=crop&w=1200&q=85",
+          "title": "Close-up of fresh red tomatoes"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1561136594-7f68413baa99?auto=format&fit=crop&w=1200&q=85",
+          "title": "Vine-ripened tomatoes on farm"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1582284540020-8acbe03f4924?auto=format&fit=crop&w=1200&q=85",
+          "title": "Packed in breathable eco-kraft box"
+        }
+      ],
+      "inStock": true,
+      "weights": [
+        {
+          "label": "250 g",
+          "price": 20,
+          "savings": 76,
+          "discount": "79% OFF",
+          "originalPrice": 96
+        },
+        {
+          "label": "500 g",
+          "price": 38,
+          "savings": 129,
+          "discount": "77% OFF",
+          "originalPrice": 167
+        },
+        {
+          "label": "1 kg",
+          "price": 65,
+          "savings": 234,
+          "discount": "78% OFF",
+          "originalPrice": 299
+        },
+        {
+          "label": "2 kg",
+          "price": 124,
+          "savings": 474,
+          "discount": "79% OFF",
+          "originalPrice": 598
+        },
+        {
+          "label": "5 kg",
+          "price": 293,
+          "savings": 1142,
+          "discount": "80% OFF",
+          "originalPrice": 1435
+        }
+      ],
+      "category": "Vegetables",
+      "variants": [
+        {
+          "mrp": 96,
+          "sku": "SJH-VEG-TOM-01-1",
+          "price": 20,
+          "stock": 28,
+          "costPrice": 49,
+          "weightLabel": "250 g"
+        },
+        {
+          "mrp": 167,
+          "sku": "SJH-VEG-TOM-01-2",
+          "price": 38,
+          "stock": 28,
+          "costPrice": 95,
+          "weightLabel": "500 g"
+        },
+        {
+          "mrp": 299,
+          "sku": "SJH-VEG-TOM-01-3",
+          "price": 65,
+          "stock": 28,
+          "costPrice": 163,
+          "weightLabel": "1 kg"
+        },
+        {
+          "mrp": 598,
+          "sku": "SJH-VEG-TOM-01-4",
+          "price": 124,
+          "stock": 28,
+          "costPrice": 310,
+          "weightLabel": "2 kg"
+        },
+        {
+          "mrp": 1435,
+          "sku": "SJH-VEG-TOM-01-5",
+          "price": 293,
+          "stock": 28,
+          "costPrice": 734,
+          "weightLabel": "5 kg"
+        }
+      ],
+      "badgeType": "bestseller",
+      "costPrice": 163,
+      "createdAt": "2026-09-28T16:57:48.138Z",
+      "hindiName": "देसी टमाटर",
+      "rawStatus": "SUSPENDED",
+      "updatedAt": "2026-09-28T18:15:58.065Z",
+      "categories": [
+        "all",
+        "organic",
+        "seasonal"
+      ],
+      "categoryId": "cat_vegetables",
+      "stockCount": 278,
+      "description": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+      "harvestDate": "2026-09-12",
+      "subcategory": "Tomatoes & Peppers",
+      "categorySlug": "vegetables",
+      "currentStock": 450,
+      "damagedStock": 0,
+      "expiredStock": 0,
+      "reorderLevel": 50,
+      "reviewsCount": 245,
+      "sellingPrice": 65,
+      "storefrontId": "tomato",
+      "freshnessDays": 5,
+      "lowStockLimit": 15,
+      "originalPrice": 299,
+      "physicalStock": 450,
+      "reservedStock": 0,
+      "availableStock": 450,
+      "manualReserved": 0,
+      "discountPercent": 78,
+      "expressEligible": true,
+      "customerReserved": 0,
+      "lowStockThreshold": 15,
+      "manualReservedStock": 0,
+      "customerReservedStock": 0
     },
     {
       "id": "prod_combo_family",
@@ -15236,280 +15526,6 @@
       "expressEligible": true
     },
     {
-      "id": "prod_tomato",
-      "mrp": 299,
-      "sku": "SJH-VEG-TOM-01",
-      "data": {
-        "id": "prod_tomato",
-        "mrp": 299,
-        "sku": "SJH-VEG-TOM-01",
-        "name": "Fresh Organic Desi Tomato",
-        "unit": "1 kg",
-        "badge": "Farm Fresh",
-        "hubId": "hub_blr_indiranagar",
-        "image": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
-        "price": 250,
-        "stock": 273,
-        "farmer": "Kolar Organic Farms, Karnataka",
-        "rating": 4.8,
-        "status": "ACTIVE",
-        "barcode": "890123400001",
-        "gallery": [
-          {
-            "url": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=1200&q=85",
-            "title": "Tomatoes in woven basket"
-          },
-          {
-            "url": "https://images.unsplash.com/photo-1546470427-e26264be0b11?auto=format&fit=crop&w=1200&q=85",
-            "title": "Close-up of fresh red tomatoes"
-          },
-          {
-            "url": "https://images.unsplash.com/photo-1561136594-7f68413baa99?auto=format&fit=crop&w=1200&q=85",
-            "title": "Vine-ripened tomatoes on farm"
-          },
-          {
-            "url": "https://images.unsplash.com/photo-1582284540020-8acbe03f4924?auto=format&fit=crop&w=1200&q=85",
-            "title": "Packed in breathable eco-kraft box"
-          }
-        ],
-        "inStock": true,
-        "weights": [
-          {
-            "label": "250 g",
-            "price": 75,
-            "savings": 21,
-            "discount": "22% OFF",
-            "originalPrice": 96
-          },
-          {
-            "label": "500 g",
-            "price": 145,
-            "savings": 22,
-            "discount": "13% OFF",
-            "originalPrice": 167
-          },
-          {
-            "label": "1 kg",
-            "price": 250,
-            "savings": 49,
-            "discount": "16% OFF",
-            "originalPrice": 299
-          },
-          {
-            "label": "2 kg",
-            "price": 475,
-            "savings": 123,
-            "discount": "21% OFF",
-            "originalPrice": 598
-          },
-          {
-            "label": "5 kg",
-            "price": 1125,
-            "savings": 310,
-            "discount": "22% OFF",
-            "originalPrice": 1435
-          }
-        ],
-        "category": "Vegetables",
-        "variants": [
-          {
-            "mrp": 96,
-            "sku": "SJH-VEG-TOM-01-1",
-            "price": 75,
-            "stock": 28,
-            "costPrice": 6,
-            "weightLabel": "250 g"
-          },
-          {
-            "mrp": 167,
-            "sku": "SJH-VEG-TOM-01-2",
-            "price": 145,
-            "stock": 28,
-            "costPrice": 12,
-            "weightLabel": "500 g"
-          },
-          {
-            "mrp": 299,
-            "sku": "SJH-VEG-TOM-01-3",
-            "price": 250,
-            "stock": 28,
-            "costPrice": 20,
-            "weightLabel": "1 kg"
-          },
-          {
-            "mrp": 598,
-            "sku": "SJH-VEG-TOM-01-4",
-            "price": 475,
-            "stock": 28,
-            "costPrice": 38,
-            "weightLabel": "2 kg"
-          },
-          {
-            "mrp": 1435,
-            "sku": "SJH-VEG-TOM-01-5",
-            "price": 1125,
-            "stock": 28,
-            "costPrice": 90,
-            "weightLabel": "5 kg"
-          }
-        ],
-        "badgeType": "bestseller",
-        "costPrice": 20,
-        "hindiName": "देसी टमाटर",
-        "updatedAt": "2026-09-25T05:34:31.317Z",
-        "categories": [
-          "all",
-          "organic",
-          "seasonal"
-        ],
-        "stockCount": 278,
-        "description": "Farm-fresh organic tomato directly harvested from Mysore belt.",
-        "harvestDate": "2026-09-12",
-        "subcategory": "Tomatoes & Peppers",
-        "reorderLevel": 50,
-        "reviewsCount": 245,
-        "sellingPrice": 250,
-        "storefrontId": "tomato",
-        "freshnessDays": 5,
-        "lowStockLimit": 25,
-        "originalPrice": 299,
-        "discountPercent": 16,
-        "expressEligible": true
-      },
-      "name": "Fresh Organic Desi Tomato",
-      "unit": "1 kg",
-      "badge": "Farm Fresh",
-      "hubId": "hub_blr_indiranagar",
-      "image": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
-      "price": 250,
-      "stock": 273,
-      "farmer": "Kolar Organic Farms, Karnataka",
-      "rating": 4.8,
-      "status": "ACTIVE",
-      "barcode": "890123400001",
-      "gallery": [
-        {
-          "url": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=1200&q=85",
-          "title": "Tomatoes in woven basket"
-        },
-        {
-          "url": "https://images.unsplash.com/photo-1546470427-e26264be0b11?auto=format&fit=crop&w=1200&q=85",
-          "title": "Close-up of fresh red tomatoes"
-        },
-        {
-          "url": "https://images.unsplash.com/photo-1561136594-7f68413baa99?auto=format&fit=crop&w=1200&q=85",
-          "title": "Vine-ripened tomatoes on farm"
-        },
-        {
-          "url": "https://images.unsplash.com/photo-1582284540020-8acbe03f4924?auto=format&fit=crop&w=1200&q=85",
-          "title": "Packed in breathable eco-kraft box"
-        }
-      ],
-      "inStock": true,
-      "weights": [
-        {
-          "label": "250 g",
-          "price": 75,
-          "savings": 21,
-          "discount": "22% OFF",
-          "originalPrice": 96
-        },
-        {
-          "label": "500 g",
-          "price": 145,
-          "savings": 22,
-          "discount": "13% OFF",
-          "originalPrice": 167
-        },
-        {
-          "label": "1 kg",
-          "price": 250,
-          "savings": 49,
-          "discount": "16% OFF",
-          "originalPrice": 299
-        },
-        {
-          "label": "2 kg",
-          "price": 475,
-          "savings": 123,
-          "discount": "21% OFF",
-          "originalPrice": 598
-        },
-        {
-          "label": "5 kg",
-          "price": 1125,
-          "savings": 310,
-          "discount": "22% OFF",
-          "originalPrice": 1435
-        }
-      ],
-      "category": "Vegetables",
-      "variants": [
-        {
-          "mrp": 96,
-          "sku": "SJH-VEG-TOM-01-1",
-          "price": 75,
-          "stock": 28,
-          "costPrice": 6,
-          "weightLabel": "250 g"
-        },
-        {
-          "mrp": 167,
-          "sku": "SJH-VEG-TOM-01-2",
-          "price": 145,
-          "stock": 28,
-          "costPrice": 12,
-          "weightLabel": "500 g"
-        },
-        {
-          "mrp": 299,
-          "sku": "SJH-VEG-TOM-01-3",
-          "price": 250,
-          "stock": 28,
-          "costPrice": 20,
-          "weightLabel": "1 kg"
-        },
-        {
-          "mrp": 598,
-          "sku": "SJH-VEG-TOM-01-4",
-          "price": 475,
-          "stock": 28,
-          "costPrice": 38,
-          "weightLabel": "2 kg"
-        },
-        {
-          "mrp": 1435,
-          "sku": "SJH-VEG-TOM-01-5",
-          "price": 1125,
-          "stock": 28,
-          "costPrice": 90,
-          "weightLabel": "5 kg"
-        }
-      ],
-      "badgeType": "bestseller",
-      "costPrice": 20,
-      "hindiName": "देसी टमाटर",
-      "updatedAt": "2026-09-25T05:34:31.317Z",
-      "categories": [
-        "all",
-        "organic",
-        "seasonal"
-      ],
-      "stockCount": 278,
-      "description": "Farm-fresh organic tomato directly harvested from Mysore belt.",
-      "harvestDate": "2026-09-12",
-      "subcategory": "Tomatoes & Peppers",
-      "reorderLevel": 50,
-      "reviewsCount": 245,
-      "sellingPrice": 250,
-      "storefrontId": "tomato",
-      "freshnessDays": 5,
-      "lowStockLimit": 25,
-      "originalPrice": 299,
-      "discountPercent": 16,
-      "expressEligible": true
-    },
-    {
       "id": "prod_carrot",
       "mrp": 85,
       "sku": "SJH-VEG-CAR-05",
@@ -28314,39 +28330,609 @@
       "productId": "prod_test_1790618968663",
       "productName": "Organic Shimla Apple Gold",
       "previous_stock": 50
+    },
+    {
+      "id": "mov_1790619295498_221",
+      "sku": "SJH-VEG-TOM-01",
+      "date": "2026-09-28T18:14:55.498Z",
+      "type": "PROCUREMENT",
+      "user": "Piyush Verma (Owner)",
+      "after": 450,
+      "hubId": "hub_blr_indiranagar",
+      "before": 273,
+      "reason": "Catalog Specification Edit by Store Owner",
+      "hubName": "Indiranagar Central Hub",
+      "operator": "piyushverma730929@gmail.com",
+      "quantity": 177,
+      "new_stock": 450,
+      "productId": "prod_tomato",
+      "productName": "Fresh Organic Desi Tomato",
+      "previous_stock": 273
     }
   ],
   "audit_logs": [
     {
-      "id": "log_1790619110348_899",
-      "timestamp": "2026-09-28T18:11:50.348Z",
+      "id": "log_1790619358137_366",
+      "timestamp": "2026-09-28T18:15:58.137Z",
       "user": "Piyush Verma",
       "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_DELETED",
+      "action": "PRODUCT_ACTIVATED",
       "entity": "Products",
       "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Deleted product \"Product A - Organic Farm Harvest (Updated)\" (prod_1790619074987)",
+      "entityId": "prod_tomato",
+      "details": "Activated \"Fresh Organic Desi Tomato\"",
       "changes": {},
       "data": {
         "operatorEmail": "Piyush Verma",
-        "action": "PRODUCT_DELETED",
+        "action": "PRODUCT_ACTIVATED",
         "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Deleted product \"Product A - Organic Farm Harvest (Updated)\" (prod_1790619074987)",
+        "entityId": "prod_tomato",
+        "details": "Activated \"Fresh Organic Desi Tomato\"",
         "changes": {}
       }
     },
     {
-      "id": "log_1790619110282_777",
-      "timestamp": "2026-09-28T18:11:50.282Z",
+      "id": "log_1790619358071_861",
+      "timestamp": "2026-09-28T18:15:58.071Z",
+      "user": "Owner",
+      "operatorEmail": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
+      "changes": {
+        "status": {
+          "field": "status",
+          "oldValue": "SUSPENDED",
+          "newValue": "ACTIVE",
+          "old_value": "SUSPENDED",
+          "new_value": "ACTIVE"
+        }
+      },
+      "data": {
+        "operatorEmail": "Owner",
+        "action": "UPDATE",
+        "entity": "Products",
+        "entityId": "prod_tomato",
+        "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
+        "changes": {
+          "status": {
+            "field": "status",
+            "oldValue": "SUSPENDED",
+            "newValue": "ACTIVE",
+            "old_value": "SUSPENDED",
+            "new_value": "ACTIVE"
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790619354545_277",
+      "data": {
+        "action": "PRODUCT_SUSPENDED",
+        "entity": "Products",
+        "changes": {},
+        "details": "Suspended \"Fresh Organic Desi Tomato\"",
+        "entityId": "prod_tomato",
+        "operatorEmail": "Piyush Verma"
+      },
       "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "changes": {},
+      "details": "Suspended \"Fresh Organic Desi Tomato\"",
+      "entityId": "prod_tomato",
+      "timestamp": "2026-09-28T18:15:54.545Z",
+      "operatorEmail": "Piyush Verma"
+    },
+    {
+      "id": "log_1790619354483_773",
+      "data": {
+        "action": "UPDATE",
+        "entity": "Products",
+        "changes": {
+          "status": {
+            "field": "status",
+            "newValue": "SUSPENDED",
+            "oldValue": "ACTIVE",
+            "new_value": "SUSPENDED",
+            "old_value": "ACTIVE"
+          }
+        },
+        "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
+        "entityId": "prod_tomato",
+        "operatorEmail": "Owner"
+      },
+      "user": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "changes": {
+        "status": {
+          "field": "status",
+          "newValue": "SUSPENDED",
+          "oldValue": "ACTIVE",
+          "new_value": "SUSPENDED",
+          "old_value": "ACTIVE"
+        }
+      },
+      "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
+      "entityId": "prod_tomato",
+      "timestamp": "2026-09-28T18:15:54.483Z",
+      "operatorEmail": "Owner"
+    },
+    {
+      "id": "log_1790619353256_944",
+      "data": {
+        "action": "PRODUCT_UPDATED",
+        "entity": "Products",
+        "changes": {},
+        "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)",
+        "entityId": "prod_tomato",
+        "operatorEmail": "Piyush Verma"
+      },
+      "user": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "changes": {},
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)",
+      "entityId": "prod_tomato",
+      "timestamp": "2026-09-28T18:15:53.256Z",
+      "operatorEmail": "Piyush Verma"
+    },
+    {
+      "id": "log_1790619353176_975",
+      "data": {
+        "action": "UPDATE",
+        "entity": "Products",
+        "changes": {
+          "price": {
+            "field": "price",
+            "newValue": 65,
+            "oldValue": 75,
+            "new_value": 65,
+            "old_value": 75
+          },
+          "status": {
+            "field": "status",
+            "newValue": "ACTIVE",
+            "oldValue": "SUSPENDED",
+            "new_value": "ACTIVE",
+            "old_value": "SUSPENDED"
+          },
+          "sellingPrice": {
+            "field": "sellingPrice",
+            "newValue": 65,
+            "oldValue": 75,
+            "new_value": 65,
+            "old_value": 75
+          }
+        },
+        "details": "Updated products \"Fresh Organic Desi Tomato\" (price: 75 -> 65, sellingPrice: 75 -> 65, status: \"SUSPENDED\" -> \"ACTIVE\")",
+        "entityId": "prod_tomato",
+        "operatorEmail": "Owner"
+      },
+      "user": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "changes": {
+        "price": {
+          "field": "price",
+          "newValue": 65,
+          "oldValue": 75,
+          "new_value": 65,
+          "old_value": 75
+        },
+        "status": {
+          "field": "status",
+          "newValue": "ACTIVE",
+          "oldValue": "SUSPENDED",
+          "new_value": "ACTIVE",
+          "old_value": "SUSPENDED"
+        },
+        "sellingPrice": {
+          "field": "sellingPrice",
+          "newValue": 65,
+          "oldValue": 75,
+          "new_value": 65,
+          "old_value": 75
+        }
+      },
+      "details": "Updated products \"Fresh Organic Desi Tomato\" (price: 75 -> 65, sellingPrice: 75 -> 65, status: \"SUSPENDED\" -> \"ACTIVE\")",
+      "entityId": "prod_tomato",
+      "timestamp": "2026-09-28T18:15:53.176Z",
+      "operatorEmail": "Owner"
+    },
+    {
+      "id": "log_1790619351776_663",
+      "data": {
+        "action": "OWNER_LOGIN",
+        "entity": "Users",
+        "changes": {},
+        "details": "Session created for role OWNER",
+        "entityId": "usr_owner_1789214066481",
+        "operatorEmail": "Piyush Verma"
+      },
+      "user": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "changes": {},
+      "details": "Session created for role OWNER",
+      "entityId": "usr_owner_1789214066481",
+      "timestamp": "2026-09-28T18:15:51.776Z",
+      "operatorEmail": "Piyush Verma"
+    },
+    {
+      "id": "log_1790619330521_749",
+      "data": {
+        "action": "PRODUCT_UPDATED",
+        "entity": "Products",
+        "changes": {},
+        "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)",
+        "entityId": "prod_tomato",
+        "operatorEmail": "Piyush Verma"
+      },
+      "user": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "changes": {},
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)",
+      "entityId": "prod_tomato",
+      "timestamp": "2026-09-28T18:15:30.521Z",
+      "operatorEmail": "Piyush Verma"
+    },
+    {
+      "id": "log_1790619330419_48",
+      "data": {
+        "action": "UPDATE",
+        "entity": "Products",
+        "changes": {
+          "price": {
+            "field": "price",
+            "newValue": 75,
+            "oldValue": 65,
+            "new_value": 75,
+            "old_value": 65
+          },
+          "sellingPrice": {
+            "field": "sellingPrice",
+            "newValue": 75,
+            "oldValue": 65,
+            "new_value": 75,
+            "old_value": 65
+          }
+        },
+        "details": "Updated products \"Fresh Organic Desi Tomato\" (price: 65 -> 75, sellingPrice: 65 -> 75)",
+        "entityId": "prod_tomato",
+        "operatorEmail": "Owner"
+      },
+      "user": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "changes": {
+        "price": {
+          "field": "price",
+          "newValue": 75,
+          "oldValue": 65,
+          "new_value": 75,
+          "old_value": 65
+        },
+        "sellingPrice": {
+          "field": "sellingPrice",
+          "newValue": 75,
+          "oldValue": 65,
+          "new_value": 75,
+          "old_value": 65
+        }
+      },
+      "details": "Updated products \"Fresh Organic Desi Tomato\" (price: 65 -> 75, sellingPrice: 65 -> 75)",
+      "entityId": "prod_tomato",
+      "timestamp": "2026-09-28T18:15:30.419Z",
+      "operatorEmail": "Owner"
+    },
+    {
+      "id": "log_1790619328965_891",
+      "data": {
+        "action": "OWNER_LOGIN",
+        "entity": "Users",
+        "changes": {},
+        "details": "Session created for role OWNER",
+        "entityId": "usr_owner_1789214066481",
+        "operatorEmail": "Piyush Verma"
+      },
+      "user": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "changes": {},
+      "details": "Session created for role OWNER",
+      "entityId": "usr_owner_1789214066481",
+      "timestamp": "2026-09-28T18:15:28.965Z",
+      "operatorEmail": "Piyush Verma"
+    },
+    {
+      "id": "log_1790619297593_216",
+      "data": {
+        "action": "PRODUCT_SUSPENDED",
+        "entity": "Products",
+        "changes": {},
+        "details": "Suspended \"Fresh Organic Desi Tomato\"",
+        "entityId": "prod_tomato",
+        "operatorEmail": "Piyush Verma"
+      },
+      "user": "Piyush Verma",
+      "action": "PRODUCT_SUSPENDED",
+      "entity": "Products",
+      "target": "Products",
+      "changes": {},
+      "details": "Suspended \"Fresh Organic Desi Tomato\"",
+      "entityId": "prod_tomato",
+      "timestamp": "2026-09-28T18:14:57.593Z",
+      "operatorEmail": "Piyush Verma"
+    },
+    {
+      "id": "log_1790619297529_203",
+      "data": {
+        "action": "UPDATE",
+        "entity": "Products",
+        "changes": {
+          "status": {
+            "field": "status",
+            "newValue": "SUSPENDED",
+            "oldValue": "ACTIVE",
+            "new_value": "SUSPENDED",
+            "old_value": "ACTIVE"
+          }
+        },
+        "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
+        "entityId": "prod_tomato",
+        "operatorEmail": "Owner"
+      },
+      "user": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "changes": {
+        "status": {
+          "field": "status",
+          "newValue": "SUSPENDED",
+          "oldValue": "ACTIVE",
+          "new_value": "SUSPENDED",
+          "old_value": "ACTIVE"
+        }
+      },
+      "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
+      "entityId": "prod_tomato",
+      "timestamp": "2026-09-28T18:14:57.529Z",
+      "operatorEmail": "Owner"
+    },
+    {
+      "id": "log_1790619295532_864",
+      "data": {
+        "action": "PRODUCT_UPDATED",
+        "entity": "Products",
+        "changes": {},
+        "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)",
+        "entityId": "prod_tomato",
+        "operatorEmail": "Piyush Verma"
+      },
+      "user": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "changes": {},
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)",
+      "entityId": "prod_tomato",
+      "timestamp": "2026-09-28T18:14:55.532Z",
+      "operatorEmail": "Piyush Verma"
+    },
+    {
+      "id": "log_1790619295427_588",
+      "data": {
+        "action": "UPDATE",
+        "entity": "Products",
+        "changes": {
+          "price": {
+            "field": "price",
+            "newValue": 65,
+            "oldValue": 250,
+            "new_value": 65,
+            "old_value": 250
+          },
+          "stock": {
+            "field": "stock",
+            "newValue": 450,
+            "oldValue": 273,
+            "new_value": 450,
+            "old_value": 273
+          },
+          "costPrice": {
+            "field": "costPrice",
+            "newValue": 163,
+            "oldValue": 20,
+            "new_value": 163,
+            "old_value": 20
+          },
+          "description": {
+            "field": "description",
+            "newValue": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+            "oldValue": "Farm-fresh organic tomato directly harvested from Mysore belt.",
+            "new_value": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+            "old_value": "Farm-fresh organic tomato directly harvested from Mysore belt."
+          },
+          "sellingPrice": {
+            "field": "sellingPrice",
+            "newValue": 65,
+            "oldValue": 250,
+            "new_value": 65,
+            "old_value": 250
+          }
+        },
+        "details": "Updated products \"Fresh Organic Desi Tomato\" (price: 250 -> 65, sellingPrice: 250 -> 65, stock: 273 -> 450, description: \"Farm-fresh organic tomato directly harvested from Mysore belt.\" -> \"Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.\", costPrice: 20 -> 163)",
+        "entityId": "prod_tomato",
+        "operatorEmail": "Owner"
+      },
+      "user": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "changes": {
+        "price": {
+          "field": "price",
+          "newValue": 65,
+          "oldValue": 250,
+          "new_value": 65,
+          "old_value": 250
+        },
+        "stock": {
+          "field": "stock",
+          "newValue": 450,
+          "oldValue": 273,
+          "new_value": 450,
+          "old_value": 273
+        },
+        "costPrice": {
+          "field": "costPrice",
+          "newValue": 163,
+          "oldValue": 20,
+          "new_value": 163,
+          "old_value": 20
+        },
+        "description": {
+          "field": "description",
+          "newValue": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+          "oldValue": "Farm-fresh organic tomato directly harvested from Mysore belt.",
+          "new_value": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+          "old_value": "Farm-fresh organic tomato directly harvested from Mysore belt."
+        },
+        "sellingPrice": {
+          "field": "sellingPrice",
+          "newValue": 65,
+          "oldValue": 250,
+          "new_value": 65,
+          "old_value": 250
+        }
+      },
+      "details": "Updated products \"Fresh Organic Desi Tomato\" (price: 250 -> 65, sellingPrice: 250 -> 65, stock: 273 -> 450, description: \"Farm-fresh organic tomato directly harvested from Mysore belt.\" -> \"Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.\", costPrice: 20 -> 163)",
+      "entityId": "prod_tomato",
+      "timestamp": "2026-09-28T18:14:55.427Z",
+      "operatorEmail": "Owner"
+    },
+    {
+      "id": "log_1790619293438_246",
+      "data": {
+        "action": "OWNER_LOGIN",
+        "entity": "Users",
+        "changes": {},
+        "details": "Session created for role OWNER",
+        "entityId": "usr_owner_1789214066481",
+        "operatorEmail": "Piyush Verma"
+      },
+      "user": "Piyush Verma",
+      "action": "OWNER_LOGIN",
+      "entity": "Users",
+      "target": "Users",
+      "changes": {},
+      "details": "Session created for role OWNER",
+      "entityId": "usr_owner_1789214066481",
+      "timestamp": "2026-09-28T18:14:53.438Z",
+      "operatorEmail": "Piyush Verma"
+    },
+    {
+      "id": "log_1790619110348_899",
+      "data": {
+        "action": "PRODUCT_DELETED",
+        "entity": "Products",
+        "changes": {},
+        "details": "Deleted product \"Product A - Organic Farm Harvest (Updated)\" (prod_1790619074987)",
+        "entityId": "prod_1790619074987",
+        "operatorEmail": "Piyush Verma"
+      },
+      "user": "Piyush Verma",
+      "action": "PRODUCT_DELETED",
+      "entity": "Products",
+      "target": "Products",
+      "changes": {},
+      "details": "Deleted product \"Product A - Organic Farm Harvest (Updated)\" (prod_1790619074987)",
+      "entityId": "prod_1790619074987",
+      "timestamp": "2026-09-28T18:11:50.348Z",
+      "operatorEmail": "Piyush Verma"
+    },
+    {
+      "id": "log_1790619110282_777",
+      "data": {
+        "action": "DELETE",
+        "entity": "Products",
+        "changes": {
+          "action": "DELETE",
+          "deletedItem": {
+            "id": "prod_1790619074987",
+            "mrp": 130,
+            "sku": "AUDIT-A-1790619074102",
+            "name": "Product A - Organic Farm Harvest (Updated)",
+            "unit": "1 kg",
+            "hubId": "hub_blr_indiranagar",
+            "image": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?auto=format&fit=crop&w=600&q=80",
+            "price": 200,
+            "stock": 99,
+            "title": "Product A - Organic Farm Harvest (Updated)",
+            "farmer": "Audit Farm Labs",
+            "status": "ACTIVE",
+            "barcode": "890123474988",
+            "weights": [
+              {
+                "label": "1 kg",
+                "price": 200,
+                "savings": 0,
+                "discount": "Best Value",
+                "originalPrice": 130
+              }
+            ],
+            "category": "Fruits",
+            "variants": [
+              {
+                "mrp": 130,
+                "sku": "AUDIT-A-1790619074102-1KG",
+                "price": 200,
+                "stock": 50,
+                "costPrice": 65,
+                "weightLabel": "1 kg"
+              }
+            ],
+            "costPrice": 65,
+            "createdAt": "2026-09-28T18:11:14.988Z",
+            "hindiName": "",
+            "updatedAt": "2026-09-28T18:11:48.502Z",
+            "categoryId": "cat_fruits",
+            "description": "Initial Product A audit test item at ₹100.",
+            "harvestDate": "2026-09-28",
+            "subcategory": "Audit Series",
+            "categorySlug": "fruits",
+            "reorderLevel": 20,
+            "sellingPrice": 200,
+            "storefrontId": "product_a___audit_test_item",
+            "freshnessDays": 5,
+            "lowStockLimit": 10,
+            "originalPrice": 130,
+            "discountPercent": 0,
+            "expressEligible": true
+          }
+        },
+        "details": "Deleted products \"Product A - Organic Farm Harvest (Updated)\"",
+        "entityId": "prod_1790619074987",
+        "operatorEmail": "Piyush Verma"
+      },
+      "user": "Piyush Verma",
       "action": "DELETE",
       "entity": "Products",
       "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Deleted products \"Product A - Organic Farm Harvest (Updated)\"",
       "changes": {
         "action": "DELETE",
         "deletedItem": {
@@ -28402,68 +28988,10 @@
           "expressEligible": true
         }
       },
-      "data": {
-        "operatorEmail": "Piyush Verma",
-        "action": "DELETE",
-        "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Deleted products \"Product A - Organic Farm Harvest (Updated)\"",
-        "changes": {
-          "action": "DELETE",
-          "deletedItem": {
-            "id": "prod_1790619074987",
-            "mrp": 130,
-            "sku": "AUDIT-A-1790619074102",
-            "name": "Product A - Organic Farm Harvest (Updated)",
-            "unit": "1 kg",
-            "hubId": "hub_blr_indiranagar",
-            "image": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?auto=format&fit=crop&w=600&q=80",
-            "price": 200,
-            "stock": 99,
-            "title": "Product A - Organic Farm Harvest (Updated)",
-            "farmer": "Audit Farm Labs",
-            "status": "ACTIVE",
-            "barcode": "890123474988",
-            "weights": [
-              {
-                "label": "1 kg",
-                "price": 200,
-                "savings": 0,
-                "discount": "Best Value",
-                "originalPrice": 130
-              }
-            ],
-            "category": "Fruits",
-            "variants": [
-              {
-                "mrp": 130,
-                "sku": "AUDIT-A-1790619074102-1KG",
-                "price": 200,
-                "stock": 50,
-                "costPrice": 65,
-                "weightLabel": "1 kg"
-              }
-            ],
-            "costPrice": 65,
-            "createdAt": "2026-09-28T18:11:14.988Z",
-            "hindiName": "",
-            "updatedAt": "2026-09-28T18:11:48.502Z",
-            "categoryId": "cat_fruits",
-            "description": "Initial Product A audit test item at ₹100.",
-            "harvestDate": "2026-09-28",
-            "subcategory": "Audit Series",
-            "categorySlug": "fruits",
-            "reorderLevel": 20,
-            "sellingPrice": 200,
-            "storefrontId": "product_a___audit_test_item",
-            "freshnessDays": 5,
-            "lowStockLimit": 10,
-            "originalPrice": 130,
-            "discountPercent": 0,
-            "expressEligible": true
-          }
-        }
-      }
+      "details": "Deleted products \"Product A - Organic Farm Harvest (Updated)\"",
+      "entityId": "prod_1790619074987",
+      "timestamp": "2026-09-28T18:11:50.282Z",
+      "operatorEmail": "Piyush Verma"
     },
     {
       "id": "log_1790619108568_102",
@@ -37745,183 +38273,35 @@
   ],
   "activity_logs": [
     {
-      "id": "log_1790619110348_899",
-      "timestamp": "2026-09-28T18:11:50.348Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_DELETED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Deleted product \"Product A - Organic Farm Harvest (Updated)\" (prod_1790619074987)",
-      "changes": {},
-      "data": {
-        "operatorEmail": "Piyush Verma",
-        "action": "PRODUCT_DELETED",
-        "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Deleted product \"Product A - Organic Farm Harvest (Updated)\" (prod_1790619074987)",
-        "changes": {}
-      }
-    },
-    {
-      "id": "log_1790619110282_777",
-      "timestamp": "2026-09-28T18:11:50.282Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "DELETE",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Deleted products \"Product A - Organic Farm Harvest (Updated)\"",
-      "changes": {
-        "action": "DELETE",
-        "deletedItem": {
-          "id": "prod_1790619074987",
-          "mrp": 130,
-          "sku": "AUDIT-A-1790619074102",
-          "name": "Product A - Organic Farm Harvest (Updated)",
-          "unit": "1 kg",
-          "hubId": "hub_blr_indiranagar",
-          "image": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?auto=format&fit=crop&w=600&q=80",
-          "price": 200,
-          "stock": 99,
-          "title": "Product A - Organic Farm Harvest (Updated)",
-          "farmer": "Audit Farm Labs",
-          "status": "ACTIVE",
-          "barcode": "890123474988",
-          "weights": [
-            {
-              "label": "1 kg",
-              "price": 200,
-              "savings": 0,
-              "discount": "Best Value",
-              "originalPrice": 130
-            }
-          ],
-          "category": "Fruits",
-          "variants": [
-            {
-              "mrp": 130,
-              "sku": "AUDIT-A-1790619074102-1KG",
-              "price": 200,
-              "stock": 50,
-              "costPrice": 65,
-              "weightLabel": "1 kg"
-            }
-          ],
-          "costPrice": 65,
-          "createdAt": "2026-09-28T18:11:14.988Z",
-          "hindiName": "",
-          "updatedAt": "2026-09-28T18:11:48.502Z",
-          "categoryId": "cat_fruits",
-          "description": "Initial Product A audit test item at ₹100.",
-          "harvestDate": "2026-09-28",
-          "subcategory": "Audit Series",
-          "categorySlug": "fruits",
-          "reorderLevel": 20,
-          "sellingPrice": 200,
-          "storefrontId": "product_a___audit_test_item",
-          "freshnessDays": 5,
-          "lowStockLimit": 10,
-          "originalPrice": 130,
-          "discountPercent": 0,
-          "expressEligible": true
-        }
-      },
-      "data": {
-        "operatorEmail": "Piyush Verma",
-        "action": "DELETE",
-        "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Deleted products \"Product A - Organic Farm Harvest (Updated)\"",
-        "changes": {
-          "action": "DELETE",
-          "deletedItem": {
-            "id": "prod_1790619074987",
-            "mrp": 130,
-            "sku": "AUDIT-A-1790619074102",
-            "name": "Product A - Organic Farm Harvest (Updated)",
-            "unit": "1 kg",
-            "hubId": "hub_blr_indiranagar",
-            "image": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?auto=format&fit=crop&w=600&q=80",
-            "price": 200,
-            "stock": 99,
-            "title": "Product A - Organic Farm Harvest (Updated)",
-            "farmer": "Audit Farm Labs",
-            "status": "ACTIVE",
-            "barcode": "890123474988",
-            "weights": [
-              {
-                "label": "1 kg",
-                "price": 200,
-                "savings": 0,
-                "discount": "Best Value",
-                "originalPrice": 130
-              }
-            ],
-            "category": "Fruits",
-            "variants": [
-              {
-                "mrp": 130,
-                "sku": "AUDIT-A-1790619074102-1KG",
-                "price": 200,
-                "stock": 50,
-                "costPrice": 65,
-                "weightLabel": "1 kg"
-              }
-            ],
-            "costPrice": 65,
-            "createdAt": "2026-09-28T18:11:14.988Z",
-            "hindiName": "",
-            "updatedAt": "2026-09-28T18:11:48.502Z",
-            "categoryId": "cat_fruits",
-            "description": "Initial Product A audit test item at ₹100.",
-            "harvestDate": "2026-09-28",
-            "subcategory": "Audit Series",
-            "categorySlug": "fruits",
-            "reorderLevel": 20,
-            "sellingPrice": 200,
-            "storefrontId": "product_a___audit_test_item",
-            "freshnessDays": 5,
-            "lowStockLimit": 10,
-            "originalPrice": 130,
-            "discountPercent": 0,
-            "expressEligible": true
-          }
-        }
-      }
-    },
-    {
-      "id": "log_1790619108568_102",
-      "timestamp": "2026-09-28T18:11:48.568Z",
+      "id": "log_1790619358137_366",
+      "timestamp": "2026-09-28T18:15:58.137Z",
       "user": "Piyush Verma",
       "operatorEmail": "Piyush Verma",
       "action": "PRODUCT_ACTIVATED",
       "entity": "Products",
       "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Activated \"Product A - Organic Farm Harvest (Updated)\"",
+      "entityId": "prod_tomato",
+      "details": "Activated \"Fresh Organic Desi Tomato\"",
       "changes": {},
       "data": {
         "operatorEmail": "Piyush Verma",
         "action": "PRODUCT_ACTIVATED",
         "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Activated \"Product A - Organic Farm Harvest (Updated)\"",
+        "entityId": "prod_tomato",
+        "details": "Activated \"Fresh Organic Desi Tomato\"",
         "changes": {}
       }
     },
     {
-      "id": "log_1790619108512_489",
-      "timestamp": "2026-09-28T18:11:48.512Z",
+      "id": "log_1790619358071_861",
+      "timestamp": "2026-09-28T18:15:58.071Z",
       "user": "Owner",
       "operatorEmail": "Owner",
       "action": "UPDATE",
       "entity": "Products",
       "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Updated products \"Product A - Organic Farm Harvest (Updated)\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
+      "entityId": "prod_tomato",
+      "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
       "changes": {
         "status": {
           "field": "status",
@@ -37935,8 +38315,8 @@
         "operatorEmail": "Owner",
         "action": "UPDATE",
         "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Updated products \"Product A - Organic Farm Harvest (Updated)\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
+        "entityId": "prod_tomato",
+        "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
         "changes": {
           "status": {
             "field": "status",
@@ -37949,35 +38329,35 @@
       }
     },
     {
-      "id": "log_1790619103038_9",
-      "timestamp": "2026-09-28T18:11:43.038Z",
+      "id": "log_1790619354545_277",
+      "timestamp": "2026-09-28T18:15:54.545Z",
       "user": "Piyush Verma",
       "operatorEmail": "Piyush Verma",
       "action": "PRODUCT_SUSPENDED",
       "entity": "Products",
       "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Suspended \"Product A - Organic Farm Harvest (Updated)\"",
+      "entityId": "prod_tomato",
+      "details": "Suspended \"Fresh Organic Desi Tomato\"",
       "changes": {},
       "data": {
         "operatorEmail": "Piyush Verma",
         "action": "PRODUCT_SUSPENDED",
         "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Suspended \"Product A - Organic Farm Harvest (Updated)\"",
+        "entityId": "prod_tomato",
+        "details": "Suspended \"Fresh Organic Desi Tomato\"",
         "changes": {}
       }
     },
     {
-      "id": "log_1790619102980_51",
-      "timestamp": "2026-09-28T18:11:42.980Z",
+      "id": "log_1790619354483_773",
+      "timestamp": "2026-09-28T18:15:54.483Z",
       "user": "Owner",
       "operatorEmail": "Owner",
       "action": "UPDATE",
       "entity": "Products",
       "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Updated products \"Product A - Organic Farm Harvest (Updated)\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
+      "entityId": "prod_tomato",
+      "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
       "changes": {
         "status": {
           "field": "status",
@@ -37991,8 +38371,8 @@
         "operatorEmail": "Owner",
         "action": "UPDATE",
         "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Updated products \"Product A - Organic Farm Harvest (Updated)\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
+        "entityId": "prod_tomato",
+        "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
         "changes": {
           "status": {
             "field": "status",
@@ -38005,420 +38385,92 @@
       }
     },
     {
-      "id": "log_1790619099714_36",
-      "timestamp": "2026-09-28T18:11:39.714Z",
+      "id": "log_1790619353256_944",
+      "timestamp": "2026-09-28T18:15:53.256Z",
       "user": "Piyush Verma",
       "operatorEmail": "Piyush Verma",
       "action": "PRODUCT_UPDATED",
       "entity": "Products",
       "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Updated product \"Product A - Organic Farm Harvest (Updated)\" (AUDIT-A-1790619074102)",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)",
       "changes": {},
       "data": {
         "operatorEmail": "Piyush Verma",
         "action": "PRODUCT_UPDATED",
         "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Updated product \"Product A - Organic Farm Harvest (Updated)\" (AUDIT-A-1790619074102)",
+        "entityId": "prod_tomato",
+        "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)",
         "changes": {}
       }
     },
     {
-      "id": "log_1790619099109_889",
-      "timestamp": "2026-09-28T18:11:39.109Z",
+      "id": "log_1790619353176_975",
+      "timestamp": "2026-09-28T18:15:53.176Z",
       "user": "Owner",
       "operatorEmail": "Owner",
       "action": "UPDATE",
       "entity": "Products",
       "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Updated products \"Product A - Organic Farm Harvest (Updated)\" (stock: 50 -> 99)",
-      "changes": {
-        "stock": {
-          "field": "stock",
-          "oldValue": 50,
-          "newValue": 99,
-          "old_value": 50,
-          "new_value": 99
-        }
-      },
-      "data": {
-        "operatorEmail": "Owner",
-        "action": "UPDATE",
-        "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Updated products \"Product A - Organic Farm Harvest (Updated)\" (stock: 50 -> 99)",
-        "changes": {
-          "stock": {
-            "field": "stock",
-            "oldValue": 50,
-            "newValue": 99,
-            "old_value": 50,
-            "new_value": 99
-          }
-        }
-      }
-    },
-    {
-      "id": "log_1790619095609_440",
-      "timestamp": "2026-09-28T18:11:35.609Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_UPDATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Updated product \"Product A - Organic Farm Harvest (Updated)\" (AUDIT-A-1790619074102)",
-      "changes": {},
-      "data": {
-        "operatorEmail": "Piyush Verma",
-        "action": "PRODUCT_UPDATED",
-        "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Updated product \"Product A - Organic Farm Harvest (Updated)\" (AUDIT-A-1790619074102)",
-        "changes": {}
-      }
-    },
-    {
-      "id": "log_1790619095530_882",
-      "timestamp": "2026-09-28T18:11:35.530Z",
-      "user": "Owner",
-      "operatorEmail": "Owner",
-      "action": "UPDATE",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Updated products \"Product A - Organic Farm Harvest (Updated)\" (image: \"https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80\" -> \"https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?auto=format&fit=crop&w=600&q=80\")",
-      "changes": {
-        "image": {
-          "field": "image",
-          "oldValue": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80",
-          "newValue": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?auto=format&fit=crop&w=600&q=80",
-          "old_value": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80",
-          "new_value": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?auto=format&fit=crop&w=600&q=80"
-        }
-      },
-      "data": {
-        "operatorEmail": "Owner",
-        "action": "UPDATE",
-        "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Updated products \"Product A - Organic Farm Harvest (Updated)\" (image: \"https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80\" -> \"https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?auto=format&fit=crop&w=600&q=80\")",
-        "changes": {
-          "image": {
-            "field": "image",
-            "oldValue": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80",
-            "newValue": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?auto=format&fit=crop&w=600&q=80",
-            "old_value": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80",
-            "new_value": "https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?auto=format&fit=crop&w=600&q=80"
-          }
-        }
-      }
-    },
-    {
-      "id": "log_1790619091712_802",
-      "timestamp": "2026-09-28T18:11:31.712Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_UPDATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Updated product \"Product A - Organic Farm Harvest (Updated)\" (AUDIT-A-1790619074102)",
-      "changes": {},
-      "data": {
-        "operatorEmail": "Piyush Verma",
-        "action": "PRODUCT_UPDATED",
-        "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Updated product \"Product A - Organic Farm Harvest (Updated)\" (AUDIT-A-1790619074102)",
-        "changes": {}
-      }
-    },
-    {
-      "id": "log_1790619091575_463",
-      "timestamp": "2026-09-28T18:11:31.575Z",
-      "user": "Owner",
-      "operatorEmail": "Owner",
-      "action": "UPDATE",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Updated products \"Product A - Organic Farm Harvest (Updated)\" (category: \"Vegetables\" -> \"Fruits\", description: \"Freshly updated audit description with traceability notes.\" -> \"Initial Product A audit test item at ₹100.\")",
-      "changes": {
-        "category": {
-          "field": "category",
-          "oldValue": "Vegetables",
-          "newValue": "Fruits",
-          "old_value": "Vegetables",
-          "new_value": "Fruits"
-        },
-        "description": {
-          "field": "description",
-          "oldValue": "Freshly updated audit description with traceability notes.",
-          "newValue": "Initial Product A audit test item at ₹100.",
-          "old_value": "Freshly updated audit description with traceability notes.",
-          "new_value": "Initial Product A audit test item at ₹100."
-        }
-      },
-      "data": {
-        "operatorEmail": "Owner",
-        "action": "UPDATE",
-        "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Updated products \"Product A - Organic Farm Harvest (Updated)\" (category: \"Vegetables\" -> \"Fruits\", description: \"Freshly updated audit description with traceability notes.\" -> \"Initial Product A audit test item at ₹100.\")",
-        "changes": {
-          "category": {
-            "field": "category",
-            "oldValue": "Vegetables",
-            "newValue": "Fruits",
-            "old_value": "Vegetables",
-            "new_value": "Fruits"
-          },
-          "description": {
-            "field": "description",
-            "oldValue": "Freshly updated audit description with traceability notes.",
-            "newValue": "Initial Product A audit test item at ₹100.",
-            "old_value": "Freshly updated audit description with traceability notes.",
-            "new_value": "Initial Product A audit test item at ₹100."
-          }
-        }
-      }
-    },
-    {
-      "id": "log_1790619086983_549",
-      "timestamp": "2026-09-28T18:11:26.983Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_UPDATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Updated product \"Product A - Organic Farm Harvest (Updated)\" (AUDIT-A-1790619074102)",
-      "changes": {},
-      "data": {
-        "operatorEmail": "Piyush Verma",
-        "action": "PRODUCT_UPDATED",
-        "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Updated product \"Product A - Organic Farm Harvest (Updated)\" (AUDIT-A-1790619074102)",
-        "changes": {}
-      }
-    },
-    {
-      "id": "log_1790619086891_808",
-      "timestamp": "2026-09-28T18:11:26.891Z",
-      "user": "Owner",
-      "operatorEmail": "Owner",
-      "action": "UPDATE",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Updated products \"Product A - Organic Farm Harvest (Updated)\" (name: \"Product A - Audit Test Item\" -> \"Product A - Organic Farm Harvest (Updated)\", description: \"Initial Product A audit test item at ₹100.\" -> \"Freshly updated audit description with traceability notes.\")",
-      "changes": {
-        "name": {
-          "field": "name",
-          "oldValue": "Product A - Audit Test Item",
-          "newValue": "Product A - Organic Farm Harvest (Updated)",
-          "old_value": "Product A - Audit Test Item",
-          "new_value": "Product A - Organic Farm Harvest (Updated)"
-        },
-        "description": {
-          "field": "description",
-          "oldValue": "Initial Product A audit test item at ₹100.",
-          "newValue": "Freshly updated audit description with traceability notes.",
-          "old_value": "Initial Product A audit test item at ₹100.",
-          "new_value": "Freshly updated audit description with traceability notes."
-        }
-      },
-      "data": {
-        "operatorEmail": "Owner",
-        "action": "UPDATE",
-        "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Updated products \"Product A - Organic Farm Harvest (Updated)\" (name: \"Product A - Audit Test Item\" -> \"Product A - Organic Farm Harvest (Updated)\", description: \"Initial Product A audit test item at ₹100.\" -> \"Freshly updated audit description with traceability notes.\")",
-        "changes": {
-          "name": {
-            "field": "name",
-            "oldValue": "Product A - Audit Test Item",
-            "newValue": "Product A - Organic Farm Harvest (Updated)",
-            "old_value": "Product A - Audit Test Item",
-            "new_value": "Product A - Organic Farm Harvest (Updated)"
-          },
-          "description": {
-            "field": "description",
-            "oldValue": "Initial Product A audit test item at ₹100.",
-            "newValue": "Freshly updated audit description with traceability notes.",
-            "old_value": "Initial Product A audit test item at ₹100.",
-            "new_value": "Freshly updated audit description with traceability notes."
-          }
-        }
-      }
-    },
-    {
-      "id": "log_1790619079855_610",
-      "timestamp": "2026-09-28T18:11:19.855Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_UPDATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Updated product \"Product A - Audit Test Item\" (AUDIT-A-1790619074102)",
-      "changes": {},
-      "data": {
-        "operatorEmail": "Piyush Verma",
-        "action": "PRODUCT_UPDATED",
-        "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Updated product \"Product A - Audit Test Item\" (AUDIT-A-1790619074102)",
-        "changes": {}
-      }
-    },
-    {
-      "id": "log_1790619079519_28",
-      "timestamp": "2026-09-28T18:11:19.519Z",
-      "user": "Owner",
-      "operatorEmail": "Owner",
-      "action": "UPDATE",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Updated products \"Product A - Audit Test Item\" (price: 150 -> 200, sellingPrice: 150 -> 200)",
+      "entityId": "prod_tomato",
+      "details": "Updated products \"Fresh Organic Desi Tomato\" (price: 75 -> 65, sellingPrice: 75 -> 65, status: \"SUSPENDED\" -> \"ACTIVE\")",
       "changes": {
         "price": {
           "field": "price",
-          "oldValue": 150,
-          "newValue": 200,
-          "old_value": 150,
-          "new_value": 200
+          "oldValue": 75,
+          "newValue": 65,
+          "old_value": 75,
+          "new_value": 65
         },
         "sellingPrice": {
           "field": "sellingPrice",
-          "oldValue": 150,
-          "newValue": 200,
-          "old_value": 150,
-          "new_value": 200
+          "oldValue": 75,
+          "newValue": 65,
+          "old_value": 75,
+          "new_value": 65
+        },
+        "status": {
+          "field": "status",
+          "oldValue": "SUSPENDED",
+          "newValue": "ACTIVE",
+          "old_value": "SUSPENDED",
+          "new_value": "ACTIVE"
         }
       },
       "data": {
         "operatorEmail": "Owner",
         "action": "UPDATE",
         "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Updated products \"Product A - Audit Test Item\" (price: 150 -> 200, sellingPrice: 150 -> 200)",
+        "entityId": "prod_tomato",
+        "details": "Updated products \"Fresh Organic Desi Tomato\" (price: 75 -> 65, sellingPrice: 75 -> 65, status: \"SUSPENDED\" -> \"ACTIVE\")",
         "changes": {
           "price": {
             "field": "price",
-            "oldValue": 150,
-            "newValue": 200,
-            "old_value": 150,
-            "new_value": 200
+            "oldValue": 75,
+            "newValue": 65,
+            "old_value": 75,
+            "new_value": 65
           },
           "sellingPrice": {
             "field": "sellingPrice",
-            "oldValue": 150,
-            "newValue": 200,
-            "old_value": 150,
-            "new_value": 200
+            "oldValue": 75,
+            "newValue": 65,
+            "old_value": 75,
+            "new_value": 65
+          },
+          "status": {
+            "field": "status",
+            "oldValue": "SUSPENDED",
+            "newValue": "ACTIVE",
+            "old_value": "SUSPENDED",
+            "new_value": "ACTIVE"
           }
         }
       }
     },
     {
-      "id": "log_1790619076258_737",
-      "timestamp": "2026-09-28T18:11:16.258Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_UPDATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Updated product \"Product A - Audit Test Item\" (AUDIT-A-1790619074102)",
-      "changes": {},
-      "data": {
-        "operatorEmail": "Piyush Verma",
-        "action": "PRODUCT_UPDATED",
-        "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Updated product \"Product A - Audit Test Item\" (AUDIT-A-1790619074102)",
-        "changes": {}
-      }
-    },
-    {
-      "id": "log_1790619076167_55",
-      "timestamp": "2026-09-28T18:11:16.167Z",
-      "user": "Owner",
-      "operatorEmail": "Owner",
-      "action": "UPDATE",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Updated products \"Product A - Audit Test Item\" (price: 100 -> 150, sellingPrice: 100 -> 150)",
-      "changes": {
-        "price": {
-          "field": "price",
-          "oldValue": 100,
-          "newValue": 150,
-          "old_value": 100,
-          "new_value": 150
-        },
-        "sellingPrice": {
-          "field": "sellingPrice",
-          "oldValue": 100,
-          "newValue": 150,
-          "old_value": 100,
-          "new_value": 150
-        }
-      },
-      "data": {
-        "operatorEmail": "Owner",
-        "action": "UPDATE",
-        "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Updated products \"Product A - Audit Test Item\" (price: 100 -> 150, sellingPrice: 100 -> 150)",
-        "changes": {
-          "price": {
-            "field": "price",
-            "oldValue": 100,
-            "newValue": 150,
-            "old_value": 100,
-            "new_value": 150
-          },
-          "sellingPrice": {
-            "field": "sellingPrice",
-            "oldValue": 100,
-            "newValue": 150,
-            "old_value": 100,
-            "new_value": 150
-          }
-        }
-      }
-    },
-    {
-      "id": "log_1790619075090_571",
-      "timestamp": "2026-09-28T18:11:15.090Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_CREATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_1790619074987",
-      "details": "Created product \"Product A - Audit Test Item\" (SKU: AUDIT-A-1790619074102)",
-      "changes": {},
-      "data": {
-        "operatorEmail": "Piyush Verma",
-        "action": "PRODUCT_CREATED",
-        "entity": "Products",
-        "entityId": "prod_1790619074987",
-        "details": "Created product \"Product A - Audit Test Item\" (SKU: AUDIT-A-1790619074102)",
-        "changes": {}
-      }
-    },
-    {
-      "id": "log_1790619074096_998",
-      "timestamp": "2026-09-28T18:11:14.096Z",
+      "id": "log_1790619351776_663",
+      "timestamp": "2026-09-28T18:15:51.776Z",
       "user": "Piyush Verma",
       "operatorEmail": "Piyush Verma",
       "action": "OWNER_LOGIN",
@@ -38478,12 +38530,12 @@
   "notifications": [],
   "sessions": [
     {
-      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwNzA1NDc0MDkxLCJpYXQiOjE3OTA2MTkwNzQwOTEsInJuZCI6ImE2NzliY2Q3ZmQ3MDZlYjkifQ.LD0OQJuOFP0KkFFomJI_Xzf0YxRxw8M40XAj2wpyd4Y",
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwNzA1NzUxNzcyLCJpYXQiOjE3OTA2MTkzNTE3NzIsInJuZCI6Ijc1M2M1MWM4ZTI0ZGI1MWIifQ.9Y7Y9Wpho-bYpiMXD7GTAAIrfN28qpmNzq6q9y43OYY",
       "userId": "usr_owner_1789214066481",
       "role": "OWNER",
       "rememberMe": false,
-      "createdAt": "2026-09-28T18:11:14.091Z",
-      "expiresAt": "2026-09-29T18:11:14.091Z",
+      "createdAt": "2026-09-28T18:15:51.772Z",
+      "expiresAt": "2026-09-29T18:15:51.772Z",
       "userAgent": "Unknown Device",
       "ip": "127.0.0.1"
     }
