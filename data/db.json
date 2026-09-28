@@ -1688,6 +1688,24 @@
       "totalOrdersCount": 0
     },
     {
+      "id": "usr_owner_1790619733400",
+      "name": "Piyush Verma",
+      "role": "OWNER",
+      "email": "piyushverma730929@gmail.com",
+      "phone": "",
+      "status": "ACTIVE",
+      "provider": "google",
+      "createdAt": "2026-09-28T18:22:13.400Z",
+      "googleSub": "google_sub_piyush_owner_permanent",
+      "membership": "Executive Owner",
+      "totalSpent": 0,
+      "lastLoginAt": "2026-09-28T18:22:13.405Z",
+      "profileImage": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100",
+      "emailVerified": true,
+      "walletBalance": 10000,
+      "totalOrdersCount": 0
+    },
+    {
       "id": "usr_owner_1789214066481",
       "data": {
         "id": "usr_owner_1789214066481",
@@ -2147,8 +2165,8 @@
       "costPrice": 163,
       "createdAt": "2026-09-28T16:57:48.138Z",
       "hindiName": "देसी टमाटर",
-      "rawStatus": "SUSPENDED",
-      "updatedAt": "2026-09-28T18:15:58.065Z",
+      "rawStatus": "ACTIVE",
+      "updatedAt": "2026-09-28T18:22:16.347Z",
       "categories": [
         "all",
         "organic",
@@ -2179,7 +2197,9 @@
       "customerReserved": 0,
       "lowStockThreshold": 15,
       "manualReservedStock": 0,
-      "customerReservedStock": 0
+      "customerReservedStock": 0,
+      "title": "Fresh Organic Desi Tomato",
+      "imageUrl": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80"
     },
     {
       "id": "prod_combo_family",
@@ -19923,6 +19943,42 @@
   ],
   "inventory_movements": [
     {
+      "id": "mov_1790619736432_44",
+      "date": "2026-09-28T18:22:16.432Z",
+      "productId": "prod_tomato",
+      "productName": "Fresh Organic Desi Tomato",
+      "sku": "SJH-VEG-TOM-01",
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "type": "PROCUREMENT",
+      "quantity": 130,
+      "before": 320,
+      "after": 450,
+      "previous_stock": 320,
+      "new_stock": 450,
+      "reason": "Catalog Specification Edit by Store Owner",
+      "user": "Piyush Verma (Owner)",
+      "operator": "piyushverma730929@gmail.com"
+    },
+    {
+      "id": "mov_1790619735205_869",
+      "date": "2026-09-28T18:22:15.205Z",
+      "productId": "prod_tomato",
+      "productName": "Fresh Organic Desi Tomato (Heritage Farm Special)",
+      "sku": "SJH-VEG-TOM-01",
+      "hubId": "hub_blr_indiranagar",
+      "hubName": "Indiranagar Central Hub",
+      "type": "ADJUSTMENT",
+      "quantity": -130,
+      "before": 450,
+      "after": 320,
+      "previous_stock": 450,
+      "new_stock": 320,
+      "reason": "Catalog Specification Edit by Store Owner",
+      "user": "Piyush Verma (Owner)",
+      "operator": "piyushverma730929@gmail.com"
+    },
+    {
       "id": "mov_1790313229057_109",
       "sku": "SJH-VEG-TOM-01",
       "data": {
@@ -28352,42 +28408,84 @@
   ],
   "audit_logs": [
     {
-      "id": "log_1790619358137_366",
-      "timestamp": "2026-09-28T18:15:58.137Z",
+      "id": "log_1790619736465_321",
+      "timestamp": "2026-09-28T18:22:16.465Z",
       "user": "Piyush Verma",
       "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_ACTIVATED",
+      "action": "PRODUCT_UPDATED",
       "entity": "Products",
       "target": "Products",
       "entityId": "prod_tomato",
-      "details": "Activated \"Fresh Organic Desi Tomato\"",
+      "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)",
       "changes": {},
       "data": {
         "operatorEmail": "Piyush Verma",
-        "action": "PRODUCT_ACTIVATED",
+        "action": "PRODUCT_UPDATED",
         "entity": "Products",
         "entityId": "prod_tomato",
-        "details": "Activated \"Fresh Organic Desi Tomato\"",
+        "details": "Updated product \"Fresh Organic Desi Tomato\" (SJH-VEG-TOM-01)",
         "changes": {}
       }
     },
     {
-      "id": "log_1790619358071_861",
-      "timestamp": "2026-09-28T18:15:58.071Z",
+      "id": "log_1790619736354_815",
+      "timestamp": "2026-09-28T18:22:16.354Z",
       "user": "Owner",
       "operatorEmail": "Owner",
       "action": "UPDATE",
       "entity": "Products",
       "target": "Products",
       "entityId": "prod_tomato",
-      "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
+      "details": "Updated products \"Fresh Organic Desi Tomato\" (price: 75 -> 65, sellingPrice: 75 -> 65, stock: 320 -> 450, name: \"Fresh Organic Desi Tomato (Heritage Farm Special)\" -> \"Fresh Organic Desi Tomato\", description: \"Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z\" -> \"Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.\", image: \"https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80\" -> \"https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80\", mrp: 98 -> 299)",
       "changes": {
-        "status": {
-          "field": "status",
-          "oldValue": "SUSPENDED",
-          "newValue": "ACTIVE",
-          "old_value": "SUSPENDED",
-          "new_value": "ACTIVE"
+        "price": {
+          "field": "price",
+          "oldValue": 75,
+          "newValue": 65,
+          "old_value": 75,
+          "new_value": 65
+        },
+        "sellingPrice": {
+          "field": "sellingPrice",
+          "oldValue": 75,
+          "newValue": 65,
+          "old_value": 75,
+          "new_value": 65
+        },
+        "stock": {
+          "field": "stock",
+          "oldValue": 320,
+          "newValue": 450,
+          "old_value": 320,
+          "new_value": 450
+        },
+        "name": {
+          "field": "name",
+          "oldValue": "Fresh Organic Desi Tomato (Heritage Farm Special)",
+          "newValue": "Fresh Organic Desi Tomato",
+          "old_value": "Fresh Organic Desi Tomato (Heritage Farm Special)",
+          "new_value": "Fresh Organic Desi Tomato"
+        },
+        "description": {
+          "field": "description",
+          "oldValue": "Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z",
+          "newValue": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+          "old_value": "Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z",
+          "new_value": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery."
+        },
+        "image": {
+          "field": "image",
+          "oldValue": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80",
+          "newValue": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+          "old_value": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80",
+          "new_value": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80"
+        },
+        "mrp": {
+          "field": "mrp",
+          "oldValue": 98,
+          "newValue": 299,
+          "old_value": 98,
+          "new_value": 299
         }
       },
       "data": {
@@ -28395,17 +28493,275 @@
         "action": "UPDATE",
         "entity": "Products",
         "entityId": "prod_tomato",
-        "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
+        "details": "Updated products \"Fresh Organic Desi Tomato\" (price: 75 -> 65, sellingPrice: 75 -> 65, stock: 320 -> 450, name: \"Fresh Organic Desi Tomato (Heritage Farm Special)\" -> \"Fresh Organic Desi Tomato\", description: \"Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z\" -> \"Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.\", image: \"https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80\" -> \"https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80\", mrp: 98 -> 299)",
         "changes": {
-          "status": {
-            "field": "status",
-            "oldValue": "SUSPENDED",
-            "newValue": "ACTIVE",
-            "old_value": "SUSPENDED",
-            "new_value": "ACTIVE"
+          "price": {
+            "field": "price",
+            "oldValue": 75,
+            "newValue": 65,
+            "old_value": 75,
+            "new_value": 65
+          },
+          "sellingPrice": {
+            "field": "sellingPrice",
+            "oldValue": 75,
+            "newValue": 65,
+            "old_value": 75,
+            "new_value": 65
+          },
+          "stock": {
+            "field": "stock",
+            "oldValue": 320,
+            "newValue": 450,
+            "old_value": 320,
+            "new_value": 450
+          },
+          "name": {
+            "field": "name",
+            "oldValue": "Fresh Organic Desi Tomato (Heritage Farm Special)",
+            "newValue": "Fresh Organic Desi Tomato",
+            "old_value": "Fresh Organic Desi Tomato (Heritage Farm Special)",
+            "new_value": "Fresh Organic Desi Tomato"
+          },
+          "description": {
+            "field": "description",
+            "oldValue": "Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z",
+            "newValue": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+            "old_value": "Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z",
+            "new_value": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery."
+          },
+          "image": {
+            "field": "image",
+            "oldValue": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80",
+            "newValue": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+            "old_value": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80",
+            "new_value": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80"
+          },
+          "mrp": {
+            "field": "mrp",
+            "oldValue": 98,
+            "newValue": 299,
+            "old_value": 98,
+            "new_value": 299
           }
         }
       }
+    },
+    {
+      "id": "log_1790619735243_354",
+      "timestamp": "2026-09-28T18:22:15.243Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato (Heritage Farm Special)\" (SJH-VEG-TOM-01)",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "PRODUCT_UPDATED",
+        "entity": "Products",
+        "entityId": "prod_tomato",
+        "details": "Updated product \"Fresh Organic Desi Tomato (Heritage Farm Special)\" (SJH-VEG-TOM-01)",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790619735127_977",
+      "timestamp": "2026-09-28T18:22:15.127Z",
+      "user": "Owner",
+      "operatorEmail": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated products \"Fresh Organic Desi Tomato (Heritage Farm Special)\" (price: 65 -> 75, sellingPrice: 65 -> 75, stock: 450 -> 320, name: \"Fresh Organic Desi Tomato\" -> \"Fresh Organic Desi Tomato (Heritage Farm Special)\", description: \"Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.\" -> \"Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z\", image: \"https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80\" -> \"https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80\", mrp: 299 -> 98)",
+      "changes": {
+        "price": {
+          "field": "price",
+          "oldValue": 65,
+          "newValue": 75,
+          "old_value": 65,
+          "new_value": 75
+        },
+        "sellingPrice": {
+          "field": "sellingPrice",
+          "oldValue": 65,
+          "newValue": 75,
+          "old_value": 65,
+          "new_value": 75
+        },
+        "stock": {
+          "field": "stock",
+          "oldValue": 450,
+          "newValue": 320,
+          "old_value": 450,
+          "new_value": 320
+        },
+        "name": {
+          "field": "name",
+          "oldValue": "Fresh Organic Desi Tomato",
+          "newValue": "Fresh Organic Desi Tomato (Heritage Farm Special)",
+          "old_value": "Fresh Organic Desi Tomato",
+          "new_value": "Fresh Organic Desi Tomato (Heritage Farm Special)"
+        },
+        "description": {
+          "field": "description",
+          "oldValue": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+          "newValue": "Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z",
+          "old_value": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+          "new_value": "Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z"
+        },
+        "image": {
+          "field": "image",
+          "oldValue": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+          "newValue": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80",
+          "old_value": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+          "new_value": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80"
+        },
+        "mrp": {
+          "field": "mrp",
+          "oldValue": 299,
+          "newValue": 98,
+          "old_value": 299,
+          "new_value": 98
+        }
+      },
+      "data": {
+        "operatorEmail": "Owner",
+        "action": "UPDATE",
+        "entity": "Products",
+        "entityId": "prod_tomato",
+        "details": "Updated products \"Fresh Organic Desi Tomato (Heritage Farm Special)\" (price: 65 -> 75, sellingPrice: 65 -> 75, stock: 450 -> 320, name: \"Fresh Organic Desi Tomato\" -> \"Fresh Organic Desi Tomato (Heritage Farm Special)\", description: \"Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.\" -> \"Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z\", image: \"https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80\" -> \"https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80\", mrp: 299 -> 98)",
+        "changes": {
+          "price": {
+            "field": "price",
+            "oldValue": 65,
+            "newValue": 75,
+            "old_value": 65,
+            "new_value": 75
+          },
+          "sellingPrice": {
+            "field": "sellingPrice",
+            "oldValue": 65,
+            "newValue": 75,
+            "old_value": 65,
+            "new_value": 75
+          },
+          "stock": {
+            "field": "stock",
+            "oldValue": 450,
+            "newValue": 320,
+            "old_value": 450,
+            "new_value": 320
+          },
+          "name": {
+            "field": "name",
+            "oldValue": "Fresh Organic Desi Tomato",
+            "newValue": "Fresh Organic Desi Tomato (Heritage Farm Special)",
+            "old_value": "Fresh Organic Desi Tomato",
+            "new_value": "Fresh Organic Desi Tomato (Heritage Farm Special)"
+          },
+          "description": {
+            "field": "description",
+            "oldValue": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+            "newValue": "Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z",
+            "old_value": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+            "new_value": "Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z"
+          },
+          "image": {
+            "field": "image",
+            "oldValue": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+            "newValue": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80",
+            "old_value": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+            "new_value": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80"
+          },
+          "mrp": {
+            "field": "mrp",
+            "oldValue": 299,
+            "newValue": 98,
+            "old_value": 299,
+            "new_value": 98
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790619733407_666",
+      "data": {
+        "action": "OWNER_SIGNUP",
+        "entity": "Users",
+        "changes": {},
+        "details": "Owner initialized via Google",
+        "entityId": "usr_owner_1790619733400",
+        "operatorEmail": "Piyush Verma"
+      },
+      "user": "Piyush Verma",
+      "action": "OWNER_SIGNUP",
+      "entity": "Users",
+      "target": "Users",
+      "changes": {},
+      "details": "Owner initialized via Google",
+      "entityId": "usr_owner_1790619733400",
+      "timestamp": "2026-09-28T18:22:13.407Z",
+      "operatorEmail": "Piyush Verma"
+    },
+    {
+      "id": "log_1790619358137_366",
+      "data": {
+        "action": "PRODUCT_ACTIVATED",
+        "entity": "Products",
+        "changes": {},
+        "details": "Activated \"Fresh Organic Desi Tomato\"",
+        "entityId": "prod_tomato",
+        "operatorEmail": "Piyush Verma"
+      },
+      "user": "Piyush Verma",
+      "action": "PRODUCT_ACTIVATED",
+      "entity": "Products",
+      "target": "Products",
+      "changes": {},
+      "details": "Activated \"Fresh Organic Desi Tomato\"",
+      "entityId": "prod_tomato",
+      "timestamp": "2026-09-28T18:15:58.137Z",
+      "operatorEmail": "Piyush Verma"
+    },
+    {
+      "id": "log_1790619358071_861",
+      "data": {
+        "action": "UPDATE",
+        "entity": "Products",
+        "changes": {
+          "status": {
+            "field": "status",
+            "newValue": "ACTIVE",
+            "oldValue": "SUSPENDED",
+            "new_value": "ACTIVE",
+            "old_value": "SUSPENDED"
+          }
+        },
+        "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
+        "entityId": "prod_tomato",
+        "operatorEmail": "Owner"
+      },
+      "user": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "changes": {
+        "status": {
+          "field": "status",
+          "newValue": "ACTIVE",
+          "oldValue": "SUSPENDED",
+          "new_value": "ACTIVE",
+          "old_value": "SUSPENDED"
+        }
+      },
+      "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
+      "entityId": "prod_tomato",
+      "timestamp": "2026-09-28T18:15:58.071Z",
+      "operatorEmail": "Owner"
     },
     {
       "id": "log_1790619354545_277",
@@ -38273,120 +38629,8 @@
   ],
   "activity_logs": [
     {
-      "id": "log_1790619358137_366",
-      "timestamp": "2026-09-28T18:15:58.137Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_ACTIVATED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_tomato",
-      "details": "Activated \"Fresh Organic Desi Tomato\"",
-      "changes": {},
-      "data": {
-        "operatorEmail": "Piyush Verma",
-        "action": "PRODUCT_ACTIVATED",
-        "entity": "Products",
-        "entityId": "prod_tomato",
-        "details": "Activated \"Fresh Organic Desi Tomato\"",
-        "changes": {}
-      }
-    },
-    {
-      "id": "log_1790619358071_861",
-      "timestamp": "2026-09-28T18:15:58.071Z",
-      "user": "Owner",
-      "operatorEmail": "Owner",
-      "action": "UPDATE",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_tomato",
-      "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
-      "changes": {
-        "status": {
-          "field": "status",
-          "oldValue": "SUSPENDED",
-          "newValue": "ACTIVE",
-          "old_value": "SUSPENDED",
-          "new_value": "ACTIVE"
-        }
-      },
-      "data": {
-        "operatorEmail": "Owner",
-        "action": "UPDATE",
-        "entity": "Products",
-        "entityId": "prod_tomato",
-        "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"SUSPENDED\" -> \"ACTIVE\")",
-        "changes": {
-          "status": {
-            "field": "status",
-            "oldValue": "SUSPENDED",
-            "newValue": "ACTIVE",
-            "old_value": "SUSPENDED",
-            "new_value": "ACTIVE"
-          }
-        }
-      }
-    },
-    {
-      "id": "log_1790619354545_277",
-      "timestamp": "2026-09-28T18:15:54.545Z",
-      "user": "Piyush Verma",
-      "operatorEmail": "Piyush Verma",
-      "action": "PRODUCT_SUSPENDED",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_tomato",
-      "details": "Suspended \"Fresh Organic Desi Tomato\"",
-      "changes": {},
-      "data": {
-        "operatorEmail": "Piyush Verma",
-        "action": "PRODUCT_SUSPENDED",
-        "entity": "Products",
-        "entityId": "prod_tomato",
-        "details": "Suspended \"Fresh Organic Desi Tomato\"",
-        "changes": {}
-      }
-    },
-    {
-      "id": "log_1790619354483_773",
-      "timestamp": "2026-09-28T18:15:54.483Z",
-      "user": "Owner",
-      "operatorEmail": "Owner",
-      "action": "UPDATE",
-      "entity": "Products",
-      "target": "Products",
-      "entityId": "prod_tomato",
-      "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
-      "changes": {
-        "status": {
-          "field": "status",
-          "oldValue": "ACTIVE",
-          "newValue": "SUSPENDED",
-          "old_value": "ACTIVE",
-          "new_value": "SUSPENDED"
-        }
-      },
-      "data": {
-        "operatorEmail": "Owner",
-        "action": "UPDATE",
-        "entity": "Products",
-        "entityId": "prod_tomato",
-        "details": "Updated products \"Fresh Organic Desi Tomato\" (status: \"ACTIVE\" -> \"SUSPENDED\")",
-        "changes": {
-          "status": {
-            "field": "status",
-            "oldValue": "ACTIVE",
-            "newValue": "SUSPENDED",
-            "old_value": "ACTIVE",
-            "new_value": "SUSPENDED"
-          }
-        }
-      }
-    },
-    {
-      "id": "log_1790619353256_944",
-      "timestamp": "2026-09-28T18:15:53.256Z",
+      "id": "log_1790619736465_321",
+      "timestamp": "2026-09-28T18:22:16.465Z",
       "user": "Piyush Verma",
       "operatorEmail": "Piyush Verma",
       "action": "PRODUCT_UPDATED",
@@ -38405,15 +38649,15 @@
       }
     },
     {
-      "id": "log_1790619353176_975",
-      "timestamp": "2026-09-28T18:15:53.176Z",
+      "id": "log_1790619736354_815",
+      "timestamp": "2026-09-28T18:22:16.354Z",
       "user": "Owner",
       "operatorEmail": "Owner",
       "action": "UPDATE",
       "entity": "Products",
       "target": "Products",
       "entityId": "prod_tomato",
-      "details": "Updated products \"Fresh Organic Desi Tomato\" (price: 75 -> 65, sellingPrice: 75 -> 65, status: \"SUSPENDED\" -> \"ACTIVE\")",
+      "details": "Updated products \"Fresh Organic Desi Tomato\" (price: 75 -> 65, sellingPrice: 75 -> 65, stock: 320 -> 450, name: \"Fresh Organic Desi Tomato (Heritage Farm Special)\" -> \"Fresh Organic Desi Tomato\", description: \"Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z\" -> \"Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.\", image: \"https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80\" -> \"https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80\", mrp: 98 -> 299)",
       "changes": {
         "price": {
           "field": "price",
@@ -38429,12 +38673,40 @@
           "old_value": 75,
           "new_value": 65
         },
-        "status": {
-          "field": "status",
-          "oldValue": "SUSPENDED",
-          "newValue": "ACTIVE",
-          "old_value": "SUSPENDED",
-          "new_value": "ACTIVE"
+        "stock": {
+          "field": "stock",
+          "oldValue": 320,
+          "newValue": 450,
+          "old_value": 320,
+          "new_value": 450
+        },
+        "name": {
+          "field": "name",
+          "oldValue": "Fresh Organic Desi Tomato (Heritage Farm Special)",
+          "newValue": "Fresh Organic Desi Tomato",
+          "old_value": "Fresh Organic Desi Tomato (Heritage Farm Special)",
+          "new_value": "Fresh Organic Desi Tomato"
+        },
+        "description": {
+          "field": "description",
+          "oldValue": "Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z",
+          "newValue": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+          "old_value": "Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z",
+          "new_value": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery."
+        },
+        "image": {
+          "field": "image",
+          "oldValue": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80",
+          "newValue": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+          "old_value": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80",
+          "new_value": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80"
+        },
+        "mrp": {
+          "field": "mrp",
+          "oldValue": 98,
+          "newValue": 299,
+          "old_value": 98,
+          "new_value": 299
         }
       },
       "data": {
@@ -38442,7 +38714,7 @@
         "action": "UPDATE",
         "entity": "Products",
         "entityId": "prod_tomato",
-        "details": "Updated products \"Fresh Organic Desi Tomato\" (price: 75 -> 65, sellingPrice: 75 -> 65, status: \"SUSPENDED\" -> \"ACTIVE\")",
+        "details": "Updated products \"Fresh Organic Desi Tomato\" (price: 75 -> 65, sellingPrice: 75 -> 65, stock: 320 -> 450, name: \"Fresh Organic Desi Tomato (Heritage Farm Special)\" -> \"Fresh Organic Desi Tomato\", description: \"Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z\" -> \"Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.\", image: \"https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80\" -> \"https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80\", mrp: 98 -> 299)",
         "changes": {
           "price": {
             "field": "price",
@@ -38458,33 +38730,201 @@
             "old_value": 75,
             "new_value": 65
           },
-          "status": {
-            "field": "status",
-            "oldValue": "SUSPENDED",
-            "newValue": "ACTIVE",
-            "old_value": "SUSPENDED",
-            "new_value": "ACTIVE"
+          "stock": {
+            "field": "stock",
+            "oldValue": 320,
+            "newValue": 450,
+            "old_value": 320,
+            "new_value": 450
+          },
+          "name": {
+            "field": "name",
+            "oldValue": "Fresh Organic Desi Tomato (Heritage Farm Special)",
+            "newValue": "Fresh Organic Desi Tomato",
+            "old_value": "Fresh Organic Desi Tomato (Heritage Farm Special)",
+            "new_value": "Fresh Organic Desi Tomato"
+          },
+          "description": {
+            "field": "description",
+            "oldValue": "Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z",
+            "newValue": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+            "old_value": "Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z",
+            "new_value": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery."
+          },
+          "image": {
+            "field": "image",
+            "oldValue": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80",
+            "newValue": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+            "old_value": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80",
+            "new_value": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80"
+          },
+          "mrp": {
+            "field": "mrp",
+            "oldValue": 98,
+            "newValue": 299,
+            "old_value": 98,
+            "new_value": 299
           }
         }
       }
     },
     {
-      "id": "log_1790619351776_663",
-      "timestamp": "2026-09-28T18:15:51.776Z",
+      "id": "log_1790619735243_354",
+      "timestamp": "2026-09-28T18:22:15.243Z",
       "user": "Piyush Verma",
       "operatorEmail": "Piyush Verma",
-      "action": "OWNER_LOGIN",
-      "entity": "Users",
-      "target": "Users",
-      "entityId": "usr_owner_1789214066481",
-      "details": "Session created for role OWNER",
+      "action": "PRODUCT_UPDATED",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated product \"Fresh Organic Desi Tomato (Heritage Farm Special)\" (SJH-VEG-TOM-01)",
       "changes": {},
       "data": {
         "operatorEmail": "Piyush Verma",
-        "action": "OWNER_LOGIN",
+        "action": "PRODUCT_UPDATED",
+        "entity": "Products",
+        "entityId": "prod_tomato",
+        "details": "Updated product \"Fresh Organic Desi Tomato (Heritage Farm Special)\" (SJH-VEG-TOM-01)",
+        "changes": {}
+      }
+    },
+    {
+      "id": "log_1790619735127_977",
+      "timestamp": "2026-09-28T18:22:15.127Z",
+      "user": "Owner",
+      "operatorEmail": "Owner",
+      "action": "UPDATE",
+      "entity": "Products",
+      "target": "Products",
+      "entityId": "prod_tomato",
+      "details": "Updated products \"Fresh Organic Desi Tomato (Heritage Farm Special)\" (price: 65 -> 75, sellingPrice: 65 -> 75, stock: 450 -> 320, name: \"Fresh Organic Desi Tomato\" -> \"Fresh Organic Desi Tomato (Heritage Farm Special)\", description: \"Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.\" -> \"Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z\", image: \"https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80\" -> \"https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80\", mrp: 299 -> 98)",
+      "changes": {
+        "price": {
+          "field": "price",
+          "oldValue": 65,
+          "newValue": 75,
+          "old_value": 65,
+          "new_value": 75
+        },
+        "sellingPrice": {
+          "field": "sellingPrice",
+          "oldValue": 65,
+          "newValue": 75,
+          "old_value": 65,
+          "new_value": 75
+        },
+        "stock": {
+          "field": "stock",
+          "oldValue": 450,
+          "newValue": 320,
+          "old_value": 450,
+          "new_value": 320
+        },
+        "name": {
+          "field": "name",
+          "oldValue": "Fresh Organic Desi Tomato",
+          "newValue": "Fresh Organic Desi Tomato (Heritage Farm Special)",
+          "old_value": "Fresh Organic Desi Tomato",
+          "new_value": "Fresh Organic Desi Tomato (Heritage Farm Special)"
+        },
+        "description": {
+          "field": "description",
+          "oldValue": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+          "newValue": "Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z",
+          "old_value": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+          "new_value": "Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z"
+        },
+        "image": {
+          "field": "image",
+          "oldValue": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+          "newValue": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80",
+          "old_value": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+          "new_value": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80"
+        },
+        "mrp": {
+          "field": "mrp",
+          "oldValue": 299,
+          "newValue": 98,
+          "old_value": 299,
+          "new_value": 98
+        }
+      },
+      "data": {
+        "operatorEmail": "Owner",
+        "action": "UPDATE",
+        "entity": "Products",
+        "entityId": "prod_tomato",
+        "details": "Updated products \"Fresh Organic Desi Tomato (Heritage Farm Special)\" (price: 65 -> 75, sellingPrice: 65 -> 75, stock: 450 -> 320, name: \"Fresh Organic Desi Tomato\" -> \"Fresh Organic Desi Tomato (Heritage Farm Special)\", description: \"Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.\" -> \"Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z\", image: \"https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80\" -> \"https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80\", mrp: 299 -> 98)",
+        "changes": {
+          "price": {
+            "field": "price",
+            "oldValue": 65,
+            "newValue": 75,
+            "old_value": 65,
+            "new_value": 75
+          },
+          "sellingPrice": {
+            "field": "sellingPrice",
+            "oldValue": 65,
+            "newValue": 75,
+            "old_value": 65,
+            "new_value": 75
+          },
+          "stock": {
+            "field": "stock",
+            "oldValue": 450,
+            "newValue": 320,
+            "old_value": 450,
+            "new_value": 320
+          },
+          "name": {
+            "field": "name",
+            "oldValue": "Fresh Organic Desi Tomato",
+            "newValue": "Fresh Organic Desi Tomato (Heritage Farm Special)",
+            "old_value": "Fresh Organic Desi Tomato",
+            "new_value": "Fresh Organic Desi Tomato (Heritage Farm Special)"
+          },
+          "description": {
+            "field": "description",
+            "oldValue": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+            "newValue": "Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z",
+            "old_value": "Premium organic vine-ripened tomatoes, freshly plucked at dawn for 90-minute express delivery.",
+            "new_value": "Certified organic harvest plucked at sunrise. Peak freshness guaranteed. Tested at 2026-09-28T18:22:15.064Z"
+          },
+          "image": {
+            "field": "image",
+            "oldValue": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+            "newValue": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80",
+            "old_value": "https://images.unsplash.com/photo-1546470427-227c7369a4d0?auto=format&fit=crop&w=400&q=80",
+            "new_value": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80"
+          },
+          "mrp": {
+            "field": "mrp",
+            "oldValue": 299,
+            "newValue": 98,
+            "old_value": 299,
+            "new_value": 98
+          }
+        }
+      }
+    },
+    {
+      "id": "log_1790619733407_666",
+      "timestamp": "2026-09-28T18:22:13.407Z",
+      "user": "Piyush Verma",
+      "operatorEmail": "Piyush Verma",
+      "action": "OWNER_SIGNUP",
+      "entity": "Users",
+      "target": "Users",
+      "entityId": "usr_owner_1790619733400",
+      "details": "Owner initialized via Google",
+      "changes": {},
+      "data": {
+        "operatorEmail": "Piyush Verma",
+        "action": "OWNER_SIGNUP",
         "entity": "Users",
-        "entityId": "usr_owner_1789214066481",
-        "details": "Session created for role OWNER",
+        "entityId": "usr_owner_1790619733400",
+        "details": "Owner initialized via Google",
         "changes": {}
       }
     }
@@ -38516,30 +38956,17 @@
     "autoCancelUnpaidMinutes": 15,
     "preparationBufferMinutes": 20
   },
-  "applied_migrations": [
-    "001_initial_schema",
-    "002_production_indexes",
-    "003_supabase_complete_schema"
-  ],
-  "admin_users": [],
-  "customers": [],
-  "carts": [],
-  "delivery_zones": [],
-  "payments": [],
-  "addresses": [],
-  "notifications": [],
   "sessions": [
     {
-      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc4OTIxNDA2NjQ4MSIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkwNzA1NzUxNzcyLCJpYXQiOjE3OTA2MTkzNTE3NzIsInJuZCI6Ijc1M2M1MWM4ZTI0ZGI1MWIifQ.9Y7Y9Wpho-bYpiMXD7GTAAIrfN28qpmNzq6q9y43OYY",
-      "userId": "usr_owner_1789214066481",
+      "id": "fms.eyJ1aWQiOiJ1c3Jfb3duZXJfMTc5MDYxOTczMzQwMCIsImVtYWlsIjoicGl5dXNodmVybWE3MzA5MjlAZ21haWwuY29tIiwiciI6Ik9XTkVSIiwiZXhwIjoxNzkzMjExNzMzNDA4LCJpYXQiOjE3OTA2MTk3MzM0MDgsInJuZCI6ImJkMDkwZTk0ZWNiYTU3MDgifQ.OkOoNfJlUD5vZankhB3p1kzh0yuiRptwo8k6PSYC7bU",
+      "userId": "usr_owner_1790619733400",
       "role": "OWNER",
-      "rememberMe": false,
-      "createdAt": "2026-09-28T18:15:51.772Z",
-      "expiresAt": "2026-09-29T18:15:51.772Z",
+      "rememberMe": true,
+      "createdAt": "2026-09-28T18:22:13.408Z",
+      "expiresAt": "2026-10-28T18:22:13.408Z",
       "userAgent": "Unknown Device",
-      "ip": "127.0.0.1"
+      "ip": "::1"
     }
   ],
-  "wishlists": [],
   "reviews": []
 }
