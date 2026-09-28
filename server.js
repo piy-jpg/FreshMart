@@ -4605,24 +4605,46 @@ const server = http.createServer(async (req, res) => {
 
       // 1. Executive Dashboard KPIs & Live Summary
       if (pathname === '/api/owner/dashboard' && method === 'GET') {
-        let orders = [];
-        if (db.postgres && db.postgres.isAvailable()) {
+        let orders = [], products = [], users = [], hubs = [], riders = [], farmers = [], auditLogs = [], movements = [];
+        const pg = db.postgres;
+        if (pg && pg.isAvailable()) {
           try {
-            orders = await db.postgres.getAll('orders');
+            [orders, products, users, hubs, riders, farmers, auditLogs, movements] = await Promise.all([
+              pg.getAll('orders').catch(() => []),
+              pg.getAll('products').catch(() => []),
+              pg.getAll('users').catch(() => []),
+              pg.getAll('hubs').catch(() => []),
+              pg.getAll('delivery_partners').catch(() => []),
+              pg.getAll('farmers').catch(() => []),
+              pg.getAll('audit_logs').catch(() => []),
+              pg.getAll('inventory_movements').catch(() => [])
+            ]);
+            if (products.length > 0) db.data.products = products;
+            if (users.length > 0) db.data.users = users;
+            if (hubs.length > 0) db.data.hubs = hubs;
+            if (riders.length > 0) db.data.delivery_partners = riders;
+            if (farmers.length > 0) db.data.farmers = farmers;
+            if (movements.length > 0) db.data.inventory_movements = movements;
           } catch (e) {
-            orders = db.getAll('orders') || [];
+            console.error('Owner dashboard DB fetch error:', e.message);
           }
-        } else {
-          orders = db.getAll('orders') || [];
         }
+        if (orders.length === 0) orders = db.getAll('orders') || [];
+        if (hubs.length === 0) hubs = db.getAll('hubs') || [];
+        if (auditLogs.length === 0) auditLogs = db.getAll('audit_logs') || [];
+
         const kpis = db.getOwnerDashboardKPIs(orders);
         const recentOrders = orders.slice(0, 8);
         const ledger = db.getInventoryLedger();
         const lowStock = ledger.filter(p => p.status !== 'IN_STOCK').slice(0, 8);
-        const auditLogs = (db.getAll('audit_logs') || []).slice(0, 10);
         const topProducts = ledger.slice(0, 5);
 
-        const hubs = db.getAll('hubs') || [];
+        const defaultHubs = [
+          { id: 'hub_1', name: 'Indiranagar Central Hub', location: 'Indiranagar, 100ft Rd', status: 'ONLINE', activeRiders: 4 },
+          { id: 'hub_2', name: 'Koramangala Express Hub', location: 'Koramangala 4th Block', status: 'ONLINE', activeRiders: 3 },
+          { id: 'hub_3', name: 'Whitefield Tech Hub', location: 'ITPL Main Road', status: 'ONLINE', activeRiders: 3 },
+          { id: 'hub_4', name: 'HSR Layout Cold Hub', location: 'Sector 2, HSR', status: 'ONLINE', activeRiders: 2 }
+        ];
 
         return sendJson(res, 200, {
           success: true,
@@ -4630,9 +4652,9 @@ const server = http.createServer(async (req, res) => {
           kpis,
           recentOrders,
           lowStock,
-          recentActivity: auditLogs,
+          recentActivity: auditLogs.slice(0, 10),
           topProducts,
-          hubs
+          hubs: hubs.length > 0 ? hubs : defaultHubs
         });
       }
 
