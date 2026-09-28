@@ -1000,11 +1000,51 @@
               <option value="ACTIVE">🟢 Active Only</option>
               <option value="SUSPENDED">🔴 Suspended Only</option>
             </select>
+            <!-- View Mode Switcher -->
+            <div class="flex items-center p-1 rounded-xl bg-slate-950 border border-slate-800">
+              <button 
+                id="cat-view-table-btn" 
+                onclick="setCategoryViewMode('table')" 
+                class="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold text-xs shadow-sm transition cursor-pointer flex items-center gap-1.5"
+                title="Database Matrix Table View"
+              >
+                <span>📊</span> Table
+              </button>
+              <button 
+                id="cat-view-grid-btn" 
+                onclick="setCategoryViewMode('grid')" 
+                class="px-3 py-1.5 rounded-lg bg-transparent hover:bg-slate-800 text-slate-400 font-bold text-xs transition cursor-pointer flex items-center gap-1.5"
+                title="Visual Cards View"
+              >
+                <span>🎴</span> Cards
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Categories Database Table Matrix View (Default View) -->
+        <div id="categories-table-container" class="rounded-3xl bg-slate-900 border border-slate-800 overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-800/80 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-700">
+                <tr>
+                  <th class="py-3.5 px-4 font-bold">Navbar / Category Tab</th>
+                  <th class="py-3.5 px-4 font-bold">Category ID / Slug</th>
+                  <th class="py-3.5 px-4 font-bold text-center">Total in DB</th>
+                  <th class="py-3.5 px-4 font-bold text-center">Active on Website</th>
+                  <th class="py-3.5 px-4 font-bold">Status</th>
+                  <th class="py-3.5 px-4 font-bold text-right">Actions & Controls</th>
+                </tr>
+              </thead>
+              <tbody id="categories-table-body" class="divide-y divide-slate-800 font-medium">
+                <tr><td colspan="6" class="py-8 text-center text-slate-500">Loading categories from PostgreSQL database...</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
         <!-- Categories Cards Grid -->
-        <div id="categories-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div id="categories-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 hidden">
           <div class="col-span-full py-12 text-center text-slate-500 font-medium">Loading categories from database...</div>
         </div>
       </section>
@@ -6381,12 +6421,60 @@
       renderCategories();
     }
 
+    let categoryViewMode = 'table'; // 'table' or 'grid'
+
+    function setCategoryViewMode(mode) {
+      categoryViewMode = mode;
+      const tableContainer = document.getElementById('categories-table-container');
+      const gridContainer = document.getElementById('categories-grid');
+      const btnTable = document.getElementById('cat-view-table-btn');
+      const btnGrid = document.getElementById('cat-view-grid-btn');
+
+      if (mode === 'table') {
+        if (tableContainer) tableContainer.classList.remove('hidden');
+        if (gridContainer) gridContainer.classList.add('hidden');
+        if (btnTable) {
+          btnTable.className = 'px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold text-xs shadow-sm transition cursor-pointer flex items-center gap-1.5';
+        }
+        if (btnGrid) {
+          btnGrid.className = 'px-3 py-1.5 rounded-lg bg-transparent hover:bg-slate-800 text-slate-400 font-bold text-xs transition cursor-pointer flex items-center gap-1.5';
+        }
+      } else {
+        if (tableContainer) tableContainer.classList.add('hidden');
+        if (gridContainer) gridContainer.classList.remove('hidden');
+        if (btnTable) {
+          btnTable.className = 'px-3 py-1.5 rounded-lg bg-transparent hover:bg-slate-800 text-slate-400 font-bold text-xs transition cursor-pointer flex items-center gap-1.5';
+        }
+        if (btnGrid) {
+          btnGrid.className = 'px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold text-xs shadow-sm transition cursor-pointer flex items-center gap-1.5';
+        }
+      }
+    }
+
+    function filterOwnerCatalogByCategory(catSlug) {
+      if (typeof switchOwnerSection === 'function') {
+        switchOwnerSection('tab-products');
+      }
+      if (typeof setProductFilter === 'function') {
+        setProductFilter(catSlug || 'all');
+      }
+      setTimeout(() => {
+        const prodSec = document.getElementById('tab-products');
+        if (prodSec) prodSec.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+
     function renderCategories() {
       const grid = document.getElementById('categories-grid');
-      if (!grid) return;
-
+      const tableBody = document.getElementById('categories-table-body');
       let list = state.categories || [];
 
+      // Calculate master totals
+      const totalDbProducts = state.products ? state.products.length : list.reduce((sum, c) => sum + (Number(c.totalProductCount !== undefined ? c.totalProductCount : (c.productCount || 0))), 0);
+      const activeDbProducts = state.products ? state.products.filter(p => (p.status || '').toUpperCase() === 'ACTIVE').length : list.reduce((sum, c) => sum + (Number(c.activeProductCount !== undefined ? c.activeProductCount : (c.productCount || 0))), 0);
+      const suspendedDbProducts = state.products ? state.products.filter(p => (p.status || '').toUpperCase() === 'SUSPENDED').length : list.reduce((sum, c) => sum + (Number(c.suspendedProductCount || 0)), 0);
+
+      // Filtering for UI
       if (categoryStatusFilter === 'ACTIVE') {
         list = list.filter(c => (c.status || 'ACTIVE') === 'ACTIVE' && c.active !== false);
       } else if (categoryStatusFilter === 'SUSPENDED') {
@@ -6401,80 +6489,200 @@
         );
       }
 
-      if (!list.length) {
-        grid.innerHTML = `
-          <div class="col-span-full py-12 text-center text-slate-500 bg-slate-900 rounded-2xl border border-slate-800">
-            <span class="text-3xl block mb-2">🏷️</span>
-            <p class="font-bold text-slate-300">No categories match your filter or search.</p>
-            <p class="text-xs text-slate-500 mt-1">Try clearing your filters or create a new category above.</p>
-          </div>
-        `;
-        return;
+      // 1. RENDER TABLE MATRIX
+      if (tableBody) {
+        if (!list.length && categorySearchQuery) {
+          tableBody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-500">No categories found matching "${categorySearchQuery}"</td></tr>`;
+        } else {
+          // Master All Products summary row
+          let masterRowHtml = '';
+          if (categoryStatusFilter === 'ALL' && !categorySearchQuery) {
+            masterRowHtml = `
+              <tr class="bg-amber-500/5 hover:bg-amber-500/10 border-b border-amber-500/20 font-semibold transition">
+                <td class="py-3 px-4">
+                  <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 text-sm flex items-center justify-center font-bold border border-amber-500/30">🌟</span>
+                    <div>
+                      <span class="font-heading font-black text-white text-xs block">All Products / All Produce</span>
+                      <span class="text-[10px] text-amber-400 font-medium">Storefront Master Navbar</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3 px-4">
+                  <code class="px-2.5 py-1 rounded-lg bg-slate-950 border border-amber-500/30 text-[11px] font-mono text-amber-300 font-bold">all</code>
+                </td>
+                <td class="py-3 px-4 text-center">
+                  <span class="px-3 py-1 rounded-xl font-mono font-black text-xs text-amber-300 bg-amber-500/15 border border-amber-500/30 inline-block shadow-xs">${totalDbProducts}</span>
+                </td>
+                <td class="py-3 px-4 text-center">
+                  <span class="px-3 py-1 rounded-xl font-mono font-black text-xs text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 inline-block shadow-xs">${activeDbProducts}</span>
+                </td>
+                <td class="py-3 px-4">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                    🟢 ${activeDbProducts} Live ${suspendedDbProducts > 0 ? `<span class="text-rose-400 font-normal">(${suspendedDbProducts} Inactive)</span>` : ''}
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button onclick="filterOwnerCatalogByCategory('all')" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer" title="View all produce in Product Catalog">
+                      <span>🔍</span> View Catalog
+                    </button>
+                    <a href="/" target="_blank" class="px-2.5 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition flex items-center gap-1 cursor-pointer" title="Open Storefront Homepage">
+                      <span>🌐</span> Storefront
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }
+
+          const categoryRowsHtml = list.map(cat => {
+            const isSuspended = (cat.status || '').toUpperCase() === 'SUSPENDED' || cat.active === false;
+            const prodCount = Number(cat.activeProductCount !== undefined ? cat.activeProductCount : (cat.productCount || 0));
+            const totalCount = Number(cat.totalProductCount !== undefined ? cat.totalProductCount : prodCount);
+            const suspendedCount = Number(cat.suspendedProductCount !== undefined ? cat.suspendedProductCount : Math.max(0, totalCount - prodCount));
+
+            let statusHtml = '';
+            if (isSuspended) {
+              statusHtml = '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">🔴 Suspended</span>';
+            } else if (totalCount === 0) {
+              statusHtml = '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-800 text-slate-400 border border-slate-700">⚪ 0 Live (Empty)</span>';
+            } else if (suspendedCount > 0) {
+              statusHtml = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">🟢 ${prodCount} Live <span class="text-rose-400 text-[10px]">(${suspendedCount} Inactive)</span></span>`;
+            } else {
+              statusHtml = '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">🟢 Live</span>';
+            }
+
+            return `
+              <tr class="hover:bg-slate-800/40 transition">
+                <td class="py-3 px-4">
+                  <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-xl bg-slate-800 text-base flex items-center justify-center shadow-inner border border-slate-700/60">${cat.icon || '🏷️'}</span>
+                    <div>
+                      <span class="font-heading font-black text-slate-100 text-xs block">${cat.name}</span>
+                      <span class="text-[10px] text-slate-400 font-mono">Order #${cat.displayOrder !== undefined ? cat.displayOrder : (cat.display_order || 0)}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3 px-4">
+                  <code class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-[11px] font-mono text-slate-300 font-bold">${cat.id} / ${cat.slug || cat.id}</code>
+                </td>
+                <td class="py-3 px-4 text-center">
+                  <span class="px-2.5 py-1 rounded-xl font-mono font-black text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 inline-block">${totalCount}</span>
+                </td>
+                <td class="py-3 px-4 text-center">
+                  <span class="px-2.5 py-1 rounded-xl font-mono font-black text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 inline-block">${prodCount}</span>
+                </td>
+                <td class="py-3 px-4">
+                  ${statusHtml}
+                </td>
+                <td class="py-3 px-4 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button onclick="filterOwnerCatalogByCategory('${cat.slug || cat.id}')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition flex items-center gap-1 cursor-pointer" title="Filter this category in Product Catalog">
+                      <span>🔍</span> Catalog
+                    </button>
+                    <a href="/category.html?c=${encodeURIComponent(cat.slug || cat.id)}" target="_blank" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer" title="View customer category page">
+                      <span>🌐</span>
+                    </a>
+                    <button onclick="openEditCategoryModal('${cat.id}')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 hover:text-amber-200 text-xs font-bold transition cursor-pointer" title="Edit category details">
+                      ✏️
+                    </button>
+                    <button onclick="toggleCategoryStatus('${cat.id}')" class="px-2 py-1 rounded-lg ${isSuspended ? 'bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 border border-emerald-500/30' : 'bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 border border-amber-500/30'} text-xs font-bold transition cursor-pointer" title="${isSuspended ? 'Activate category' : 'Suspend category'}">
+                      ${isSuspended ? '🟢' : '⏸️'}
+                    </button>
+                    <button onclick="deleteCategory('${cat.id}', '${cat.name.replace(/'/g, "\\'")}', ${totalCount})" class="px-2 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold transition cursor-pointer" title="Delete category">
+                      🗑️
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('');
+
+          tableBody.innerHTML = masterRowHtml + categoryRowsHtml;
+        }
       }
 
-      grid.innerHTML = list.map(cat => {
-        const isSuspended = (cat.status || '').toUpperCase() === 'SUSPENDED' || cat.active === false;
-        const statusBadge = isSuspended 
-          ? '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">🔴 SUSPENDED</span>'
-          : '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">🟢 ACTIVE</span>';
+      // 2. RENDER CARD GRID
+      if (grid) {
+        if (!list.length) {
+          grid.innerHTML = `
+            <div class="col-span-full py-12 text-center text-slate-500 bg-slate-900 rounded-2xl border border-slate-800">
+              <span class="text-3xl block mb-2">🏷️</span>
+              <p class="font-bold text-slate-300">No categories match your filter or search.</p>
+              <p class="text-xs text-slate-500 mt-1">Try clearing your filters or create a new category above.</p>
+            </div>
+          `;
+          return;
+        }
 
-        const prodCount = Number(cat.activeProductCount !== undefined ? cat.activeProductCount : (cat.productCount || 0));
-        const totalCount = Number(cat.totalProductCount !== undefined ? cat.totalProductCount : prodCount);
+        grid.innerHTML = list.map(cat => {
+          const isSuspended = (cat.status || '').toUpperCase() === 'SUSPENDED' || cat.active === false;
+          const statusBadge = isSuspended 
+            ? '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">🔴 SUSPENDED</span>'
+            : '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">🟢 ACTIVE</span>';
 
-        const imgHtml = cat.image 
-          ? `<img src="${cat.image}" alt="${cat.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80'" />`
-          : `<div class="w-full h-full flex items-center justify-center text-3xl bg-slate-800/80">${cat.icon || '🏷️'}</div>`;
+          const prodCount = Number(cat.activeProductCount !== undefined ? cat.activeProductCount : (cat.productCount || 0));
+          const totalCount = Number(cat.totalProductCount !== undefined ? cat.totalProductCount : prodCount);
 
-        return `
-          <div class="rounded-3xl bg-slate-900 border border-slate-800 hover:border-slate-700 p-5 flex flex-col justify-between transition-all duration-200 shadow-sm relative group">
-            <div>
-              <!-- Top Row: Icon & Status -->
-              <div class="flex items-center justify-between gap-2 mb-3">
-                <div class="flex items-center gap-2">
-                  <span class="w-9 h-9 rounded-2xl bg-slate-800 text-lg flex items-center justify-center shadow-inner border border-slate-700/60">${cat.icon || '🏷️'}</span>
-                  <div>
-                    <span class="font-mono text-[10px] text-amber-400 font-bold uppercase tracking-wider block">Order #${cat.displayOrder !== undefined ? cat.displayOrder : (cat.display_order || 0)}</span>
-                    <span class="font-mono text-[10px] text-slate-400">/${cat.slug || cat.id}</span>
+          const imgHtml = cat.image 
+            ? `<img src="${cat.image}" alt="${cat.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80'" />`
+            : `<div class="w-full h-full flex items-center justify-center text-3xl bg-slate-800/80">${cat.icon || '🏷️'}</div>`;
+
+          return `
+            <div class="rounded-3xl bg-slate-900 border border-slate-800 hover:border-slate-700 p-5 flex flex-col justify-between transition-all duration-200 shadow-sm relative group">
+              <div>
+                <!-- Top Row: Icon & Status -->
+                <div class="flex items-center justify-between gap-2 mb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="w-9 h-9 rounded-2xl bg-slate-800 text-lg flex items-center justify-center shadow-inner border border-slate-700/60">${cat.icon || '🏷️'}</span>
+                    <div>
+                      <span class="font-mono text-[10px] text-amber-400 font-bold uppercase tracking-wider block">Order #${cat.displayOrder !== undefined ? cat.displayOrder : (cat.display_order || 0)}</span>
+                      <span class="font-mono text-[10px] text-slate-400">/${cat.slug || cat.id}</span>
+                    </div>
                   </div>
+                  ${statusBadge}
                 </div>
-                ${statusBadge}
+
+                <!-- Cover Image Thumbnail -->
+                <div class="w-full h-32 rounded-2xl overflow-hidden bg-slate-800 border border-slate-800/80 mb-3 relative">
+                  ${imgHtml}
+                </div>
+
+                <!-- Title & Description -->
+                <h3 class="font-heading font-black text-base text-white group-hover:text-amber-400 transition-colors">${cat.name}</h3>
+                <p class="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed min-h-[36px]">${cat.description || 'No description provided.'}</p>
+
+                <!-- Live Product Count Bar -->
+                <div class="mt-4 p-3 rounded-2xl bg-slate-800/70 border border-slate-700/60 flex items-center justify-between text-xs">
+                  <span class="text-slate-400 font-semibold">Storefront Active:</span>
+                  <span class="font-mono font-black text-emerald-400">${prodCount} Active</span>
+                </div>
+                <div class="mt-1.5 px-3 py-1.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                  <span>Total in Catalog:</span>
+                  <span class="font-mono font-bold text-slate-300">${totalCount} Items</span>
+                </div>
               </div>
 
-              <!-- Cover Image Thumbnail -->
-              <div class="w-full h-32 rounded-2xl overflow-hidden bg-slate-800 border border-slate-800/80 mb-3 relative">
-                ${imgHtml}
-              </div>
-
-              <!-- Title & Description -->
-              <h3 class="font-heading font-black text-base text-white group-hover:text-amber-400 transition-colors">${cat.name}</h3>
-              <p class="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed min-h-[36px]">${cat.description || 'No description provided.'}</p>
-
-              <!-- Live Product Count Bar -->
-              <div class="mt-4 p-3 rounded-2xl bg-slate-800/70 border border-slate-700/60 flex items-center justify-between text-xs">
-                <span class="text-slate-400 font-semibold">Storefront Active:</span>
-                <span class="font-mono font-black text-emerald-400">${prodCount} Active</span>
-              </div>
-              <div class="mt-1.5 px-3 py-1.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
-                <span>Total in Catalog:</span>
-                <span class="font-mono font-bold text-slate-300">${totalCount} Items</span>
+              <!-- Action Buttons -->
+              <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
+                <button onclick="filterOwnerCatalogByCategory('${cat.slug || cat.id}')" class="py-1.5 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white font-bold text-xs transition cursor-pointer" title="View in Product Catalog">
+                  🔍 Catalog
+                </button>
+                <button onclick="openEditCategoryModal('${cat.id}')" class="flex-1 py-1.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white font-bold text-xs transition cursor-pointer text-center">
+                  ✏️ Edit
+                </button>
+                <button onclick="toggleCategoryStatus('${cat.id}')" class="py-1.5 px-3 rounded-xl ${isSuspended ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30'} font-bold text-xs transition cursor-pointer">
+                  ${isSuspended ? '🟢 Activate' : '⏸️ Suspend'}
+                </button>
+                <button onclick="deleteCategory('${cat.id}', '${cat.name.replace(/'/g, "\\'")}', ${totalCount})" class="py-1.5 px-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold text-xs transition cursor-pointer" title="Delete category">
+                  🗑️
+                </button>
               </div>
             </div>
-
-            <!-- Action Buttons -->
-            <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
-              <button onclick="openEditCategoryModal('${cat.id}')" class="flex-1 py-1.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white font-bold text-xs transition cursor-pointer text-center">
-                ✏️ Edit
-              </button>
-              <button onclick="toggleCategoryStatus('${cat.id}')" class="py-1.5 px-3 rounded-xl ${isSuspended ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30'} font-bold text-xs transition cursor-pointer">
-                ${isSuspended ? '🟢 Activate' : '⏸️ Suspend'}
-              </button>
-              <button onclick="deleteCategory('${cat.id}', '${cat.name.replace(/'/g, "\\'")}', ${totalCount})" class="py-1.5 px-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold text-xs transition cursor-pointer" title="Delete category">
-                🗑️
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
+          `;
+        }).join('');
+      }
     }
 
     function autoGenerateCategorySlug(name, targetId) {

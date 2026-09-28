@@ -2342,6 +2342,136 @@ let allGroceryData = [
       { label: '2 kg Pack', price: 90, originalPrice: 125, discount: '28% OFF', savings: 35 }
     ],
     selectedWeightIndex: 0
+  },
+  {
+    id: '1789281578598',
+    storefrontId: 'm',
+    dbId: 'prod_1789281578598',
+    name: 'm',
+    hindiName: 'एम',
+    category: 'Grocery & Pantry',
+    catalogType: 'grocery',
+    subcategory: 'Daily Fresh',
+    categories: ['all', 'grocery', 'staples'],
+    rating: 4.8,
+    reviewsCount: 45,
+    badge: '95% OFF',
+    badgeType: 'bestseller',
+    inStock: true,
+    stock: 58,
+    stockCount: 58,
+    isNew: true,
+    image: 'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=400&q=80',
+    description: 'm - farm-fresh certified harvest, quality checked and delivered in 90 minutes.',
+    origin: 'Kolar Organic Farms, Karnataka',
+    weights: [
+      { label: '90g', price: 4, originalPrice: 88, discount: '95% OFF', savings: 84 }
+    ],
+    selectedWeightIndex: 0
+  },
+  {
+    id: '1789281599055',
+    storefrontId: 'momo',
+    dbId: 'prod_1789281599055',
+    name: 'momo',
+    hindiName: 'मोमो',
+    category: 'Grocery & Pantry',
+    catalogType: 'grocery',
+    subcategory: 'Daily Fresh',
+    categories: ['all', 'grocery', 'staples'],
+    rating: 4.9,
+    reviewsCount: 60,
+    badge: 'Special Selection',
+    badgeType: 'fresh',
+    inStock: true,
+    stock: 58,
+    stockCount: 58,
+    isNew: true,
+    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80',
+    description: 'momo - farm-fresh certified harvest, quality checked and delivered in 90 minutes.',
+    origin: 'Kolar Organic Farms, Karnataka',
+    weights: [
+      { label: '300g', price: 200, originalPrice: 99, discount: 'Best Value', savings: 0 }
+    ],
+    selectedWeightIndex: 0
+  },
+  {
+    id: 'pantry_combo_monthly',
+    storefrontId: 'pantry-combo-monthly',
+    dbId: 'prod_pantry_combo_monthly',
+    name: 'Monthly Essential Family Kitchen Kit',
+    hindiName: 'मासिक पारिवारिक रसोई किट',
+    category: 'Grocery & Pantry',
+    catalogType: 'grocery',
+    subcategory: 'Curated Kits',
+    categories: ['all', 'grocery', 'combos'],
+    rating: 5.0,
+    reviewsCount: 380,
+    badge: 'Complete Kitchen Box',
+    badgeType: 'bestseller',
+    inStock: true,
+    stock: 50,
+    stockCount: 50,
+    isNew: false,
+    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=700&q=80',
+    description: 'Complete family pantry kit: Sharbati Atta (5kg), Himalayan Basmati (5kg), Toor Dal (1kg), Mustard Oil (1L), Moong Dal (1kg), Turmeric (200g), Jeera (250g), Pink Salt (1kg).',
+    origin: 'Karnataka Organic Kisan Network',
+    weights: [
+      { label: '1 Kit (8 Staples)', price: 1199, originalPrice: 1480, discount: '19% OFF', savings: 281 }
+    ],
+    selectedWeightIndex: 0
+  },
+  {
+    id: 'pantry_combo_dals',
+    storefrontId: 'pantry-combo-dals',
+    dbId: 'prod_pantry_combo_dals',
+    name: 'Complete Protein Organic Dal Trio',
+    hindiName: 'शुद्ध दाल तिकड़ी पैक',
+    category: 'Grocery & Pantry',
+    catalogType: 'grocery',
+    subcategory: 'Curated Kits',
+    categories: ['all', 'grocery', 'combos', 'dals'],
+    rating: 4.9,
+    reviewsCount: 210,
+    badge: 'High Plant Protein',
+    badgeType: 'bestseller',
+    inStock: true,
+    stock: 50,
+    stockCount: 50,
+    isNew: false,
+    image: 'https://images.unsplash.com/photo-1585994192701-f1a505c8574a?auto=format&fit=crop&w=700&q=80',
+    description: 'Organic dal trio: Unpolished Toor Dal (1kg), Green Moong Dal (1kg), Desi Chana Dal (1kg). High plant protein essential kit.',
+    origin: 'Maharashtra & Rajasthan Co-ops',
+    weights: [
+      { label: '1 Pack (3 Dals, 3kg)', price: 419, originalPrice: 545, discount: '23% OFF', savings: 126 }
+    ],
+    selectedWeightIndex: 0
+  },
+  {
+    id: 'pantry_combo_oils',
+    storefrontId: 'pantry-combo-oils',
+    dbId: 'prod_pantry_combo_oils',
+    name: 'Cold-Pressed Wood Chekku Cooking Oil Duo',
+    hindiName: 'कच्ची घानी कुकिंग ऑयल पैक',
+    category: 'Grocery & Pantry',
+    catalogType: 'grocery',
+    subcategory: 'Curated Kits',
+    categories: ['all', 'grocery', 'combos', 'oils'],
+    rating: 4.9,
+    reviewsCount: 195,
+    badge: 'Heart Care Oils',
+    badgeType: 'bestseller',
+    inStock: true,
+    stock: 50,
+    stockCount: 50,
+    isNew: false,
+    image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=700&q=80',
+    description: 'Pure cold-pressed duo: Wood-Pressed Yellow Mustard Oil (1L) + Wood-Pressed Groundnut Oil (1L). Traditional chemical-free extraction.',
+    origin: 'Gujarat & Rajasthan Farms',
+    weights: [
+      { label: '1 Duo (2 Litres)', price: 449, originalPrice: 584, discount: '23% OFF', savings: 135 }
+    ],
+    selectedWeightIndex: 0
   }
 ];
 
@@ -3528,15 +3658,15 @@ function initCustomerApp() {
   }
 }
 
+// Global Server-Sent Events Listener for Live Tracking & Catalog Updates
+let globalOrderSseInstance = null;
+let globalOrderSseTimeout = null;
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initCustomerApp);
 } else {
   initCustomerApp();
 }
-
-// Global Server-Sent Events Listener for Live Tracking & Catalog Updates
-let globalOrderSseInstance = null;
-let globalOrderSseTimeout = null;
 
 function initGlobalOrderSSE() {
   try {
