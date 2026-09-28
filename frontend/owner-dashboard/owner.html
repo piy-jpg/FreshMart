@@ -6638,8 +6638,6 @@
       if (!confirm(`Are you sure you want to delete category "${catName}" permanently from the database?`)) {
         return;
       }
-        return;
-      }
 
       try {
         const res = await fetch(`/api/owner/categories/${catId}`, {
