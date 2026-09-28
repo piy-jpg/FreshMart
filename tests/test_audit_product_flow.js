@@ -232,10 +232,12 @@ async function runAuditTest() {
   await simulateRequest('PATCH', `/api/owner/products/${encodeURIComponent(prodId)}/status`, {
     status: 'SUSPENDED'
   }, { cookie: ownerCookie });
-  const custSuspCheck = await simulateRequest('GET', '/api/products');
-  const prodSuspCheck = custSuspCheck.body.find(p => p.id === prodId);
+  const ownerSuspCheck = await simulateRequest('GET', '/api/owner/products', null, { cookie: ownerCookie });
+  const prodSuspCheck = ownerSuspCheck.body.find(p => p.id === prodId);
   assert.strictEqual(prodSuspCheck.status, 'SUSPENDED');
-  console.log(`  ✅ Status Suspended verified: ${prodSuspCheck.status}`);
+  const custSuspCheck = await simulateRequest('GET', '/api/products');
+  assert.ok(!custSuspCheck.body.some(p => p.id === prodId), 'Suspended product must not appear on customer storefront');
+  console.log(`  ✅ Status Suspended verified in Owner Catalog and hidden from Storefront: ${prodSuspCheck.status}`);
 
   await simulateRequest('PATCH', `/api/owner/products/${encodeURIComponent(prodId)}/status`, {
     status: 'ACTIVE'

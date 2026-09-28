@@ -8207,7 +8207,7 @@
 
         const res = await fetch('/api/owner/products', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
           credentials: 'include',
           body: JSON.stringify(payload)
         });
@@ -8291,7 +8291,7 @@
 
         const res = await fetch('/api/owner/inventory/adjust', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
           credentials: 'include',
           body: JSON.stringify(payload)
         });
@@ -8333,6 +8333,7 @@
       try {
         const res = await fetch(`/api/owner/products/${encodeURIComponent(productId)}`, {
           method: 'DELETE',
+          headers: getAuthHeaders(),
           credentials: 'include'
         });
         const data = await res.json().catch(() => ({}));

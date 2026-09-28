@@ -989,27 +989,65 @@ class PostgresAdapter {
         const catSlug = item.categorySlug || item.category_slug || (item.data && (item.data.categorySlug || item.data.category_slug)) || null;
 
         await this.query(`
-          INSERT INTO freshmart_products (id, storefront_id, name, sku, category, category_id, category_slug, price, selling_price, mrp, stock, status, data)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+          INSERT INTO freshmart_products (
+            id, storefront_id, name, sku, category, category_id, category_slug,
+            subcategory, price, selling_price, mrp, cost_price, stock, damaged_stock,
+            expired_stock, manual_reserved_stock, low_stock_limit, unit, status,
+            image, description, farmer, data, updated_at
+          )
+          VALUES (
+            $1, $2, $3, $4, $5, $6, $7,
+            $8, $9, $10, $11, $12, $13, $14,
+            $15, $16, $17, $18, $19,
+            $20, $21, $22, $23, NOW()
+          )
           ON CONFLICT (id) DO UPDATE SET
-            storefront_id = EXCLUDED.storefront_id,
+            storefront_id = COALESCE(EXCLUDED.storefront_id, freshmart_products.storefront_id),
             name = EXCLUDED.name,
-            sku = EXCLUDED.sku,
-            category = EXCLUDED.category,
+            sku = COALESCE(EXCLUDED.sku, freshmart_products.sku),
+            category = COALESCE(EXCLUDED.category, freshmart_products.category),
             category_id = COALESCE(EXCLUDED.category_id, freshmart_products.category_id),
             category_slug = COALESCE(EXCLUDED.category_slug, freshmart_products.category_slug),
+            subcategory = COALESCE(EXCLUDED.subcategory, freshmart_products.subcategory),
             price = EXCLUDED.price,
             selling_price = EXCLUDED.selling_price,
             mrp = EXCLUDED.mrp,
+            cost_price = EXCLUDED.cost_price,
             stock = EXCLUDED.stock,
+            damaged_stock = EXCLUDED.damaged_stock,
+            expired_stock = EXCLUDED.expired_stock,
+            manual_reserved_stock = EXCLUDED.manual_reserved_stock,
+            low_stock_limit = EXCLUDED.low_stock_limit,
+            unit = COALESCE(EXCLUDED.unit, freshmart_products.unit),
             status = EXCLUDED.status,
+            image = COALESCE(EXCLUDED.image, freshmart_products.image),
+            description = COALESCE(EXCLUDED.description, freshmart_products.description),
+            farmer = COALESCE(EXCLUDED.farmer, freshmart_products.farmer),
             data = EXCLUDED.data,
             updated_at = NOW()
         `, [
-          item.id, item.storefrontId || null, item.name, item.sku || null, item.category || null,
-          catId, catSlug,
-          item.price || item.sellingPrice || 0, item.sellingPrice || item.price || 0,
-          item.mrp || item.originalPrice || 0, item.stock || 0, item.status || 'ACTIVE',
+          item.id,
+          item.storefrontId || null,
+          item.name,
+          item.sku || null,
+          item.category || null,
+          catId,
+          catSlug,
+          item.subcategory || null,
+          Number(item.price || item.sellingPrice || 0),
+          Number(item.sellingPrice || item.price || 0),
+          Number(item.mrp || item.originalPrice || 0),
+          Number(item.costPrice || item.cost_price || 0),
+          Number(item.stock !== undefined ? item.stock : (item.currentStock || item.physicalStock || 0)),
+          Number(item.damagedStock || item.damaged_stock || 0),
+          Number(item.expiredStock || item.expired_stock || 0),
+          Number(item.manualReservedStock || item.manual_reserved_stock || 0),
+          Number(item.lowStockLimit || item.low_stock_limit || 15),
+          item.unit || '1 kg',
+          item.status || 'ACTIVE',
+          item.image || item.imageUrl || null,
+          item.description || null,
+          item.farmer || item.farmSource || null,
           JSON.stringify(item)
         ]);
       } else if (collection === 'users') {
@@ -1930,7 +1968,14 @@ class PostgresAdapter {
         const catLower = category.toLowerCase();
         const matchedAliases = [catLower];
         try {
-          const catRes = await this.query(`SELECT id, name, slug FROM freshmart_categories WHERE LOWER(slug) = $1 OR LOWER(name) = $1 OR LOWER(id) = $1`, [catLower]);
+          const catRes = await this.query(`
+            SELECT id, name, slug FROM freshmart_categories 
+            WHERE LOWER(slug) = $1 
+               OR LOWER(name) = $1 
+               OR LOWER(id) = $1
+               OR LOWER(name) LIKE '%' || $1 || '%'
+               OR LOWER(slug) LIKE '%' || $1 || '%'
+          `, [catLower]);
           if (catRes && catRes.rows.length > 0) {
             catRes.rows.forEach(r => {
               if (r.name) matchedAliases.push(r.name.toLowerCase());
@@ -1948,12 +1993,16 @@ class PostgresAdapter {
           const pSpaceSlug = pCat.replace(/\s+/g, '-');
           const pCatArray = (p.categories || []).map(c => String(c).toLowerCase());
           
-          return matchedAliases.includes(pCat) ||
-                 matchedAliases.includes(pSlug) ||
-                 matchedAliases.includes(pId) ||
-                 matchedAliases.includes(pNormalized) ||
-                 matchedAliases.includes(pSpaceSlug) ||
-                 pCatArray.some(c => matchedAliases.includes(c) || matchedAliases.includes(c.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')));
+          return matchedAliases.some(alias => 
+            pCat === alias ||
+            pSlug === alias ||
+            pId === alias ||
+            pNormalized === alias ||
+            pSpaceSlug === alias ||
+            pCat.includes(alias) ||
+            alias.includes(pCat) ||
+            (pSlug && (pSlug.includes(alias) || alias.includes(pSlug)))
+          ) || pCatArray.some(c => matchedAliases.includes(c) || matchedAliases.includes(c.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')));
         });
       }
 

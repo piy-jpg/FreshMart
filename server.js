@@ -2662,7 +2662,7 @@ const server = http.createServer(async (req, res) => {
             search,
             onlyActive: !status || status === 'ACTIVE'
           });
-          if (Array.isArray(products) && (products.length > 0 || search)) {
+          if (Array.isArray(products)) {
             return sendJson(res, 200, products);
           }
         } catch (e) {
@@ -4931,7 +4931,7 @@ const server = http.createServer(async (req, res) => {
         if (pg && pg.isAvailable()) {
           try {
             const products = await pg.getAllProductsAsync({ includeSuspended: true });
-            if (Array.isArray(products) && products.length > 0) {
+            if (Array.isArray(products)) {
               return sendJson(res, 200, products);
             }
           } catch (e) {
@@ -4962,7 +4962,21 @@ const server = http.createServer(async (req, res) => {
           try {
             const catLookup = await pg.query(`
               SELECT id, name, slug FROM freshmart_categories
-              WHERE id = $1 OR LOWER(name) = LOWER($2) OR LOWER(slug) = LOWER($2) OR LOWER(slug) = LOWER($3)
+              WHERE id = $1 
+                 OR LOWER(name) = LOWER($2) 
+                 OR LOWER(slug) = LOWER($2) 
+                 OR LOWER(slug) = LOWER($3)
+                 OR LOWER(name) LIKE '%' || LOWER($2) || '%'
+                 OR LOWER($2) LIKE '%' || LOWER(name) || '%'
+                 OR LOWER(slug) LIKE '%' || LOWER($2) || '%'
+              ORDER BY 
+                CASE 
+                  WHEN id = $1 THEN 1
+                  WHEN LOWER(name) = LOWER($2) THEN 2
+                  WHEN LOWER(slug) = LOWER($2) THEN 3
+                  WHEN LOWER(slug) = LOWER($3) THEN 4
+                  ELSE 5
+                END
               LIMIT 1;
             `, [catId || '', catName || '', catSlug || '']);
             if (catLookup && catLookup.rows.length > 0) {
@@ -5050,7 +5064,7 @@ const server = http.createServer(async (req, res) => {
       if (pathname.startsWith('/api/owner/products/') && method === 'PUT') {
         const id = pathname.replace('/api/owner/products/', '');
         const body = await parseBody(req);
-        const prod = db.getById('products', id);
+        const prod = await db.getByIdAsync('products', id);
         if (!prod) return sendJson(res, 404, { error: 'Product not found' });
 
         const price = body.price !== undefined ? Number(body.price) : (body.sellingPrice !== undefined ? Number(body.sellingPrice) : prod.price);
@@ -5157,16 +5171,36 @@ const server = http.createServer(async (req, res) => {
           }];
         }
 
+        let catName = body.category || prod.category;
         let catId = body.categoryId !== undefined ? body.categoryId : (body.category_id !== undefined ? body.category_id : prod.categoryId);
         let catSlug = body.categorySlug !== undefined ? body.categorySlug : (body.category_slug !== undefined ? body.category_slug : prod.categorySlug);
-        let catName = body.category || prod.category;
+
+        // If category name was changed explicitly, clear stale catId / catSlug if they belonged to the previous category
+        if (body.category && prod.category && body.category.toLowerCase().trim() !== prod.category.toLowerCase().trim()) {
+          if (catId === prod.categoryId) catId = undefined;
+          if (catSlug === prod.categorySlug) catSlug = undefined;
+        }
 
         const pg = db.postgres || db.pgAdapter;
         if (pg && pg.isAvailable()) {
           try {
             const catLookup = await pg.query(`
               SELECT id, name, slug FROM freshmart_categories
-              WHERE id = $1 OR LOWER(name) = LOWER($2) OR LOWER(slug) = LOWER($2) OR LOWER(slug) = LOWER($3)
+              WHERE id = $1 
+                 OR LOWER(name) = LOWER($2) 
+                 OR LOWER(slug) = LOWER($2) 
+                 OR LOWER(slug) = LOWER($3)
+                 OR LOWER(name) LIKE '%' || LOWER($2) || '%'
+                 OR LOWER($2) LIKE '%' || LOWER(name) || '%'
+                 OR LOWER(slug) LIKE '%' || LOWER($2) || '%'
+              ORDER BY 
+                CASE 
+                  WHEN LOWER(name) = LOWER($2) THEN 1
+                  WHEN LOWER(slug) = LOWER($2) THEN 2
+                  WHEN id = $1 THEN 3
+                  WHEN LOWER(slug) = LOWER($3) THEN 4
+                  ELSE 5
+                END
               LIMIT 1;
             `, [catId || '', catName || '', catSlug || '']);
             if (catLookup && catLookup.rows.length > 0) {
@@ -5242,7 +5276,7 @@ const server = http.createServer(async (req, res) => {
       if (pathname.startsWith('/api/owner/products/') && (method === 'PATCH' || pathname.endsWith('/status') || pathname.endsWith('/suspend'))) {
         const id = pathname.replace('/api/owner/products/', '').replace('/status', '').replace('/suspend', '');
         const body = await parseBody(req);
-        const prod = db.getById('products', id);
+        const prod = await db.getByIdAsync('products', id);
         if (!prod) return sendJson(res, 404, { error: 'Product not found' });
 
         let newStatus = body.status;
@@ -5266,7 +5300,7 @@ const server = http.createServer(async (req, res) => {
           return sendJson(res, 403, { error: 'Access denied: Only Owner or Admin can delete products from the master catalog.' });
         }
         const id = pathname.replace('/api/owner/products/', '');
-        const prod = db.getById('products', id);
+        const prod = await db.getByIdAsync('products', id);
         const prodName = prod ? prod.name : id;
         const storefrontId = prod ? prod.storefrontId : id;
         await db.deleteAsync('products', id, owner.name);

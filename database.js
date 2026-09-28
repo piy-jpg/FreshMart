@@ -10077,6 +10077,19 @@ class Database {
     );
   }
 
+  async getByIdAsync(collection, id) {
+    if (!id) return null;
+    if (this.postgres && this.postgres.isAvailable()) {
+      try {
+        const pgItem = await this.postgres.getById(collection, id);
+        if (pgItem) return pgItem;
+      } catch (e) {
+        console.warn('PostgreSQL getById error:', e.message);
+      }
+    }
+    return this.getById(collection, id);
+  }
+
   insert(collection, item) {
     if (!this.data[collection]) this.data[collection] = [];
     if (!item.id) {
@@ -10161,9 +10174,9 @@ class Database {
   }
 
   async updateAsync(collection, id, updates, user = 'Owner') {
-    if (!this.data[collection] || !id) return null;
+    if (!this.data[collection]) this.data[collection] = [];
     const sId = String(id);
-    const idx = this.data[collection].findIndex(item => 
+    let idx = this.data[collection].findIndex(item => 
       item.id === id || 
       item.orderId === id || 
       item.sku === id ||
@@ -10173,15 +10186,32 @@ class Database {
       (typeof item.id === 'string' && item.id.startsWith('prod_') && item.id.slice(5) === id) ||
       (item.name && item.name.toLowerCase() === sId.toLowerCase())
     );
-    if (idx === -1) return null;
 
-    const oldItem = { ...this.data[collection][idx] };
-    this.data[collection][idx] = {
-      ...this.data[collection][idx],
+    let oldItem = idx !== -1 ? { ...this.data[collection][idx] } : null;
+    if (!oldItem && this.postgres && this.postgres.isAvailable()) {
+      try {
+        const pgItem = await this.postgres.getById(collection, id);
+        if (pgItem) {
+          oldItem = pgItem;
+          this.data[collection].push(pgItem);
+          idx = this.data[collection].length - 1;
+        }
+      } catch (e) {}
+    }
+
+    if (idx === -1 && !oldItem) return null;
+
+    const baseObj = oldItem || this.data[collection][idx] || { id };
+    const updated = {
+      ...baseObj,
       ...updates,
       updatedAt: new Date().toISOString()
     };
-    const updated = this.data[collection][idx];
+    if (idx !== -1) {
+      this.data[collection][idx] = updated;
+    } else {
+      this.data[collection].push(updated);
+    }
     this.save();
 
     // Track field-level change history
@@ -10189,12 +10219,12 @@ class Database {
       const trackedFields = ['price', 'sellingPrice', 'stock', 'stockCount', 'name', 'category', 'status', 'description', 'image', 'mrp', 'costPrice'];
       const changes = {};
       for (const field of trackedFields) {
-        if (updates[field] !== undefined && String(updates[field]) !== String(oldItem[field])) {
+        if (updates[field] !== undefined && String(updates[field]) !== String(baseObj[field])) {
           changes[field] = {
             field,
-            oldValue: oldItem[field],
+            oldValue: baseObj[field],
             newValue: updates[field],
-            old_value: oldItem[field],
+            old_value: baseObj[field],
             new_value: updates[field]
           };
         }
