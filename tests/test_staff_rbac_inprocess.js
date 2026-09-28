@@ -5,8 +5,8 @@
 
 const assert = require('assert');
 const { PassThrough, EventEmitter } = require('stream');
-const db = require('../database');
-const server = require('../server');
+const db = require('./database');
+const server = require('./server');
 
 function createMockReqRes(options = {}, body = null) {
   const req = new PassThrough();
@@ -97,6 +97,10 @@ function extractCookie(headers) {
 
 async function runDeliveryIntegrationTestSuite() {
   console.log('🚚 Starting Delivery Boy Login & Dashboard Integration Test Suite...\n');
+
+  if (db.postgres && db.postgres.isAvailable()) {
+    await db.initPostgres();
+  }
 
   let passed = 0;
   let failed = 0;

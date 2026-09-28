@@ -42,6 +42,35 @@ function loadLocalEnvFiles() {
     }
   }
 }
+function sanitizePostgresUrl(raw) {
+  if (!raw || typeof raw !== 'string') return raw;
+  let str = raw.trim();
+  if (!str.startsWith('postgres://') && !str.startsWith('postgresql://')) return str;
+  try {
+    const protoMatch = str.match(/^(postgres(?:ql)?:\/\/)(.*)$/);
+    if (protoMatch) {
+      const rest = protoMatch[2];
+      const lastAtIdx = rest.lastIndexOf('@');
+      if (lastAtIdx !== -1) {
+        const authPart = rest.substring(0, lastAtIdx);
+        const hostPart = rest.substring(lastAtIdx + 1);
+        const colonIdx = authPart.indexOf(':');
+        if (colonIdx !== -1) {
+          const user = authPart.substring(0, colonIdx);
+          let pass = authPart.substring(colonIdx + 1);
+          try {
+            pass = encodeURIComponent(decodeURIComponent(pass));
+          } catch (e) {
+            pass = encodeURIComponent(pass);
+          }
+          str = `${protoMatch[1]}${user}:${pass}@${hostPart}`;
+        }
+      }
+    }
+  } catch (e) {}
+  return str;
+}
+
 try { loadLocalEnvFiles(); } catch (e) {}
 
 class PostgresAdapter {
@@ -50,22 +79,23 @@ class PostgresAdapter {
     const candidateUrls = [
       connectionString,
       process.env.DATABASE_URL,
+      process.env.SUPABASE_DB_URL,
+      process.env.SUPABASE_POSTGRES_URL,
       process.env.POSTGRES_URL,
       process.env.POSTGRES_URL_NON_POOLING,
       process.env.POSTGRES_DATABASE_URL,
       process.env.POSTGRES_PRISMA_URL,
-      process.env.STORAGE_URL,
-      process.env.NEON_DATABASE_URL,
-      process.env.SUPABASE_DB_URL
+      process.env.STORAGE_URL
     ].filter(Boolean);
 
     // Pick the first non-placeholder PostgreSQL connection string
     let resolved = null;
     for (const url of candidateUrls) {
-      const str = String(url).trim();
+      const sanitized = sanitizePostgresUrl(url);
+      const str = String(sanitized).trim();
       const isPh = str.includes('@HOST') || str.includes('@<host>') || str.includes('HOST:') || str.includes('<host>') || str.includes('PLACEHOLDER') || str.includes('example.com');
       if (!isPh && (str.startsWith('postgres://') || str.startsWith('postgresql://'))) {
-        resolved = str;
+        resolved = sanitized;
         break;
       }
     }
@@ -95,6 +125,7 @@ class PostgresAdapter {
         const u = new URL(cleanUrl);
         u.searchParams.delete('pgbouncer');
         u.searchParams.delete('schema');
+        u.searchParams.delete('sslmode');
         cleanUrl = u.toString();
       } catch (e) {}
 
@@ -129,10 +160,7 @@ class PostgresAdapter {
       try {
         // Fast ping to verify connection without heavy DDL transaction locks
         await pool.query('SELECT 1');
-        await this.ensureOrdersSchema();
-        await this.ensureReviewsSchema();
-        await this.ensureProductsAndInventorySchema();
-        await this.ensureCategoriesSchema();
+        await this.ensureAllSchemas();
         this.isInitialized = true;
 
         return true;
@@ -511,6 +539,229 @@ class PostgresAdapter {
     } catch (err) {
       console.warn('ensureCategoriesSchema warning:', err.message);
     }
+  }
+
+  async ensureUsersSchema() {
+    try {
+      const pool = this.getPool();
+      if (!pool) return;
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS freshmart_users (
+          id VARCHAR(255) PRIMARY KEY,
+          email VARCHAR(255),
+          name VARCHAR(255),
+          phone VARCHAR(255),
+          role VARCHAR(50) DEFAULT 'CUSTOMER',
+          status VARCHAR(50) DEFAULT 'ACTIVE',
+          password_hash TEXT,
+          salt TEXT,
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          updated_at TIMESTAMPTZ DEFAULT NOW(),
+          data JSONB NOT NULL DEFAULT '{}'::jsonb
+        );
+      `);
+
+      const userCols = [
+        'email VARCHAR(255)',
+        'name VARCHAR(255)',
+        'phone VARCHAR(255)',
+        'role VARCHAR(50) DEFAULT \'CUSTOMER\'',
+        'status VARCHAR(50) DEFAULT \'ACTIVE\'',
+        'password_hash TEXT',
+        'salt TEXT',
+        'created_at TIMESTAMPTZ DEFAULT NOW()',
+        'updated_at TIMESTAMPTZ DEFAULT NOW()',
+        'data JSONB NOT NULL DEFAULT \'{}\'::jsonb'
+      ];
+      for (const col of userCols) {
+        try {
+          await pool.query(`ALTER TABLE freshmart_users ADD COLUMN IF NOT EXISTS ${col}`);
+        } catch (e) {}
+      }
+
+      try {
+        await pool.query(`CREATE INDEX IF NOT EXISTS idx_freshmart_users_email ON freshmart_users (LOWER(email));`);
+        await pool.query(`CREATE INDEX IF NOT EXISTS idx_freshmart_users_role ON freshmart_users (role);`);
+      } catch (e) {}
+    } catch (err) {
+      console.warn('ensureUsersSchema warning:', err.message);
+    }
+  }
+
+  async ensureDeliveryPartnersSchema() {
+    try {
+      const pool = this.getPool();
+      if (!pool) return;
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS freshmart_delivery_partners (
+          id VARCHAR(255) PRIMARY KEY,
+          user_id VARCHAR(255),
+          name VARCHAR(255) NOT NULL,
+          phone VARCHAR(50),
+          status VARCHAR(50) DEFAULT 'AVAILABLE',
+          current_order_id VARCHAR(255),
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          updated_at TIMESTAMPTZ DEFAULT NOW(),
+          data JSONB NOT NULL DEFAULT '{}'::jsonb
+        );
+      `);
+
+      const partnerCols = [
+        'user_id VARCHAR(255)',
+        'name VARCHAR(255)',
+        'phone VARCHAR(50)',
+        'status VARCHAR(50) DEFAULT \'AVAILABLE\'',
+        'current_order_id VARCHAR(255)',
+        'created_at TIMESTAMPTZ DEFAULT NOW()',
+        'updated_at TIMESTAMPTZ DEFAULT NOW()',
+        'data JSONB NOT NULL DEFAULT \'{}\'::jsonb'
+      ];
+      for (const col of partnerCols) {
+        try {
+          await pool.query(`ALTER TABLE freshmart_delivery_partners ADD COLUMN IF NOT EXISTS ${col}`);
+        } catch (e) {}
+      }
+    } catch (err) {
+      console.warn('ensureDeliveryPartnersSchema warning:', err.message);
+    }
+  }
+
+  async ensureFarmersSchema() {
+    try {
+      const pool = this.getPool();
+      if (!pool) return;
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS freshmart_farmers (
+          id VARCHAR(255) PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          location VARCHAR(255),
+          status VARCHAR(50) DEFAULT 'ACTIVE',
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          updated_at TIMESTAMPTZ DEFAULT NOW(),
+          data JSONB NOT NULL DEFAULT '{}'::jsonb
+        );
+      `);
+    } catch (err) {
+      console.warn('ensureFarmersSchema warning:', err.message);
+    }
+  }
+
+  async ensureHubsSchema() {
+    try {
+      const pool = this.getPool();
+      if (!pool) return;
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS freshmart_hubs (
+          id VARCHAR(255) PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          location VARCHAR(255),
+          status VARCHAR(50) DEFAULT 'ONLINE',
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          updated_at TIMESTAMPTZ DEFAULT NOW(),
+          data JSONB NOT NULL DEFAULT '{}'::jsonb
+        );
+      `);
+    } catch (err) {
+      console.warn('ensureHubsSchema warning:', err.message);
+    }
+  }
+
+  async ensureSettingsSchema() {
+    try {
+      const pool = this.getPool();
+      if (!pool) return;
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS freshmart_settings (
+          key VARCHAR(255) PRIMARY KEY,
+          value JSONB NOT NULL,
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          updated_at TIMESTAMPTZ DEFAULT NOW()
+        );
+      `);
+    } catch (err) {
+      console.warn('ensureSettingsSchema warning:', err.message);
+    }
+  }
+
+  async ensureAuditLogsSchema() {
+    try {
+      const pool = this.getPool();
+      if (!pool) return;
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS freshmart_audit_logs (
+          id VARCHAR(255) PRIMARY KEY,
+          timestamp TIMESTAMPTZ DEFAULT NOW(),
+          operator_email VARCHAR(255),
+          action VARCHAR(255),
+          entity VARCHAR(100),
+          entity_id VARCHAR(255),
+          details JSONB,
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          data JSONB NOT NULL DEFAULT '{}'::jsonb
+        );
+      `);
+
+      try {
+        await pool.query(`CREATE INDEX IF NOT EXISTS idx_freshmart_audit_logs_time ON freshmart_audit_logs (timestamp DESC);`);
+      } catch (e) {}
+    } catch (err) {
+      console.warn('ensureAuditLogsSchema warning:', err.message);
+    }
+  }
+
+  async ensureKVSchema() {
+    try {
+      const pool = this.getPool();
+      if (!pool) return;
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS freshmart_kv (
+          collection VARCHAR(100) NOT NULL,
+          id VARCHAR(255) NOT NULL,
+          data JSONB NOT NULL DEFAULT '{}'::jsonb,
+          updated_at TIMESTAMPTZ DEFAULT NOW(),
+          PRIMARY KEY (collection, id)
+        );
+      `);
+
+      try {
+        await pool.query(`CREATE INDEX IF NOT EXISTS idx_freshmart_kv_col ON freshmart_kv (collection);`);
+      } catch (e) {}
+    } catch (err) {
+      console.warn('ensureKVSchema warning:', err.message);
+    }
+  }
+
+  async ensureSequences() {
+    try {
+      const pool = this.getPool();
+      if (!pool) return;
+
+      await pool.query(`CREATE SEQUENCE IF NOT EXISTS freshmart_order_id_seq START WITH 1 INCREMENT BY 1;`);
+    } catch (err) {
+      console.warn('ensureSequences warning:', err.message);
+    }
+  }
+
+  async ensureAllSchemas() {
+    await this.ensureUsersSchema();
+    await this.ensureProductsAndInventorySchema();
+    await this.ensureCategoriesSchema();
+    await this.ensureOrdersSchema();
+    await this.ensureReviewsSchema();
+    await this.ensureDeliveryPartnersSchema();
+    await this.ensureFarmersSchema();
+    await this.ensureHubsSchema();
+    await this.ensureSettingsSchema();
+    await this.ensureAuditLogsSchema();
+    await this.ensureKVSchema();
+    await this.ensureSequences();
   }
 
 
@@ -941,7 +1192,7 @@ class PostgresAdapter {
         `, [
           item.id, item.timestamp || new Date().toISOString(), item.operatorEmail || item.operator_email || item.user || 'Owner',
           item.action || 'UPDATE', item.entity || 'General', item.entityId || item.entity_id || 'GLOBAL',
-          typeof item.details === 'string' ? item.details : JSON.stringify(item.details || ''), JSON.stringify(item)
+          JSON.stringify(item.details !== undefined ? item.details : ''), JSON.stringify(item)
         ]);
       } else if (collection === 'reviews') {
         const reviewId = item.reviewId || item.id || `rev_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
@@ -1797,7 +2048,7 @@ class PostgresAdapter {
       const stats = statsRes.rows[0] || {};
       return {
         success: true,
-        sourceOfTruth: 'Neon PostgreSQL (freshmart_products)',
+        sourceOfTruth: 'Supabase PostgreSQL (freshmart_products)',
         totalProductsInDb: Number(stats.total_rows || 0),
         uniqueProductIds: Number(stats.unique_ids || 0),
         uniqueSkus: Number(stats.unique_skus || 0),
@@ -2588,7 +2839,7 @@ class PostgresAdapter {
 
       return {
         success: true,
-        sourceOfTruth: 'Neon PostgreSQL (freshmart_products & freshmart_categories)',
+        sourceOfTruth: 'Supabase PostgreSQL (freshmart_products & freshmart_categories)',
         totalProductsInDb: products.length,
         sumCategoryAssignments,
         categorySumMatchesTotalProducts: sumCategoryAssignments === products.length && orphanProducts.length === 0 && duplicateCategoryIds.length === 0 && duplicateCategorySlugs.length === 0,

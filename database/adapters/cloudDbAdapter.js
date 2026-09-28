@@ -3,7 +3,7 @@
  * Provides seamless plug-and-play integration with production database services:
  * - Upstash / Vercel KV REST API (KV_REST_API_URL, KV_REST_API_TOKEN)
  * - Supabase / PostgREST (SUPABASE_URL, SUPABASE_KEY)
- * - Neon / PostgreSQL HTTP (NEON_DATABASE_URL, DATABASE_URL)
+ * - Supabase / PostgreSQL Pooler (DATABASE_URL, SUPABASE_DB_URL)
  * - Remote Cloud Storage Endpoint (DATABASE_STORAGE_URL)
  * - Fallback to transactional local persistence
  */

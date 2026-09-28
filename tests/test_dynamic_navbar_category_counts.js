@@ -1,5 +1,5 @@
 /**
- * Test Suite: Dynamic Navbar Category Counts from PostgreSQL (Neon Production Architecture)
+ * Test Suite: Dynamic Navbar Category Counts from PostgreSQL (Supabase Production Architecture)
  * 
  * Tests the complete lifecycle:
  * 1. Record current navbar counts from PostgreSQL-backed API.

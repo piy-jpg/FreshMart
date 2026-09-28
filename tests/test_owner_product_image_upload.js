@@ -5,8 +5,8 @@
  * 1. Image Library Endpoint: GET /api/images/library
  * 2. Image Upload Security & Validation: Mime types, size limits, base64 payload
  * 3. Camera / File Upload Persistence: Uploads to disk & serves statically
- * 4. Product Creation with Uploaded Image: Saved to Neon PostgreSQL
- * 5. Product Update with Library Image: Updated in Neon PostgreSQL
+ * 4. Product Creation with Uploaded Image: Saved to Supabase PostgreSQL
+ * 5. Product Update with Library Image: Updated in Supabase PostgreSQL
  * 6. Audit Logging: Recorded in freshmart_audit_logs
  * 7. Storefront Delivery: Customer API returns updated product image URLs
  */

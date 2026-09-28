@@ -879,7 +879,7 @@ function requireStaffOrOwner(req, res, allowedRoles = null) {
 
   if (isAuthorizedAdminOrOwner(user)) return user;
 
-  const normRole = normalizeRole(role);
+  const normRole = normalizeRole(user.role);
   if (normRole === 'CUSTOMER') {
     sendJson(res, 403, { success: false, error: 'Access denied: Staff or Owner privileges required.', message: 'Access denied: Staff privileges required.' });
     return null;
@@ -890,7 +890,7 @@ function requireStaffOrOwner(req, res, allowedRoles = null) {
     if (!allowedNorm.includes(normRole)) {
       sendJson(res, 403, {
         success: false,
-        error: `Access denied: Role "${role}" is not authorized for this operation.`,
+        error: `Access denied: Role "${user.role}" is not authorized for this operation.`,
         message: `Access denied: Insufficient role permissions.`
       });
       return null;
@@ -1105,6 +1105,9 @@ const server = http.createServer(async (req, res) => {
       let tables = [];
       if (isPgConfigured) {
         try {
+          if (!db.postgres.isInitialized) {
+            await db.postgres.init();
+          }
           const testRes = await db.postgres.query('SELECT NOW() AS now');
           pgHealthy = Boolean(testRes && testRes.rows && testRes.rows.length > 0);
           const tablesRes = await db.postgres.query("SELECT tablename FROM pg_tables WHERE schemaname = 'public'");
@@ -2968,13 +2971,13 @@ const server = http.createServer(async (req, res) => {
       const deliveryFee = subtotal >= freeThreshold ? 0 : standardFee;
       const totalAmount = Math.max(0, subtotal - discount + deliveryFee);
 
-      // Generate atomic customer-facing sequential Order ID from Neon PostgreSQL sequence (FM-OD-00001)
+      // Generate atomic customer-facing sequential Order ID from Supabase PostgreSQL sequence (FM-OD-00001)
       let orderId = null;
       if (db.postgres && db.postgres.isAvailable()) {
         try {
           orderId = await db.postgres.generateNextOrderId();
         } catch (seqErr) {
-          console.error('Error generating Order ID from Neon PostgreSQL sequence:', seqErr);
+          console.error('Error generating Order ID from Supabase PostgreSQL sequence:', seqErr);
           throw seqErr;
         }
       } else {
@@ -3084,7 +3087,7 @@ const server = http.createServer(async (req, res) => {
         reviews: null
       };
 
-      // Atomic inventory deduction & order persistence in Neon PostgreSQL
+      // Atomic inventory deduction & order persistence in Supabase PostgreSQL
       if (db.postgres && db.postgres.isAvailable()) {
         const atomicRes = await db.postgres.placeOrderWithInventoryAtomic(newOrder, items, hub, 'System Order Engine');
         if (!atomicRes.success) {
@@ -3375,7 +3378,7 @@ const server = http.createServer(async (req, res) => {
         updatedAt: new Date().toISOString()
       };
 
-      // 3. Save permanently in Neon PostgreSQL table freshmart_reviews
+      // 3. Save permanently in Supabase PostgreSQL table freshmart_reviews
       if (db.postgres && db.postgres.isAvailable()) {
         try {
           await db.postgres.insert('reviews', reviewRecord);
@@ -5758,7 +5761,7 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 200, { success: true, message: 'Customer account deactivated.' });
       }
 
-      // 6.1 Categories Management (Neon PostgreSQL as Single Source of Truth)
+      // 6.1 Categories Management (Supabase PostgreSQL as Single Source of Truth)
       if (pathname === '/api/owner/categories/diagnostics' && method === 'GET') {
         const pg = db.postgres || db.pgAdapter;
         if (pg && pg.isAvailable()) {

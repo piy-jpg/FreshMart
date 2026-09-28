@@ -457,7 +457,7 @@
         <!-- Live Core DB Status Badge -->
         <div class="hidden 2xl:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/60 border border-slate-700/60 text-emerald-400 text-[11px] font-semibold select-none">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>⚡ Neon PG Connected</span>
+          <span>⚡ PostgreSQL Connected</span>
         </div>
 
         <!-- Quick Action Buttons -->
@@ -936,7 +936,7 @@
             <div class="flex items-center gap-2">
               <span class="text-xl">🏷️</span>
               <h2 class="font-heading font-black text-xl text-white">Farm Product Categories</h2>
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">Neon PostgreSQL</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">PostgreSQL</span>
             </div>
             <p class="text-xs text-slate-400 mt-1">
               Single source of truth for categories. Product counts are dynamically computed from active PostgreSQL inventory.
@@ -1005,7 +1005,7 @@
 
         <!-- Categories Cards Grid -->
         <div id="categories-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          <div class="col-span-full py-12 text-center text-slate-500 font-medium">Loading categories from Neon PostgreSQL...</div>
+          <div class="col-span-full py-12 text-center text-slate-500 font-medium">Loading categories from database...</div>
         </div>
       </section>
 
@@ -1142,7 +1142,7 @@
           <div>
             <h2 class="font-heading font-black text-xl text-white">Customer Reviews & Ratings</h2>
             <p class="text-xs text-slate-400 mt-1">
-              Verified customer feedback and star ratings directly recorded in Neon PostgreSQL (<code class="font-mono text-amber-400">freshmart_reviews</code>).
+              Verified customer feedback and star ratings directly recorded in PostgreSQL database (<code class="font-mono text-amber-400">freshmart_reviews</code>).
             </p>
           </div>
           <button 
@@ -1216,7 +1216,7 @@
             <h3 class="font-bold text-sm text-white flex items-center gap-2">
               <span>⭐</span> <span>Verified Order Reviews Ledger</span>
             </h3>
-            <span class="text-[11px] text-slate-400">Source: Neon PostgreSQL</span>
+            <span class="text-[11px] text-slate-400">Source: PostgreSQL Database</span>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs text-slate-300">
@@ -2486,7 +2486,7 @@
           </div>
           <div>
             <h3 class="font-heading font-black text-base text-white">Create New Category</h3>
-            <p class="text-[11px] text-slate-400">Add to Neon PostgreSQL and live customer navigation</p>
+            <p class="text-[11px] text-slate-400">Add to PostgreSQL database and live customer navigation</p>
           </div>
         </div>
         <button type="button" onclick="closeAddCategoryModal()" class="text-slate-400 hover:text-white text-lg font-bold p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer">&times;</button>
@@ -3359,7 +3359,7 @@
 
         <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-[11px] text-slate-400 flex items-start gap-2">
           <span class="text-amber-400 text-sm mt-0.5">ℹ️</span>
-          <span>Switching to <strong>OFFLINE</strong> will NOT delete any products, inventory, or order history. Data remains safely preserved in Neon PostgreSQL.</span>
+          <span>Switching to <strong>OFFLINE</strong> will NOT delete any products, inventory, or order history. Data remains safely preserved in PostgreSQL database.</span>
         </div>
       </div>
 
@@ -6335,7 +6335,7 @@
     }
 
     // ==========================================
-    // CATEGORIES MANAGEMENT (Neon PostgreSQL Single Source of Truth)
+    // CATEGORIES MANAGEMENT (PostgreSQL Single Source of Truth)
     // ==========================================
     let categorySearchQuery = '';
     let categoryStatusFilter = 'ALL';
@@ -6635,7 +6635,9 @@
         return;
       }
 
-      if (!confirm(`Are you sure you want to delete category "${catName}" permanently from Neon PostgreSQL?`)) {
+      if (!confirm(`Are you sure you want to delete category "${catName}" permanently from the database?`)) {
+        return;
+      }
         return;
       }
 
@@ -8277,7 +8279,7 @@
         const submitBtn = document.getElementById('btn-submit-stock-adjust');
         if (submitBtn) {
           submitBtn.disabled = true;
-          submitBtn.innerHTML = 'Updating Neon Database...';
+          submitBtn.innerHTML = 'Updating Database...';
         }
 
         const payload = {

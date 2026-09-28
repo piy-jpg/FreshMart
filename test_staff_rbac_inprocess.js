@@ -98,6 +98,10 @@ function extractCookie(headers) {
 async function runDeliveryIntegrationTestSuite() {
   console.log('🚚 Starting Delivery Boy Login & Dashboard Integration Test Suite...\n');
 
+  if (db.postgres && db.postgres.isAvailable()) {
+    await db.initPostgres();
+  }
+
   let passed = 0;
   let failed = 0;
 
