@@ -2067,28 +2067,6 @@ let allGroceryData = [
     selectedWeightIndex: 1
   },
   {
-    id: 'desi_cow_ghee',
-    name: 'Bilona A2 Desi Gir Cow Cultured Ghee',
-    hindiName: 'बिलोना ए२ देसी गाय का घी',
-    categories: ['all', 'oils', 'organic'],
-    rating: 4.9,
-    reviewsCount: 390,
-    badge: 'Vedic Bilona',
-    badgeType: 'bestseller',
-    inStock: true,
-    stockCount: 45,
-    isNew: false,
-    image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=900&q=85',
-    description: 'Hand-churned from curd of free-grazing indigenous Gir cows over firewood. Golden granular texture with rich nutty aroma and butyric acid.',
-    origin: 'Malnad Pastures, Karnataka',
-    weights: [
-      { label: '250 ml', price: 349, originalPrice: 425, discount: '18% OFF', savings: 76 },
-      { label: '500 ml', price: 675, originalPrice: 840, discount: '20% OFF', savings: 165 },
-      { label: '1 L Glass Jar', price: 1299, originalPrice: 1650, discount: '21% OFF', savings: 351 }
-    ],
-    selectedWeightIndex: 1
-  },
-  {
     id: 'basmati_rice',
     name: 'Royal Aged Himalayan Basmati Rice',
     hindiName: 'शाही पुराना बासमती चावल',

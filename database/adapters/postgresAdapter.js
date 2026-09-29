@@ -462,8 +462,6 @@ class PostgresAdapter {
               OR (c.slug = 'fruits' AND (LOWER(p.category) LIKE '%fruit%' OR LOWER(p.subcategory) LIKE '%fruit%'))
               OR (c.slug = 'grocery' AND (LOWER(p.category) LIKE '%groc%' OR LOWER(p.category) LIKE '%pant%' OR LOWER(p.category) LIKE '%staple%'))
               OR (c.slug = 'leafy-herbs' AND (LOWER(p.category) LIKE '%herb%' OR LOWER(p.category) LIKE '%leaf%'))
-              OR (c.slug = 'dairy' AND (LOWER(p.category) LIKE '%dairy%' OR LOWER(p.name) LIKE '%ghee%'))
-              OR (c.slug = 'sweeteners' AND (LOWER(p.category) LIKE '%sweet%' OR LOWER(p.name) LIKE '%honey%'))
             );
         `);
       } catch (e) {}
@@ -516,8 +514,7 @@ class PostgresAdapter {
           { id: 'cat_vegetables', name: 'Fresh Vegetables', slug: 'vegetables', icon: '🥬', image: 'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=600&q=80', description: 'Crisp leafy greens, roots, organic vegetables & daily staples', display_order: 1, status: 'ACTIVE' },
           { id: 'cat_fruits', name: 'Farm-Fresh Fruits', slug: 'fruits', icon: '🍎', image: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=80', description: 'Naturally ripened seasonal fruits, citrus, berries & melons', display_order: 2, status: 'ACTIVE' },
           { id: 'cat_grocery', name: 'Daily Groceries & Staples', slug: 'grocery', icon: '🌾', image: 'https://images.unsplash.com/photo-1588964895597-cfccd6e2dbf9?auto=format&fit=crop&w=600&q=80', description: 'Stone-ground atta, cold-pressed oils, unpolished pulses & kitchen essentials', display_order: 3, status: 'ACTIVE' },
-          { id: 'cat_herbs', name: 'Leafy Greens & Herbs', slug: 'leafy-herbs', icon: '🌿', image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80', description: 'Freshly harvested cilantro, mint, spinach, curry leaves & microgreens', display_order: 4, status: 'ACTIVE' },
-          { id: 'cat_dairy', name: 'Pure Dairy & Ghee', slug: 'dairy', icon: '🥛', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80', description: 'Bilona cultured A2 ghee, paneer, and fresh dairy products', display_order: 5, status: 'ACTIVE' }
+          { id: 'cat_herbs', name: 'Leafy Greens & Herbs', slug: 'leafy-herbs', icon: '🌿', image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80', description: 'Freshly harvested cilantro, mint, spinach, curry leaves & microgreens', display_order: 4, status: 'ACTIVE' }
         ];
 
         for (const c of baseline) {
@@ -2678,8 +2675,6 @@ class PostgresAdapter {
           OR (c.slug = 'fruits' AND (LOWER(p.category) LIKE '%fruit%' OR LOWER(p.subcategory) LIKE '%fruit%'))
           OR (c.slug = 'grocery' AND (LOWER(p.category) LIKE '%groc%' OR LOWER(p.category) LIKE '%pant%' OR LOWER(p.category) LIKE '%staple%' OR LOWER(p.category) LIKE '%oil%' OR LOWER(p.category) LIKE '%dal%' OR LOWER(p.category) LIKE '%atta%' OR LOWER(p.category) LIKE '%rice%' OR LOWER(p.category) LIKE '%flour%' OR LOWER(p.category) LIKE '%spice%'))
           OR (c.slug = 'leafy-herbs' AND (LOWER(p.category) LIKE '%herb%' OR LOWER(p.category) LIKE '%leaf%'))
-          OR (c.slug = 'dairy' AND (LOWER(p.category) LIKE '%dairy%' OR LOWER(p.name) LIKE '%ghee%'))
-          OR (c.slug = 'sweeteners' AND (LOWER(p.category) LIKE '%sweet%' OR LOWER(p.name) LIKE '%honey%'))
         )
         ${activeFilter}
         GROUP BY c.id, c.name, c.slug, c.icon, c.image, c.description, c.display_order, c.status, c.created_at, c.updated_at, c.data

@@ -5202,7 +5202,7 @@
               const pCat = (p.category || '').toLowerCase();
               const pId = (p.categoryId || p.category_id || '').toLowerCase();
               const pSlug = (p.categorySlug || p.category_slug || '').toLowerCase();
-              return pCat.includes('groc') || pCat.includes('pant') || pCat.includes('staple') || pCat.includes('oil') || pCat.includes('dal') || pCat.includes('atta') || pCat.includes('rice') || pCat.includes('flour') || pCat.includes('spice') || pId === 'cat_grocery' || pId === 'cat_dairy' || pId === 'cat_honey' || pSlug === 'grocery';
+              return pCat.includes('groc') || pCat.includes('pant') || pCat.includes('staple') || pCat.includes('oil') || pCat.includes('dal') || pCat.includes('atta') || pCat.includes('rice') || pCat.includes('flour') || pCat.includes('spice') || pId === 'cat_grocery' || pSlug === 'grocery';
             });
           } else {
             const targetCat = (state.categories || []).find(c => (c.slug || '').toLowerCase() === catFilter || (c.id || '').toLowerCase() === catFilter || (c.name || '').toLowerCase() === catFilter);
@@ -5245,7 +5245,7 @@
       const total = prods.length;
       const vegCount = prods.filter(p => (p.category || '').toLowerCase().includes('veg')).length;
       const fruitCount = prods.filter(p => (p.category || '').toLowerCase().includes('fruit')).length;
-      const grocCount = prods.filter(p => (p.category || '').toLowerCase().includes('groc') || (p.category || '').toLowerCase().includes('pant') || (p.category_id || '').toLowerCase() === 'cat_grocery' || (p.category_id || '').toLowerCase() === 'cat_dairy' || (p.category_id || '').toLowerCase() === 'cat_honey').length;
+      const grocCount = prods.filter(p => (p.category || '').toLowerCase().includes('groc') || (p.category || '').toLowerCase().includes('pant') || (p.category_id || '').toLowerCase() === 'cat_grocery').length;
       const activeCount = prods.filter(p => p.status === 'ACTIVE').length;
       const suspendedCount = prods.filter(p => p.status === 'SUSPENDED').length;
       const lowCount = prods.filter(p => p.status === 'LOW_STOCK' || ((p.stock || 0) > 0 && (p.stock || 0) <= (p.lowStockLimit || 15))).length;
