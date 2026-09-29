@@ -3034,14 +3034,11 @@ async function syncStorefrontCatalogWithBackend() {
     const products = await res.json();
 
     if (Array.isArray(products)) {
-      const newHash = JSON.stringify(products.map(p => ({ id: p.id, price: p.price, stock: p.stock, name: p.name, status: p.status, category: p.category })));
-      if (newHash !== _lastSyncedCatalogHash) {
-        _lastSyncedCatalogHash = newHash;
-        try {
-          sessionStorage.setItem('freshmart_synced_catalog', JSON.stringify(products));
-        } catch (e) {}
-        applyProductArrayToStorefront(products, true);
-      }
+      try {
+        sessionStorage.setItem('freshmart_synced_catalog', JSON.stringify(products));
+      } catch (e) {}
+      applyProductArrayToStorefront(products, true);
+      if (typeof updateStorefrontSubnavs === 'function') updateStorefrontSubnavs();
     }
   } catch (e) {
     console.warn('Storefront catalog sync notice:', e);
