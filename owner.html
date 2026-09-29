@@ -5145,7 +5145,7 @@
             backendProducts = await pubRes.json();
           }
         }
-        if (Array.isArray(backendProducts) && backendProducts.length > 0) {
+        if (Array.isArray(backendProducts)) {
           state.products = backendProducts;
           applyProductsFilter();
         }

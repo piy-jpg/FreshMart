@@ -3091,6 +3091,7 @@ async function syncStorefrontCategoriesWithBackend() {
       sessionStorage.setItem('freshmart_category_counts', JSON.stringify(window.__categoryCountsMap));
     } catch(e) {}
 
+    const activeCats = categories.filter(c => (c.status || 'ACTIVE').toUpperCase() === 'ACTIVE');
     const vegCat = activeCats.find(c => (c.slug || '').toLowerCase() === 'vegetables' || (c.name || '').toLowerCase().includes('veg'));
     const fruitCat = activeCats.find(c => (c.slug || '').toLowerCase() === 'fruits' || (c.name || '').toLowerCase().includes('fruit'));
     const grocCat = activeCats.find(c => (c.slug || '').toLowerCase() === 'grocery' || (c.name || '').toLowerCase().includes('groc') || (c.name || '').toLowerCase().includes('pant'));
