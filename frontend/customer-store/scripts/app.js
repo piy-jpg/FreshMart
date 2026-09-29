@@ -5448,7 +5448,6 @@ function renderHomeProductGrid() {
 // -------------------------------------------------------------
 function initVegetablesPage() {
   updateStorefrontSubnavs();
-  renderCombosSection();
   applyFiltersAndRender();
 }
 
