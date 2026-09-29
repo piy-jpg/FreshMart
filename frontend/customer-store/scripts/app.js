@@ -2131,27 +2131,6 @@ let allGroceryData = [
     selectedWeightIndex: 1
   },
   {
-    id: 'raw_honey',
-    name: '100% Pure Raw Wild Forest Honey',
-    hindiName: 'जंगली प्राकृतिक शहद',
-    categories: ['all', 'sweeteners', 'organic'],
-    rating: 4.9,
-    reviewsCount: 295,
-    badge: 'Unprocessed',
-    badgeType: 'bestseller',
-    inStock: true,
-    stockCount: 40,
-    isNew: false,
-    image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=900&q=85',
-    description: 'Ethically collected from wild multi-floral apiaries in Western Ghats. Unpasteurized, unfiltered, rich in bee pollen and digestive enzymes.',
-    origin: 'Coorg Forests, Karnataka',
-    weights: [
-      { label: '250 g', price: 175, originalPrice: 220, discount: '20% OFF', savings: 45 },
-      { label: '500 g Glass Jar', price: 330, originalPrice: 425, discount: '22% OFF', savings: 95 }
-    ],
-    selectedWeightIndex: 1
-  },
-  {
     id: 'haldi_powder',
     name: 'Salem High-Curcumin Golden Turmeric',
     hindiName: 'सेलम शुद्ध हल्दी पाउडर',
@@ -2212,27 +2191,6 @@ let allGroceryData = [
       { label: '100 g', price: 50, originalPrice: 65, discount: '23% OFF', savings: 15 },
       { label: '250 g', price: 120, originalPrice: 160, discount: '25% OFF', savings: 40 },
       { label: '500 g', price: 230, originalPrice: 310, discount: '26% OFF', savings: 80 }
-    ],
-    selectedWeightIndex: 1
-  },
-  {
-    id: 'organic_jaggery',
-    name: 'Chemical-Free Kolhapuri Natural Jaggery',
-    hindiName: 'कोल्हापुरी शुद्ध गुड़',
-    categories: ['all', 'sweeteners', 'organic'],
-    rating: 4.8,
-    reviewsCount: 224,
-    badge: 'No Soda / Sulphur',
-    badgeType: 'fresh',
-    inStock: true,
-    stockCount: 70,
-    isNew: false,
-    image: 'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?auto=format&fit=crop&w=900&q=85',
-    description: 'Traditional dark unrefined sugarcane jaggery boiled in iron vats. No chemical bleaching, naturally rich in iron and vital minerals.',
-    origin: 'Kolhapur, Maharashtra',
-    weights: [
-      { label: '500 g', price: 45, originalPrice: 60, discount: '25% OFF', savings: 15 },
-      { label: '1 kg Block', price: 85, originalPrice: 115, discount: '26% OFF', savings: 30 }
     ],
     selectedWeightIndex: 1
   },

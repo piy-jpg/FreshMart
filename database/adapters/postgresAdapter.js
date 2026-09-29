@@ -517,8 +517,7 @@ class PostgresAdapter {
           { id: 'cat_fruits', name: 'Farm-Fresh Fruits', slug: 'fruits', icon: '🍎', image: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=80', description: 'Naturally ripened seasonal fruits, citrus, berries & melons', display_order: 2, status: 'ACTIVE' },
           { id: 'cat_grocery', name: 'Daily Groceries & Staples', slug: 'grocery', icon: '🌾', image: 'https://images.unsplash.com/photo-1588964895597-cfccd6e2dbf9?auto=format&fit=crop&w=600&q=80', description: 'Stone-ground atta, cold-pressed oils, unpolished pulses & kitchen essentials', display_order: 3, status: 'ACTIVE' },
           { id: 'cat_herbs', name: 'Leafy Greens & Herbs', slug: 'leafy-herbs', icon: '🌿', image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80', description: 'Freshly harvested cilantro, mint, spinach, curry leaves & microgreens', display_order: 4, status: 'ACTIVE' },
-          { id: 'cat_dairy', name: 'Pure Dairy & Ghee', slug: 'dairy', icon: '🥛', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80', description: 'Bilona cultured A2 ghee, paneer, and fresh dairy products', display_order: 5, status: 'ACTIVE' },
-          { id: 'cat_honey', name: 'Natural Sweeteners & Honey', slug: 'sweeteners', icon: '🍯', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=600&q=80', description: 'Raw forest honey, organic jaggery powder, and natural syrups', display_order: 6, status: 'ACTIVE' }
+          { id: 'cat_dairy', name: 'Pure Dairy & Ghee', slug: 'dairy', icon: '🥛', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80', description: 'Bilona cultured A2 ghee, paneer, and fresh dairy products', display_order: 5, status: 'ACTIVE' }
         ];
 
         for (const c of baseline) {
