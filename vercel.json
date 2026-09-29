@@ -57,55 +57,68 @@
     },
     {
       "src": "/owner",
-      "dest": "/owner.html"
+      "dest": "/owner.html",
+      "headers": { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" }
     },
     {
       "src": "/staff",
-      "dest": "/owner.html"
+      "dest": "/owner.html",
+      "headers": { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" }
     },
     {
       "src": "/admin",
-      "dest": "/admin.html"
+      "dest": "/admin.html",
+      "headers": { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" }
     },
     {
       "src": "/checkout",
-      "dest": "/checkout.html"
+      "dest": "/checkout.html",
+      "headers": { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" }
     },
     {
       "src": "/delivery",
-      "dest": "/delivery.html"
+      "dest": "/delivery.html",
+      "headers": { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" }
     },
     {
       "src": "/hub",
-      "dest": "/hub.html"
+      "dest": "/hub.html",
+      "headers": { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" }
     },
     {
       "src": "/offers",
-      "dest": "/offers.html"
+      "dest": "/offers.html",
+      "headers": { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" }
     },
     {
       "src": "/grocery",
-      "dest": "/grocery.html"
+      "dest": "/grocery.html",
+      "headers": { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" }
     },
     {
       "src": "/fruits",
-      "dest": "/fruits.html"
+      "dest": "/fruits.html",
+      "headers": { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" }
     },
     {
       "src": "/vegetables",
-      "dest": "/vegetables.html"
+      "dest": "/vegetables.html",
+      "headers": { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" }
     },
     {
       "src": "/category/(.*)",
-      "dest": "/category.html"
+      "dest": "/category.html",
+      "headers": { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" }
     },
     {
       "src": "/category",
-      "dest": "/category.html"
+      "dest": "/category.html",
+      "headers": { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" }
     },
     {
       "src": "/(.*)",
-      "dest": "/$1"
+      "dest": "/$1",
+      "headers": { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" }
     }
   ]
 }
