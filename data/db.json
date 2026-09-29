@@ -4101,10 +4101,10 @@
       "hubId": "hub_blr_indiranagar",
       "image": "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=700&q=80",
       "price": 25,
-      "stock": 0,
+      "stock": 120,
       "farmer": "Doddaballapur Hydroponics",
       "rating": 4.9,
-      "status": "OUT_OF_STOCK",
+      "status": "ACTIVE",
       "barcode": "890123400008",
       "gallery": [
         {
@@ -4167,7 +4167,7 @@
         "leafy",
         "organic"
       ],
-      "stockCount": 12,
+      "stockCount": 120,
       "description": "Tender baby spinach leaves with rich iron and minerals, pesticide-free and root-trimmed.",
       "harvestDate": "2026-09-12",
       "subcategory": "Leafy Greens",
@@ -5054,10 +5054,10 @@
       "hubId": "hub_blr_indiranagar",
       "image": "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=700&q=80",
       "price": 20,
-      "stock": 0,
+      "stock": 120,
       "farmer": "Anekal Organic Farm",
       "rating": 4.9,
-      "status": "OUT_OF_STOCK",
+      "status": "ACTIVE",
       "barcode": "890123400014",
       "gallery": [
         {
@@ -5121,7 +5121,7 @@
         "herbs",
         "organic"
       ],
-      "stockCount": 0,
+      "stockCount": 120,
       "description": "Intensely fragrant fresh green coriander leaves, harvested at dawn with trimmed clean roots.",
       "harvestDate": "2026-09-12",
       "subcategory": "Leafy Greens",
